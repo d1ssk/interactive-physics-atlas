@@ -1,0 +1,37 @@
+[project]
+name = "interactive-physics-atlas"
+version = "0.1.0"
+description = "An interactive visual atlas of physical and mathematical concepts."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "numpy",
+    "plotly",
+    "pyyaml",
+    "scipy",
+    "zensical",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "ruff",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/physics_atlas"]
+
+[tool.pytest.ini_options]
+addopts = "--ignore=visualizations/_template"
+pythonpath = ["src", "scripts"]
+testpaths = ["tests", "visualizations"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
