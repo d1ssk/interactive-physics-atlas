@@ -27,7 +27,7 @@ def test_topic_cards_count_visualizations_from_metadata(tmp_path: Path) -> None:
 
     assert counts["mathematics-for-physics"] == 1
     assert 'href="mathematics-for-physics/"' in cards
-    assert "--topic-image: url('assets/images/mathematics-for-physics.png')" in cards
+    assert "background-image: url('assets/images/mathematics-for-physics.png')" in cards
     assert "1 visualization" in cards
     assert "0 visualizations" in cards
     assert cards.count('class="topic-card"') == 14

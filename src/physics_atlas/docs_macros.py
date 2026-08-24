@@ -27,7 +27,7 @@ def render_topic_cards(project_root: Path) -> str:
         count = counts[field.slug]
         noun = "visualization" if count == 1 else "visualizations"
         image_style = (
-            f" style=\"--topic-image: url('{escape(field.image, quote=True)}')\""
+            f" style=\"background-image: url('{escape(field.image, quote=True)}')\""
             if field.image
             else ""
         )

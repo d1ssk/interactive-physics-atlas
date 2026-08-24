@@ -59,8 +59,8 @@
 .topic-card__media {
   display: block;
   aspect-ratio: 16 / 9;
-  background-color: var(--atlas-pale-blue);
-  background-image: var(--topic-image, url("../assets/images/topic-default.svg"));
+  background-color: #f5f9fc;
+  background-image: url("../assets/images/topic-default.svg");
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
