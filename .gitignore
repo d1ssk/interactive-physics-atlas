@@ -164,8 +164,8 @@ venv.bak/
 # Rope project settings
 .ropeproject
 
-# mkdocs documentation
-/site
+# Project build output
+/site/
 
 # mypy
 .mypy_cache/
@@ -216,3 +216,14 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Generated visualization applications
+docs/**/app/
+
+# Local exploratory work
+workbench/*
+!workbench/README.md
+
+# Common local files
+.DS_Store
+.idea/

@@ -1,0 +1,17 @@
+[project]
+site_name = "Interactive Physics Atlas"
+site_url = "https://d1ssk.github.io/interactive-physics-atlas/"
+site_description = "An interactive visual atlas of physical and mathematical concepts."
+docs_dir = "docs"
+site_dir = "site"
+nav = [
+    { "Home" = "index.md" },
+    { "Quantum Mechanics" = "quantum-mechanics/index.md" },
+    { "Electromagnetism" = "electromagnetism/index.md" },
+    { "Statistical Mechanics" = "statistical-mechanics/index.md" },
+    { "Condensed Matter" = "condensed-matter/index.md" },
+    { "Quantum Field Theory" = "quantum-field-theory/index.md" },
+    { "Relativity" = "relativity/index.md" },
+    { "String Theory" = "string-theory/index.md" },
+    { "Mathematical Physics" = "mathematical-physics/index.md" },
+]
