@@ -60,9 +60,10 @@
   display: block;
   aspect-ratio: 16 / 9;
   background-color: var(--atlas-pale-blue);
-  background-image: var(--topic-image, none);
+  background-image: var(--topic-image, url("../assets/images/topic-default.svg"));
   background-position: center;
-  background-size: cover;
+  background-repeat: no-repeat;
+  background-size: contain;
   border-bottom: 1px solid var(--atlas-line);
 }
 

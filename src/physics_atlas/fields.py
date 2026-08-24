@@ -85,6 +85,7 @@ FIELDS = (
         "mathematics-for-physics",
         "Mathematics for Physics",
         "Mathematical structures and methods used throughout physics.",
+        "assets/images/mathematics-for-physics.png",
     ),
 )
 
