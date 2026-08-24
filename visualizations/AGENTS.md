@@ -50,3 +50,9 @@ Prefer Plotly for standard interactive 2D/3D visualizations.
 
 Avoid using browser-side Python unless runtime numerical computation is
 genuinely required.
+
+Unless a visualization has a documented interaction-specific reason to do
+otherwise, Cartesian 2D plots must start with `dragmode="pan"`, and 3D scenes
+must start with `dragmode="orbit"`. Keep zoom available through the wheel,
+trackpad, or mode bar. Selection, lasso, drawing, or box zoom may be the initial
+drag mode only when that gesture is part of the intended scientific interaction.

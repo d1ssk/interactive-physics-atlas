@@ -1,6 +1,6 @@
 id: lie-roots-weights-products
 title: Lie Roots, Weights, and Tensor Products
-field: mathematical-physics
+field: mathematics-for-physics
 topics:
   - Lie algebras
   - root systems
@@ -10,5 +10,5 @@ level:
   - advanced undergraduate
   - graduate
 runtime: plotly-static
-page: mathematical-physics/lie-roots-weights-products
+page: mathematics-for-physics/lie-roots-weights-products
 summary: Explore rank-2 and rank-3 roots, weight multiplicities, and irreducible tensor-product decompositions.

@@ -1,0 +1,106 @@
+:root {
+  --atlas-pale-blue: #e6f2fa;
+  --atlas-blue: #3b6f91;
+  --atlas-ink: #263746;
+  --atlas-muted: #647584;
+  --atlas-line: #d6e0e7;
+}
+
+.md-header {
+  background-color: var(--atlas-pale-blue);
+  color: var(--atlas-ink);
+}
+
+.md-header__inner {
+  min-height: 3.6rem;
+}
+
+.md-header__button,
+.md-header__title {
+  color: inherit;
+}
+
+.md-header__title {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.topic-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.md-typeset .topic-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  overflow: hidden;
+  color: var(--atlas-ink);
+  border: 1px solid var(--atlas-line);
+  border-radius: 0.45rem;
+  background: var(--md-default-bg-color);
+  box-shadow: 0 0.15rem 0.5rem rgb(38 55 70 / 6%);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.md-typeset .topic-card:hover,
+.md-typeset .topic-card:focus-visible {
+  color: var(--atlas-ink);
+  border-color: #afc9d9;
+  box-shadow: 0 0.35rem 1rem rgb(38 55 70 / 14%);
+  transform: translateY(-2px);
+}
+
+.topic-card__media {
+  display: block;
+  aspect-ratio: 16 / 9;
+  background-color: var(--atlas-pale-blue);
+  background-image: var(--topic-image, none);
+  background-position: center;
+  background-size: cover;
+  border-bottom: 1px solid var(--atlas-line);
+}
+
+.topic-card__body {
+  display: flex;
+  min-height: 8.4rem;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.9rem 1rem;
+}
+
+.topic-card__title {
+  color: var(--atlas-ink);
+  font-size: 1rem;
+  line-height: 1.3;
+}
+
+.topic-card__summary {
+  color: var(--atlas-muted);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.topic-card__count {
+  margin-top: auto;
+  color: var(--atlas-blue);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+@media screen and (max-width: 44.984375em) {
+  .md-header__inner {
+    min-height: 3.2rem;
+  }
+
+  .md-header__title {
+    font-size: 1.02rem;
+  }
+}

@@ -1,3 +1,4 @@
-# Statistical Mechanics
-
-Interactive explorations of ensembles, fluctuations, transport, and emergent behavior.
+---
+template: redirect.html
+location: ../statistical-physics/
+---

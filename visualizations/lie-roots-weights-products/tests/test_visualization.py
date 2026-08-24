@@ -10,6 +10,8 @@ def test_rank2_and_rank3_root_figures(visualization):
     assert isinstance(rank2, go.Figure)
     assert isinstance(rank3, go.Figure)
     assert rank2.layout.title.xanchor == "left"
+    assert rank2.layout.dragmode == "pan"
+    assert rank3.layout.scene.dragmode == "orbit"
     assert len(rank3.data) == len(visualization.plot_root_system("B3").data) + 3
 
 
@@ -39,5 +41,6 @@ def test_static_build_contract(tmp_path, monkeypatch, visualization):
     assert "__APPLICATION_DATA__" not in html
     assert "window.Plotly = {};" in html
     assert '"systems":{}' in html
+    assert "2. Representation weights" in html
     assert "pyodide" not in html.lower()
     assert "ipywidgets" not in html.lower()

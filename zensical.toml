@@ -2,16 +2,30 @@
 site_name = "Interactive Physics Atlas"
 site_url = "https://d1ssk.github.io/interactive-physics-atlas/"
 site_description = "An interactive visual atlas of physical and mathematical concepts."
+copyright = "Copyright &copy; 2026 Daichi Sasaki"
 docs_dir = "docs"
 site_dir = "site"
+extra_css = ["stylesheets/extra.css"]
 nav = [
     { "Home" = "index.md" },
-    { "Quantum Mechanics" = "quantum-mechanics/index.md" },
+    { "Classical Mechanics" = "classical-mechanics/index.md" },
     { "Electromagnetism" = "electromagnetism/index.md" },
-    { "Statistical Mechanics" = "statistical-mechanics/index.md" },
-    { "Condensed Matter" = "condensed-matter/index.md" },
-    { "Quantum Field Theory" = "quantum-field-theory/index.md" },
+    { "Quantum Mechanics" = "quantum-mechanics/index.md" },
+    { "Thermodynamics" = "thermodynamics/index.md" },
+    { "Statistical Physics" = "statistical-physics/index.md" },
+    { "Condensed Matter Physics" = "condensed-matter-physics/index.md" },
+    { "Fluid Mechanics" = "fluid-mechanics/index.md" },
     { "Relativity" = "relativity/index.md" },
+    { "Cosmology" = "cosmology/index.md" },
+    { "Quantum Field Theory" = "quantum-field-theory/index.md" },
+    { "Particle Physics" = "particle-physics/index.md" },
+    { "Supersymmetry" = "supersymmetry/index.md" },
     { "String Theory" = "string-theory/index.md" },
-    { "Mathematical Physics" = "mathematical-physics/index.md" },
+    { "Mathematics for Physics" = "mathematics-for-physics/index.md" },
 ]
+
+[project.theme]
+favicon = "assets/images/favicon.svg"
+
+[project.plugins.macros.config]
+module_name = "physics_atlas.docs_macros"

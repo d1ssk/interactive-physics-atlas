@@ -83,6 +83,7 @@ def _apply_layout(figure: go.Figure, rank: int, title: str) -> go.Figure:
     if rank == 2:
         figure.update_layout(
             **common,
+            dragmode="pan",
             xaxis={**_axis_style("v1"), "scaleanchor": "y", "scaleratio": 1},
             yaxis=_axis_style("v2"),
         )
@@ -95,6 +96,7 @@ def _apply_layout(figure: go.Figure, rank: int, title: str) -> go.Figure:
                 "zaxis": _axis_style("v3", three_dimensional=True),
                 "aspectmode": "data",
                 "camera": {"eye": {"x": 1.55, "y": 1.45, "z": 1.15}},
+                "dragmode": "orbit",
             },
         )
     return figure
@@ -698,7 +700,7 @@ _APPLICATION_HTML = r"""<!doctype html>
     characters were computed and checked at build time; the page needs no Python server.</p>
   <nav class="tabs" aria-label="Explorer sections">
     <button class="tab" data-panel="roots-panel" aria-selected="true">1. Root systems</button>
-    <button class="tab" data-panel="weights-panel" aria-selected="false">2. Highest weights</button>
+    <button class="tab" data-panel="weights-panel" aria-selected="false">2. Representation weights</button>
     <button class="tab" data-panel="products-panel" aria-selected="false">3. Tensor products</button>
   </nav>
 
