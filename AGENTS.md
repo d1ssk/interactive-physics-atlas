@@ -30,16 +30,29 @@ Visual appeal is important, but must never override correctness.
 ## Development rules
 
 1. Keep physics calculations separate from visualization/UI code.
-2. Physics logic belongs in `physics.py`.
-3. Rendering and interaction belong in `visualization.py`.
-4. Add tests for meaningful physical or mathematical invariants.
-5. Do not duplicate physical formulas across UI code when they can
+2. Treat `visualizations/<slug>/` as the ownership boundary for one
+   published visualization, including its implementation, tests, and
+   visualization-specific assets.
+3. Keep `visualization.py` as the build entry point. It may delegate to
+   additional modules or packages in the same visualization directory.
+4. Put physics and mathematical logic in dedicated, independently testable
+   modules. Small visualizations may use `physics.py`; larger ones may split
+   the logic across multiple modules or a package.
+5. Put rendering and interaction logic in dedicated visualization modules.
+   It does not all have to live in `visualization.py`.
+6. Add tests for meaningful physical or mathematical invariants.
+7. Do not duplicate physical formulas across UI code when they can
    be called from the physics layer.
-6. Prefer simple implementations over unnecessary framework complexity.
-7. Prefer static browser-native outputs when possible.
-8. Do not introduce a server dependency for published visualizations
+8. Keep new code local to its visualization until it is genuinely reusable.
+   Move shared infrastructure or utilities to `src/physics_atlas/` when a
+   stable cross-visualization use case exists.
+9. Do not import implementation code directly from another visualization
+   directory; promote such code to `src/physics_atlas/` instead.
+10. Prefer simple implementations over unnecessary framework complexity.
+11. Prefer static browser-native outputs when possible.
+12. Do not introduce a server dependency for published visualizations
    without an explicit architectural decision.
-9. Do not modify unrelated visualizations when implementing one feature.
+13. Do not modify unrelated visualizations when implementing one feature.
 
 ## Validation
 
