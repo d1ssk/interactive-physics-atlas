@@ -10,16 +10,8 @@ from typing import Any
 
 import yaml
 
-CANONICAL_FIELDS = (
-    "quantum-mechanics",
-    "electromagnetism",
-    "statistical-mechanics",
-    "condensed-matter",
-    "quantum-field-theory",
-    "relativity",
-    "string-theory",
-    "mathematical-physics",
-)
+from .fields import CANONICAL_FIELDS
+
 SUPPORTED_RUNTIMES = ("plotly-static",)
 REQUIRED_KEYS = (
     "id",

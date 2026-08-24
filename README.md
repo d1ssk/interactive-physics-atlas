@@ -9,14 +9,20 @@ physical ideas, mathematical structures, symmetries, and dynamics directly explo
 
 The atlas is organized around:
 
-- Quantum mechanics
+- Classical mechanics
 - Electromagnetism
-- Statistical mechanics
+- Quantum mechanics
+- Thermodynamics
+- Statistical physics
 - Condensed matter physics
-- Quantum field theory
+- Fluid mechanics
 - Relativity
+- Cosmology
+- Quantum field theory
+- Particle physics
+- Supersymmetry
 - String theory
-- Mathematical physics
+- Mathematics for physics
 
 ## Development
 
@@ -43,6 +49,9 @@ site/            generated output; never edit or commit
 ```
 
 Repository-specific development rules live in `AGENTS.md`.
+
+This project is developed with assistance from OpenAI Codex. Scientific content,
+conventions, and final editorial decisions remain the responsibility of Daichi Sasaki.
 
 ## License
 

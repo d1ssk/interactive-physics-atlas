@@ -32,7 +32,6 @@ PALETTE = {
     "blue_dark": "#244A73",
     "gold": "#C69214",
     "violet": "#6A4C93",
-    "red": "#B5493A",
     "ink": "#263238",
     "muted": "#687078",
     "grid": "#DDE2E6",
@@ -83,6 +82,7 @@ def _apply_layout(figure: go.Figure, rank: int, title: str) -> go.Figure:
     if rank == 2:
         figure.update_layout(
             **common,
+            dragmode="pan",
             xaxis={**_axis_style("v1"), "scaleanchor": "y", "scaleratio": 1},
             yaxis=_axis_style("v2"),
         )
@@ -95,6 +95,7 @@ def _apply_layout(figure: go.Figure, rank: int, title: str) -> go.Figure:
                 "zaxis": _axis_style("v3", three_dimensional=True),
                 "aspectmode": "data",
                 "camera": {"eye": {"x": 1.55, "y": 1.45, "z": 1.15}},
+                "dragmode": "turntable",
             },
         )
     return figure
@@ -123,7 +124,6 @@ def _integer_tuple(values: np.ndarray) -> tuple[int, ...]:
 
 def plot_root_system(
     system: str,
-    highlight_simple: int | None = None,
     show_fundamental_weights: bool = False,
 ) -> go.Figure:
     """Return a Plotly root-system figure for rank 2 or rank 3."""
@@ -203,7 +203,7 @@ def plot_root_system(
                     y=selected[:, 1],
                     z=selected[:, 2],
                     mode="markers",
-                    marker={"size": 4, "color": color},
+                    marker={"size": 2, "color": color},
                     text=hover,
                     hovertemplate="%{text}<extra></extra>",
                     showlegend=False,
@@ -211,16 +211,15 @@ def plot_root_system(
             )
 
     simple = root_system.display_simple_roots
-    simple_colors = [
-        PALETTE["red"] if highlight_simple == index else PALETTE["gold"]
-        for index in range(root_system.rank)
-    ]
     for index, point in enumerate(simple):
         coordinates = _segments(point[np.newaxis, :], root_system.rank)
         common = {
             "mode": "lines+markers",
-            "line": {"color": simple_colors[index], "width": 7},
-            "marker": {"size": 8, "color": simple_colors[index]},
+            "line": {"color": PALETTE["gold"], "width": 7},
+            "marker": {
+                "size": 8 if root_system.rank == 2 else 3,
+                "color": PALETTE["gold"],
+            },
             "name": f"simple root alpha{index + 1}",
             "hovertemplate": f"alpha{index + 1}<extra></extra>",
         }
@@ -240,7 +239,10 @@ def plot_root_system(
             common = {
                 "mode": "lines+markers",
                 "line": {"color": PALETTE["violet"], "width": 5, "dash": "dot"},
-                "marker": {"size": 9, "color": PALETTE["violet"]},
+                "marker": {
+                    "size": 9 if root_system.rank == 2 else 3,
+                    "color": PALETTE["violet"],
+                },
                 "name": f"fundamental weight omega{index + 1}",
                 "hovertemplate": (
                     f"omega{index + 1}<br>Dynkin coordinates: "
@@ -581,16 +583,14 @@ def _build_application_data() -> dict[str, object]:
                 for name, labels in REPRESENTATION_PRESETS[system_key].items()
             ],
         }
-        for highlighted in range(system.rank):
-            for show_fundamental in (False, True):
-                key = f"{system_key}|{highlighted}|{int(show_fundamental)}"
-                catalog["roots"][key] = _figure_data(
-                    plot_root_system(
-                        system_key,
-                        highlighted,
-                        show_fundamental_weights=show_fundamental,
-                    )
+        for show_fundamental in (False, True):
+            key = f"{system_key}|{int(show_fundamental)}"
+            catalog["roots"][key] = _figure_data(
+                plot_root_system(
+                    system_key,
+                    show_fundamental_weights=show_fundamental,
                 )
+            )
         for labels in itertools.product(range(4), repeat=system.rank):
             key = f"{system_key}|{','.join(map(str, labels))}"
             catalog["weights"][key] = _figure_data(
@@ -698,14 +698,13 @@ _APPLICATION_HTML = r"""<!doctype html>
     characters were computed and checked at build time; the page needs no Python server.</p>
   <nav class="tabs" aria-label="Explorer sections">
     <button class="tab" data-panel="roots-panel" aria-selected="true">1. Root systems</button>
-    <button class="tab" data-panel="weights-panel" aria-selected="false">2. Highest weights</button>
+    <button class="tab" data-panel="weights-panel" aria-selected="false">2. Representation weights</button>
     <button class="tab" data-panel="products-panel" aria-selected="false">3. Tensor products</button>
   </nav>
 
   <section id="roots-panel" class="panel active">
     <div class="controls">
       <label>Cartan type <select id="root-system"></select></label>
-      <label>Highlight simple root <select id="root-simple"></select></label>
       <label class="inline"><input id="root-fundamental" type="checkbox"> Show fundamental weights</label>
     </div>
     <p id="root-note" class="hint"></p>
@@ -761,22 +760,14 @@ _APPLICATION_HTML = r"""<!doctype html>
     window.setTimeout(() => window.dispatchEvent(new Event("resize")), 0);
   }));
 
-  function configureRootSimple() {
-    const system = byId("root-system").value;
-    const rank = DATA.systems[system].rank;
-    byId("root-simple").replaceChildren(...Array.from({length:rank}, (_, i) => new Option(`alpha${i + 1}`, i)));
-    renderRoots();
-  }
   function renderRoots() {
     const system = byId("root-system").value;
-    const highlighted = byId("root-simple").value;
     const fundamental = Number(byId("root-fundamental").checked);
-    draw("root-plot", DATA.roots[`${system}|${highlighted}|${fundamental}`]);
+    draw("root-plot", DATA.roots[`${system}|${fundamental}`]);
     const info = DATA.systems[system];
     byId("root-note").textContent = `${info.groups}; ${info.note}. Cartan matrix: ${JSON.stringify(info.cartan)}`;
   }
-  byId("root-system").addEventListener("change", configureRootSimple);
-  byId("root-simple").addEventListener("change", renderRoots);
+  byId("root-system").addEventListener("change", renderRoots);
   byId("root-fundamental").addEventListener("change", renderRoots);
 
   function configureWeightControls() {
@@ -850,7 +841,7 @@ _APPLICATION_HTML = r"""<!doctype html>
   byId("product-component").addEventListener("change", renderComponent);
   byId("product-factors").addEventListener("change", renderProduct);
 
-  configureRootSimple();
+  renderRoots();
   configureWeightControls();
   configureProductCases();
 </script>

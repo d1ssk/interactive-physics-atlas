@@ -10,7 +10,18 @@ def test_rank2_and_rank3_root_figures(visualization):
     assert isinstance(rank2, go.Figure)
     assert isinstance(rank3, go.Figure)
     assert rank2.layout.title.xanchor == "left"
+    assert rank2.layout.dragmode == "pan"
+    assert rank3.layout.scene.dragmode == "turntable"
     assert len(rank3.data) == len(visualization.plot_root_system("B3").data) + 3
+
+    root_markers = [trace for trace in rank3.data if trace.mode == "markers"]
+    simple_roots = [trace for trace in rank3.data if (trace.name or "").startswith("simple root")]
+    fundamental_weights = [
+        trace for trace in rank3.data if (trace.name or "").startswith("fundamental weight")
+    ]
+    assert all(trace.marker.size == 2 for trace in root_markers)
+    assert all(trace.marker.size == 3 for trace in simple_roots)
+    assert all(trace.marker.size == 3 for trace in fundamental_weights)
 
 
 def test_weight_and_three_factor_figures(physics, visualization):
@@ -39,5 +50,8 @@ def test_static_build_contract(tmp_path, monkeypatch, visualization):
     assert "__APPLICATION_DATA__" not in html
     assert "window.Plotly = {};" in html
     assert '"systems":{}' in html
+    assert "2. Representation weights" in html
+    assert "Highlight simple root" not in html
+    assert 'id="root-simple"' not in html
     assert "pyodide" not in html.lower()
     assert "ipywidgets" not in html.lower()

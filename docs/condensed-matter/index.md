@@ -1,3 +1,4 @@
-# Condensed Matter
-
-Interactive explorations of collective phenomena, materials, phases, and excitations.
+---
+template: redirect.html
+location: ../condensed-matter-physics/
+---
