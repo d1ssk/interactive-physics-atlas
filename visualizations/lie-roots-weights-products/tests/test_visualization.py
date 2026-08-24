@@ -1,0 +1,43 @@
+from __future__ import annotations
+
+import plotly.graph_objects as go
+
+
+def test_rank2_and_rank3_root_figures(visualization):
+    rank2 = visualization.plot_root_system("G2")
+    rank3 = visualization.plot_root_system("B3", show_fundamental_weights=True)
+
+    assert isinstance(rank2, go.Figure)
+    assert isinstance(rank3, go.Figure)
+    assert rank2.layout.title.xanchor == "left"
+    assert len(rank3.data) == len(visualization.plot_root_system("B3").data) + 3
+
+
+def test_weight_and_three_factor_figures(physics, visualization):
+    diagram = physics.representation_weights("A2", (1, 1))
+    product = physics.tensor_product_many("A2", [(1, 0), (1, 0), (1, 0)])
+
+    assert isinstance(visualization.plot_weight_diagram(diagram), go.Figure)
+    first = visualization.plot_tensor_product(product, extraction_step=0)
+    complete = visualization.plot_tensor_product(
+        product,
+        extraction_step=len(product.components),
+        show_factor_weights=False,
+    )
+    assert first.data[-1].name == "next highest weight"
+    assert len(complete.data) == 0
+    assert complete.layout.annotations[0].text.startswith("Residual character is zero")
+
+
+def test_static_build_contract(tmp_path, monkeypatch, visualization):
+    monkeypatch.setattr(visualization, "_build_application_data", lambda: {"systems": {}})
+    monkeypatch.setattr(visualization, "get_plotlyjs", lambda: "window.Plotly = {};")
+
+    visualization.build(tmp_path)
+
+    html = (tmp_path / "index.html").read_text(encoding="utf-8")
+    assert "__APPLICATION_DATA__" not in html
+    assert "window.Plotly = {};" in html
+    assert '"systems":{}' in html
+    assert "pyodide" not in html.lower()
+    assert "ipywidgets" not in html.lower()
