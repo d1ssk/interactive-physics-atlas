@@ -1,0 +1,37 @@
+from __future__ import annotations
+
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+MATHEMATICS_DOCS = ROOT / "docs" / "mathematics-for-physics"
+
+
+def test_visualization_iframes_expand_without_internal_scrolling() -> None:
+    pages = (
+        MATHEMATICS_DOCS / "lie-roots-weights-products" / "index.md",
+        MATHEMATICS_DOCS / "dynkin-diagram-game" / "index.md",
+    )
+
+    for page in pages:
+        source = page.read_text(encoding="utf-8")
+        assert "data-auto-height" in source
+        assert 'scrolling="no"' in source
+        assert "overflow: hidden" in source
+
+
+def test_lie_algebra_category_orders_roots_before_builder() -> None:
+    source = (MATHEMATICS_DOCS / "index.md").read_text(encoding="utf-8")
+
+    assert "## Visualizations" not in source
+    assert "## Lie Algebras and Their Representations" in source
+    assert source.index("Lie Roots, Weights, and Tensor Products") < source.index(
+        "Dynkin Diagram Builder"
+    )
+
+
+def test_shared_iframe_resizer_tracks_content_height() -> None:
+    source = (ROOT / "docs" / "javascripts" / "iframe-resizer.js").read_text(encoding="utf-8")
+
+    assert 'querySelectorAll("iframe[data-auto-height]")' in source
+    assert "content.documentElement.scrollHeight" in source
+    assert "ResizeObserver" in source
