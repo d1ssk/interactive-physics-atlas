@@ -1,36 +1,34 @@
 "use strict";
 
-/* Keep same-origin visualization iframes tall enough that only the atlas page scrolls. */
-function installVisualizationFrameResizer(frame) {
-  let observer = null;
+const FRAME_HEIGHT_MESSAGE = "physics-atlas:frame-height";
+const FRAME_HEIGHT_REQUEST = "physics-atlas:request-frame-height";
 
-  function resize() {
-    const content = frame.contentDocument;
-    if (!content) return;
-    const height = Math.max(
-      content.documentElement.scrollHeight,
-      content.body?.scrollHeight ?? 0,
-    );
-    if (height > 0) frame.style.height = `${Math.ceil(height)}px`;
-  }
-
-  function observeContent() {
-    observer?.disconnect();
-    resize();
-    const content = frame.contentDocument;
-    if (!content || !("ResizeObserver" in window)) return;
-    observer = new ResizeObserver(resize);
-    observer.observe(content.documentElement);
-    if (content.body) observer.observe(content.body);
-    frame.contentWindow?.addEventListener("resize", resize);
-  }
-
-  frame.addEventListener("load", observeContent);
-  if (frame.contentDocument?.readyState === "complete") observeContent();
+function visualizationFrames() {
+  return [...document.querySelectorAll("iframe[data-auto-height]")];
 }
 
+function isExpectedOrigin(event) {
+  return window.location.origin === "null" || event.origin === window.location.origin;
+}
+
+function requestFrameHeight(frame) {
+  frame.contentWindow?.postMessage({type: FRAME_HEIGHT_REQUEST}, "*");
+}
+
+window.addEventListener("message", event => {
+  if (!isExpectedOrigin(event) || event.data?.type !== FRAME_HEIGHT_MESSAGE) return;
+  const frame = visualizationFrames().find(candidate => candidate.contentWindow === event.source);
+  const height = Number(event.data.height);
+  if (!frame || !Number.isFinite(height) || height <= 0) return;
+  frame.style.height = `${Math.ceil(height)}px`;
+});
+
 function installVisualizationFrameResizers() {
-  document.querySelectorAll("iframe[data-auto-height]").forEach(installVisualizationFrameResizer);
+  visualizationFrames().forEach(frame => {
+    frame.addEventListener("load", () => requestFrameHeight(frame));
+    if (frame.contentDocument?.readyState === "complete") requestFrameHeight(frame);
+  });
+  window.addEventListener("resize", () => visualizationFrames().forEach(requestFrameHeight));
 }
 
 if (document.readyState === "loading") {

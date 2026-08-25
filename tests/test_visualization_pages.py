@@ -33,5 +33,6 @@ def test_shared_iframe_resizer_tracks_content_height() -> None:
     source = (ROOT / "docs" / "javascripts" / "iframe-resizer.js").read_text(encoding="utf-8")
 
     assert 'querySelectorAll("iframe[data-auto-height]")' in source
-    assert "content.documentElement.scrollHeight" in source
-    assert "ResizeObserver" in source
+    assert "event.data?.type !== FRAME_HEIGHT_MESSAGE" in source
+    assert "candidate.contentWindow === event.source" in source
+    assert "frame.style.height" in source

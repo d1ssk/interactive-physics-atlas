@@ -16,6 +16,8 @@ def test_static_build_contract(tmp_path, visualization):
     assert 'id="group-label"' in html
     assert "When is a Dynkin diagram valid?" in html
     assert "invalidReason(matrix)" in html
+    assert 'type: "physics-atlas:frame-height"' in html
+    assert "new ResizeObserver(scheduleReport).observe(document.body)" in html
     assert "Plotly" not in html
     assert "pyodide" not in html.lower()
 

@@ -549,4 +549,33 @@ document.addEventListener("keydown", event => {
   }
 });
 
+function installFrameHeightReporter() {
+  if (window.parent === window) return;
+  let scheduled = false;
+  function report() {
+    scheduled = false;
+    const main = document.querySelector("main");
+    const contentBottom = main ? main.getBoundingClientRect().bottom : 0;
+    const height = Math.max(contentBottom, document.body.getBoundingClientRect().height);
+    window.parent.postMessage({type: "physics-atlas:frame-height", height: Math.ceil(height)}, "*");
+  }
+  function scheduleReport() {
+    if (scheduled) return;
+    scheduled = true;
+    window.requestAnimationFrame(report);
+  }
+  window.addEventListener("load", scheduleReport);
+  window.addEventListener("resize", scheduleReport);
+  window.addEventListener("message", event => {
+    const expectedOrigin = window.location.origin === "null" || event.origin === window.location.origin;
+    if (expectedOrigin && event.data?.type === "physics-atlas:request-frame-height") {
+      scheduleReport();
+    }
+  });
+  if ("ResizeObserver" in window) new ResizeObserver(scheduleReport).observe(document.body);
+  document.fonts?.ready.then(scheduleReport);
+  scheduleReport();
+}
+
 render();
+installFrameHeightReporter();
