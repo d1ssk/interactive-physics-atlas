@@ -849,7 +849,17 @@ _APPLICATION_HTML = r"""<!doctype html>
       const main = document.querySelector("main");
       const contentBottom = main ? main.getBoundingClientRect().bottom : 0;
       const height = Math.max(contentBottom, document.body.getBoundingClientRect().height);
-      window.parent.postMessage({type:"physics-atlas:frame-height", height:Math.ceil(height)}, "*");
+      const frameHeight = Math.ceil(height);
+      try {
+        if (window.frameElement) {
+          window.frameElement.style.height = `${frameHeight}px`;
+          window.frameElement.setAttribute("scrolling", "no");
+          window.frameElement.style.overflow = "hidden";
+        }
+      } catch (_error) {
+        // Cross-origin embedding falls back to postMessage.
+      }
+      window.parent.postMessage({type:"physics-atlas:frame-height", height:frameHeight}, "*");
     }
     function scheduleReport() {
       if (scheduled) return;

@@ -14,8 +14,9 @@ summands.
   src="app/index.html"
   title="Interactive Lie roots, weights, and tensor products"
   data-auto-height
-  style="display: block; width: 100%; min-height: 1120px; border: 0;"
-  loading="lazy"
+  scrolling="no"
+  style="display: block; width: 100%; height: 2300px; min-height: 1120px; border: 0; overflow: hidden;"
+  loading="eager"
 ></iframe>
 
 ## Things to try

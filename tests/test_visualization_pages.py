@@ -15,7 +15,11 @@ def test_visualization_iframes_opt_in_to_dynamic_height() -> None:
     for page in pages:
         source = page.read_text(encoding="utf-8")
         assert "data-auto-height" in source
+        assert 'scrolling="no"' in source
+        assert "overflow: hidden" in source
+        assert "height:" in source
         assert "min-height:" in source
+        assert 'loading="eager"' in source
 
 
 def test_lie_algebra_category_orders_roots_before_builder() -> None:
@@ -29,7 +33,9 @@ def test_lie_algebra_category_orders_roots_before_builder() -> None:
 
 
 def test_shared_iframe_resizer_tracks_content_height() -> None:
-    source = (ROOT / "docs" / "javascripts" / "iframe-resizer.js").read_text(encoding="utf-8")
+    source = (ROOT / "docs" / "javascripts" / "visualization-frame-resizer.js").read_text(
+        encoding="utf-8"
+    )
 
     assert 'querySelectorAll("iframe[data-auto-height]")' in source
     assert "event.data?.type !== FRAME_HEIGHT_MESSAGE" in source
