@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dynkin Diagram Builder</title>
+  <style>__APPLICATION_CSS__</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <p class="eyebrow">Interactive Lie theory</p>
+      <h1>Dynkin Diagram Builder</h1>
+      <p class="lede">Build a diagram node by node. The editor identifies finite
+        crystallographic types through rank eight and displays the resulting Cartan matrix.</p>
+    </div>
+    <label class="challenge-control">Mode
+      <select id="challenge">
+        <option value="">Sandbox</option>
+      </select>
+    </label>
+  </header>
+
+  <section class="workspace" aria-label="Dynkin diagram editor">
+    <div class="toolbar" aria-label="Editor tools">
+      <div class="tool-group" role="group" aria-label="Pointer mode">
+        <button type="button" data-mode="move" aria-pressed="false">Move</button>
+        <button type="button" data-mode="add" aria-pressed="true">Add node</button>
+        <button type="button" data-mode="connect" aria-pressed="false">Connect</button>
+      </div>
+      <label>Bond
+        <select id="bond-type">
+          <option value="1">Single</option>
+          <option value="2">Double</option>
+          <option value="3">Triple</option>
+        </select>
+      </label>
+      <div class="tool-group" role="group" aria-label="Edit selection">
+        <button type="button" id="reverse" disabled>Reverse arrow</button>
+        <button type="button" id="delete" disabled>Delete</button>
+      </div>
+      <div class="tool-group history" role="group" aria-label="Edit history">
+        <button type="button" id="undo" disabled>Undo</button>
+        <button type="button" id="redo" disabled>Redo</button>
+        <button type="button" id="reset">Reset</button>
+      </div>
+    </div>
+
+    <div class="canvas-wrap">
+      <svg id="diagram" viewBox="0 0 900 520" role="application"
+        aria-label="Editable Dynkin diagram canvas">
+        <defs>
+          <pattern id="grid" width="25" height="25" patternUnits="userSpaceOnUse">
+            <path d="M 25 0 L 0 0 0 25" fill="none" stroke="#e8ecef" stroke-width="1"/>
+          </pattern>
+        </defs>
+        <rect class="canvas-background" width="900" height="520" fill="url(#grid)"/>
+        <g id="edges"></g>
+        <g id="nodes"></g>
+        <text id="empty-hint" x="450" y="245" text-anchor="middle">Click to add the first node</text>
+        <text id="empty-subhint" x="450" y="276" text-anchor="middle">Then choose Connect and select two nodes</text>
+      </svg>
+    </div>
+
+    <p id="interaction-hint" class="interaction-hint">Add mode: click empty space to create a node.</p>
+  </section>
+
+  <section class="results" aria-label="Classification results">
+    <article id="status-card" class="status-card neutral">
+      <p class="result-label">Classification</p>
+      <h2 id="classification">Start building</h2>
+      <p id="status" aria-live="polite">Add a node to begin.</p>
+    </article>
+    <article class="matrix-card">
+      <div class="matrix-heading">
+        <div>
+          <p class="result-label">Cartan matrix</p>
+          <p class="convention">A<sub>ij</sub> = &lang;&alpha;<sub>i</sub>,
+            &alpha;<sub>j</sub><sup>&vee;</sup>&rang;; arrows point toward short roots.</p>
+        </div>
+        <span id="rank">rank 0</span>
+      </div>
+      <div id="matrix" class="matrix empty">&mdash;</div>
+    </article>
+  </section>
+
+  <details class="instructions">
+    <summary>How to play and what counts as valid</summary>
+    <div>
+      <p><strong>Add node</strong> creates simple roots. <strong>Connect</strong> joins two
+        selected nodes with the chosen bond. A new multiple bond points to the second node;
+        select it and use <strong>Reverse arrow</strong> to change the root-length ordering.</p>
+      <p>A connected result must be one of A<sub>n</sub>, B<sub>n</sub>, C<sub>n</sub>,
+        D<sub>n</sub>, E<sub>6,7,8</sub>, F<sub>4</sub>, or G<sub>2</sub>. Disconnected valid
+        components are recognized as semisimple products. The construction limit is rank eight.</p>
+      <p>Keyboard: Delete removes the selection; Escape clears it; Ctrl/Cmd+Z undoes and
+        Ctrl/Cmd+Shift+Z redoes.</p>
+    </div>
+  </details>
+</main>
+<script id="application-data" type="application/json">__APPLICATION_DATA__</script>
+<script>__APPLICATION_JS__</script>
+</body>
+</html>
