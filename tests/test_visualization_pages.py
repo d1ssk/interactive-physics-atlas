@@ -6,7 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 MATHEMATICS_DOCS = ROOT / "docs" / "mathematics-for-physics"
 
 
-def test_visualization_iframes_expand_without_internal_scrolling() -> None:
+def test_visualization_iframes_opt_in_to_dynamic_height() -> None:
     pages = (
         MATHEMATICS_DOCS / "lie-roots-weights-products" / "index.md",
         MATHEMATICS_DOCS / "dynkin-diagram-game" / "index.md",
@@ -15,8 +15,7 @@ def test_visualization_iframes_expand_without_internal_scrolling() -> None:
     for page in pages:
         source = page.read_text(encoding="utf-8")
         assert "data-auto-height" in source
-        assert 'scrolling="no"' in source
-        assert "overflow: hidden" in source
+        assert "min-height:" in source
 
 
 def test_lie_algebra_category_orders_roots_before_builder() -> None:
@@ -36,3 +35,7 @@ def test_shared_iframe_resizer_tracks_content_height() -> None:
     assert "event.data?.type !== FRAME_HEIGHT_MESSAGE" in source
     assert "candidate.contentWindow === event.source" in source
     assert "frame.style.height" in source
+    assert 'frame.setAttribute("scrolling", "no")' in source
+    assert 'frame.style.overflow = "hidden"' in source
+    assert "new frameWindow.ResizeObserver" in source
+    assert 'content.querySelector("main")' in source

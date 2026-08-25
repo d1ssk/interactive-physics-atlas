@@ -1,38 +1,85 @@
-"use strict";
+(() => {
+  "use strict";
 
-const FRAME_HEIGHT_MESSAGE = "physics-atlas:frame-height";
-const FRAME_HEIGHT_REQUEST = "physics-atlas:request-frame-height";
+  const FRAME_HEIGHT_MESSAGE = "physics-atlas:frame-height";
+  const FRAME_HEIGHT_REQUEST = "physics-atlas:request-frame-height";
+  const frameObservers = new WeakMap();
 
-function visualizationFrames() {
-  return [...document.querySelectorAll("iframe[data-auto-height]")];
-}
+  function visualizationFrames() {
+    return [...document.querySelectorAll("iframe[data-auto-height]")];
+  }
 
-function isExpectedOrigin(event) {
-  return window.location.origin === "null" || event.origin === window.location.origin;
-}
+  function isExpectedOrigin(event) {
+    return window.location.origin === "null" || event.origin === window.location.origin;
+  }
 
-function requestFrameHeight(frame) {
-  frame.contentWindow?.postMessage({type: FRAME_HEIGHT_REQUEST}, "*");
-}
+  function applyHeight(frame, value) {
+    const height = Number(value);
+    if (!Number.isFinite(height) || height <= 0) return;
+    frame.style.height = `${Math.ceil(height)}px`;
+    frame.setAttribute("scrolling", "no");
+    frame.style.overflow = "hidden";
+  }
 
-window.addEventListener("message", event => {
-  if (!isExpectedOrigin(event) || event.data?.type !== FRAME_HEIGHT_MESSAGE) return;
-  const frame = visualizationFrames().find(candidate => candidate.contentWindow === event.source);
-  const height = Number(event.data.height);
-  if (!frame || !Number.isFinite(height) || height <= 0) return;
-  frame.style.height = `${Math.ceil(height)}px`;
-});
+  function measureSameOriginFrame(frame) {
+    try {
+      const content = frame.contentDocument;
+      if (!content?.body) return;
+      const main = content.querySelector("main");
+      const mainBottom = main ? main.getBoundingClientRect().bottom : 0;
+      const bodyHeight = content.body.getBoundingClientRect().height;
+      applyHeight(frame, Math.max(mainBottom, bodyHeight));
+    } catch (_error) {
+      // Cross-origin frames must use the postMessage path.
+    }
+  }
 
-function installVisualizationFrameResizers() {
-  visualizationFrames().forEach(frame => {
-    frame.addEventListener("load", () => requestFrameHeight(frame));
-    if (frame.contentDocument?.readyState === "complete") requestFrameHeight(frame);
+  function requestFrameHeight(frame) {
+    frame.contentWindow?.postMessage({type: FRAME_HEIGHT_REQUEST}, "*");
+    measureSameOriginFrame(frame);
+  }
+
+  function observeSameOriginFrame(frame) {
+    frameObservers.get(frame)?.disconnect();
+    try {
+      const content = frame.contentDocument;
+      const frameWindow = frame.contentWindow;
+      if (!content?.body || !frameWindow) return;
+      measureSameOriginFrame(frame);
+      if (!("ResizeObserver" in frameWindow)) return;
+      const observer = new frameWindow.ResizeObserver(() => measureSameOriginFrame(frame));
+      observer.observe(content.body);
+      const main = content.querySelector("main");
+      if (main) observer.observe(main);
+      frameObservers.set(frame, observer);
+    } catch (_error) {
+      // Cross-origin frames must use the postMessage path.
+    }
+  }
+
+  window.addEventListener("message", event => {
+    if (!isExpectedOrigin(event) || event.data?.type !== FRAME_HEIGHT_MESSAGE) return;
+    const frame = visualizationFrames().find(candidate => candidate.contentWindow === event.source);
+    if (frame) applyHeight(frame, event.data.height);
   });
-  window.addEventListener("resize", () => visualizationFrames().forEach(requestFrameHeight));
-}
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", installVisualizationFrameResizers);
-} else {
-  installVisualizationFrameResizers();
-}
+  function installVisualizationFrameResizers() {
+    visualizationFrames().forEach(frame => {
+      frame.addEventListener("load", () => {
+        observeSameOriginFrame(frame);
+        requestFrameHeight(frame);
+      });
+      if (frame.contentDocument?.readyState === "complete") {
+        observeSameOriginFrame(frame);
+        requestFrameHeight(frame);
+      }
+    });
+    window.addEventListener("resize", () => visualizationFrames().forEach(requestFrameHeight));
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", installVisualizationFrameResizers);
+  } else {
+    installVisualizationFrameResizers();
+  }
+})();
