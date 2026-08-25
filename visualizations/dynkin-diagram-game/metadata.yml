@@ -1,0 +1,14 @@
+id: dynkin-diagram-game
+title: Dynkin Diagram Builder
+field: mathematics-for-physics
+topics:
+  - Lie algebras
+  - Dynkin diagrams
+  - Cartan matrices
+  - root systems
+level:
+  - advanced undergraduate
+  - graduate
+runtime: browser-static
+page: mathematics-for-physics/dynkin-diagram-game
+summary: Build and classify finite crystallographic Dynkin diagrams by editing nodes, bonds, and root-length arrows.

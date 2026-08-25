@@ -6,6 +6,7 @@ copyright = "Copyright &copy; 2026 Daichi Sasaki"
 docs_dir = "docs"
 site_dir = "site"
 extra_css = ["stylesheets/extra.css"]
+extra_javascript = ["javascripts/visualization-frame-resizer.js"]
 nav = [
     { "Home" = "index.md" },
     { "Classical Mechanics" = "classical-mechanics/index.md" },

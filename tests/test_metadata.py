@@ -39,6 +39,15 @@ def test_valid_metadata_passes(tmp_path: Path) -> None:
     assert metadata.topics == ("states",)
 
 
+def test_browser_static_runtime_passes(tmp_path: Path) -> None:
+    data = valid_metadata()
+    data["runtime"] = "browser-static"
+
+    metadata = load_metadata(write_metadata(tmp_path, data))
+
+    assert metadata.runtime == "browser-static"
+
+
 def test_missing_required_keys_fail(tmp_path: Path) -> None:
     data = valid_metadata()
     del data["summary"]

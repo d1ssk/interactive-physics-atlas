@@ -12,7 +12,7 @@ import yaml
 
 from .fields import CANONICAL_FIELDS
 
-SUPPORTED_RUNTIMES = ("plotly-static",)
+SUPPORTED_RUNTIMES = ("browser-static", "plotly-static")
 REQUIRED_KEYS = (
     "id",
     "title",
