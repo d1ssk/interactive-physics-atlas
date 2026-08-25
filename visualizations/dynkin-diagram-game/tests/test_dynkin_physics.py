@@ -23,6 +23,23 @@ def test_every_catalog_entry_is_finite_and_self_classifies(physics):
 @pytest.mark.parametrize(
     ("name", "expected"),
     [
+        ("A3", "SU(4)"),
+        ("B3", "SO(7) / Spin(7)"),
+        ("C3", "Sp(3)"),
+        ("D4", "SO(8) / Spin(8)"),
+        ("B2/C2", "SO(5) / Spin(5) ≅ Sp(2)"),
+        ("E6", None),
+    ],
+)
+def test_classical_group_labels(physics, name, expected):
+    diagram = next(item for item in physics.diagram_catalog() if item.name == name)
+
+    assert diagram.group_label == expected
+
+
+@pytest.mark.parametrize(
+    ("name", "expected"),
+    [
         ("B3", (1, 1, 2)),
         ("C3", (2, 2, 1)),
         ("G2", (3, 1)),

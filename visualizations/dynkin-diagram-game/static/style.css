@@ -40,7 +40,7 @@ select, button { font: inherit; }
 select { min-width: 112px; padding: 8px 10px; border: 1px solid #b9c5cb; border-radius: 7px; background: white; color: var(--ink); }
 .challenge-control select { min-width: 180px; }
 
-.workspace, .results article, .instructions {
+.workspace, .results article, .validity-rules, .instructions {
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -90,6 +90,7 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 .status-card.invalid { border-left-color: var(--red); }
 .status-card.solved { border-left-color: var(--gold); background: #fffcf4; }
 .status-card h2 { margin: 5px 0 7px; font-size: 1.55rem; }
+.group-label { margin: -2px 0 8px; color: var(--blue-dark) !important; font-weight: 800; }
 .status-card > p:last-child { margin: 0; color: var(--muted); line-height: 1.45; }
 .matrix-heading { display: flex; align-items: start; justify-content: space-between; gap: 16px; }
 .matrix-heading #rank { white-space: nowrap; color: var(--muted); font-size: .86rem; font-weight: 700; }
@@ -99,6 +100,12 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 .matrix-row { display: grid; grid-template-columns: repeat(var(--rank), minmax(32px, 42px)); gap: 3px; }
 .matrix-cell { display: grid; place-items: center; min-height: 32px; border-radius: 4px; background: #f0f4f6; font-variant-numeric: tabular-nums; }
 .matrix-cell.diagonal { background: #e4edf6; color: var(--blue-dark); font-weight: 800; }
+
+.validity-rules { margin-top: 14px; padding: 18px; }
+.validity-rules h2 { margin: 5px 0 14px; font-size: 1.35rem; }
+.rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 22px; }
+.rule-grid p { margin: 0; color: var(--muted); line-height: 1.5; }
+.rule-grid strong { color: var(--ink); }
 
 .instructions { margin-top: 14px; padding: 0 18px; }
 .instructions summary { padding: 15px 0; cursor: pointer; font-weight: 750; }
@@ -111,5 +118,6 @@ button:disabled { cursor: not-allowed; opacity: .42; }
   .challenge-control select { width: 100%; }
   .history { margin-left: 0; }
   .results { grid-template-columns: 1fr; }
+  .rule-grid { grid-template-columns: 1fr; }
   #diagram { min-height: 300px; }
 }

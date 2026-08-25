@@ -336,6 +336,52 @@ function classify(matrix) {
   return types;
 }
 
+function invalidReason(matrix) {
+  const connectedComponents = components(matrix);
+  for (const [componentIndex, component] of connectedComponents.entries()) {
+    const prefix = connectedComponents.length > 1 ? `Component ${componentIndex + 1}: ` : "";
+    const degrees = component.map(node => component.filter(other => matrix[node][other] !== 0).length);
+    const edges = [];
+    component.forEach((left, leftIndex) => component.slice(leftIndex + 1).forEach(right => {
+      if (matrix[left][right] !== 0) {
+        edges.push({left, right, multiplicity: Math.max(-matrix[left][right], -matrix[right][left])});
+      }
+    }));
+    if (edges.length >= component.length) {
+      return `${prefix}the underlying graph contains a cycle. Every connected finite Dynkin diagram is a tree.`;
+    }
+    if (Math.max(...degrees) > 3) {
+      return `${prefix}a node has degree greater than three, which does not occur in a finite Dynkin diagram.`;
+    }
+    const multiple = edges.filter(edge => edge.multiplicity > 1);
+    if (multiple.length > 1) {
+      return `${prefix}a connected finite Dynkin diagram has at most one multiple bond.`;
+    }
+    if (multiple.some(edge => edge.multiplicity === 3) && component.length !== 2) {
+      return `${prefix}a triple bond occurs only in the rank-two G2 diagram.`;
+    }
+    if (multiple.length && degrees.some(degree => degree === 3)) {
+      return `${prefix}finite diagrams with a branching node are simply laced.`;
+    }
+    if (degrees.filter(degree => degree === 3).length > 1) {
+      return `${prefix}the tree has more than one branching node; finite D and E diagrams have exactly one.`;
+    }
+    if (multiple.length) {
+      return `${prefix}the multiple bond position or arrow direction does not match a finite B, C, F, or G diagram.`;
+    }
+    if (degrees.includes(3)) {
+      return `${prefix}the branch lengths do not match any finite D or E diagram.`;
+    }
+  }
+  return "The resulting Cartan matrix does not match a finite type through rank eight.";
+}
+
+function groupNotation(types) {
+  const labels = types.map(type => DATA.diagrams.find(diagram => diagram.name === type)?.groupLabel ?? null);
+  if (labels.every(label => label === null)) return "";
+  return types.map((type, index) => labels[index] ?? type).join(" × ");
+}
+
 function renderMatrix(matrix) {
   const target = byId("matrix");
   byId("rank").textContent = `rank ${matrix.length}`;
@@ -363,7 +409,10 @@ function renderClassification(matrix) {
   const card = byId("status-card");
   const title = byId("classification");
   const status = byId("status");
+  const groupLabel = byId("group-label");
   const challenge = byId("challenge").value;
+  groupLabel.hidden = true;
+  groupLabel.textContent = "";
   if (!matrix.length) {
     card.className = "status-card neutral";
     title.textContent = challenge ? `Challenge: build ${challenge}` : "Start building";
@@ -374,10 +423,15 @@ function renderClassification(matrix) {
   if (types === null) {
     card.className = "status-card invalid";
     title.textContent = "Not a finite Dynkin diagram";
-    status.textContent = "This bond pattern is not in the finite crystallographic rank-eight catalogue. Undo or edit a selected bond.";
+    status.textContent = `${invalidReason(matrix)} Undo or edit a selected bond.`;
     return;
   }
   const name = types.join(" × ");
+  const groups = groupNotation(types);
+  if (groups) {
+    groupLabel.textContent = groups;
+    groupLabel.hidden = false;
+  }
   if (challenge && types.length === 1 && types[0] === challenge) {
     card.className = "status-card solved";
     title.textContent = `${challenge} solved`;

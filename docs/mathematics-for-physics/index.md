@@ -4,6 +4,8 @@ Interactive explorations of mathematical structures and methods used throughout 
 
 ## Visualizations
 
+- [Dynkin Diagram Builder](dynkin-diagram-game/): build finite crystallographic Dynkin
+  diagrams by editing nodes, multiple bonds, and root-length arrows.
 - [Lie Roots, Weights, and Tensor Products](lie-roots-weights-products/): explore rank-2
   and rank-3 root systems, highest-weight characters, and irreducible tensor-product
   decompositions.

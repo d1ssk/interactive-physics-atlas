@@ -31,6 +31,26 @@ class DynkinDiagram:
     def rank(self) -> int:
         return len(self.cartan)
 
+    @property
+    def group_label(self) -> str | None:
+        """Return standard compact-group notation for a classical type."""
+
+        if self.name == "B2/C2":
+            return "SO(5) / Spin(5) ≅ Sp(2)"
+        family = self.name[0]
+        if family not in {"A", "B", "C", "D"}:
+            return None
+        rank = int(self.name[1:])
+        if family == "A":
+            return f"SU({rank + 1})"
+        if family == "B":
+            dimension = 2 * rank + 1
+            return f"SO({dimension}) / Spin({dimension})"
+        if family == "C":
+            return f"Sp({rank})"
+        dimension = 2 * rank
+        return f"SO({dimension}) / Spin({dimension})"
+
 
 def _matrix(values: Sequence[Sequence[int]]) -> CartanMatrix:
     return tuple(tuple(int(value) for value in row) for row in values)
@@ -228,6 +248,7 @@ def catalog_payload(max_rank: int = 8) -> dict[str, object]:
             {
                 "name": diagram.name,
                 "rank": diagram.rank,
+                "groupLabel": diagram.group_label,
                 "cartan": diagram.cartan,
                 "edges": cartan_edges(diagram.cartan),
             }

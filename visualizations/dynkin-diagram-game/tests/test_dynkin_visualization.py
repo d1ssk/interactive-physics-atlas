@@ -13,6 +13,9 @@ def test_static_build_contract(tmp_path, visualization):
     assert "__APPLICATION_CSS__" not in html
     assert "Dynkin Diagram Builder" in html
     assert 'id="diagram"' in html
+    assert 'id="group-label"' in html
+    assert "When is a Dynkin diagram valid?" in html
+    assert "invalidReason(matrix)" in html
     assert "Plotly" not in html
     assert "pyodide" not in html.lower()
 
@@ -31,3 +34,6 @@ def test_built_payload_contains_complete_rank_eight_catalog(tmp_path, visualizat
     assert payload["maxRank"] == 8
     assert len(payload["diagrams"]) == 31
     assert {item["name"] for item in payload["diagrams"]} >= {"A8", "D8", "E8", "F4", "G2"}
+    assert (
+        next(item for item in payload["diagrams"] if item["name"] == "A8")["groupLabel"] == "SU(9)"
+    )
