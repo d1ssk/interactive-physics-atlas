@@ -11,7 +11,9 @@ const MESSAGES = {
     hintMove: "Move mode: drag nodes to arrange the diagram; click a node or bond to select it.",
     hintAdd: "Add mode: click empty space to create a node.",
     hintConnect: "Connect mode: select two nodes. A multiple bond points to the second node.",
-    nodeAria: "simple root alpha {number}", componentPrefix: "Component {number}: ", rank: "rank {rank}",
+    nodeAria: "simple root alpha {number}",
+    bondAria: "bond of multiplicity {multiplicity} between simple roots alpha {source} and alpha {target}",
+    componentPrefix: "Component {number}: ", rank: "rank {rank}",
     challengeTitle: "Challenge: build {type}", startBuilding: "Start building", startStatus: "Add a node to begin.",
     invalidTitle: "Not a finite Dynkin diagram", invalidSuffix: " Undo or edit a selected bond.",
     solvedTitle: "{type} solved", solvedStatus: "Correct: the Cartan matrix is equivalent to {type} up to relabeling of simple roots.",
@@ -49,8 +51,10 @@ const MESSAGES = {
     instructionsSummary: "操作方法と有限型の条件",
     instructionControls: "<strong>ノードを追加</strong>で単純ルートを作ります。<strong>接続</strong>で選んだ2ノードを指定した辺で結びます。新しい多重辺は2番目のノードを指します。辺を選択して<strong>矢印を反転</strong>するとルート長の順序を変更できます。",
     instructionTypes: "連結な結果は \\(A_n,B_n,C_n,D_n,E_{6,7,8},F_4,G_2\\) のいずれかでなければなりません。非連結な有限型成分は半単純積として認識されます。構成できる全階数の上限は8です。",
-    instructionKeyboard: "キーボード：Deleteで選択対象を削除し、Escapeで選択を解除します。Ctrl/Cmd+Zで元に戻し、Ctrl/Cmd+Shift+Zでやり直します。",
-    nodeAria: "単純ルート アルファ {number}", componentPrefix: "成分{number}：", rank: "階数 {rank}",
+    instructionKeyboard: "キーボード：Tabでノードと辺へ移動し、EnterまたはSpaceで選択します。Deleteで選択対象を削除し、Escapeで選択を解除します。Ctrl/Cmd+Zで元に戻し、Ctrl/Cmd+Shift+Zでやり直します。",
+    nodeAria: "単純ルート アルファ {number}",
+    bondAria: "単純ルート アルファ {source} とアルファ {target} を結ぶ重複度 {multiplicity} の辺",
+    componentPrefix: "成分{number}：", rank: "階数 {rank}",
     challengeTitle: "チャレンジ：{type}を構成", invalidTitle: "有限型ディンキン図形ではありません",
     invalidSuffix: " 元に戻すか、選択した辺を編集してください。", solvedTitle: "{type}を完成",
     solvedStatus: "正解です。単純ルートの番号を付け替えると、カルタン行列は{type}と同値です。",
@@ -286,6 +290,17 @@ function arrowPoints(edge, geometry) {
   return `${tipX},${tipY} ${baseX + px * 8},${baseY + py * 8} ${baseX - px * 8},${baseY - py * 8}`;
 }
 
+function selectEdge(edge, restoreFocus = false) {
+  selected = {kind: "edge", id: edge.id};
+  byId("bond-type").value = String(edge.multiplicity);
+  render();
+  if (restoreFocus) {
+    [...edgeLayer.querySelectorAll(".edge")]
+      .find(group => group.dataset.edgeId === String(edge.id))
+      ?.focus();
+  }
+}
+
 function renderEdges() {
   edgeLayer.replaceChildren(...state.edges.map(edge => {
     const geometry = edgeGeometry(edge);
@@ -293,6 +308,13 @@ function renderEdges() {
     group.classList.add("edge");
     if (selected?.kind === "edge" && selected.id === edge.id) group.classList.add("selected");
     group.dataset.edgeId = edge.id;
+    group.setAttribute("tabindex", "0");
+    group.setAttribute("role", "button");
+    group.setAttribute("aria-label", t("bondAria", {
+      multiplicity: edge.multiplicity,
+      source: state.nodes.findIndex(node => node.id === edge.source) + 1,
+      target: state.nodes.findIndex(node => node.id === edge.target) + 1,
+    }));
     const offsets = edge.multiplicity === 1 ? [0] : edge.multiplicity === 2 ? [-4, 4] : [-7, 0, 7];
     offsets.forEach(offset => {
       const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -311,9 +333,13 @@ function renderEdges() {
     hit.setAttribute("d", linePath(geometry));
     hit.addEventListener("click", event => {
       event.stopPropagation();
-      selected = {kind: "edge", id: edge.id};
-      byId("bond-type").value = String(edge.multiplicity);
-      render();
+      selectEdge(edge, true);
+    });
+    group.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        selectEdge(edge, true);
+      }
     });
     group.prepend(hit);
     return group;

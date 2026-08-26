@@ -48,6 +48,13 @@ def test_visualization_pages_use_latex_and_omit_developer_checklists() -> None:
     assert "?lang=en" in pages[0].read_text(encoding="utf-8")
     assert "?lang=ja" in pages[2].read_text(encoding="utf-8")
 
+    english_lie = pages[0].read_text(encoding="utf-8")
+    japanese_lie = pages[2].read_text(encoding="utf-8")
+    assert "## Relevant equations and constructions" in english_lie
+    assert "## What to notice" in english_lie
+    assert "## 関連する方程式・構成" in japanese_lie
+    assert "## 注目する点" in japanese_lie
+
 
 def test_bilingual_visualization_pages_share_display_math() -> None:
     page_pairs = (
@@ -99,6 +106,8 @@ def test_shared_iframe_resizer_tracks_content_height() -> None:
     assert "event.data?.type !== FRAME_HEIGHT_MESSAGE" in source
     assert "candidate.contentWindow === event.source" in source
     assert 'window.location.protocol === "file:" && event.origin === "null"' in source
+    assert 'const FRAME_TARGET_ORIGIN = window.location.protocol === "file:" ? "*"' in source
+    assert "postMessage({type: FRAME_HEIGHT_REQUEST}, FRAME_TARGET_ORIGIN)" in source
     assert "frame.style.height" in source
     assert 'frame.setAttribute("scrolling", "no")' in source
     assert 'frame.style.overflow = "hidden"' in source
@@ -112,3 +121,15 @@ def test_shared_iframe_resizer_tracks_content_height() -> None:
 
     stylesheet = (ROOT / "docs" / "stylesheets" / "extra.css").read_text(encoding="utf-8")
     assert "box-sizing: content-box" in stylesheet
+
+
+def test_docs_mathjax_callbacks_wait_for_startup() -> None:
+    source = (ROOT / "docs" / "javascripts" / "mathjax.js").read_text(encoding="utf-8")
+
+    assert "MathJax.startup.promise.then" in source
+    assert 'new Event("physics-atlas:mathjax-ready")' in source
+    assert "const mathJaxReady = new Promise" in source
+    assert "let mathJaxQueue = mathJaxReady" in source
+    assert "const task = mathJaxQueue.then" in source
+    assert "void withMathJax" in source
+    assert "MathJax.typesetPromise([ref])" not in source

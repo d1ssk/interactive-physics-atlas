@@ -36,6 +36,8 @@ def test_static_build_contract(tmp_path, visualization):
     assert "main.scrollHeight" not in html
     assert "report();" in html
     assert 'window.location.protocol === "file:" && event.origin === "null"' in html
+    assert 'const parentTargetOrigin = window.location.protocol === "file:" ? "*"' in html
+    assert "parentTargetOrigin," in html
     assert 'window.addEventListener("load", report)' in html
     assert 'window.addEventListener("resize", report)' in html
     assert 'window.addEventListener("physics-atlas:mathjax-ready", report)' in html
@@ -44,6 +46,13 @@ def test_static_build_contract(tmp_path, visualization):
     assert "new MutationObserver" in html
     assert 'window.addEventListener("pagehide", () => observer.disconnect()' in html
     assert html.index('type: "physics-atlas:frame-height"') < html.index('id="application-data"')
+    assert 't("bondAria"' in html
+    assert 'group.setAttribute("tabindex", "0")' in html
+    assert "selectEdge(edge, true)" in html
+    assert ".edge:focus-visible .edge-line" in html
+    assert ".edge:focus-visible .arrow" in html
+    assert "Tab reaches nodes and bonds" in html
+    assert "Tabでノードと辺へ移動" in html
     assert "Plotly" not in html
     assert "pyodide" not in html.lower()
 
