@@ -24,12 +24,9 @@
 
   function contentHeight(content) {
     const main = content.querySelector("main");
-    const mainBounds = main?.getBoundingClientRect();
-    const mainHeight = mainBounds
-      ? mainBounds.top + Math.max(mainBounds.height, main.scrollHeight)
-      : 0;
-    const bodyHeight = content.body.getBoundingClientRect().bottom;
-    return Math.max(mainHeight, bodyHeight);
+    const mainBottom = main ? main.getBoundingClientRect().bottom : 0;
+    const bodyHeight = content.body.getBoundingClientRect().height;
+    return Math.max(mainBottom, bodyHeight);
   }
 
   function measureSameOriginFrame(frame) {

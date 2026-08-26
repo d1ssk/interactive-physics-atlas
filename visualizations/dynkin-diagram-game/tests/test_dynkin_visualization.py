@@ -17,8 +17,10 @@ def test_static_build_contract(tmp_path, visualization):
     assert "When is a Dynkin diagram valid?" in html
     assert "ディンキン図形ビルダー" in html
     assert 'const LOCALE = new URLSearchParams(window.location.search).get("lang")' in html
-    assert "__MATHJAX_JS__" not in html
-    assert "MathJax.loader" in html
+    assert 'defer src="mathjax-tex-svg.js"' in html
+    assert (tmp_path / "mathjax-tex-svg.js").is_file()
+    assert (tmp_path / "mathjax-LICENSE.txt").is_file()
+    assert "MathJax.loader" not in html
     assert 'src="https://cdn.jsdelivr.net/npm/mathjax' not in html
     assert "\\begin{pmatrix}" in html
     assert 'new Event("physics-atlas:mathjax-ready")' in html
@@ -30,8 +32,10 @@ def test_static_build_contract(tmp_path, visualization):
     assert 'window.frameElement.style.minHeight = "0"' in html
     assert "observer.observe(document.body)" in html
     assert "if (main) observer.observe(main)" in html
-    assert "Math.max(contentBottom" not in html
-    assert "Math.max(bounds.height, main.scrollHeight)" in html
+    assert "Math.max(contentBottom" in html
+    assert "main.scrollHeight" not in html
+    assert "report();" in html
+    assert html.index('type: "physics-atlas:frame-height"') < html.index('id="application-data"')
     assert "Plotly" not in html
     assert "pyodide" not in html.lower()
 

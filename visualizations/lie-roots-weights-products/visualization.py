@@ -13,7 +13,7 @@ import plotly.graph_objects as go
 from plotly.offline import get_plotlyjs
 from plotly.utils import PlotlyJSONEncoder
 
-from physics_atlas.assets import mathjax_svg_js
+from physics_atlas.assets import copy_mathjax_assets
 
 from .physics import (
     RANK2_SYSTEMS,
@@ -641,15 +641,14 @@ def build(output_dir: Path) -> None:
     """Build a self-contained static Plotly application."""
 
     output_dir.mkdir(parents=True, exist_ok=True)
+    copy_mathjax_assets(output_dir)
     payload = json.dumps(
         _build_application_data(),
         cls=PlotlyJSONEncoder,
         separators=(",", ":"),
     ).replace("</", "<\\/")
-    html = (
-        _APPLICATION_HTML.replace("__PLOTLY_JS__", get_plotlyjs())
-        .replace("__MATHJAX_JS__", mathjax_svg_js())
-        .replace("__APPLICATION_DATA__", payload)
+    html = _APPLICATION_HTML.replace("__PLOTLY_JS__", get_plotlyjs()).replace(
+        "__APPLICATION_DATA__", payload
     )
     (output_dir / "index.html").write_text(html, encoding="utf-8")
 
@@ -705,7 +704,7 @@ _APPLICATION_HTML = r"""<!doctype html>
       },
     };
   </script>
-  <script>__MATHJAX_JS__</script>
+  <script defer src="mathjax-tex-svg.js"></script>
   <script>__PLOTLY_JS__</script>
 </head>
 <body>
@@ -753,6 +752,51 @@ _APPLICATION_HTML = r"""<!doctype html>
     </div>
   </section>
 </main>
+<script>
+  (() => {
+    if (window.parent === window) return;
+    let scheduled = false;
+    function report() {
+      scheduled = false;
+      const main = document.querySelector("main");
+      const contentBottom = main ? main.getBoundingClientRect().bottom : 0;
+      const contentHeight = Math.max(contentBottom, document.body.getBoundingClientRect().height);
+      const frameHeight = Math.ceil(contentHeight);
+      try {
+        if (window.frameElement) {
+          window.frameElement.style.minHeight = "0";
+          window.frameElement.style.height = `${frameHeight}px`;
+          window.frameElement.setAttribute("scrolling", "no");
+          window.frameElement.style.overflow = "hidden";
+        }
+      } catch (_error) {
+        // Cross-origin embedding falls back to postMessage.
+      }
+      window.parent.postMessage({type:"physics-atlas:frame-height", height:frameHeight}, "*");
+    }
+    function scheduleReport() {
+      if (scheduled) return;
+      scheduled = true;
+      window.requestAnimationFrame(report);
+    }
+    window.addEventListener("load", scheduleReport);
+    window.addEventListener("resize", scheduleReport);
+    window.addEventListener("message", event => {
+      const expectedOrigin = window.location.origin === "null" || event.origin === window.location.origin;
+      if (expectedOrigin && event.data?.type === "physics-atlas:request-frame-height") {
+        scheduleReport();
+      }
+    });
+    if ("ResizeObserver" in window) {
+      const observer = new ResizeObserver(scheduleReport);
+      observer.observe(document.body);
+      const main = document.querySelector("main");
+      if (main) observer.observe(main);
+    }
+    document.fonts?.ready.then(scheduleReport);
+    report();
+  })();
+</script>
 <script id="application-data" type="application/json">__APPLICATION_DATA__</script>
 <script>
   "use strict";
@@ -954,57 +998,9 @@ _APPLICATION_HTML = r"""<!doctype html>
   byId("product-component").addEventListener("change", renderComponent);
   byId("product-factors").addEventListener("change", renderProduct);
 
-  function installFrameHeightReporter() {
-    if (window.parent === window) return;
-    let scheduled = false;
-    function report() {
-      scheduled = false;
-      const main = document.querySelector("main");
-      const bounds = main?.getBoundingClientRect();
-      const mainHeight = bounds
-        ? bounds.top + Math.max(bounds.height, main.scrollHeight)
-        : 0;
-      const contentHeight = Math.max(mainHeight, document.body.getBoundingClientRect().bottom);
-      const frameHeight = Math.ceil(contentHeight);
-      try {
-        if (window.frameElement) {
-          window.frameElement.style.minHeight = "0";
-          window.frameElement.style.height = `${frameHeight}px`;
-          window.frameElement.setAttribute("scrolling", "no");
-          window.frameElement.style.overflow = "hidden";
-        }
-      } catch (_error) {
-        // Cross-origin embedding falls back to postMessage.
-      }
-      window.parent.postMessage({type:"physics-atlas:frame-height", height:frameHeight}, "*");
-    }
-    function scheduleReport() {
-      if (scheduled) return;
-      scheduled = true;
-      window.requestAnimationFrame(report);
-    }
-    window.addEventListener("load", scheduleReport);
-    window.addEventListener("resize", scheduleReport);
-    window.addEventListener("message", event => {
-      const expectedOrigin = window.location.origin === "null" || event.origin === window.location.origin;
-      if (expectedOrigin && event.data?.type === "physics-atlas:request-frame-height") {
-        scheduleReport();
-      }
-    });
-    if ("ResizeObserver" in window) {
-      const observer = new ResizeObserver(scheduleReport);
-      observer.observe(document.body);
-      const main = document.querySelector("main");
-      if (main) observer.observe(main);
-    }
-    document.fonts?.ready.then(scheduleReport);
-    scheduleReport();
-  }
-
   renderRoots();
   configureWeightControls();
   configureProductCases();
-  installFrameHeightReporter();
 </script>
 </body>
 </html>

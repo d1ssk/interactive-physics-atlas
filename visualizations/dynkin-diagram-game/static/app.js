@@ -647,53 +647,5 @@ document.addEventListener("keydown", event => {
   }
 });
 
-function installFrameHeightReporter() {
-  if (window.parent === window) return;
-  let scheduled = false;
-  function report() {
-    scheduled = false;
-    const main = document.querySelector("main");
-    const bounds = main?.getBoundingClientRect();
-    const mainHeight = bounds
-      ? bounds.top + Math.max(bounds.height, main.scrollHeight)
-      : 0;
-    const contentHeight = Math.max(mainHeight, document.body.getBoundingClientRect().bottom);
-    const frameHeight = Math.ceil(contentHeight);
-    try {
-      if (window.frameElement) {
-        window.frameElement.style.minHeight = "0";
-        window.frameElement.style.height = `${frameHeight}px`;
-        window.frameElement.setAttribute("scrolling", "no");
-        window.frameElement.style.overflow = "hidden";
-      }
-    } catch (_error) {
-      // Cross-origin embedding falls back to postMessage.
-    }
-    window.parent.postMessage({type: "physics-atlas:frame-height", height: frameHeight}, "*");
-  }
-  function scheduleReport() {
-    if (scheduled) return;
-    scheduled = true;
-    window.requestAnimationFrame(report);
-  }
-  window.addEventListener("load", scheduleReport);
-  window.addEventListener("resize", scheduleReport);
-  window.addEventListener("message", event => {
-    const expectedOrigin = window.location.origin === "null" || event.origin === window.location.origin;
-    if (expectedOrigin && event.data?.type === "physics-atlas:request-frame-height") {
-      scheduleReport();
-    }
-  });
-  if ("ResizeObserver" in window) {
-    const observer = new ResizeObserver(scheduleReport);
-    observer.observe(document.body);
-    const main = document.querySelector("main");
-    if (main) observer.observe(main);
-  }
-  document.fonts?.ready.then(scheduleReport);
-  scheduleReport();
-}
-
 localizeStaticContent();
 render();
-installFrameHeightReporter();
