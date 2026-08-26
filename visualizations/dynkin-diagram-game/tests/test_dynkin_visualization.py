@@ -15,10 +15,35 @@ def test_static_build_contract(tmp_path, visualization):
     assert 'id="diagram"' in html
     assert 'id="group-label"' in html
     assert "When is a Dynkin diagram valid?" in html
+    assert "ディンキン図形ビルダー" in html
+    assert 'const LOCALE = new URLSearchParams(window.location.search).get("lang")' in html
+    assert 'defer src="mathjax-tex-svg.js"' in html
+    assert (tmp_path / "mathjax-tex-svg.js").is_file()
+    assert (tmp_path / "mathjax-LICENSE.txt").is_file()
+    assert "MathJax.loader" not in html
+    assert 'src="https://cdn.jsdelivr.net/npm/mathjax' not in html
+    assert "\\begin{pmatrix}" in html
+    assert 'new Event("physics-atlas:mathjax-ready")' in html
+    assert "pendingMathTargets" in html
+    assert "startup.then" in html
     assert "invalidReason(matrix)" in html
     assert 'type: "physics-atlas:frame-height"' in html
     assert "window.frameElement.style.height" in html
-    assert "new ResizeObserver(scheduleReport).observe(document.body)" in html
+    assert 'window.frameElement.style.minHeight = "0"' in html
+    assert "observer.observe(document.body)" in html
+    assert "if (main) observer.observe(main)" in html
+    assert "Math.max(contentBottom" in html
+    assert "main.scrollHeight" not in html
+    assert "report();" in html
+    assert 'window.location.protocol === "file:" && event.origin === "null"' in html
+    assert 'window.addEventListener("load", report)' in html
+    assert 'window.addEventListener("resize", report)' in html
+    assert 'window.addEventListener("physics-atlas:mathjax-ready", report)' in html
+    assert "new ResizeObserver(report)" in html
+    assert 'window.location.protocol === "file:" && "MutationObserver" in window' in html
+    assert "new MutationObserver" in html
+    assert 'window.addEventListener("pagehide", () => observer.disconnect()' in html
+    assert html.index('type: "physics-atlas:frame-height"') < html.index('id="application-data"')
     assert "Plotly" not in html
     assert "pyodide" not in html.lower()
 

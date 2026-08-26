@@ -3,10 +3,14 @@ site_name = "Interactive Physics Atlas"
 site_url = "https://d1ssk.github.io/interactive-physics-atlas/"
 site_description = "An interactive visual atlas of physical and mathematical concepts."
 copyright = "Copyright &copy; 2026 Daichi Sasaki"
-docs_dir = "docs"
+docs_dir = "build/docs-en"
 site_dir = "site"
 extra_css = ["stylesheets/extra.css"]
-extra_javascript = ["javascripts/visualization-frame-resizer.js"]
+extra_javascript = [
+    "javascripts/visualization-frame-resizer.js",
+    "javascripts/mathjax.js",
+    "javascripts/mathjax-tex-svg.js",
+]
 nav = [
     { "Home" = "index.md" },
     { "Classical Mechanics" = "classical-mechanics/index.md" },
@@ -27,6 +31,18 @@ nav = [
 
 [project.theme]
 favicon = "assets/images/favicon.svg"
+custom_dir = "overrides"
+language = "en"
+
+[project.extra]
+locale = "en"
+home_name = "Home"
+alternate_name = "日本語"
+alternate_lang = "ja"
+alternate_base_url = "https://d1ssk.github.io/interactive-physics-atlas/ja/"
+
+[project.markdown_extensions]
+pymdownx.arithmatex.generic = true
 
 [project.plugins.macros.config]
 module_name = "physics_atlas.docs_macros"

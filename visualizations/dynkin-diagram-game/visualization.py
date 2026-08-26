@@ -5,6 +5,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from physics_atlas.assets import copy_mathjax_assets
+
 from .physics import catalog_payload
 
 SOURCE_DIR = Path(__file__).resolve().parent
@@ -14,6 +16,7 @@ def build(output_dir: Path) -> None:
     """Build the standalone browser application at ``output_dir/index.html``."""
 
     output_dir.mkdir(parents=True, exist_ok=True)
+    copy_mathjax_assets(output_dir)
     payload = json.dumps(catalog_payload(), separators=(",", ":")).replace("</", "<\\/")
     html = (
         (SOURCE_DIR / "static" / "index.html")

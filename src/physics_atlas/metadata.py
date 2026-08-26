@@ -16,12 +16,14 @@ SUPPORTED_RUNTIMES = ("browser-static", "plotly-static")
 REQUIRED_KEYS = (
     "id",
     "title",
+    "title_ja",
     "field",
     "topics",
     "level",
     "runtime",
     "page",
     "summary",
+    "summary_ja",
 )
 
 _SLUG_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
@@ -37,12 +39,24 @@ class VisualizationMetadata:
 
     id: str
     title: str
+    title_ja: str
     field: str
     topics: tuple[str, ...]
     level: tuple[str, ...]
     runtime: str
     page: PurePosixPath
     summary: str
+    summary_ja: str
+
+    def localized_title(self, locale: str) -> str:
+        """Return the title in a supported publication locale."""
+
+        return self.title_ja if locale == "ja" else self.title
+
+    def localized_summary(self, locale: str) -> str:
+        """Return the summary in a supported publication locale."""
+
+        return self.summary_ja if locale == "ja" else self.summary
 
 
 def is_valid_slug(value: str) -> bool:
@@ -89,6 +103,7 @@ def load_metadata(visualization_dir: Path) -> VisualizationMetadata:
         )
 
     title = _non_empty_string(raw, "title", metadata_path)
+    title_ja = _non_empty_string(raw, "title_ja", metadata_path)
     field = _non_empty_string(raw, "field", metadata_path)
     if field not in CANONICAL_FIELDS:
         allowed = ", ".join(CANONICAL_FIELDS)
@@ -105,16 +120,19 @@ def load_metadata(visualization_dir: Path) -> VisualizationMetadata:
     page_value = _non_empty_string(raw, "page", metadata_path)
     page = _validate_page(page_value, metadata_path)
     summary = _non_empty_string(raw, "summary", metadata_path)
+    summary_ja = _non_empty_string(raw, "summary_ja", metadata_path)
 
     return VisualizationMetadata(
         id=identifier,
         title=title,
+        title_ja=title_ja,
         field=field,
         topics=topics,
         level=level,
         runtime=runtime,
         page=page,
         summary=summary,
+        summary_ja=summary_ja,
     )
 
 

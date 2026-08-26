@@ -62,7 +62,7 @@ def _discard_modules(package_name: str) -> None:
             del sys.modules[name]
 
 
-def build_all(directories: list[Path] | None = None) -> list[Path]:
+def build_all(directories: list[Path] | None = None, docs_dir: Path = DOCS_DIR) -> list[Path]:
     """Build every visualization and return the generated index files."""
 
     if directories is None:
@@ -71,7 +71,7 @@ def build_all(directories: list[Path] | None = None) -> list[Path]:
     outputs: list[Path] = []
     for directory in directories:
         metadata = load_metadata(directory)
-        output_dir = DOCS_DIR.joinpath(*metadata.page.parts) / "app"
+        output_dir = docs_dir.joinpath(*metadata.page.parts) / "app"
         build, package_name = _load_build_function(directory)
         try:
             if output_dir.exists():

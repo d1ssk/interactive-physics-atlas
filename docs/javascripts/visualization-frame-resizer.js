@@ -10,25 +10,31 @@
   }
 
   function isExpectedOrigin(event) {
-    return window.location.origin === "null" || event.origin === window.location.origin;
+    const localFileFrame = window.location.protocol === "file:" && event.origin === "null";
+    return localFileFrame || event.origin === window.location.origin;
   }
 
   function applyHeight(frame, value) {
     const height = Number(value);
     if (!Number.isFinite(height) || height <= 0) return;
+    frame.style.minHeight = "0";
     frame.style.height = `${Math.ceil(height)}px`;
     frame.setAttribute("scrolling", "no");
     frame.style.overflow = "hidden";
+  }
+
+  function contentHeight(content) {
+    const main = content.querySelector("main");
+    const mainBottom = main ? main.getBoundingClientRect().bottom : 0;
+    const bodyHeight = content.body.getBoundingClientRect().height;
+    return Math.max(mainBottom, bodyHeight);
   }
 
   function measureSameOriginFrame(frame) {
     try {
       const content = frame.contentDocument;
       if (!content?.body) return;
-      const main = content.querySelector("main");
-      const mainBottom = main ? main.getBoundingClientRect().bottom : 0;
-      const bodyHeight = content.body.getBoundingClientRect().height;
-      applyHeight(frame, Math.max(mainBottom, bodyHeight));
+      applyHeight(frame, contentHeight(content));
     } catch (_error) {
       // Cross-origin frames must use the postMessage path.
     }
@@ -48,8 +54,8 @@
       measureSameOriginFrame(frame);
       if (!("ResizeObserver" in frameWindow)) return;
       const observer = new frameWindow.ResizeObserver(() => measureSameOriginFrame(frame));
-      observer.observe(content.body);
       const main = content.querySelector("main");
+      observer.observe(content.body);
       if (main) observer.observe(main);
       frameObservers.set(frame, observer);
     } catch (_error) {
