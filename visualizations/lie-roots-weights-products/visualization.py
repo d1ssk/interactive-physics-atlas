@@ -675,6 +675,7 @@ _APPLICATION_HTML = r"""<!doctype html>
     .panel { display:none; background:white; border:1px solid var(--line); border-top:0;
       padding:16px; min-height:790px; }
     .panel.active { display:block; }
+    .panel[hidden] { display:none; }
     .controls { display:flex; flex-wrap:wrap; align-items:end; gap:12px; padding:12px;
       border:1px solid var(--line); border-radius:8px; background:#f7f9fa; }
     label { display:grid; gap:5px; color:var(--muted); font-size:.82rem; font-weight:650; }
@@ -712,13 +713,13 @@ _APPLICATION_HTML = r"""<!doctype html>
   <h1 data-i18n="title">Lie Roots, Weights, and Tensor Products</h1>
   <p class="lede" data-i18n="lede">Explore rank-2 and rank-3 root systems, irreducible highest-weight
     characters, and the stepwise extraction of tensor-product summands.</p>
-  <nav class="tabs" aria-label="Explorer sections">
-    <button class="tab" data-i18n="rootsTab" data-panel="roots-panel" aria-selected="true">1. Root systems</button>
-    <button class="tab" data-i18n="weightsTab" data-panel="weights-panel" aria-selected="false">2. Representation weights</button>
-    <button class="tab" data-i18n="productsTab" data-panel="products-panel" aria-selected="false">3. Tensor products</button>
+  <nav class="tabs" role="tablist" aria-label="Explorer sections">
+    <button id="roots-tab" class="tab" role="tab" data-i18n="rootsTab" data-panel="roots-panel" aria-controls="roots-panel" aria-selected="true" tabindex="0">1. Root systems</button>
+    <button id="weights-tab" class="tab" role="tab" data-i18n="weightsTab" data-panel="weights-panel" aria-controls="weights-panel" aria-selected="false" tabindex="-1">2. Representation weights</button>
+    <button id="products-tab" class="tab" role="tab" data-i18n="productsTab" data-panel="products-panel" aria-controls="products-panel" aria-selected="false" tabindex="-1">3. Tensor products</button>
   </nav>
 
-  <section id="roots-panel" class="panel active">
+  <section id="roots-panel" class="panel active" role="tabpanel" aria-labelledby="roots-tab">
     <div class="controls">
       <label><span data-i18n="cartanType">Cartan type</span> <select id="root-system"></select></label>
       <label class="inline"><input id="root-fundamental" type="checkbox"> <span data-i18n="showFundamental">Show fundamental weights</span></label>
@@ -727,7 +728,7 @@ _APPLICATION_HTML = r"""<!doctype html>
     <div id="root-plot" class="plot" role="img" aria-label="Root-system diagram"></div>
   </section>
 
-  <section id="weights-panel" class="panel">
+  <section id="weights-panel" class="panel" role="tabpanel" aria-labelledby="weights-tab" hidden>
     <div class="controls">
       <label><span data-i18n="cartanType">Cartan type</span> <select id="weight-system"></select></label>
       <label><span data-i18n="preset">Preset</span> <select id="weight-preset"></select></label>
@@ -737,7 +738,7 @@ _APPLICATION_HTML = r"""<!doctype html>
     <div id="weight-plot" class="plot" role="img" aria-label="Weight diagram"></div>
   </section>
 
-  <section id="products-panel" class="panel">
+  <section id="products-panel" class="panel" role="tabpanel" aria-labelledby="products-tab" hidden>
     <div class="controls">
       <label><span data-i18n="cartanType">Cartan type</span> <select id="product-system"></select></label>
       <label><span data-i18n="product">Product</span> <select id="product-case"></select></label>
@@ -755,6 +756,7 @@ _APPLICATION_HTML = r"""<!doctype html>
 <script>
   (() => {
     if (window.parent === window) return;
+    const parentTargetOrigin = window.location.protocol === "file:" ? "*" : window.location.origin;
     function report() {
       const main = document.querySelector("main");
       const contentBottom = main ? main.getBoundingClientRect().bottom : 0;
@@ -770,7 +772,10 @@ _APPLICATION_HTML = r"""<!doctype html>
       } catch (_error) {
         // Cross-origin embedding falls back to postMessage.
       }
-      window.parent.postMessage({type:"physics-atlas:frame-height", height:frameHeight}, "*");
+      window.parent.postMessage(
+        {type:"physics-atlas:frame-height", height:frameHeight},
+        parentTargetOrigin,
+      );
     }
     window.addEventListener("load", report);
     window.addEventListener("resize", report);
@@ -913,11 +918,35 @@ _APPLICATION_HTML = r"""<!doctype html>
     Plotly.react(target, traces, figure.layout, CONFIG);
   };
 
-  document.querySelectorAll(".tab").forEach(tab => tab.addEventListener("click", () => {
-    document.querySelectorAll(".tab").forEach(item => item.setAttribute("aria-selected", String(item === tab)));
-    document.querySelectorAll(".panel").forEach(panel => panel.classList.toggle("active", panel.id === tab.dataset.panel));
+  const tabs = [...document.querySelectorAll(".tab")];
+  const panels = [...document.querySelectorAll(".panel")];
+  function activateTab(tab, moveFocus = false) {
+    tabs.forEach(item => {
+      const active = item === tab;
+      item.setAttribute("aria-selected", String(active));
+      item.setAttribute("tabindex", active ? "0" : "-1");
+    });
+    panels.forEach(panel => {
+      const active = panel.id === tab.dataset.panel;
+      panel.classList.toggle("active", active);
+      panel.hidden = !active;
+    });
+    if (moveFocus) tab.focus();
     window.setTimeout(() => window.dispatchEvent(new Event("resize")), 0);
-  }));
+  }
+  tabs.forEach((tab, index) => {
+    tab.addEventListener("click", () => activateTab(tab));
+    tab.addEventListener("keydown", event => {
+      let nextIndex;
+      if (event.key === "ArrowRight") nextIndex = (index + 1) % tabs.length;
+      else if (event.key === "ArrowLeft") nextIndex = (index - 1 + tabs.length) % tabs.length;
+      else if (event.key === "Home") nextIndex = 0;
+      else if (event.key === "End") nextIndex = tabs.length - 1;
+      else return;
+      event.preventDefault();
+      activateTab(tabs[nextIndex], true);
+    });
+  });
 
   function renderRoots() {
     const system = byId("root-system").value;

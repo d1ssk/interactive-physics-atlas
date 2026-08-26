@@ -130,14 +130,15 @@
       <p data-i18n="instructionTypes">A connected result must be one of \(A_n\), \(B_n\), \(C_n\),
         \(D_n\), \(E_{6,7,8}\), \(F_4\), or \(G_2\). Disconnected valid
         components are recognized as semisimple products. The construction limit is rank eight.</p>
-      <p data-i18n="instructionKeyboard">Keyboard: Delete removes the selection; Escape clears it; Ctrl/Cmd+Z undoes and
-        Ctrl/Cmd+Shift+Z redoes.</p>
+      <p data-i18n="instructionKeyboard">Keyboard: Tab reaches nodes and bonds; Enter or Space selects them; Delete removes
+        the selection; Escape clears it; Ctrl/Cmd+Z undoes and Ctrl/Cmd+Shift+Z redoes.</p>
     </div>
   </details>
 </main>
 <script>
   (() => {
     if (window.parent === window) return;
+    const parentTargetOrigin = window.location.protocol === "file:" ? "*" : window.location.origin;
     function report() {
       const main = document.querySelector("main");
       const contentBottom = main ? main.getBoundingClientRect().bottom : 0;
@@ -153,7 +154,10 @@
       } catch (_error) {
         // Cross-origin embedding falls back to postMessage.
       }
-      window.parent.postMessage({type: "physics-atlas:frame-height", height: frameHeight}, "*");
+      window.parent.postMessage(
+        {type: "physics-atlas:frame-height", height: frameHeight},
+        parentTargetOrigin,
+      );
     }
     window.addEventListener("load", report);
     window.addEventListener("resize", report);

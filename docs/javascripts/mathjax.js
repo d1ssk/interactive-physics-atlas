@@ -9,15 +9,40 @@ window.MathJax = {
     ignoreHtmlClass: ".*|",
     processHtmlClass: "arithmatex",
   },
+  startup: {
+    ready() {
+      MathJax.startup.defaultReady();
+      MathJax.startup.promise.then(() => {
+        window.dispatchEvent(new Event("physics-atlas:mathjax-ready"));
+      });
+    },
+  },
 };
 
+const mathJaxReady = new Promise(resolve => {
+  window.addEventListener("physics-atlas:mathjax-ready", resolve, {once: true});
+});
+let mathJaxQueue = mathJaxReady;
+
+function withMathJax(callback) {
+  const task = mathJaxQueue.then(() => callback(window.MathJax));
+  mathJaxQueue = task.catch(error => {
+    console.error("MathJax typesetting failed", error);
+  });
+  return task;
+}
+
 document$.subscribe(() => {
-  MathJax.startup.output.clearCache();
-  MathJax.typesetClear();
-  MathJax.texReset();
-  MathJax.typesetPromise();
+  void withMathJax(mathJax => {
+    mathJax.startup.output.clearCache();
+    mathJax.typesetClear();
+    mathJax.texReset();
+    return mathJax.typesetPromise();
+  });
 });
 
 component$.subscribe(({ref}) => {
-  if (ref.classList.contains("md-annotation")) MathJax.typesetPromise([ref]);
+  if (ref.classList.contains("md-annotation")) {
+    void withMathJax(mathJax => mathJax.typesetPromise([ref]));
+  }
 });

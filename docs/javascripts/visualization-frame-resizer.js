@@ -3,6 +3,7 @@
 
   const FRAME_HEIGHT_MESSAGE = "physics-atlas:frame-height";
   const FRAME_HEIGHT_REQUEST = "physics-atlas:request-frame-height";
+  const FRAME_TARGET_ORIGIN = window.location.protocol === "file:" ? "*" : window.location.origin;
   const frameObservers = new WeakMap();
 
   function visualizationFrames() {
@@ -41,7 +42,7 @@
   }
 
   function requestFrameHeight(frame) {
-    frame.contentWindow?.postMessage({type: FRAME_HEIGHT_REQUEST}, "*");
+    frame.contentWindow?.postMessage({type: FRAME_HEIGHT_REQUEST}, FRAME_TARGET_ORIGIN);
     measureSameOriginFrame(frame);
   }
 
