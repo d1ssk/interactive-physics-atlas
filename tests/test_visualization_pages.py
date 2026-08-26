@@ -9,19 +9,23 @@ JAPANESE_MATHEMATICS_DOCS = ROOT / "docs_ja" / "mathematics-for-physics"
 
 def test_visualization_iframes_opt_in_to_dynamic_height() -> None:
     pages = (
-        MATHEMATICS_DOCS / "lie-roots-weights-products" / "index.md",
-        MATHEMATICS_DOCS / "dynkin-diagram-game" / "index.md",
-        JAPANESE_MATHEMATICS_DOCS / "lie-roots-weights-products" / "index.md",
-        JAPANESE_MATHEMATICS_DOCS / "dynkin-diagram-game" / "index.md",
+        (MATHEMATICS_DOCS / "lie-roots-weights-products" / "index.md", 2300, 1120),
+        (MATHEMATICS_DOCS / "dynkin-diagram-game" / "index.md", 2200, 1380),
+        (
+            JAPANESE_MATHEMATICS_DOCS / "lie-roots-weights-products" / "index.md",
+            2300,
+            1120,
+        ),
+        (JAPANESE_MATHEMATICS_DOCS / "dynkin-diagram-game" / "index.md", 2200, 1380),
     )
 
-    for page in pages:
+    for page, initial_height, minimum_height in pages:
         source = page.read_text(encoding="utf-8")
         assert "data-auto-height" in source
         assert 'scrolling="no"' in source
         assert "overflow: hidden" in source
-        assert "height:" in source
-        assert "min-height:" not in source
+        assert f"height: {initial_height}px" in source
+        assert f"min-height: {minimum_height}px" in source
         assert 'loading="eager"' in source
 
 
@@ -81,11 +85,13 @@ def test_shared_iframe_resizer_tracks_content_height() -> None:
     assert "frame.style.height" in source
     assert 'frame.setAttribute("scrolling", "no")' in source
     assert 'frame.style.overflow = "hidden"' in source
+    assert 'frame.style.minHeight = "0"' in source
     assert "new frameWindow.ResizeObserver" in source
     assert 'content.querySelector("main")' in source
     assert "Math.max(mainBottom, bodyHeight)" not in source
-    assert "Math.max(bounds.height, main.scrollHeight)" in source
-    assert "observer.observe(main ?? content.body)" in source
+    assert "Math.max(mainBounds.height, main.scrollHeight)" in source
+    assert "observer.observe(content.body)" in source
+    assert "if (main) observer.observe(main)" in source
 
     stylesheet = (ROOT / "docs" / "stylesheets" / "extra.css").read_text(encoding="utf-8")
     assert "box-sizing: content-box" in stylesheet

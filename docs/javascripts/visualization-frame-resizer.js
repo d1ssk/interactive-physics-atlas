@@ -16,6 +16,7 @@
   function applyHeight(frame, value) {
     const height = Number(value);
     if (!Number.isFinite(height) || height <= 0) return;
+    frame.style.minHeight = "0";
     frame.style.height = `${Math.ceil(height)}px`;
     frame.setAttribute("scrolling", "no");
     frame.style.overflow = "hidden";
@@ -23,9 +24,12 @@
 
   function contentHeight(content) {
     const main = content.querySelector("main");
-    if (!main) return content.documentElement.scrollHeight;
-    const bounds = main.getBoundingClientRect();
-    return bounds.top + Math.max(bounds.height, main.scrollHeight);
+    const mainBounds = main?.getBoundingClientRect();
+    const mainHeight = mainBounds
+      ? mainBounds.top + Math.max(mainBounds.height, main.scrollHeight)
+      : 0;
+    const bodyHeight = content.body.getBoundingClientRect().bottom;
+    return Math.max(mainHeight, bodyHeight);
   }
 
   function measureSameOriginFrame(frame) {
@@ -53,7 +57,8 @@
       if (!("ResizeObserver" in frameWindow)) return;
       const observer = new frameWindow.ResizeObserver(() => measureSameOriginFrame(frame));
       const main = content.querySelector("main");
-      observer.observe(main ?? content.body);
+      observer.observe(content.body);
+      if (main) observer.observe(main);
       frameObservers.set(frame, observer);
     } catch (_error) {
       // Cross-origin frames must use the postMessage path.

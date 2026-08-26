@@ -654,12 +654,14 @@ function installFrameHeightReporter() {
     scheduled = false;
     const main = document.querySelector("main");
     const bounds = main?.getBoundingClientRect();
-    const contentHeight = bounds
+    const mainHeight = bounds
       ? bounds.top + Math.max(bounds.height, main.scrollHeight)
-      : document.documentElement.scrollHeight;
+      : 0;
+    const contentHeight = Math.max(mainHeight, document.body.getBoundingClientRect().bottom);
     const frameHeight = Math.ceil(contentHeight);
     try {
       if (window.frameElement) {
+        window.frameElement.style.minHeight = "0";
         window.frameElement.style.height = `${frameHeight}px`;
         window.frameElement.setAttribute("scrolling", "no");
         window.frameElement.style.overflow = "hidden";
@@ -682,8 +684,12 @@ function installFrameHeightReporter() {
       scheduleReport();
     }
   });
-  const resizeTarget = document.querySelector("main") ?? document.body;
-  if ("ResizeObserver" in window) new ResizeObserver(scheduleReport).observe(resizeTarget);
+  if ("ResizeObserver" in window) {
+    const observer = new ResizeObserver(scheduleReport);
+    observer.observe(document.body);
+    const main = document.querySelector("main");
+    if (main) observer.observe(main);
+  }
   document.fonts?.ready.then(scheduleReport);
   scheduleReport();
 }

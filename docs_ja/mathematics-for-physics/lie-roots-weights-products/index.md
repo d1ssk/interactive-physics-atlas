@@ -13,7 +13,7 @@
   title="リー代数のルート、ウェイト、テンソル積のインタラクティブ可視化"
   data-auto-height
   scrolling="no"
-  style="display: block; width: 100%; height: 1120px; border: 0; overflow: hidden;"
+  style="display: block; width: 100%; height: 2300px; min-height: 1120px; border: 0; overflow: hidden;"
   loading="eager"
 ></iframe>
 

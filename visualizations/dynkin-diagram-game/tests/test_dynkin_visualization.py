@@ -27,7 +27,9 @@ def test_static_build_contract(tmp_path, visualization):
     assert "invalidReason(matrix)" in html
     assert 'type: "physics-atlas:frame-height"' in html
     assert "window.frameElement.style.height" in html
-    assert "new ResizeObserver(scheduleReport).observe(resizeTarget)" in html
+    assert 'window.frameElement.style.minHeight = "0"' in html
+    assert "observer.observe(document.body)" in html
+    assert "if (main) observer.observe(main)" in html
     assert "Math.max(contentBottom" not in html
     assert "Math.max(bounds.height, main.scrollHeight)" in html
     assert "Plotly" not in html
