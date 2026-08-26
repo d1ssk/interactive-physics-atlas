@@ -34,14 +34,14 @@ positive. Simple roots are the indecomposable positive roots, ordered to retain
 the standard Cartan type, with
 
 $$
-A_{ij}=\langle\alpha_i,\alpha_j^\vee\rangle.
+A_{ij}=\langle\alpha_i,\alpha_j^\vee\rangle
 $$
 
 Thus the last simple root of $B_r$ is short, the last simple root of $C_r$ is
 long, and $G_2$ uses short $\alpha_1$ with Cartan matrix
 
 $$
-\begin{pmatrix}2&-1\\-3&2\end{pmatrix}.
+\begin{pmatrix}2&-1\\-3&2\end{pmatrix}
 $$
 
 The highest-weight explorer precomputes Dynkin labels from 0 through 3. The

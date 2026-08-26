@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -46,6 +47,21 @@ def test_visualization_pages_use_latex_and_omit_developer_checklists() -> None:
 
     assert "?lang=en" in pages[0].read_text(encoding="utf-8")
     assert "?lang=ja" in pages[2].read_text(encoding="utf-8")
+
+
+def test_bilingual_visualization_pages_share_display_math() -> None:
+    page_pairs = (
+        "lie-roots-weights-products",
+        "dynkin-diagram-game",
+    )
+
+    for page_name in page_pairs:
+        english = (MATHEMATICS_DOCS / page_name / "index.md").read_text(encoding="utf-8")
+        japanese = (JAPANESE_MATHEMATICS_DOCS / page_name / "index.md").read_text(encoding="utf-8")
+        english_math = re.findall(r"\$\$\s*(.*?)\s*\$\$", english, flags=re.DOTALL)
+        japanese_math = re.findall(r"\$\$\s*(.*?)\s*\$\$", japanese, flags=re.DOTALL)
+
+        assert english_math == japanese_math
 
 
 def test_lie_algebra_category_orders_roots_before_builder() -> None:

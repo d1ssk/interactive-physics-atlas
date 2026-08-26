@@ -36,7 +36,7 @@ disconnected diagram represents their direct sum.
 We use
 
 $$
-A_{ij}=\langle\alpha_i,\alpha_j^\vee\rangle.
+A_{ij}=\langle\alpha_i,\alpha_j^\vee\rangle
 $$
 
 An arrow on a double or triple bond points toward the shorter simple root.
