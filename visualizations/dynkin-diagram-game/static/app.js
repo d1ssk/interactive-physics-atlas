@@ -73,6 +73,29 @@ const t = (key, values = {}) => Object.entries(values).reduce(
   (message, [name, value]) => message.replaceAll(`{${name}}`, value),
   MESSAGES[LOCALE][key] ?? MESSAGES.en[key] ?? key,
 );
+const pendingMathTargets = new Set();
+let mathFlushScheduled = false;
+
+function typeset(target) {
+  pendingMathTargets.add(target);
+  flushMath();
+}
+
+function flushMath() {
+  const startup = window.MathJax?.startup?.promise;
+  if (!startup || mathFlushScheduled) return;
+  mathFlushScheduled = true;
+  startup.then(() => {
+    mathFlushScheduled = false;
+    const targets = [...pendingMathTargets];
+    pendingMathTargets.clear();
+    if (!targets.length) return;
+    window.MathJax.typesetClear(targets);
+    window.MathJax.typesetPromise(targets);
+  });
+}
+
+window.addEventListener("physics-atlas:mathjax-ready", flushMath);
 
 function localizeStaticContent() {
   document.documentElement.lang = LOCALE;
@@ -90,7 +113,7 @@ function localizeStaticContent() {
     ".results": "分類結果",
   };
   Object.entries(aria).forEach(([selector, label]) => document.querySelector(selector)?.setAttribute("aria-label", label));
-  window.MathJax?.typesetPromise?.();
+  typeset(document.body);
 }
 
 let state = {nodes: [], edges: [], nextId: 1};
@@ -477,10 +500,7 @@ function renderMatrix(matrix) {
   target.className = "matrix";
   const rows = matrix.map(row => row.join(" & ")).join(" \\\\ ");
   target.textContent = `\\[A=\\begin{pmatrix}${rows}\\end{pmatrix}\\]`;
-  if (window.MathJax?.typesetPromise) {
-    window.MathJax.typesetClear([target]);
-    window.MathJax.typesetPromise([target]);
-  }
+  typeset(target);
 }
 
 function renderClassification(matrix) {

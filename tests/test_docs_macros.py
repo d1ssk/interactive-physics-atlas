@@ -34,5 +34,8 @@ def test_topic_cards_count_visualizations_from_metadata(tmp_path: Path) -> None:
     assert "1 visualization" in cards
     assert "0 visualizations" in cards
     assert cards.count('class="topic-card"') == 14
-    assert "物理学のための数学" in japanese_cards
+    assert 'class="topic-card__summary"' not in cards
+    assert 'class="topic-card__summary"' not in japanese_cards
+    assert "An example visualization." not in cards
+    assert "物理数学" in japanese_cards
     assert "1 件の可視化" in japanese_cards

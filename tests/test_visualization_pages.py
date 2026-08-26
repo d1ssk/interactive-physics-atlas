@@ -46,12 +46,27 @@ def test_visualization_pages_use_latex_and_omit_developer_checklists() -> None:
 
 def test_lie_algebra_category_orders_roots_before_builder() -> None:
     source = (MATHEMATICS_DOCS / "index.md").read_text(encoding="utf-8")
+    japanese = (JAPANESE_MATHEMATICS_DOCS / "index.md").read_text(encoding="utf-8")
 
     assert "## Visualizations" not in source
     assert "## Lie Algebras and Their Representations" in source
     assert source.index("Lie Roots, Weights, and Tensor Products") < source.index(
         "Dynkin Diagram Builder"
     )
+    assert ")**\n\n  Explore rank-2" in source
+    assert ")**\n\n  階数2・3" in japanese
+
+
+def test_japanese_copy_and_typography_follow_site_style() -> None:
+    japanese_pages = (ROOT / "docs_ja").rglob("index.md")
+    combined = "\n".join(page.read_text(encoding="utf-8") for page in japanese_pages)
+    stylesheet = (ROOT / "docs" / "stylesheets" / "extra.css").read_text(encoding="utf-8")
+
+    assert "対話的" not in combined
+    assert "相対性理論" not in combined
+    assert "量子場理論" not in combined
+    assert "物理学のための数学" not in combined
+    assert 'html[lang="ja"] .md-typeset' in stylesheet
 
 
 def test_shared_iframe_resizer_tracks_content_height() -> None:

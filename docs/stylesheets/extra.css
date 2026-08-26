@@ -70,6 +70,11 @@
   line-height: 1.72;
 }
 
+html[lang="ja"] .md-typeset {
+  font-size: 0.74rem;
+  line-height: 1.78;
+}
+
 .md-typeset h1 {
   margin-bottom: 1rem;
   color: var(--atlas-ink);
@@ -133,7 +138,7 @@
 
 .topic-card__body {
   display: flex;
-  min-height: 8.4rem;
+  min-height: 5.2rem;
   flex: 1;
   flex-direction: column;
   gap: 0.35rem;
@@ -144,12 +149,6 @@
   color: var(--atlas-ink);
   font-size: 1rem;
   line-height: 1.3;
-}
-
-.topic-card__summary {
-  color: var(--atlas-muted);
-  font-size: 0.76rem;
-  line-height: 1.45;
 }
 
 .topic-card__count {

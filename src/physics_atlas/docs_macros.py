@@ -45,8 +45,6 @@ def render_topic_cards(project_root: Path, locale: str = "en") -> str:
                 '  <span class="topic-card__body">',
                 '    <strong class="topic-card__title">'
                 f"{escape(field.localized_label(locale))}</strong>",
-                '    <span class="topic-card__summary">'
-                f"{escape(field.localized_summary(locale))}</span>",
                 f'    <span class="topic-card__count">{count} {noun}</span>',
                 "  </span>",
                 "</a>",

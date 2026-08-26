@@ -13,6 +13,8 @@ import plotly.graph_objects as go
 from plotly.offline import get_plotlyjs
 from plotly.utils import PlotlyJSONEncoder
 
+from physics_atlas.assets import mathjax_svg_js
+
 from .physics import (
     RANK2_SYSTEMS,
     RANK3_SYSTEMS,
@@ -644,8 +646,10 @@ def build(output_dir: Path) -> None:
         cls=PlotlyJSONEncoder,
         separators=(",", ":"),
     ).replace("</", "<\\/")
-    html = _APPLICATION_HTML.replace("__PLOTLY_JS__", get_plotlyjs()).replace(
-        "__APPLICATION_DATA__", payload
+    html = (
+        _APPLICATION_HTML.replace("__PLOTLY_JS__", get_plotlyjs())
+        .replace("__MATHJAX_JS__", mathjax_svg_js())
+        .replace("__APPLICATION_DATA__", payload)
     )
     (output_dir / "index.html").write_text(html, encoding="utf-8")
 
@@ -689,9 +693,19 @@ _APPLICATION_HTML = r"""<!doctype html>
       .panel { padding:10px; } }
   </style>
   <script>
-    window.MathJax = {tex: {inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]]}};
+    window.MathJax = {
+      tex: {inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]]},
+      startup: {
+        ready() {
+          MathJax.startup.defaultReady();
+          MathJax.startup.promise.then(() => {
+            window.dispatchEvent(new Event("physics-atlas:mathjax-ready"));
+          });
+        },
+      },
+    };
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+  <script>__MATHJAX_JS__</script>
   <script>__PLOTLY_JS__</script>
 </head>
 <body>
@@ -753,7 +767,7 @@ _APPLICATION_HTML = r"""<!doctype html>
     },
     ja: {
       title:"リー代数のルート・ウェイト・テンソル積",
-      lede:"階数2・3のルート系、既約最高ウェイト指標、テンソル積成分を段階的に取り出す過程を探究します。",
+      lede:"階数2・3のルート系、既約最高ウェイト指標、テンソル積成分を段階的に取り出す過程。",
       rootsTab:"1. ルート系", weightsTab:"2. 表現のウェイト", productsTab:"3. テンソル積",
       cartanType:"カルタン型", showFundamental:"基本ウェイトを表示", preset:"プリセット",
       product:"テンソル積", extractionStep:"抽出ステップ", inspectSummand:"既約成分を確認",
@@ -791,11 +805,26 @@ _APPLICATION_HTML = r"""<!doctype html>
   const matrixLatex = matrix => `\\begin{pmatrix}${matrix.map(row => row.join(" & ")).join(" \\\\ ")}\\end{pmatrix}`;
   const decompositionLatex = value => value
     .replaceAll("⊗", "\\otimes").replaceAll("⊕", "\\oplus").replaceAll("·", "\\,");
+  const pendingMathTargets = new Set();
+  let mathFlushScheduled = false;
   function typeset(target) {
-    if (!window.MathJax?.typesetPromise) return;
-    window.MathJax.typesetClear([target]);
-    window.MathJax.typesetPromise([target]);
+    pendingMathTargets.add(target);
+    flushMath();
   }
+  function flushMath() {
+    const startup = window.MathJax?.startup?.promise;
+    if (!startup || mathFlushScheduled) return;
+    mathFlushScheduled = true;
+    startup.then(() => {
+      mathFlushScheduled = false;
+      const targets = [...pendingMathTargets];
+      pendingMathTargets.clear();
+      if (!targets.length) return;
+      window.MathJax.typesetClear(targets);
+      window.MathJax.typesetPromise(targets);
+    });
+  }
+  window.addEventListener("physics-atlas:mathjax-ready", flushMath);
   function localizeStaticContent() {
     document.documentElement.lang = LOCALE;
     if (LOCALE !== "ja") return;

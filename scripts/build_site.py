@@ -8,6 +8,8 @@ from pathlib import Path
 from build_visualizations import build_all
 from validate_metadata import validate_all
 
+from physics_atlas.assets import MATHJAX_LICENSE_PATH, MATHJAX_SVG_PATH
+
 ROOT = Path(__file__).resolve().parents[1]
 ENGLISH_DOCS_DIR = ROOT / "docs"
 JAPANESE_DOCS_DIR = ROOT / "docs_ja"
@@ -25,6 +27,10 @@ def stage_english_docs() -> Path:
         ENGLISH_BUILD_DOCS_DIR,
         ignore=shutil.ignore_patterns("AGENTS.md", "app"),
     )
+    javascript_dir = ENGLISH_BUILD_DOCS_DIR / "javascripts"
+    javascript_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(MATHJAX_SVG_PATH, javascript_dir / "mathjax-tex-svg.js")
+    shutil.copy2(MATHJAX_LICENSE_PATH, javascript_dir / "mathjax-LICENSE.txt")
     return ENGLISH_BUILD_DOCS_DIR
 
 

@@ -1,7 +1,7 @@
 [project]
 site_name = "Interactive Physics Atlas"
 site_url = "https://d1ssk.github.io/interactive-physics-atlas/ja/"
-site_description = "物理学と数学の概念を対話的に探究するビジュアルアトラス。"
+site_description = "物理学と数学の概念を扱うインタラクティブなビジュアルアトラス。"
 copyright = "Copyright &copy; 2026 Daichi Sasaki"
 docs_dir = "build/docs-ja"
 site_dir = "site/ja"
@@ -9,7 +9,7 @@ extra_css = ["stylesheets/extra.css"]
 extra_javascript = [
     "javascripts/visualization-frame-resizer.js",
     "javascripts/mathjax.js",
-    "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js",
+    "javascripts/mathjax-tex-svg.js",
 ]
 nav = [
     { "ホーム" = "index.md" },
@@ -20,13 +20,13 @@ nav = [
     { "統計物理学" = "statistical-physics/index.md" },
     { "物性物理学" = "condensed-matter-physics/index.md" },
     { "流体力学" = "fluid-mechanics/index.md" },
-    { "相対性理論" = "relativity/index.md" },
+    { "相対論" = "relativity/index.md" },
     { "宇宙論" = "cosmology/index.md" },
-    { "量子場理論" = "quantum-field-theory/index.md" },
+    { "場の量子論" = "quantum-field-theory/index.md" },
     { "素粒子物理学" = "particle-physics/index.md" },
     { "超対称性" = "supersymmetry/index.md" },
     { "弦理論" = "string-theory/index.md" },
-    { "物理学のための数学" = "mathematics-for-physics/index.md" },
+    { "物理数学" = "mathematics-for-physics/index.md" },
 ]
 
 [project.theme]
