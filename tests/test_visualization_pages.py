@@ -21,7 +21,7 @@ def test_visualization_iframes_opt_in_to_dynamic_height() -> None:
         assert 'scrolling="no"' in source
         assert "overflow: hidden" in source
         assert "height:" in source
-        assert "min-height:" in source
+        assert "min-height:" not in source
         assert 'loading="eager"' in source
 
 
@@ -53,8 +53,8 @@ def test_lie_algebra_category_orders_roots_before_builder() -> None:
     assert source.index("Lie Roots, Weights, and Tensor Products") < source.index(
         "Dynkin Diagram Builder"
     )
-    assert ")**\n\n  Explore rank-2" in source
-    assert ")**\n\n  階数2・3" in japanese
+    assert ")**<br>\n  Explore rank-2" in source
+    assert ")**<br>\n  階数2・3" in japanese
 
 
 def test_japanese_copy_and_typography_follow_site_style() -> None:
@@ -66,6 +66,7 @@ def test_japanese_copy_and_typography_follow_site_style() -> None:
     assert "相対性理論" not in combined
     assert "量子場理論" not in combined
     assert "物理学のための数学" not in combined
+    assert "font-size: 0.78rem" in stylesheet
     assert 'html[lang="ja"] .md-typeset' in stylesheet
 
 
@@ -82,3 +83,5 @@ def test_shared_iframe_resizer_tracks_content_height() -> None:
     assert 'frame.style.overflow = "hidden"' in source
     assert "new frameWindow.ResizeObserver" in source
     assert 'content.querySelector("main")' in source
+    assert "Math.max(mainBottom, bodyHeight)" not in source
+    assert "observer.observe(main ?? content.body)" in source

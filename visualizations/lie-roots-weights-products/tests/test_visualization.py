@@ -66,4 +66,5 @@ def test_static_build_contract(tmp_path, monkeypatch, visualization):
     assert "ipywidgets" not in html.lower()
     assert 'type:"physics-atlas:frame-height"' in html
     assert "window.frameElement.style.height" in html
-    assert "new ResizeObserver(scheduleReport).observe(document.body)" in html
+    assert "new ResizeObserver(scheduleReport).observe(resizeTarget)" in html
+    assert "Math.max(contentBottom" not in html

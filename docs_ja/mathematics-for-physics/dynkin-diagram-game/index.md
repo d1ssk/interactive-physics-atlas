@@ -16,7 +16,7 @@
   title="ディンキン図形ビルダー"
   data-auto-height
   scrolling="no"
-  style="display: block; width: 100%; height: 2200px; min-height: 1380px; border: 0; overflow: hidden;"
+  style="display: block; width: 100%; height: 1200px; border: 0; overflow: hidden;"
   loading="eager"
 ></iframe>
 

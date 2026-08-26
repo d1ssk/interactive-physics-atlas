@@ -653,9 +653,10 @@ function installFrameHeightReporter() {
   function report() {
     scheduled = false;
     const main = document.querySelector("main");
-    const contentBottom = main ? main.getBoundingClientRect().bottom : 0;
-    const height = Math.max(contentBottom, document.body.getBoundingClientRect().height);
-    const frameHeight = Math.ceil(height);
+    const contentHeight = main
+      ? main.getBoundingClientRect().bottom
+      : document.documentElement.scrollHeight;
+    const frameHeight = Math.ceil(contentHeight);
     try {
       if (window.frameElement) {
         window.frameElement.style.height = `${frameHeight}px`;
@@ -680,7 +681,8 @@ function installFrameHeightReporter() {
       scheduleReport();
     }
   });
-  if ("ResizeObserver" in window) new ResizeObserver(scheduleReport).observe(document.body);
+  const resizeTarget = document.querySelector("main") ?? document.body;
+  if ("ResizeObserver" in window) new ResizeObserver(scheduleReport).observe(resizeTarget);
   document.fonts?.ready.then(scheduleReport);
   scheduleReport();
 }

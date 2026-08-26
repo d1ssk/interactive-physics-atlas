@@ -4,12 +4,10 @@ Interactive explorations of mathematical structures and methods used throughout 
 
 ## Lie Algebras and Their Representations
 
-- **[Lie Roots, Weights, and Tensor Products](lie-roots-weights-products/)**
-
+- **[Lie Roots, Weights, and Tensor Products](lie-roots-weights-products/)**<br>
   Explore rank-2 and rank-3 root systems, highest-weight characters, and irreducible
   tensor-product decompositions.
 
-- **[Dynkin Diagram Builder](dynkin-diagram-game/)**
-
+- **[Dynkin Diagram Builder](dynkin-diagram-game/)**<br>
   Build finite crystallographic Dynkin diagrams by editing nodes, multiple bonds, and
   root-length arrows.

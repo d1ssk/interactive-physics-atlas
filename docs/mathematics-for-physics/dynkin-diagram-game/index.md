@@ -18,7 +18,7 @@ disconnected diagram represents their direct sum.
   title="Interactive Dynkin diagram builder"
   data-auto-height
   scrolling="no"
-  style="display: block; width: 100%; height: 2200px; min-height: 1380px; border: 0; overflow: hidden;"
+  style="display: block; width: 100%; height: 1200px; border: 0; overflow: hidden;"
   loading="eager"
 ></iframe>
 

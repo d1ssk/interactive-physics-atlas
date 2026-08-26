@@ -26,9 +26,10 @@
       const content = frame.contentDocument;
       if (!content?.body) return;
       const main = content.querySelector("main");
-      const mainBottom = main ? main.getBoundingClientRect().bottom : 0;
-      const bodyHeight = content.body.getBoundingClientRect().height;
-      applyHeight(frame, Math.max(mainBottom, bodyHeight));
+      const contentHeight = main
+        ? main.getBoundingClientRect().bottom
+        : content.documentElement.scrollHeight;
+      applyHeight(frame, contentHeight);
     } catch (_error) {
       // Cross-origin frames must use the postMessage path.
     }
@@ -48,9 +49,8 @@
       measureSameOriginFrame(frame);
       if (!("ResizeObserver" in frameWindow)) return;
       const observer = new frameWindow.ResizeObserver(() => measureSameOriginFrame(frame));
-      observer.observe(content.body);
       const main = content.querySelector("main");
-      if (main) observer.observe(main);
+      observer.observe(main ?? content.body);
       frameObservers.set(frame, observer);
     } catch (_error) {
       // Cross-origin frames must use the postMessage path.
