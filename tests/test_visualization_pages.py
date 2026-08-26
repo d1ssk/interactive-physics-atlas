@@ -4,12 +4,15 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 MATHEMATICS_DOCS = ROOT / "docs" / "mathematics-for-physics"
+JAPANESE_MATHEMATICS_DOCS = ROOT / "docs_ja" / "mathematics-for-physics"
 
 
 def test_visualization_iframes_opt_in_to_dynamic_height() -> None:
     pages = (
         MATHEMATICS_DOCS / "lie-roots-weights-products" / "index.md",
         MATHEMATICS_DOCS / "dynkin-diagram-game" / "index.md",
+        JAPANESE_MATHEMATICS_DOCS / "lie-roots-weights-products" / "index.md",
+        JAPANESE_MATHEMATICS_DOCS / "dynkin-diagram-game" / "index.md",
     )
 
     for page in pages:
@@ -20,6 +23,25 @@ def test_visualization_iframes_opt_in_to_dynamic_height() -> None:
         assert "height:" in source
         assert "min-height:" in source
         assert 'loading="eager"' in source
+
+
+def test_visualization_pages_use_latex_and_omit_developer_checklists() -> None:
+    pages = (
+        MATHEMATICS_DOCS / "lie-roots-weights-products" / "index.md",
+        MATHEMATICS_DOCS / "dynkin-diagram-game" / "index.md",
+        JAPANESE_MATHEMATICS_DOCS / "lie-roots-weights-products" / "index.md",
+        JAPANESE_MATHEMATICS_DOCS / "dynkin-diagram-game" / "index.md",
+    )
+
+    for page in pages:
+        source = page.read_text(encoding="utf-8")
+        assert "Checks performed" not in source
+        assert "## 実施したチェック" not in source
+        assert "A_{ij}" in source
+        assert "$$" in source
+
+    assert "?lang=en" in pages[0].read_text(encoding="utf-8")
+    assert "?lang=ja" in pages[2].read_text(encoding="utf-8")
 
 
 def test_lie_algebra_category_orders_roots_before_builder() -> None:

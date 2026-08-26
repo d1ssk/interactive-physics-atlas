@@ -15,6 +15,10 @@ def test_static_build_contract(tmp_path, visualization):
     assert 'id="diagram"' in html
     assert 'id="group-label"' in html
     assert "When is a Dynkin diagram valid?" in html
+    assert "ディンキン図形ビルダー" in html
+    assert 'const LOCALE = new URLSearchParams(window.location.search).get("lang")' in html
+    assert "mathjax@3.2.2" in html
+    assert "\\begin{pmatrix}" in html
     assert "invalidReason(matrix)" in html
     assert 'type: "physics-atlas:frame-height"' in html
     assert "window.frameElement.style.height" in html

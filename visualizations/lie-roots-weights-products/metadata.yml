@@ -1,5 +1,6 @@
 id: lie-roots-weights-products
 title: Lie Roots, Weights, and Tensor Products
+title_ja: リー代数のルート・ウェイト・テンソル積
 field: mathematics-for-physics
 topics:
   - Lie algebras
@@ -12,3 +13,4 @@ level:
 runtime: plotly-static
 page: mathematics-for-physics/lie-roots-weights-products
 summary: Explore rank-2 and rank-3 roots, weight multiplicities, and irreducible tensor-product decompositions.
+summary_ja: 階数2・3のルート、ウェイトの多重度、テンソル積の既約分解を探究します。

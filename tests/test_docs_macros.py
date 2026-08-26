@@ -11,12 +11,14 @@ def test_topic_cards_count_visualizations_from_metadata(tmp_path: Path) -> None:
     metadata = {
         "id": "example",
         "title": "Example",
+        "title_ja": "例",
         "field": "mathematics-for-physics",
         "topics": ["examples"],
         "level": ["undergraduate"],
         "runtime": "plotly-static",
         "page": "mathematics-for-physics/example",
         "summary": "An example visualization.",
+        "summary_ja": "可視化の例です。",
     }
     (directory / "metadata.yml").write_text(
         yaml.safe_dump(metadata, sort_keys=False), encoding="utf-8"
@@ -24,6 +26,7 @@ def test_topic_cards_count_visualizations_from_metadata(tmp_path: Path) -> None:
 
     counts = visualization_counts(tmp_path)
     cards = render_topic_cards(tmp_path)
+    japanese_cards = render_topic_cards(tmp_path, "ja")
 
     assert counts["mathematics-for-physics"] == 1
     assert 'href="mathematics-for-physics/"' in cards
@@ -31,3 +34,5 @@ def test_topic_cards_count_visualizations_from_metadata(tmp_path: Path) -> None:
     assert "1 visualization" in cards
     assert "0 visualizations" in cards
     assert cards.count('class="topic-card"') == 14
+    assert "物理学のための数学" in japanese_cards
+    assert "1 件の可視化" in japanese_cards

@@ -20,9 +20,73 @@
   color: inherit;
 }
 
+.atlas-header-title-link {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-self: stretch;
+  align-items: center;
+  color: inherit;
+}
+
+.atlas-header-title-link:hover,
+.atlas-header-title-link:focus-visible {
+  color: var(--atlas-blue);
+}
+
 .md-header__title {
+  margin-left: 0;
+  font-family: Baskerville, "Iowan Old Style", "Palatino Linotype", Georgia, serif;
   font-size: 1.15rem;
   font-weight: 700;
+  letter-spacing: 0.015em;
+}
+
+.atlas-language-switch {
+  flex: 0 0 auto;
+  margin-left: 0.55rem;
+  padding: 0.38rem 0.65rem;
+  color: var(--atlas-ink);
+  border: 1px solid rgb(59 111 145 / 35%);
+  border-radius: 999px;
+  font-size: 0.67rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.atlas-language-switch:hover,
+.atlas-language-switch:focus-visible {
+  color: white;
+  border-color: var(--atlas-blue);
+  background: var(--atlas-blue);
+}
+
+.md-main__inner {
+  margin-top: 1.4rem;
+}
+
+.md-typeset {
+  font-size: 0.82rem;
+  line-height: 1.72;
+}
+
+.md-typeset h1 {
+  margin-bottom: 1rem;
+  color: var(--atlas-ink);
+  font-weight: 750;
+  letter-spacing: -0.025em;
+}
+
+.md-typeset h2 {
+  margin-top: 2.2em;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid var(--atlas-line);
+}
+
+.md-typeset iframe[data-auto-height] {
+  border: 1px solid var(--atlas-line) !important;
+  border-radius: 0.55rem;
+  background: #f8fafb;
 }
 
 .topic-grid {
@@ -103,5 +167,11 @@
 
   .md-header__title {
     font-size: 1.02rem;
+  }
+
+  .atlas-language-switch {
+    margin-left: 0.25rem;
+    padding: 0.34rem 0.52rem;
+    font-size: 0.62rem;
   }
 }

@@ -31,6 +31,14 @@ The build function must produce:
 
 Published output must work as a static website without a Python server.
 
+All controls, instructions, status messages, errors, and accessibility labels must support
+English and Japanese. Keep user-facing strings in locale dictionaries rather than scattering
+language-specific branches through interaction code. Test that both locale paths are present.
+
+Use LaTeX rendering for mathematical expressions in the application UI. Plot-internal text,
+including axes, legends, hover text, and Plotly controls, remains English in both site languages
+so that one scientifically identical figure payload can be shared.
+
 ## Tests
 
 Tests should prioritize physical correctness rather than implementation

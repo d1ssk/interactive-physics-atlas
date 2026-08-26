@@ -51,6 +51,10 @@ def test_static_build_contract(tmp_path, monkeypatch, visualization):
     assert "window.Plotly = {};" in html
     assert '"systems":{}' in html
     assert "2. Representation weights" in html
+    assert "リー代数のルート・ウェイト・テンソル積" in html
+    assert 'const LOCALE = new URLSearchParams(window.location.search).get("lang")' in html
+    assert "mathjax@3.2.2" in html
+    assert "Plotly.react(target, traces, figure.layout, CONFIG)" in html
     assert "Highlight simple root" not in html
     assert 'id="root-simple"' not in html
     assert "pyodide" not in html.lower()

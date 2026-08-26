@@ -5,6 +5,93 @@ const svg = document.getElementById("diagram");
 const edgeLayer = document.getElementById("edges");
 const nodeLayer = document.getElementById("nodes");
 const byId = id => document.getElementById(id);
+const LOCALE = new URLSearchParams(window.location.search).get("lang") === "ja" ? "ja" : "en";
+const MESSAGES = {
+  en: {
+    hintMove: "Move mode: drag nodes to arrange the diagram; click a node or bond to select it.",
+    hintAdd: "Add mode: click empty space to create a node.",
+    hintConnect: "Connect mode: select two nodes. A multiple bond points to the second node.",
+    nodeAria: "simple root alpha {number}", componentPrefix: "Component {number}: ", rank: "rank {rank}",
+    challengeTitle: "Challenge: build {type}", startBuilding: "Start building", startStatus: "Add a node to begin.",
+    invalidTitle: "Not a finite Dynkin diagram", invalidSuffix: " Undo or edit a selected bond.",
+    solvedTitle: "{type} solved", solvedStatus: "Correct: the Cartan matrix is equivalent to {type} up to relabeling of simple roots.",
+    wrongChallenge: "Valid finite type {name}, but the current challenge asks for {type}.",
+    semisimple: "Every connected component is finite type, so this is a semisimple product.",
+    connectedFinite: "This is a connected finite crystallographic Dynkin diagram.",
+    cycle: "the underlying graph contains a cycle. Every connected finite Dynkin diagram is a tree.",
+    degree: "a node has degree greater than three, which does not occur in a finite Dynkin diagram.",
+    multiple: "a connected finite Dynkin diagram has at most one multiple bond.",
+    triple: "a triple bond occurs only in the rank-two G2 diagram.",
+    branchingLaced: "finite diagrams with a branching node are simply laced.",
+    branchingCount: "the tree has more than one branching node; finite D and E diagrams have exactly one.",
+    multipleMismatch: "the multiple bond position or arrow direction does not match a finite B, C, F, or G diagram.",
+    branchMismatch: "the branch lengths do not match any finite D or E diagram.",
+    noMatch: "The resulting Cartan matrix does not match a finite type through rank eight.",
+    sandbox: "Sandbox", buildType: "Build {type}",
+  },
+  ja: {
+    eyebrow: "インタラクティブ・リー理論", title: "ディンキン図形ビルダー",
+    lede: "ノードを1つずつ追加して図形を構成します。エディターは全階数8までの有限結晶型を判定し、対応するカルタン行列を表示します。",
+    mode: "モード", move: "移動", addNode: "ノードを追加", connect: "接続", bond: "辺",
+    single: "単辺", double: "二重辺", triple: "三重辺", reverse: "矢印を反転", delete: "削除",
+    undo: "元に戻す", redo: "やり直す", reset: "リセット",
+    emptyHint: "クリックして最初のノードを追加", emptySubhint: "次に「接続」を選び、2つのノードを選択します",
+    hintMove: "移動モード：ノードをドラッグして配置し、ノードまたは辺をクリックして選択します。",
+    hintAdd: "追加モード：空いている場所をクリックしてノードを作成します。",
+    hintConnect: "接続モード：2つのノードを選択します。多重辺の矢印は2番目のノードを指します。",
+    classificationLabel: "分類", startBuilding: "構成を始める", startStatus: "まずノードを追加してください。",
+    cartanMatrix: "カルタン行列", convention: "\\(A_{ij}=\\langle\\alpha_i,\\alpha_j^\\vee\\rangle\\)。矢印は短いルートを指します。",
+    finiteCriterion: "有限型の判定条件", validityHeading: "ディンキン図形が有限型となる条件",
+    ruleCartan: "<strong>カルタン行列の成分。</strong>対角成分は2、非対角成分は非正整数で、\\(A_{ij}=0\\) と \\(A_{ji}=0\\) は同値です。単辺、二重辺、三重辺では \\(A_{ij}A_{ji}\\) がそれぞれ1、2、3になります。",
+    ruleFinite: "<strong>有限型判定。</strong>\\(D=\\operatorname{diag}(d_i)\\) としたとき \\(DA\\) が対称になる正整数 \\(d_i\\) が存在し、その対称行列が正定値でなければなりません。Pythonカタログはこの完全な代数的条件を使用します。",
+    ruleShape: "<strong>図形の形。</strong>各連結成分は \\(A,B,C,D,E,F,G\\) 系列のいずれかの木です。閉路をもたず、多重辺は高々1本で、次数4以上のノードはありません。これらは必要条件ですが、枝の長さと多重辺の位置も有限型と一致する必要があります。",
+    ruleDisconnected: "<strong>非連結図形。</strong>すべての連結成分が有限型判定を通る必要があります。その場合、結果は半単純直和を表し、図形とコンパクト群のラベルの積として表示されます。",
+    instructionsSummary: "操作方法と有限型の条件",
+    instructionControls: "<strong>ノードを追加</strong>で単純ルートを作ります。<strong>接続</strong>で選んだ2ノードを指定した辺で結びます。新しい多重辺は2番目のノードを指します。辺を選択して<strong>矢印を反転</strong>するとルート長の順序を変更できます。",
+    instructionTypes: "連結な結果は \\(A_n,B_n,C_n,D_n,E_{6,7,8},F_4,G_2\\) のいずれかでなければなりません。非連結な有限型成分は半単純積として認識されます。構成できる全階数の上限は8です。",
+    instructionKeyboard: "キーボード：Deleteで選択対象を削除し、Escapeで選択を解除します。Ctrl/Cmd+Zで元に戻し、Ctrl/Cmd+Shift+Zでやり直します。",
+    nodeAria: "単純ルート アルファ {number}", componentPrefix: "成分{number}：", rank: "階数 {rank}",
+    challengeTitle: "チャレンジ：{type}を構成", invalidTitle: "有限型ディンキン図形ではありません",
+    invalidSuffix: " 元に戻すか、選択した辺を編集してください。", solvedTitle: "{type}を完成",
+    solvedStatus: "正解です。単純ルートの番号を付け替えると、カルタン行列は{type}と同値です。",
+    wrongChallenge: "有限型{name}ですが、現在のチャレンジは{type}です。",
+    semisimple: "すべての連結成分が有限型なので、これは半単純積です。",
+    connectedFinite: "連結な有限結晶型ディンキン図形です。",
+    cycle: "基礎グラフに閉路があります。連結な有限型ディンキン図形はすべて木です。",
+    degree: "次数4以上のノードがあります。有限型ディンキン図形には現れません。",
+    multiple: "連結な有限型ディンキン図形に含まれる多重辺は高々1本です。",
+    triple: "三重辺が現れるのは階数2のG2図形だけです。",
+    branchingLaced: "分岐ノードをもつ有限型図形は単純結合型です。",
+    branchingCount: "木に複数の分岐ノードがあります。有限型D、E図形の分岐ノードは1つだけです。",
+    multipleMismatch: "多重辺の位置または矢印の向きが有限型B、C、F、G図形と一致しません。",
+    branchMismatch: "枝の長さが有限型D、E図形のいずれとも一致しません。",
+    noMatch: "得られたカルタン行列は全階数8までの有限型と一致しません。",
+    sandbox: "自由編集", buildType: "{type}を構成",
+  },
+};
+const t = (key, values = {}) => Object.entries(values).reduce(
+  (message, [name, value]) => message.replaceAll(`{${name}}`, value),
+  MESSAGES[LOCALE][key] ?? MESSAGES.en[key] ?? key,
+);
+
+function localizeStaticContent() {
+  document.documentElement.lang = LOCALE;
+  if (LOCALE !== "ja") return;
+  document.title = t("title");
+  document.querySelectorAll("[data-i18n]").forEach(element => {
+    const message = t(element.dataset.i18n);
+    if (element instanceof SVGElement) element.textContent = message;
+    else element.innerHTML = message;
+  });
+  const aria = {
+    ".workspace": "ディンキン図形エディター", ".toolbar": "編集ツール",
+    '[aria-label="Pointer mode"]': "ポインターモード", '[aria-label="Edit selection"]': "選択対象の編集",
+    '[aria-label="Edit history"]': "編集履歴", "#diagram": "編集可能なディンキン図形キャンバス",
+    ".results": "分類結果",
+  };
+  Object.entries(aria).forEach(([selector, label]) => document.querySelector(selector)?.setAttribute("aria-label", label));
+  window.MathJax?.typesetPromise?.();
+}
 
 let state = {nodes: [], edges: [], nextId: 1};
 let mode = "add";
@@ -45,11 +132,7 @@ function setMode(nextMode) {
   document.querySelectorAll("[data-mode]").forEach(button => {
     button.setAttribute("aria-pressed", String(button.dataset.mode === mode));
   });
-  const hints = {
-    move: "Move mode: drag nodes to arrange the diagram; click a node or bond to select it.",
-    add: "Add mode: click empty space to create a node.",
-    connect: "Connect mode: select two nodes. A multiple bond points to the second node.",
-  };
+  const hints = {move: t("hintMove"), add: t("hintAdd"), connect: t("hintConnect")};
   byId("interaction-hint").textContent = hints[mode];
   render();
 }
@@ -224,7 +307,7 @@ function renderNodes() {
     group.setAttribute("transform", `translate(${node.x} ${node.y})`);
     group.setAttribute("tabindex", "0");
     group.setAttribute("role", "button");
-    group.setAttribute("aria-label", `simple root alpha ${index + 1}`);
+    group.setAttribute("aria-label", t("nodeAria", {number: index + 1}));
     const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     circle.setAttribute("r", "21");
     const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
@@ -339,7 +422,8 @@ function classify(matrix) {
 function invalidReason(matrix) {
   const connectedComponents = components(matrix);
   for (const [componentIndex, component] of connectedComponents.entries()) {
-    const prefix = connectedComponents.length > 1 ? `Component ${componentIndex + 1}: ` : "";
+    const prefix = connectedComponents.length > 1
+      ? t("componentPrefix", {number: componentIndex + 1}) : "";
     const degrees = component.map(node => component.filter(other => matrix[node][other] !== 0).length);
     const edges = [];
     component.forEach((left, leftIndex) => component.slice(leftIndex + 1).forEach(right => {
@@ -348,32 +432,32 @@ function invalidReason(matrix) {
       }
     }));
     if (edges.length >= component.length) {
-      return `${prefix}the underlying graph contains a cycle. Every connected finite Dynkin diagram is a tree.`;
+      return `${prefix}${t("cycle")}`;
     }
     if (Math.max(...degrees) > 3) {
-      return `${prefix}a node has degree greater than three, which does not occur in a finite Dynkin diagram.`;
+      return `${prefix}${t("degree")}`;
     }
     const multiple = edges.filter(edge => edge.multiplicity > 1);
     if (multiple.length > 1) {
-      return `${prefix}a connected finite Dynkin diagram has at most one multiple bond.`;
+      return `${prefix}${t("multiple")}`;
     }
     if (multiple.some(edge => edge.multiplicity === 3) && component.length !== 2) {
-      return `${prefix}a triple bond occurs only in the rank-two G2 diagram.`;
+      return `${prefix}${t("triple")}`;
     }
     if (multiple.length && degrees.some(degree => degree === 3)) {
-      return `${prefix}finite diagrams with a branching node are simply laced.`;
+      return `${prefix}${t("branchingLaced")}`;
     }
     if (degrees.filter(degree => degree === 3).length > 1) {
-      return `${prefix}the tree has more than one branching node; finite D and E diagrams have exactly one.`;
+      return `${prefix}${t("branchingCount")}`;
     }
     if (multiple.length) {
-      return `${prefix}the multiple bond position or arrow direction does not match a finite B, C, F, or G diagram.`;
+      return `${prefix}${t("multipleMismatch")}`;
     }
     if (degrees.includes(3)) {
-      return `${prefix}the branch lengths do not match any finite D or E diagram.`;
+      return `${prefix}${t("branchMismatch")}`;
     }
   }
-  return "The resulting Cartan matrix does not match a finite type through rank eight.";
+  return t("noMatch");
 }
 
 function groupNotation(types) {
@@ -384,25 +468,19 @@ function groupNotation(types) {
 
 function renderMatrix(matrix) {
   const target = byId("matrix");
-  byId("rank").textContent = `rank ${matrix.length}`;
+  byId("rank").textContent = t("rank", {rank: matrix.length});
   if (!matrix.length) {
     target.className = "matrix empty";
     target.textContent = "—";
     return;
   }
   target.className = "matrix";
-  target.style.setProperty("--rank", matrix.length);
-  target.replaceChildren(...matrix.map((row, rowIndex) => {
-    const line = document.createElement("div");
-    line.className = "matrix-row";
-    line.replaceChildren(...row.map((value, columnIndex) => {
-      const cell = document.createElement("span");
-      cell.className = `matrix-cell${rowIndex === columnIndex ? " diagonal" : ""}`;
-      cell.textContent = value;
-      return cell;
-    }));
-    return line;
-  }));
+  const rows = matrix.map(row => row.join(" & ")).join(" \\\\ ");
+  target.textContent = `\\[A=\\begin{pmatrix}${rows}\\end{pmatrix}\\]`;
+  if (window.MathJax?.typesetPromise) {
+    window.MathJax.typesetClear([target]);
+    window.MathJax.typesetPromise([target]);
+  }
 }
 
 function renderClassification(matrix) {
@@ -415,15 +493,15 @@ function renderClassification(matrix) {
   groupLabel.textContent = "";
   if (!matrix.length) {
     card.className = "status-card neutral";
-    title.textContent = challenge ? `Challenge: build ${challenge}` : "Start building";
-    status.textContent = "Add a node to begin.";
+    title.textContent = challenge ? t("challengeTitle", {type: challenge}) : t("startBuilding");
+    status.textContent = t("startStatus");
     return;
   }
   const types = classify(matrix);
   if (types === null) {
     card.className = "status-card invalid";
-    title.textContent = "Not a finite Dynkin diagram";
-    status.textContent = `${invalidReason(matrix)} Undo or edit a selected bond.`;
+    title.textContent = t("invalidTitle");
+    status.textContent = `${invalidReason(matrix)}${t("invalidSuffix")}`;
     return;
   }
   const name = types.join(" × ");
@@ -434,16 +512,16 @@ function renderClassification(matrix) {
   }
   if (challenge && types.length === 1 && types[0] === challenge) {
     card.className = "status-card solved";
-    title.textContent = `${challenge} solved`;
-    status.textContent = `Correct: the Cartan matrix is equivalent to ${challenge} up to relabeling of simple roots.`;
+    title.textContent = t("solvedTitle", {type: challenge});
+    status.textContent = t("solvedStatus", {type: challenge});
   } else {
     card.className = "status-card valid";
     title.textContent = name;
     status.textContent = challenge
-      ? `Valid finite type ${name}, but the current challenge asks for ${challenge}.`
+      ? t("wrongChallenge", {name, type: challenge})
       : types.length > 1
-        ? "Every connected component is finite type, so this is a semisimple product."
-        : "This is a connected finite crystallographic Dynkin diagram.";
+        ? t("semisimple")
+        : t("connectedFinite");
   }
 }
 
@@ -523,8 +601,8 @@ byId("reset").addEventListener("click", () => {
   commit(() => { state = {nodes: [], edges: [], nextId: 1}; selected = null; connectingFrom = null; });
 });
 byId("challenge").replaceChildren(
-  new Option("Sandbox", ""),
-  ...DATA.diagrams.map(diagram => new Option(`Build ${diagram.name}`, diagram.name)),
+  new Option(t("sandbox"), ""),
+  ...DATA.diagrams.map(diagram => new Option(t("buildType", {type: diagram.name}), diagram.name)),
 );
 byId("challenge").addEventListener("change", render);
 svg.querySelector(".canvas-background").addEventListener("click", event => {
@@ -587,5 +665,6 @@ function installFrameHeightReporter() {
   scheduleReport();
 }
 
+localizeStaticContent();
 render();
 installFrameHeightReporter();

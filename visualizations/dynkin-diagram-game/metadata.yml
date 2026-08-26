@@ -1,5 +1,6 @@
 id: dynkin-diagram-game
 title: Dynkin Diagram Builder
+title_ja: ディンキン図形ビルダー
 field: mathematics-for-physics
 topics:
   - Lie algebras
@@ -12,3 +13,4 @@ level:
 runtime: browser-static
 page: mathematics-for-physics/dynkin-diagram-game
 summary: Build and classify finite crystallographic Dynkin diagrams by editing nodes, bonds, and root-length arrows.
+summary_ja: ノード、辺、ルート長の矢印を編集し、有限結晶型ディンキン図形を構成・分類します。

@@ -21,6 +21,7 @@ def test_field_catalog_uses_agreed_labels() -> None:
     assert FIELD_BY_SLUG["condensed-matter-physics"].label == "Condensed Matter Physics"
     assert FIELD_BY_SLUG["supersymmetry"].label == "Supersymmetry"
     assert FIELD_BY_SLUG["mathematics-for-physics"].label == "Mathematics for Physics"
+    assert FIELD_BY_SLUG["mathematics-for-physics"].localized_label("ja") == "物理学のための数学"
     assert (
         FIELD_BY_SLUG["mathematics-for-physics"].image
         == "assets/images/mathematics-for-physics.png"
@@ -38,3 +39,14 @@ def test_field_catalog_matches_navigation_and_documentation() -> None:
     assert all((ROOT / "docs" / field.slug / "index.md").is_file() for field in FIELDS)
     assert all(field.image is None or (ROOT / "docs" / field.image).is_file() for field in FIELDS)
     assert (ROOT / "docs" / "assets" / "images" / "topic-default.svg").is_file()
+
+
+def test_japanese_navigation_and_field_pages_match_canonical_fields() -> None:
+    with (ROOT / "zensical.ja.toml").open("rb") as file:
+        navigation = tomllib.load(file)["project"]["nav"]
+
+    expected = [{field.localized_label("ja"): f"{field.slug}/index.md"} for field in FIELDS]
+
+    assert navigation[0] == {"ホーム": "index.md"}
+    assert navigation[1:] == expected
+    assert all((ROOT / "docs_ja" / field.slug / "index.md").is_file() for field in FIELDS)

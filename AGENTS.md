@@ -20,7 +20,10 @@ Visual appeal is important, but must never override correctness.
   - publication-quality visualization source code
 
 - `docs/`
-  - public-facing explanatory material
+  - English public-facing explanatory material and shared site assets
+
+- `docs_ja/`
+  - Japanese counterparts of every public page in `docs/`
 
 - `src/physics_atlas/`
   - shared infrastructure and utilities
@@ -40,6 +43,14 @@ Visual appeal is important, but must never override correctness.
 8. Do not introduce a server dependency for published visualizations
    without an explicit architectural decision.
 9. Do not modify unrelated visualizations when implementing one feature.
+10. Published content supports English (`en`) and Japanese (`ja`). Every public page and
+    every user-facing string must be available in both languages.
+11. The site brand is always `Interactive Physics Atlas`. It links to the home page for
+    the current language and is displayed without a separate logo icon.
+12. Language switches must point to the corresponding page, not merely the other-language
+    home page.
+13. Translation must never change a physical equation, mathematical convention, numerical
+    result, or plot data.
 
 ## Validation
 

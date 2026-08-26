@@ -688,24 +688,27 @@ _APPLICATION_HTML = r"""<!doctype html>
     @media (max-width:960px) { .product-grid { grid-template-columns:1fr; } main { padding:10px; }
       .panel { padding:10px; } }
   </style>
+  <script>
+    window.MathJax = {tex: {inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]]}};
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
   <script>__PLOTLY_JS__</script>
 </head>
 <body>
 <main>
-  <h1>Lie Roots, Weights, and Tensor Products</h1>
-  <p class="lede">Explore rank-2 and rank-3 root systems, irreducible highest-weight
-    characters, and the stepwise extraction of tensor-product summands. All numerical
-    characters were computed and checked at build time; the page needs no Python server.</p>
+  <h1 data-i18n="title">Lie Roots, Weights, and Tensor Products</h1>
+  <p class="lede" data-i18n="lede">Explore rank-2 and rank-3 root systems, irreducible highest-weight
+    characters, and the stepwise extraction of tensor-product summands.</p>
   <nav class="tabs" aria-label="Explorer sections">
-    <button class="tab" data-panel="roots-panel" aria-selected="true">1. Root systems</button>
-    <button class="tab" data-panel="weights-panel" aria-selected="false">2. Representation weights</button>
-    <button class="tab" data-panel="products-panel" aria-selected="false">3. Tensor products</button>
+    <button class="tab" data-i18n="rootsTab" data-panel="roots-panel" aria-selected="true">1. Root systems</button>
+    <button class="tab" data-i18n="weightsTab" data-panel="weights-panel" aria-selected="false">2. Representation weights</button>
+    <button class="tab" data-i18n="productsTab" data-panel="products-panel" aria-selected="false">3. Tensor products</button>
   </nav>
 
   <section id="roots-panel" class="panel active">
     <div class="controls">
-      <label>Cartan type <select id="root-system"></select></label>
-      <label class="inline"><input id="root-fundamental" type="checkbox"> Show fundamental weights</label>
+      <label><span data-i18n="cartanType">Cartan type</span> <select id="root-system"></select></label>
+      <label class="inline"><input id="root-fundamental" type="checkbox"> <span data-i18n="showFundamental">Show fundamental weights</span></label>
     </div>
     <p id="root-note" class="hint"></p>
     <div id="root-plot" class="plot" role="img" aria-label="Root-system diagram"></div>
@@ -713,8 +716,8 @@ _APPLICATION_HTML = r"""<!doctype html>
 
   <section id="weights-panel" class="panel">
     <div class="controls">
-      <label>Cartan type <select id="weight-system"></select></label>
-      <label>Preset <select id="weight-preset"></select></label>
+      <label><span data-i18n="cartanType">Cartan type</span> <select id="weight-system"></select></label>
+      <label><span data-i18n="preset">Preset</span> <select id="weight-preset"></select></label>
       <div id="weight-labels" class="label-sliders"></div>
     </div>
     <p id="weight-status" class="hint"></p>
@@ -723,11 +726,11 @@ _APPLICATION_HTML = r"""<!doctype html>
 
   <section id="products-panel" class="panel">
     <div class="controls">
-      <label>Cartan type <select id="product-system"></select></label>
-      <label>Product <select id="product-case"></select></label>
-      <label>Extraction step <input id="product-step" type="range" min="0" value="0"><output id="product-step-value">0</output></label>
-      <label>Inspect summand <select id="product-component"></select></label>
-      <label class="inline"><input id="product-factors" type="checkbox" checked> Show factor weights</label>
+      <label><span data-i18n="cartanType">Cartan type</span> <select id="product-system"></select></label>
+      <label><span data-i18n="product">Product</span> <select id="product-case"></select></label>
+      <label><span data-i18n="extractionStep">Extraction step</span> <input id="product-step" type="range" min="0" value="0"><output id="product-step-value">0</output></label>
+      <label><span data-i18n="inspectSummand">Inspect summand</span> <select id="product-component"></select></label>
+      <label class="inline"><input id="product-factors" type="checkbox" checked> <span data-i18n="showFactors">Show factor weights</span></label>
     </div>
     <div id="product-status" class="status"></div>
     <div class="product-grid">
@@ -740,6 +743,72 @@ _APPLICATION_HTML = r"""<!doctype html>
 <script>
   "use strict";
   const DATA = JSON.parse(document.getElementById("application-data").textContent);
+  const LOCALE = new URLSearchParams(window.location.search).get("lang") === "ja" ? "ja" : "en";
+  const MESSAGES = {
+    en: {
+      customLabels:"Custom Dynkin labels",
+      rootNote:"{groups}; {note}. Cartan matrix: \\(A={cartan}\\).",
+      weightStatus:"\\({system}\\) highest weight \\(({labels})\\); labels are precomputed for 0..3.",
+      productStatus:"\\({summary}\\)<br>{count} distinct weights; dimension invariant: \\({dimension}={decompositionDimension}\\).",
+    },
+    ja: {
+      title:"リー代数のルート・ウェイト・テンソル積",
+      lede:"階数2・3のルート系、既約最高ウェイト指標、テンソル積成分を段階的に取り出す過程を探究します。",
+      rootsTab:"1. ルート系", weightsTab:"2. 表現のウェイト", productsTab:"3. テンソル積",
+      cartanType:"カルタン型", showFundamental:"基本ウェイトを表示", preset:"プリセット",
+      product:"テンソル積", extractionStep:"抽出ステップ", inspectSummand:"既約成分を確認",
+      showFactors:"因子のウェイトを表示", customLabels:"ディンキンラベルを指定",
+      rootNote:"{groups}；{note}。カルタン行列：\\(A={cartan}\\)。",
+      weightStatus:"\\({system}\\) の最高ウェイト \\(({labels})\\)。各ラベルは0から3まで事前計算されています。",
+      productStatus:"\\({summary}\\)<br>異なるウェイトは{count}個；次元の不変量：\\({dimension}={decompositionDimension}\\)。",
+    },
+  };
+  const t = (key, values={}) => Object.entries(values).reduce(
+    (message, [name, value]) => message.replaceAll(`{${name}}`, value),
+    MESSAGES[LOCALE][key] ?? MESSAGES.en[key] ?? key,
+  );
+  const NOTE_JA = {
+    "simple, simply laced":"単純、単純結合型",
+    "isomorphic to C2; the long/short convention is dual":"C2と同型；長・短ルートの規約は双対",
+    "isomorphic to B2; the long/short convention is dual":"B2と同型；長・短ルートの規約は双対",
+    "A1 x A1":"A1 × A1", exceptional:"例外型", "isomorphic to D3":"D3と同型",
+    "odd orthogonal":"奇数次元直交型", "compact symplectic":"コンパクトシンプレクティック型",
+    "isomorphic to A3":"A3と同型",
+  };
+  const LABEL_REPLACEMENTS = [
+    ["traceless antisymmetric", "無跡反対称"], ["third fundamental", "第3基本表現"],
+    ["positive half-spinor", "正半スピノル"], ["negative half-spinor", "負半スピノル"],
+    ["half-spinor", "半スピノル"], ["antifundamental", "反基本表現"],
+    ["fundamental", "基本表現"], ["antisymmetric", "反対称表現"], ["symmetric", "対称表現"],
+    ["defining", "定義表現"], ["adjoint", "随伴表現"], ["spinor", "スピノル"],
+    ["vector", "ベクトル表現"], [" plus", "+"], [" minus", "−"], [" x ", " × "],
+  ];
+  function localizedLabel(value) {
+    if (LOCALE !== "ja") return value;
+    return LABEL_REPLACEMENTS.reduce((label, [source, replacement]) => label.replaceAll(source, replacement), value);
+  }
+  const systemLatex = system => system.replace(/^([A-Z])(\d+)$/, "$1_{$2}");
+  const matrixLatex = matrix => `\\begin{pmatrix}${matrix.map(row => row.join(" & ")).join(" \\\\ ")}\\end{pmatrix}`;
+  const decompositionLatex = value => value
+    .replaceAll("⊗", "\\otimes").replaceAll("⊕", "\\oplus").replaceAll("·", "\\,");
+  function typeset(target) {
+    if (!window.MathJax?.typesetPromise) return;
+    window.MathJax.typesetClear([target]);
+    window.MathJax.typesetPromise([target]);
+  }
+  function localizeStaticContent() {
+    document.documentElement.lang = LOCALE;
+    if (LOCALE !== "ja") return;
+    document.title = t("title");
+    document.querySelectorAll("[data-i18n]").forEach(element => { element.textContent = t(element.dataset.i18n); });
+    const aria = {
+      ".tabs":"エクスプローラーのセクション", "#root-plot":"ルート系の図",
+      "#weight-plot":"ウェイト図", "#product-plot":"テンソル積の残余指標",
+      "#component-plot":"既約成分のウェイト図",
+    };
+    Object.entries(aria).forEach(([selector, label]) => document.querySelector(selector)?.setAttribute("aria-label", label));
+  }
+  localizeStaticContent();
   const CONFIG = {scrollZoom:true, displaylogo:false, responsive:true};
   const systemKeys = Object.keys(DATA.systems);
   const byId = id => document.getElementById(id);
@@ -765,7 +834,11 @@ _APPLICATION_HTML = r"""<!doctype html>
     const fundamental = Number(byId("root-fundamental").checked);
     draw("root-plot", DATA.roots[`${system}|${fundamental}`]);
     const info = DATA.systems[system];
-    byId("root-note").textContent = `${info.groups}; ${info.note}. Cartan matrix: ${JSON.stringify(info.cartan)}`;
+    byId("root-note").innerHTML = t("rootNote", {
+      groups:info.groups, note:LOCALE === "ja" ? (NOTE_JA[info.note] ?? info.note) : info.note,
+      cartan:matrixLatex(info.cartan),
+    });
+    typeset(byId("root-note"));
   }
   byId("root-system").addEventListener("change", renderRoots);
   byId("root-fundamental").addEventListener("change", renderRoots);
@@ -774,16 +847,18 @@ _APPLICATION_HTML = r"""<!doctype html>
     const system = byId("weight-system").value;
     const info = DATA.systems[system];
     const preset = byId("weight-preset");
-    preset.replaceChildren(new Option("Custom Dynkin labels", ""), ...info.presets.map((item, i) => new Option(`${item.name} — (${item.labels.join(", ")})`, i)));
+    preset.replaceChildren(new Option(t("customLabels"), ""), ...info.presets.map((item, i) => new Option(`${localizedLabel(item.name)} — (${item.labels.join(", ")})`, i)));
     byId("weight-labels").replaceChildren(...Array.from({length:info.rank}, (_, i) => {
       const label = document.createElement("label");
-      label.textContent = `a${i + 1}`;
+      const symbol = document.createElement("span");
+      symbol.textContent = `\\(a_{${i + 1}}\\)`;
       const input = Object.assign(document.createElement("input"), {type:"range", min:0, max:3, step:1, value:i === 0 ? 1 : 0});
       input.dataset.index = i;
       const output = document.createElement("output");
       output.textContent = input.value;
       input.addEventListener("input", () => { output.textContent = input.value; preset.value = ""; renderWeights(); });
-      label.append(input, output);
+      label.append(symbol, input, output);
+      typeset(label);
       return label;
     }));
     renderWeights();
@@ -796,7 +871,10 @@ _APPLICATION_HTML = r"""<!doctype html>
     const labels = currentWeightLabels();
     const figure = DATA.weights[`${system}|${labels.join(",")}`];
     draw("weight-plot", figure);
-    byId("weight-status").textContent = `${system} highest weight (${labels.join(", ")}); labels are precomputed for 0..3.`;
+    byId("weight-status").innerHTML = t("weightStatus", {
+      system:systemLatex(system), labels:labels.join(", "),
+    });
+    typeset(byId("weight-status"));
   }
   byId("weight-system").addEventListener("change", configureWeightControls);
   byId("weight-preset").addEventListener("change", event => {
@@ -813,7 +891,7 @@ _APPLICATION_HTML = r"""<!doctype html>
   }
   function configureProductCases() {
     const cases = DATA.products[byId("product-system").value];
-    byId("product-case").replaceChildren(...cases.map((item, i) => new Option(item.name, i)));
+    byId("product-case").replaceChildren(...cases.map((item, i) => new Option(localizedLabel(item.name), i)));
     configureProductState();
   }
   function configureProductState() {
@@ -821,7 +899,9 @@ _APPLICATION_HTML = r"""<!doctype html>
     const step = byId("product-step");
     step.max = product.steps.length - 1; step.value = 0;
     const component = byId("product-component");
-    component.replaceChildren(...product.components.map((item, i) => new Option(item.name, i)));
+    component.replaceChildren(...product.components.map((item, i) => new Option(
+      LOCALE === "ja" ? item.name.replace("dim", "次元").replace(" x ", " × ") : item.name, i
+    )));
     renderProduct(); renderComponent();
   }
   function renderProduct() {
@@ -829,7 +909,11 @@ _APPLICATION_HTML = r"""<!doctype html>
     const step = Number(byId("product-step").value);
     byId("product-step-value").textContent = `${step} / ${product.steps.length - 1}`;
     draw("product-plot", product.steps[step], !byId("product-factors").checked);
-    byId("product-status").textContent = `${product.summary}\n${product.distinctWeights} distinct weights; dimension invariant: ${product.dimension} = ${product.decompositionDimension}.`;
+    byId("product-status").innerHTML = t("productStatus", {
+      summary:decompositionLatex(product.summary), count:product.distinctWeights, dimension:product.dimension,
+      decompositionDimension:product.decompositionDimension,
+    });
+    typeset(byId("product-status"));
   }
   function renderComponent() {
     const product = currentProduct();

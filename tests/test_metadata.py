@@ -14,12 +14,14 @@ def valid_metadata(identifier: str = "test-visualization") -> dict[str, object]:
     return {
         "id": identifier,
         "title": "Test Visualization",
+        "title_ja": "テスト可視化",
         "field": "quantum-mechanics",
         "topics": ["states"],
         "level": ["advanced undergraduate"],
         "runtime": "plotly-static",
         "page": f"quantum-mechanics/{identifier}",
         "summary": "A focused test visualization.",
+        "summary_ja": "要点を絞ったテスト可視化です。",
     }
 
 
@@ -37,6 +39,7 @@ def test_valid_metadata_passes(tmp_path: Path) -> None:
 
     assert metadata.id == "test-visualization"
     assert metadata.topics == ("states",)
+    assert metadata.localized_title("ja") == "テスト可視化"
 
 
 def test_browser_static_runtime_passes(tmp_path: Path) -> None:

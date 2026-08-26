@@ -18,14 +18,21 @@ def visualization_counts(project_root: Path) -> Counter[str]:
     return Counter(load_metadata(directory).field for directory in directories)
 
 
-def render_topic_cards(project_root: Path) -> str:
+def render_topic_cards(project_root: Path, locale: str = "en") -> str:
     """Return the home-page topic card grid as static HTML."""
+
+    if locale not in {"en", "ja"}:
+        raise ValueError(f"unsupported locale: {locale}")
 
     counts = visualization_counts(project_root)
     cards: list[str] = ['<div class="topic-grid">']
     for field in FIELDS:
         count = counts[field.slug]
-        noun = "visualization" if count == 1 else "visualizations"
+        noun = (
+            "件の可視化"
+            if locale == "ja"
+            else ("visualization" if count == 1 else "visualizations")
+        )
         image_style = (
             f" style=\"background-image: url('{escape(field.image, quote=True)}')\""
             if field.image
@@ -36,8 +43,10 @@ def render_topic_cards(project_root: Path) -> str:
                 f'<a class="topic-card" href="{escape(field.slug, quote=True)}/">',
                 f'  <span class="topic-card__media"{image_style} aria-hidden="true"></span>',
                 '  <span class="topic-card__body">',
-                f'    <strong class="topic-card__title">{escape(field.label)}</strong>',
-                f'    <span class="topic-card__summary">{escape(field.summary)}</span>',
+                '    <strong class="topic-card__title">'
+                f"{escape(field.localized_label(locale))}</strong>",
+                '    <span class="topic-card__summary">'
+                f"{escape(field.localized_summary(locale))}</span>",
                 f'    <span class="topic-card__count">{count} {noun}</span>',
                 "  </span>",
                 "</a>",
@@ -51,4 +60,4 @@ def define_env(env: Any) -> None:
     """Register project macros with Zensical."""
 
     project_root = Path(env.conf["root_dir"])
-    env.macro(lambda: render_topic_cards(project_root), "topic_cards")
+    env.macro(lambda locale="en": render_topic_cards(project_root, locale), "topic_cards")
