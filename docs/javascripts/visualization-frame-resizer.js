@@ -21,15 +21,18 @@
     frame.style.overflow = "hidden";
   }
 
+  function contentHeight(content) {
+    const main = content.querySelector("main");
+    if (!main) return content.documentElement.scrollHeight;
+    const bounds = main.getBoundingClientRect();
+    return bounds.top + Math.max(bounds.height, main.scrollHeight);
+  }
+
   function measureSameOriginFrame(frame) {
     try {
       const content = frame.contentDocument;
       if (!content?.body) return;
-      const main = content.querySelector("main");
-      const contentHeight = main
-        ? main.getBoundingClientRect().bottom
-        : content.documentElement.scrollHeight;
-      applyHeight(frame, contentHeight);
+      applyHeight(frame, contentHeight(content));
     } catch (_error) {
       // Cross-origin frames must use the postMessage path.
     }

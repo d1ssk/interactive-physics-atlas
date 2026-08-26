@@ -29,6 +29,7 @@ def test_static_build_contract(tmp_path, visualization):
     assert "window.frameElement.style.height" in html
     assert "new ResizeObserver(scheduleReport).observe(resizeTarget)" in html
     assert "Math.max(contentBottom" not in html
+    assert "Math.max(bounds.height, main.scrollHeight)" in html
     assert "Plotly" not in html
     assert "pyodide" not in html.lower()
 

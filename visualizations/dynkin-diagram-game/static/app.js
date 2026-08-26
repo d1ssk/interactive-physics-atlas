@@ -653,8 +653,9 @@ function installFrameHeightReporter() {
   function report() {
     scheduled = false;
     const main = document.querySelector("main");
-    const contentHeight = main
-      ? main.getBoundingClientRect().bottom
+    const bounds = main?.getBoundingClientRect();
+    const contentHeight = bounds
+      ? bounds.top + Math.max(bounds.height, main.scrollHeight)
       : document.documentElement.scrollHeight;
     const frameHeight = Math.ceil(contentHeight);
     try {

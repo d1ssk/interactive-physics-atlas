@@ -84,4 +84,8 @@ def test_shared_iframe_resizer_tracks_content_height() -> None:
     assert "new frameWindow.ResizeObserver" in source
     assert 'content.querySelector("main")' in source
     assert "Math.max(mainBottom, bodyHeight)" not in source
+    assert "Math.max(bounds.height, main.scrollHeight)" in source
     assert "observer.observe(main ?? content.body)" in source
+
+    stylesheet = (ROOT / "docs" / "stylesheets" / "extra.css").read_text(encoding="utf-8")
+    assert "box-sizing: content-box" in stylesheet

@@ -89,6 +89,7 @@ html[lang="ja"] .md-typeset {
 }
 
 .md-typeset iframe[data-auto-height] {
+  box-sizing: content-box;
   border: 1px solid var(--atlas-line) !important;
   border-radius: 0.55rem;
   background: #f8fafb;
