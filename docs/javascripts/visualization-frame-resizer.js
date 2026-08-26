@@ -10,7 +10,8 @@
   }
 
   function isExpectedOrigin(event) {
-    return window.location.origin === "null" || event.origin === window.location.origin;
+    const localFileFrame = window.location.protocol === "file:" && event.origin === "null";
+    return localFileFrame || event.origin === window.location.origin;
   }
 
   function applyHeight(frame, value) {

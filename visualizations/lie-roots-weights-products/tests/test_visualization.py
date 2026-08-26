@@ -74,4 +74,12 @@ def test_static_build_contract(tmp_path, monkeypatch, visualization):
     assert "Math.max(contentBottom" in html
     assert "main.scrollHeight" not in html
     assert "report();" in html
+    assert 'window.location.protocol === "file:" && event.origin === "null"' in html
+    assert 'window.addEventListener("load", report)' in html
+    assert 'window.addEventListener("resize", report)' in html
+    assert 'window.addEventListener("physics-atlas:mathjax-ready", report)' in html
+    assert "new ResizeObserver(report)" in html
+    assert 'window.location.protocol === "file:" && "MutationObserver" in window' in html
+    assert "new MutationObserver" in html
+    assert 'window.addEventListener("pagehide", () => observer.disconnect()' in html
     assert html.index('type:"physics-atlas:frame-height"') < html.index('id="application-data"')

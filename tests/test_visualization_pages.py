@@ -82,6 +82,7 @@ def test_shared_iframe_resizer_tracks_content_height() -> None:
     assert 'querySelectorAll("iframe[data-auto-height]")' in source
     assert "event.data?.type !== FRAME_HEIGHT_MESSAGE" in source
     assert "candidate.contentWindow === event.source" in source
+    assert 'window.location.protocol === "file:" && event.origin === "null"' in source
     assert "frame.style.height" in source
     assert 'frame.setAttribute("scrolling", "no")' in source
     assert 'frame.style.overflow = "hidden"' in source
