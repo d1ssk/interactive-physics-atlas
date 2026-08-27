@@ -35,7 +35,7 @@ const MESSAGES = {
     eyebrow: "インタラクティブ・リー理論", title: "ディンキン図形ビルダー",
     lede: "ノードを1つずつ追加して図形を構成します。エディターは全階数8までの有限結晶型を判定し、対応するカルタン行列を表示します。",
     mode: "モード", move: "移動", addNode: "ノードを追加", connect: "接続", bond: "辺",
-    single: "単辺", double: "二重辺", triple: "三重辺", reverse: "矢印を反転", delete: "削除",
+    single: "単辺", double: "二重辺", triple: "三重線", reverse: "矢印を反転", delete: "削除",
     undo: "元に戻す", redo: "やり直す", reset: "リセット",
     emptyHint: "クリックして最初のノードを追加", emptySubhint: "次に「接続」を選び、2つのノードを選択します",
     hintMove: "移動モード：ノードをドラッグして配置し、ノードまたは辺をクリックして選択します。",
