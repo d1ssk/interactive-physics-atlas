@@ -76,13 +76,6 @@ $$
 \begin{pmatrix}2&-1\\-3&2\end{pmatrix}
 $$
 
-The highest-weight explorer provides a curated set of named presets immediately.
-Other bounded dominant integral weights are calculated on demand by a local
-Pyodide Web Worker using the same authoritative Python implementation; this
-runtime is downloaded only after a calculation is requested. The tensor-product
-explorer continues to use selected small representations. These are browser
-resource limits, not mathematical restrictions, and no Python server is required.
-
 ## References
 
 - J. E. Humphreys, *Introduction to Lie Algebras and Representation Theory*.
