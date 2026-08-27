@@ -13,6 +13,7 @@ from .domain import (
     APPLICATION_SCHEMA,
     root_system_domain,
     tensor_product_domain,
+    validate_tensor_product_domain,
     weight_diagram_domain,
     weight_diagram_key,
 )
@@ -111,13 +112,9 @@ def _build_application_data() -> dict[str, object]:
                 register_weight(system_key, tuple(labels))
             for component in product.components:
                 register_weight(system_key, component.highest_dynkin)
-            product_cases.append(
-                {
-                    "id": str(case_index),
-                    "name": name,
-                    **tensor_product_domain(product),
-                }
-            )
+            product_data = tensor_product_domain(product)
+            validate_tensor_product_domain(product_data, weight_catalog)
+            product_cases.append({"id": str(case_index), "name": name, **product_data})
         product_catalog[system_key] = product_cases
     return {
         "schema": APPLICATION_SCHEMA,
@@ -168,9 +165,11 @@ _APPLICATION_HTML = r"""<!doctype html>
     .panel[hidden] { display:none; }
     .controls { display:flex; flex-wrap:wrap; align-items:end; gap:12px; padding:12px;
       border:1px solid var(--line); border-radius:8px; background:#f7f9fa; }
-    .custom-weight { display:flex; flex-wrap:wrap; align-items:end; gap:8px; margin:0; padding:7px 10px;
+    .custom-compute { display:flex; flex-wrap:wrap; align-items:end; gap:8px; margin:0; padding:7px 10px;
       border:1px solid var(--line); border-radius:6px; }
-    .custom-weight legend { padding:0 5px; color:var(--muted); font-size:.82rem; font-weight:650; }
+    .custom-compute legend { padding:0 5px; color:var(--muted); font-size:.82rem; font-weight:650; }
+    .factor-input { display:grid; gap:3px; color:var(--muted); font-size:.78rem; font-weight:650; }
+    .tensor-symbol { align-self:center; padding:0 2px 7px; }
     .dynkin-inputs { display:flex; gap:6px; }
     .dynkin-inputs label { display:grid; grid-template-columns:auto 4.5rem; align-items:center; gap:4px; }
     .dynkin-inputs input { width:4.5rem; padding:7px; border:1px solid #bac3c9; border-radius:5px; }
@@ -185,8 +184,12 @@ _APPLICATION_HTML = r"""<!doctype html>
     select { padding:7px 9px; border:1px solid #bac3c9; border-radius:5px; background:white; }
     .plot { width:100%; min-height:700px; }
     .product-grid { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(380px,.85fr); gap:12px; }
-    .status { white-space:pre-wrap; margin:12px 0 0; padding:10px 12px; border-left:3px solid var(--gold);
+    .status { margin:12px 0 0; padding:10px 12px; border-left:3px solid var(--gold);
       background:#fffaf0; line-height:1.45; }
+    .decomposition-equation { display:flex; flex-wrap:wrap; align-items:baseline;
+      column-gap:.55rem; row-gap:.35rem; }
+    .decomposition-chunk { max-width:100%; white-space:nowrap; }
+    .decomposition-meta { margin-top:.5rem; }
     .error { margin:0 0 12px; padding:10px 12px; border-left:3px solid #a33; background:#fff1f1; }
     .hint { color:var(--muted); font-size:.9rem; margin:10px 0 0; }
     @media (max-width:960px) { .product-grid { grid-template-columns:1fr; } main { padding:10px; }
@@ -243,7 +246,7 @@ _APPLICATION_HTML = r"""<!doctype html>
     <div class="controls">
       <label><span data-i18n="cartanType">Cartan type</span> <select id="weight-system"></select></label>
       <label><span data-i18n="preset">Preset</span> <select id="weight-preset"></select></label>
-      <fieldset class="custom-weight">
+      <fieldset class="custom-compute">
         <legend data-i18n="customHighestWeight">Custom highest weight</legend>
         <div id="weight-custom-labels" class="dynkin-inputs"></div>
         <button id="weight-compute" class="compute" type="button" data-i18n="calculateWeight">Calculate</button>
@@ -259,10 +262,19 @@ _APPLICATION_HTML = r"""<!doctype html>
     <div class="controls">
       <label><span data-i18n="cartanType">Cartan type</span> <select id="product-system"></select></label>
       <label><span data-i18n="product">Product</span> <select id="product-case"></select></label>
+      <fieldset class="custom-compute">
+        <legend data-i18n="customTwoFactorProduct">Custom two-factor product</legend>
+        <div class="factor-input"><span data-i18n="leftFactor">Left factor</span><div id="product-left-labels" class="dynkin-inputs"></div></div>
+        <span class="tensor-symbol">\(\otimes\)</span>
+        <div class="factor-input"><span data-i18n="rightFactor">Right factor</span><div id="product-right-labels" class="dynkin-inputs"></div></div>
+        <button id="product-compute" class="compute" type="button" data-i18n="calculateProduct">Calculate product</button>
+        <button id="product-cancel" class="cancel" type="button" data-i18n="cancelProduct" disabled>Cancel</button>
+      </fieldset>
       <label><span data-i18n="extractionStep">Extraction step</span> <input id="product-step" type="range" min="0" value="0"><output id="product-step-value">0</output></label>
       <label><span data-i18n="inspectSummand">Inspect summand</span> <select id="product-component"></select></label>
       <label class="inline"><input id="product-factors" type="checkbox" checked> <span data-i18n="showFactors">Show factor weights</span></label>
     </div>
+    <p id="product-runtime-status" class="hint" aria-live="polite"></p>
     <div id="product-status" class="status"></div>
     <div class="product-grid">
       <div id="product-plot" class="plot" role="img" aria-label="Residual tensor-product character"></div>
@@ -316,6 +328,8 @@ _APPLICATION_HTML = r"""<!doctype html>
   (async () => {
   "use strict";
   const DATA = JSON.parse(document.getElementById("application-data").textContent);
+  const RUNTIME_WEIGHTS = {};
+  let runtimeProduct = null;
   const LOCALE = new URLSearchParams(window.location.search).get("lang") === "ja" ? "ja" : "en";
   const MESSAGES = {
     en: {
@@ -324,6 +338,9 @@ _APPLICATION_HTML = r"""<!doctype html>
       customHighestWeight:"Custom highest weight", calculateWeight:"Calculate",
       replaceCalculation:"Replace calculation", cancelWeight:"Cancel",
       dynkinLabelAria:"Dynkin label {index}",
+      customTwoFactorProduct:"Custom two-factor product", leftFactor:"Left factor", rightFactor:"Right factor",
+      calculateProduct:"Calculate product", replaceProduct:"Replace product", cancelProduct:"Cancel",
+      productFactorAria:"Factor {factor}, Dynkin label {index}",
       phaseRuntimeLoading:"Loading the Pyodide runtime…", phaseKernelLoading:"Loading the Atlas Lie kernel…",
       phaseCalculating:"Calculating the weight diagram in a Worker…", phaseValidating:"Validating mathematical invariants…",
       phaseRendering:"Rendering the validated result…",
@@ -339,7 +356,12 @@ _APPLICATION_HTML = r"""<!doctype html>
       errorCANCELLED:"The calculation was cancelled.",
       errorSUPERSEDED:"A newer request replaced this calculation.",
       errorTIMEOUT:"The calculation exceeded the browser time limit. The Worker was reset and is ready for another request.",
-      productStatus:"\\({summary}\\)<br>{count} distinct weights; dimension invariant: \\({dimension}={decompositionDimension}\\).",
+      phaseProductCalculating:"Decomposing the tensor product in a Worker…",
+      phaseProductValidating:"Validating dimensions and character reconstruction…",
+      phaseProductRendering:"Rendering the validated tensor product…",
+      productErrorINVALID_INPUT:"Enter two dominant integral factors with the correct rank.",
+      productErrorLIMIT_EXCEEDED:"This product exceeds the current candidate, weight-pair, result, or time budget.",
+      productMetrics:"{count} distinct weights; dimension invariant: \\({dimension}={decompositionDimension}\\).",
     },
     ja: {
       title:"リー代数のルート・ウェイト・テンソル積",
@@ -349,6 +371,9 @@ _APPLICATION_HTML = r"""<!doctype html>
       customHighestWeight:"任意の最高ウェイト", calculateWeight:"計算",
       replaceCalculation:"計算を置換", cancelWeight:"キャンセル",
       dynkinLabelAria:"ディンキンラベル {index}",
+      customTwoFactorProduct:"任意の2因子テンソル積", leftFactor:"左因子", rightFactor:"右因子",
+      calculateProduct:"テンソル積を計算", replaceProduct:"計算を置換", cancelProduct:"キャンセル",
+      productFactorAria:"{factor}因子、ディンキンラベル {index}",
       product:"テンソル積", extractionStep:"抽出ステップ", inspectSummand:"既約成分を確認",
       showFactors:"因子のウェイトを表示",
       rootNote:"{groups}；{note}。カルタン行列：\\(A={cartan}\\)。",
@@ -368,7 +393,12 @@ _APPLICATION_HTML = r"""<!doctype html>
       errorCANCELLED:"計算をキャンセルしました。",
       errorSUPERSEDED:"新しい要求でこの計算を置き換えました。",
       errorTIMEOUT:"計算がブラウザ内の制限時間を超えました。Workerを再生成できる状態に戻しました。",
-      productStatus:"\\({summary}\\)<br>異なるウェイトは{count}個；次元の不変量：\\({dimension}={decompositionDimension}\\)。",
+      phaseProductCalculating:"Worker内でテンソル積を分解しています…",
+      phaseProductValidating:"次元と指標の再構成を検証しています…",
+      phaseProductRendering:"検証済みのテンソル積を描画しています…",
+      productErrorINVALID_INPUT:"階数に合う2つの支配的整ウェイトを入力してください。",
+      productErrorLIMIT_EXCEEDED:"このテンソル積は候補点、ウェイト対、結果サイズ、または時間の上限を超えています。",
+      productMetrics:"異なるウェイトは{count}個；次元の不変量：\\({dimension}={decompositionDimension}\\)。",
     },
   };
   const t = (key, values={}) => Object.entries(values).reduce(
@@ -397,8 +427,6 @@ _APPLICATION_HTML = r"""<!doctype html>
   }
   const systemLatex = system => system.replace(/^([A-Z])(\d+)$/, "$1_{$2}");
   const matrixLatex = matrix => `\\begin{pmatrix}${matrix.map(row => row.join(" & ")).join(" \\\\ ")}\\end{pmatrix}`;
-  const decompositionLatex = value => value
-    .replaceAll("⊗", "\\otimes").replaceAll("⊕", "\\oplus").replaceAll("·", "\\,");
   const pendingMathTargets = new Set();
   let mathFlushScheduled = false;
   function typeset(target) {
@@ -542,6 +570,7 @@ _APPLICATION_HTML = r"""<!doctype html>
     const highestLevel = Math.min(...diagram.levels);
     return diagram.displayWeights[diagram.levels.indexOf(highestLevel)];
   }
+  const weightData = key => RUNTIME_WEIGHTS[key] ?? DATA.weights[key];
   function weightFigure(diagram) {
     const rank = DATA.systems[diagram.system].rank;
     const traces = [coordinateTrace(rank, edgeSegments(diagram), {
@@ -595,7 +624,7 @@ _APPLICATION_HTML = r"""<!doctype html>
       const colors = ["#2A9D8F", "#E76F51", "#8F5DA2"];
       const symbols = ["circle-open", "square-open", "diamond-open"];
       product.factorWeightKeys.forEach((key, factorIndex) => {
-        const diagram = DATA.weights[key];
+        const diagram = weightData(key);
         const highest = product.factors[factorIndex];
         const hover = diagram.dynkinCoordinates.map((labels, index) =>
           `factor ${factorIndex + 1}: V${tupleText(highest)}<br>Dynkin: ${tupleText(labels)}<br>multiplicity: ${diagram.multiplicities[index]}`
@@ -613,7 +642,7 @@ _APPLICATION_HTML = r"""<!doctype html>
     }
     const component = product.components[stepIndex];
     if (component) {
-      const diagram = DATA.weights[component.weightKey];
+      const diagram = weightData(component.weightKey);
       traces.push(coordinateTrace(rank, [highestPoint(diagram)], {
         mode:"markers", marker:{size:14, symbol:"diamond-open", color:PALETTE.gold},
         text:[`highest: ${tupleText(component.highestDynkin)}<br>dim: ${component.dimension}<br>copies: ${component.multiplicity}`],
@@ -722,7 +751,8 @@ _APPLICATION_HTML = r"""<!doctype html>
 
   let requestSequence = 0;
   let computeProviderPromise = null;
-  let activeRequestId = null;
+  let activeWeightRequestId = null;
+  let activeProductRequestId = null;
   function runtimeBaseUrl() {
     const siteRoot = LOCALE === "ja" ? "../../../../" : "../../../";
     return new URL(
@@ -736,7 +766,7 @@ _APPLICATION_HTML = r"""<!doctype html>
       computeProviderPromise = import(new URL(DATA.runtime.providerAsset, base)).then(module =>
         new module.PyodideComputeProvider({
           workerUrl:new URL(DATA.runtime.workerAsset, base),
-          resultSchema:DATA.runtime.resultSchema,
+          resultSchemas:DATA.runtime.resultSchemas,
           runtime:{
             name:"pyodide", version:DATA.runtime.pyodideVersion,
             pythonVersion:DATA.runtime.pythonVersion, numpyVersion:DATA.runtime.numpyVersion,
@@ -764,18 +794,23 @@ _APPLICATION_HTML = r"""<!doctype html>
     byId("weight-cancel").disabled = !active;
   }
   function cancelActiveCalculation() {
-    const requestId = activeRequestId;
-    activeRequestId = null;
+    const requestId = activeWeightRequestId;
+    activeWeightRequestId = null;
     setCalculationActive(false);
     if (requestId && computeProviderPromise) {
       computeProviderPromise.then(provider => provider.cancel(requestId));
     }
   }
-  function customLabels() {
-    const values = [...byId("weight-custom-labels").querySelectorAll("input")].map(input => Number(input.value));
+  function readLabels(containerId) {
+    const values = [...byId(containerId).querySelectorAll("input")].map(
+      input => input.value === "" ? NaN : Number(input.value)
+    );
     const maximum = DATA.runtime.limits.maxDynkinLabel;
     if (values.some(value => !Number.isInteger(value) || value < 0 || value > maximum)) return null;
     return values;
+  }
+  function customLabels() {
+    return readLabels("weight-custom-labels");
   }
   async function calculateCustomWeight() {
     const system = byId("weight-system").value;
@@ -786,8 +821,10 @@ _APPLICATION_HTML = r"""<!doctype html>
     }
     const key = `${system}|${labels.join(",")}`;
     if (DATA.weights[key]) {
+      cancelActiveProductCalculation();
       cancelActiveCalculation();
       await draw("weight-plot", weightFigure(DATA.weights[key]));
+      if (activeWeightRequestId || activeProductRequestId) return;
       byId("weight-status").textContent = "";
       setRuntimeStatus("");
       return;
@@ -796,7 +833,7 @@ _APPLICATION_HTML = r"""<!doctype html>
       protocol:DATA.runtime.protocol,
       requestId:`weight-${Date.now()}-${++requestSequence}`,
       kernelVersion:DATA.runtime.kernelVersion,
-      operation:DATA.runtime.operation,
+      operation:DATA.runtime.operations.weight.name,
       input:{system, highestDynkin:labels},
       limits:{
         maxCandidates:DATA.runtime.limits.maxCandidates,
@@ -804,51 +841,119 @@ _APPLICATION_HTML = r"""<!doctype html>
         maxElapsedMs:DATA.runtime.limits.maxElapsedMs,
       },
     };
-    activeRequestId = request.requestId;
+    deactivateProductRequest();
+    activeWeightRequestId = request.requestId;
     setCalculationActive(true);
     try {
       const provider = await getComputeProvider();
       const response = await provider.compute(request, {onPhase:phase => {
-        if (activeRequestId !== request.requestId) return;
+        if (activeWeightRequestId !== request.requestId) return;
         const key = PHASE_MESSAGES[phase];
         if (key) setRuntimeStatus(t(key));
       }});
-      if (activeRequestId !== request.requestId) return;
+      if (activeWeightRequestId !== request.requestId) return;
       if (!response.ok) {
         setRuntimeStatus(t(`error${response.error?.code ?? "CALCULATION_FAILED"}`));
         return;
       }
       setRuntimeStatus(t("phaseRendering"));
       await draw("weight-plot", weightFigure(response.result));
+      if (activeWeightRequestId !== request.requestId) return;
       byId("weight-status").textContent = "";
       setRuntimeStatus("");
     } catch (error) {
       console.error(error);
-      if (activeRequestId === request.requestId) setRuntimeStatus(t("errorRUNTIME_LOAD_FAILED"));
+      if (activeWeightRequestId === request.requestId) setRuntimeStatus(t("errorRUNTIME_LOAD_FAILED"));
     } finally {
-      if (activeRequestId === request.requestId) {
-        activeRequestId = null;
+      if (activeWeightRequestId === request.requestId) {
+        activeWeightRequestId = null;
         setCalculationActive(false);
       }
     }
   }
   byId("weight-compute").addEventListener("click", calculateCustomWeight);
   byId("weight-cancel").addEventListener("click", async () => {
-    if (!activeRequestId || !computeProviderPromise) return;
+    const requestId = activeWeightRequestId;
+    if (!requestId || !computeProviderPromise) return;
     const provider = await computeProviderPromise;
-    provider.cancel(activeRequestId);
+    if (activeWeightRequestId === requestId) provider.cancel(requestId);
   });
   window.addEventListener("pagehide", () => {
     computeProviderPromise?.then(provider => provider.dispose());
   }, {once:true});
 
   function currentProduct() {
-    return DATA.products[byId("product-system").value][Number(byId("product-case").value)];
+    return runtimeProduct
+      ?? DATA.products[byId("product-system").value][Number(byId("product-case").value)];
+  }
+  function setProductRuntimeStatus(message) {
+    const target = byId("product-runtime-status");
+    target.textContent = message;
+    typeset(target);
+  }
+  function setProductCalculationActive(active) {
+    const button = byId("product-compute");
+    button.textContent = t(active ? "replaceProduct" : "calculateProduct");
+    button.setAttribute("aria-busy", String(active));
+    byId("product-cancel").disabled = !active;
+  }
+  function deactivateProductRequest() {
+    activeProductRequestId = null;
+    setProductCalculationActive(false);
+  }
+  function deactivateWeightRequest() {
+    activeWeightRequestId = null;
+    setCalculationActive(false);
+  }
+  function cancelActiveProductCalculation() {
+    const requestId = activeProductRequestId;
+    deactivateProductRequest();
+    if (requestId && computeProviderPromise) {
+      computeProviderPromise.then(provider => provider.cancel(requestId));
+    }
+  }
+  function configureProductInputs() {
+    const rank = DATA.systems[byId("product-system").value].rank;
+    const defaults = [[2, ...Array(rank - 1).fill(0)], [1, 1, ...Array(rank - 2).fill(0)]];
+    ["left", "right"].forEach((factor, factorIndex) => {
+      const inputs = Array.from({length:rank}, (_, index) => {
+        const label = document.createElement("label");
+        const symbol = document.createElement("span");
+        symbol.textContent = `\\(a_{${index + 1}}\\)`;
+        const input = document.createElement("input");
+        input.type = "number"; input.min = "0";
+        input.max = String(DATA.runtime.limits.maxDynkinLabel); input.step = "1";
+        input.value = String(defaults[factorIndex][index]);
+        input.setAttribute("aria-label", t("productFactorAria", {
+          factor:t(factor === "left" ? "leftFactor" : "rightFactor"), index:index + 1,
+        }));
+        label.append(symbol, input);
+        return label;
+      });
+      const container = byId(`product-${factor}-labels`);
+      container.replaceChildren(...inputs);
+      typeset(container);
+    });
+  }
+  function customProductFactors() {
+    const factors = ["left", "right"].map(factor =>
+      readLabels(`product-${factor}-labels`)
+    );
+    if (factors.some(labels => labels === null)) return null;
+    return factors;
+  }
+  function sameLabels(left, right) {
+    return left.length === right.length && left.every((value, index) => value === right[index]);
   }
   function configureProductCases() {
+    cancelActiveProductCalculation();
+    runtimeProduct = null;
+    Object.keys(RUNTIME_WEIGHTS).forEach(key => delete RUNTIME_WEIGHTS[key]);
     const cases = DATA.products[byId("product-system").value];
     byId("product-case").replaceChildren(...cases.map((item, i) => new Option(localizedLabel(item.name), i)));
+    configureProductInputs();
     configureProductState();
+    setProductRuntimeStatus("");
   }
   function configureProductState() {
     const product = currentProduct();
@@ -858,29 +963,138 @@ _APPLICATION_HTML = r"""<!doctype html>
     component.replaceChildren(...product.components.map((item, i) => new Option(
       LOCALE === "ja" ? item.name.replace("dim", "次元").replace(" x ", " × ") : item.name, i
     )));
-    renderProduct(); renderComponent();
+    return Promise.all([renderProduct(), renderComponent()]);
   }
   function renderProduct() {
     const product = currentProduct();
     const step = Number(byId("product-step").value);
     byId("product-step-value").textContent = `${step} / ${product.steps.length - 1}`;
-    draw("product-plot", productFigure(product, step, byId("product-factors").checked));
-    byId("product-status").innerHTML = t("productStatus", {
-      summary:decompositionLatex(product.summary), count:product.distinctWeights, dimension:product.dimension,
+    const drawing = draw("product-plot", productFigure(product, step, byId("product-factors").checked));
+    const equation = document.createElement("div");
+    equation.className = "decomposition-equation";
+    const factors = product.factors.map((labels, index) => {
+      const dimension = weightData(product.factorWeightKeys[index]).dimension;
+      return `V(${labels.join(",")})[${dimension}]`;
+    });
+    const chunks = [
+      `${factors.join("\\otimes ")}=`,
+      ...product.components.map((component, index) => {
+        const prefix = component.multiplicity > 1 ? `${component.multiplicity}\\,` : "";
+        const operator = index > 0 ? "\\oplus " : "";
+        return `${operator}${prefix}V(${component.highestDynkin.join(",")})[${component.dimension}]`;
+      }),
+    ];
+    equation.replaceChildren(...chunks.map(latex => {
+      const chunk = document.createElement("span");
+      chunk.className = "decomposition-chunk";
+      chunk.textContent = `\\(${latex}\\)`;
+      return chunk;
+    }));
+    const metrics = document.createElement("div");
+    metrics.className = "decomposition-meta";
+    metrics.textContent = t("productMetrics", {
+      count:product.distinctWeights, dimension:product.dimension,
       decompositionDimension:product.decompositionDimension,
     });
-    typeset(byId("product-status"));
+    const status = byId("product-status");
+    status.replaceChildren(equation, metrics);
+    typeset(status);
+    return drawing;
   }
   function renderComponent() {
     const product = currentProduct();
     const component = product.components[Number(byId("product-component").value)];
-    draw("component-plot", weightFigure(DATA.weights[component.weightKey]));
+    return draw("component-plot", weightFigure(weightData(component.weightKey)));
+  }
+  async function calculateCustomProduct() {
+    const system = byId("product-system").value;
+    const factors = customProductFactors();
+    if (!factors) {
+      setProductRuntimeStatus(t("productErrorINVALID_INPUT"));
+      return;
+    }
+    const staticProduct = DATA.products[system].find(product =>
+      product.factors.length === 2
+      && sameLabels(product.factors[0], factors[0])
+      && sameLabels(product.factors[1], factors[1])
+    );
+    if (staticProduct) {
+      cancelActiveCalculation();
+      cancelActiveProductCalculation();
+      Object.keys(RUNTIME_WEIGHTS).forEach(key => delete RUNTIME_WEIGHTS[key]);
+      runtimeProduct = staticProduct;
+      await configureProductState();
+      if (activeWeightRequestId || activeProductRequestId) return;
+      setProductRuntimeStatus("");
+      return;
+    }
+    const request = {
+      protocol:DATA.runtime.protocol,
+      requestId:`tensor-${Date.now()}-${++requestSequence}`,
+      kernelVersion:DATA.runtime.kernelVersion,
+      operation:DATA.runtime.operations.tensorProduct.name,
+      input:{system, factors},
+      limits:{
+        maxCandidates:DATA.runtime.limits.maxCandidates,
+        maxWeightPairs:DATA.runtime.limits.maxWeightPairs,
+        maxResultWeights:DATA.runtime.limits.maxResultWeights,
+        maxElapsedMs:DATA.runtime.limits.maxElapsedMs,
+      },
+    };
+    deactivateWeightRequest();
+    activeProductRequestId = request.requestId;
+    setProductCalculationActive(true);
+    const phaseMessages = {
+      "runtime-loading":"phaseRuntimeLoading", "kernel-loading":"phaseKernelLoading",
+      calculating:"phaseProductCalculating", validating:"phaseProductValidating",
+    };
+    try {
+      const provider = await getComputeProvider();
+      const response = await provider.compute(request, {onPhase:phase => {
+        if (activeProductRequestId !== request.requestId) return;
+        const key = phaseMessages[phase];
+        if (key) setProductRuntimeStatus(t(key));
+      }});
+      if (activeProductRequestId !== request.requestId) return;
+      if (!response.ok) {
+        const code = response.error?.code ?? "CALCULATION_FAILED";
+        const productKey = `productError${code}`;
+        setProductRuntimeStatus(t(MESSAGES[LOCALE][productKey] ? productKey : `error${code}`));
+        return;
+      }
+      setProductRuntimeStatus(t("phaseProductRendering"));
+      Object.keys(RUNTIME_WEIGHTS).forEach(key => delete RUNTIME_WEIGHTS[key]);
+      Object.assign(RUNTIME_WEIGHTS, response.dependencies.weights);
+      runtimeProduct = response.result;
+      await configureProductState();
+      if (activeProductRequestId !== request.requestId) return;
+      setProductRuntimeStatus("");
+    } catch (error) {
+      console.error(error);
+      if (activeProductRequestId === request.requestId) {
+        setProductRuntimeStatus(t("errorRUNTIME_LOAD_FAILED"));
+      }
+    } finally {
+      if (activeProductRequestId === request.requestId) deactivateProductRequest();
+    }
   }
   byId("product-system").addEventListener("change", configureProductCases);
-  byId("product-case").addEventListener("change", configureProductState);
+  byId("product-case").addEventListener("change", () => {
+    cancelActiveProductCalculation(); runtimeProduct = null;
+    Object.keys(RUNTIME_WEIGHTS).forEach(key => delete RUNTIME_WEIGHTS[key]);
+    configureProductState();
+    setProductRuntimeStatus("");
+  });
   byId("product-step").addEventListener("input", renderProduct);
   byId("product-component").addEventListener("change", renderComponent);
   byId("product-factors").addEventListener("change", renderProduct);
+  byId("product-compute").addEventListener("click", calculateCustomProduct);
+  byId("product-cancel").addEventListener("click", async () => {
+    const requestId = activeProductRequestId;
+    if (!requestId || !computeProviderPromise) return;
+    const provider = await computeProviderPromise;
+    if (activeProductRequestId === requestId) provider.cancel(requestId);
+  });
 
   renderRoots();
   configureWeightControls();

@@ -14,7 +14,7 @@ def test_compute_provider_lifecycle_contract():
         import pytest
 
         pytest.skip("Node.js is unavailable")
-    test_file = Path(__file__).with_name("provider-v2.test.mjs")
+    test_file = Path(__file__).with_name("provider-v3.test.mjs")
 
     completed = subprocess.run(
         [node, "--test", str(test_file)],
@@ -48,12 +48,20 @@ def test_application_data_uses_versioned_domain_schemas(
     assert application["schema"] == domain.APPLICATION_SCHEMA
     assert application["kernelVersion"] == protocol.KERNEL_VERSION
     assert application["runtime"]["protocol"] == protocol.COMPUTE_PROTOCOL_SCHEMA
-    assert application["runtime"]["operation"] == protocol.WEIGHT_OPERATION
-    assert application["runtime"]["resultSchema"] == protocol.WEIGHT_RESULT_SCHEMA
+    assert application["runtime"]["operations"]["weight"] == {
+        "name": protocol.WEIGHT_OPERATION,
+        "resultSchema": protocol.WEIGHT_RESULT_SCHEMA,
+    }
+    assert application["runtime"]["operations"]["tensorProduct"] == {
+        "name": protocol.TENSOR_PRODUCT_OPERATION,
+        "resultSchema": protocol.TENSOR_PRODUCT_RESULT_SCHEMA,
+    }
+    assert application["runtime"]["resultSchemas"] == protocol.RESULT_SCHEMAS
     assert application["runtime"]["limits"]["maxElapsedMs"] == protocol.DEFAULT_MAX_ELAPSED_MS
     assert (
         application["runtime"]["limits"]["memoryCacheEntries"] == protocol.MEMORY_CACHE_MAX_ENTRIES
     )
+    assert application["runtime"]["limits"]["maxWeightPairs"] == protocol.DEFAULT_MAX_WEIGHT_PAIRS
     assert set(application["systems"]) == {
         *physics.RANK2_SYSTEMS,
         *physics.RANK3_SYSTEMS,
@@ -110,6 +118,9 @@ def test_domain_results_preserve_scientific_invariants(physics, domain):
     )
 
     product = physics.tensor_product("A2", (1, 0), (0, 1))
+    product_data = domain.tensor_product_domain(product)
+    dependencies = domain.tensor_product_weight_dependencies(product)
+    domain.validate_tensor_product_domain(product_data, dependencies)
     steps = [
         domain.residual_character_domain(product, step)
         for step in range(len(product.components) + 1)
@@ -171,6 +182,9 @@ def test_static_build_contract(
     provider = (runtime_dir / runtime_build.PROVIDER_ASSET_NAME).read_text(encoding="utf-8")
     assert "__COMPUTE_PROTOCOL__" not in worker
     assert protocol.COMPUTE_PROTOCOL_SCHEMA in worker
+    assert domain.CHARACTER_SCHEMA in worker
+    assert protocol.TENSOR_PRODUCT_OPERATION in worker
+    assert protocol.TENSOR_PRODUCT_RESULT_SCHEMA in worker
     assert runtime_build.KERNEL_WHEEL_NAME in worker
     assert "from physics_atlas_lie_kernel.kernel import handle_request_json" in worker
     assert "import plotly" not in worker.lower()
@@ -182,6 +196,7 @@ def test_static_build_contract(
     assert 'this.#stopActive("TIMEOUT")' in provider
     assert 'return this.#stopActive("CANCELLED")' in provider
     assert "#cache = new Map()" in provider
+    assert "#resultSchemas" in provider
     assert 'new Worker(url, {type:"module"' in provider
     assert (runtime_dir / runtime_build.PROVIDER_ASSET_NAME).stat().st_size <= 24_576
     assert (runtime_dir / runtime_build.WORKER_ASSET_NAME).stat().st_size <= 12_288
@@ -197,10 +212,33 @@ def test_static_build_contract(
     assert "new module.PyodideComputeProvider({" in html
     assert "maximumTimeoutMs:DATA.runtime.limits.hardMaxElapsedMs" in html
     assert 'id="weight-cancel"' in html
+    assert 'id="product-compute"' in html
+    assert 'id="product-cancel"' in html
+    assert 'input.value === "" ? NaN : Number(input.value)' in html
+    assert "if (activeWeightRequestId !== request.requestId) return;" in html
+    assert "if (activeProductRequestId !== request.requestId) return;" in html
+    assert "const requestId = activeWeightRequestId;" in html
+    assert "if (activeWeightRequestId === requestId) provider.cancel(requestId);" in html
+    assert "const requestId = activeProductRequestId;" in html
+    assert "if (activeProductRequestId === requestId) provider.cancel(requestId);" in html
+    assert 'customTwoFactorProduct:"Custom two-factor product"' in html
+    assert 'customTwoFactorProduct:"任意の2因子テンソル積"' in html
     assert 'calculateWeight:"Calculate"' in html
     assert 'calculateWeight:"計算"' in html
-    for removed_message in ("runtimeHint", "runtimeResult", "cachedResult", "staticResult"):
+    for removed_message in (
+        "runtimeHint",
+        "runtimeResult",
+        "cachedResult",
+        "staticResult",
+        "productRuntimeResult",
+        "productCachedResult",
+        "productStaticResult",
+    ):
         assert removed_message not in html
+    assert 'className = "decomposition-equation"' in html
+    assert 'className = "decomposition-chunk"' in html
+    assert 'factors.join("\\\\otimes ")' in html
+    assert 'operator = index > 0 ? "\\\\oplus " : ""' in html
     assert "Try the non-preset highest weight" not in html
     assert "プリセットにない最高ウェイト" not in html
     assert 'aria-live="polite"' in html

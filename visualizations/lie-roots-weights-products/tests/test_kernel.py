@@ -32,6 +32,43 @@ def test_nonpreset_a2_weight_request_matches_native_domain_data(
     assert response["result"]["kernelVersion"] == protocol.KERNEL_VERSION
 
 
+def test_nonpreset_a2_tensor_product_matches_native_domain_data(
+    physics,
+    domain,
+    kernel,
+    protocol,
+):
+    request = protocol.tensor_product_compute_request(
+        "a2-tensor",
+        "A2",
+        [2, 0],
+        [1, 1],
+    )
+
+    response = kernel.handle_request(request)
+    native_product = physics.tensor_product(
+        "A2",
+        (2, 0),
+        (1, 1),
+        max_weight_pairs=protocol.DEFAULT_MAX_WEIGHT_PAIRS,
+        max_candidates=protocol.DEFAULT_MAX_CANDIDATES,
+    )
+    native_result = domain.tensor_product_domain(native_product)
+    native_dependencies = domain.tensor_product_weight_dependencies(native_product)
+
+    assert response == {
+        "protocol": protocol.COMPUTE_PROTOCOL_SCHEMA,
+        "requestId": "a2-tensor",
+        "kernelVersion": protocol.KERNEL_VERSION,
+        "operation": protocol.TENSOR_PRODUCT_OPERATION,
+        "ok": True,
+        "result": native_result,
+        "dependencies": {"weights": native_dependencies},
+    }
+    assert response["result"]["dimension"] == 48
+    domain.validate_tensor_product_domain(response["result"], response["dependencies"]["weights"])
+
+
 @pytest.mark.parametrize(
     ("mutation", "error_code"),
     [
@@ -57,6 +94,32 @@ def test_kernel_returns_stable_error_codes(kernel, protocol, mutation, error_cod
     assert error_code in protocol.ERROR_CODES
 
 
+@pytest.mark.parametrize(
+    ("mutation", "error_code"),
+    [
+        (lambda request: request["input"]["factors"].append([0, 0]), "INVALID_INPUT"),
+        (lambda request: request["input"]["factors"].__setitem__(0, [1]), "INVALID_INPUT"),
+        (lambda request: request["input"]["factors"].__setitem__(1, [-1, 0]), "INVALID_INPUT"),
+        (lambda request: request["limits"].update(maxWeightPairs=1), "LIMIT_EXCEEDED"),
+        (lambda request: request["limits"].update(maxWeightPairs=2_000_001), "LIMIT_EXCEEDED"),
+        (lambda request: request["limits"].update(maxCandidates=1), "LIMIT_EXCEEDED"),
+    ],
+)
+def test_tensor_kernel_enforces_two_factor_resource_contract(
+    kernel,
+    protocol,
+    mutation,
+    error_code,
+):
+    request = protocol.tensor_product_compute_request("bounded", "A2", [2, 0], [1, 1])
+    mutation(request)
+
+    response = kernel.handle_request(request)
+
+    assert response["ok"] is False
+    assert response["error"] == {"code": error_code}
+
+
 def test_kernel_json_boundary_is_plain_json(kernel, protocol):
     request = protocol.weight_compute_request("json", "A2", [4, 0])
 
@@ -75,6 +138,17 @@ def test_domain_validator_rejects_dimension_mismatch(physics, domain):
 
     with pytest.raises(ArithmeticError, match="sum to the dimension"):
         domain.validate_weight_diagram_domain(invalid)
+
+
+def test_tensor_domain_validator_rejects_character_reconstruction_mismatch(physics, domain):
+    product = physics.tensor_product("A2", (2, 0), (1, 1))
+    result = domain.tensor_product_domain(product)
+    dependencies = domain.tensor_product_weight_dependencies(product)
+    invalid = copy.deepcopy(result)
+    invalid["steps"][1]["multiplicities"][0] += 1
+
+    with pytest.raises(ArithmeticError, match="extraction step"):
+        domain.validate_tensor_product_domain(invalid, dependencies)
 
 
 def test_display_coordinates_are_canonical_across_runtime_roundoff(domain):

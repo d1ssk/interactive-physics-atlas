@@ -1,9 +1,9 @@
 /**
- * Bounded, lazy Worker-backed compute provider.
+ * Bounded, lazy Worker-backed compute provider for versioned JSON operations.
  *
- * The public boundary contains only language-neutral JSON. Because Pyodide's
- * Python execution is synchronous inside the Worker, cancellation, timeout,
- * and supersession terminate that Worker and recreate it on the next request.
+ * Because Pyodide's Python execution is synchronous inside the Worker,
+ * cancellation, timeout, and supersession terminate that Worker and recreate
+ * it on the next request. No Pyodide object crosses this public boundary.
  */
 
 function stableStringify(value) {
@@ -28,7 +28,7 @@ export class PyodideComputeProvider {
   #cache = new Map();
   #cacheEntries;
   #maximumTimeoutMs;
-  #resultSchema;
+  #resultSchemas;
   #runtime;
   #now;
   #setTimeout;
@@ -36,17 +36,17 @@ export class PyodideComputeProvider {
 
   constructor({
     workerUrl,
-    resultSchema,
+    resultSchemas,
     runtime,
     cacheEntries = 16,
     maximumTimeoutMs = 60000,
-    workerFactory = url => new Worker(url, {type:"module", name:"lie-weight-kernel"}),
+    workerFactory = url => new Worker(url, {type:"module", name:"lie-compute-kernel"}),
     now = () => performance.now(),
     setTimeoutFn = (callback, delay) => setTimeout(callback, delay),
     clearTimeoutFn = timer => clearTimeout(timer),
   }) {
-    if (!resultSchema || !runtime?.name || !runtime?.version) {
-      throw new TypeError("The provider requires resultSchema and runtime identity");
+    if (!resultSchemas || !Object.keys(resultSchemas).length || !runtime?.name || !runtime?.version) {
+      throw new TypeError("The provider requires result schemas and runtime identity");
     }
     if (!Number.isInteger(cacheEntries) || cacheEntries < 0) {
       throw new TypeError("cacheEntries must be a non-negative integer");
@@ -55,7 +55,7 @@ export class PyodideComputeProvider {
       throw new TypeError("maximumTimeoutMs must be a positive integer");
     }
     this.#workerUrl = workerUrl;
-    this.#resultSchema = resultSchema;
+    this.#resultSchemas = cloneJson(resultSchemas);
     this.#runtime = cloneJson(runtime);
     this.#cacheEntries = cacheEntries;
     this.#maximumTimeoutMs = maximumTimeoutMs;
@@ -83,13 +83,14 @@ export class PyodideComputeProvider {
   #cacheKey(request) {
     return stableStringify({
       protocol:request.protocol,
-      resultSchema:this.#resultSchema,
+      resultSchema:this.#resultSchemas[request.operation],
       kernelVersion:request.kernelVersion,
       runtime:this.#runtime,
       operation:request.operation,
       input:request.input,
       limits:{
         maxCandidates:request.limits?.maxCandidates,
+        maxWeightPairs:request.limits?.maxWeightPairs,
         maxResultWeights:request.limits?.maxResultWeights,
       },
     });
@@ -164,6 +165,9 @@ export class PyodideComputeProvider {
   compute(request, {onPhase} = {}) {
     if (!request || typeof request.requestId !== "string" || !request.requestId) {
       return Promise.reject(new TypeError("A compute request requires requestId"));
+    }
+    if (!this.#resultSchemas[request.operation]) {
+      return Promise.resolve(this.#errorResponse(request, "UNSUPPORTED_OPERATION"));
     }
     const timeoutMs = request.limits?.maxElapsedMs;
     if (!Number.isInteger(timeoutMs) || timeoutMs <= 0) {
