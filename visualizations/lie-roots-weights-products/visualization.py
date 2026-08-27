@@ -806,7 +806,9 @@ _APPLICATION_HTML = r"""<!doctype html>
     }
   }
   function customLabels() {
-    const values = [...byId("weight-custom-labels").querySelectorAll("input")].map(input => Number(input.value));
+    const values = [...byId("weight-custom-labels").querySelectorAll("input")].map(
+      input => input.value === "" ? NaN : Number(input.value)
+    );
     const maximum = DATA.runtime.limits.maxDynkinLabel;
     if (values.some(value => !Number.isInteger(value) || value < 0 || value > maximum)) return null;
     return values;
@@ -820,8 +822,10 @@ _APPLICATION_HTML = r"""<!doctype html>
     }
     const key = `${system}|${labels.join(",")}`;
     if (DATA.weights[key]) {
+      cancelActiveProductCalculation();
       cancelActiveCalculation();
       await draw("weight-plot", weightFigure(DATA.weights[key]));
+      if (activeWeightRequestId || activeProductRequestId) return;
       byId("weight-status").textContent = "";
       setRuntimeStatus("");
       return;
@@ -855,6 +859,7 @@ _APPLICATION_HTML = r"""<!doctype html>
       }
       setRuntimeStatus(t("phaseRendering"));
       await draw("weight-plot", weightFigure(response.result));
+      if (activeWeightRequestId !== request.requestId) return;
       byId("weight-status").textContent = "";
       setRuntimeStatus("");
     } catch (error) {
@@ -933,7 +938,9 @@ _APPLICATION_HTML = r"""<!doctype html>
   function customProductFactors() {
     const maximum = DATA.runtime.limits.maxDynkinLabel;
     const factors = ["left", "right"].map(factor =>
-      [...byId(`product-${factor}-labels`).querySelectorAll("input")].map(input => Number(input.value))
+      [...byId(`product-${factor}-labels`).querySelectorAll("input")].map(
+        input => input.value === "" ? NaN : Number(input.value)
+      )
     );
     if (factors.flat().some(value =>
       !Number.isInteger(value) || value < 0 || value > maximum
@@ -993,9 +1000,12 @@ _APPLICATION_HTML = r"""<!doctype html>
       && sameLabels(product.factors[1], factors[1])
     );
     if (staticProduct) {
+      cancelActiveCalculation();
       cancelActiveProductCalculation();
+      Object.keys(RUNTIME_WEIGHTS).forEach(key => delete RUNTIME_WEIGHTS[key]);
       runtimeProduct = staticProduct;
       await configureProductState();
+      if (activeWeightRequestId || activeProductRequestId) return;
       setProductRuntimeStatus(t("productStaticResult"));
       return;
     }
@@ -1038,6 +1048,7 @@ _APPLICATION_HTML = r"""<!doctype html>
       Object.assign(RUNTIME_WEIGHTS, response.dependencies.weights);
       runtimeProduct = response.result;
       await configureProductState();
+      if (activeProductRequestId !== request.requestId) return;
       const values = {
         system:systemLatex(system), left:factors[0].join(", "), right:factors[1].join(", "),
       };
@@ -1055,7 +1066,9 @@ _APPLICATION_HTML = r"""<!doctype html>
   }
   byId("product-system").addEventListener("change", configureProductCases);
   byId("product-case").addEventListener("change", () => {
-    cancelActiveProductCalculation(); runtimeProduct = null; configureProductState();
+    cancelActiveProductCalculation(); runtimeProduct = null;
+    Object.keys(RUNTIME_WEIGHTS).forEach(key => delete RUNTIME_WEIGHTS[key]);
+    configureProductState();
     setProductRuntimeStatus("");
   });
   byId("product-step").addEventListener("input", renderProduct);
