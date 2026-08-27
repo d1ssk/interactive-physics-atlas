@@ -49,6 +49,10 @@ so that one scientifically identical figure payload can be shared.
 - Dynamic UI text that contains LaTeX must be passed through MathJax after every relevant update.
   Wait for `MathJax.startup.promise`, clear previous typesetting for changed targets, and use
   `typesetPromise` rather than assuming initial page typesetting covers later content.
+- Long dynamic equations must remain usable at narrow widths. Because one MathJax inline
+  expression does not wrap naturally, split it into structured LaTeX chunks at mathematically
+  valid breakpoints such as `\oplus`, keep each operator with its continuation term, and allow
+  the chunks to wrap. Do not clip the equation or expose raw LaTeX as a fallback.
 - Emit or handle `physics-atlas:mathjax-ready` when MathJax completion can change application
   height. Raw commands such as `\begin{pmatrix}` must never remain visible in either locale.
 - Keep structural code notation only where it is genuinely code-like. Mathematical Lie types,

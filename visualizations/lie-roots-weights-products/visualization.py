@@ -184,8 +184,12 @@ _APPLICATION_HTML = r"""<!doctype html>
     select { padding:7px 9px; border:1px solid #bac3c9; border-radius:5px; background:white; }
     .plot { width:100%; min-height:700px; }
     .product-grid { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(380px,.85fr); gap:12px; }
-    .status { white-space:pre-wrap; margin:12px 0 0; padding:10px 12px; border-left:3px solid var(--gold);
+    .status { margin:12px 0 0; padding:10px 12px; border-left:3px solid var(--gold);
       background:#fffaf0; line-height:1.45; }
+    .decomposition-equation { display:flex; flex-wrap:wrap; align-items:baseline;
+      column-gap:.55rem; row-gap:.35rem; }
+    .decomposition-chunk { max-width:100%; white-space:nowrap; }
+    .decomposition-meta { margin-top:.5rem; }
     .error { margin:0 0 12px; padding:10px 12px; border-left:3px solid #a33; background:#fff1f1; }
     .hint { color:var(--muted); font-size:.9rem; margin:10px 0 0; }
     @media (max-width:960px) { .product-grid { grid-template-columns:1fr; } main { padding:10px; }
@@ -355,12 +359,9 @@ _APPLICATION_HTML = r"""<!doctype html>
       phaseProductCalculating:"Decomposing the tensor product in a Worker…",
       phaseProductValidating:"Validating dimensions and character reconstruction…",
       phaseProductRendering:"Rendering the validated tensor product…",
-      productRuntimeResult:"Computed \\({system}\\), \\(({left})\\otimes({right})\\) in {elapsed} ms.",
-      productCachedResult:"Reused the validated in-memory tensor-product result for \\({system}\\), \\(({left})\\otimes({right})\\).",
-      productStaticResult:"This product is already available as static domain data; the runtime was not loaded.",
       productErrorINVALID_INPUT:"Enter two dominant integral factors with the correct rank.",
       productErrorLIMIT_EXCEEDED:"This product exceeds the current candidate, weight-pair, result, or time budget.",
-      productStatus:"\\({summary}\\)<br>{count} distinct weights; dimension invariant: \\({dimension}={decompositionDimension}\\).",
+      productMetrics:"{count} distinct weights; dimension invariant: \\({dimension}={decompositionDimension}\\).",
     },
     ja: {
       title:"リー代数のルート・ウェイト・テンソル積",
@@ -395,12 +396,9 @@ _APPLICATION_HTML = r"""<!doctype html>
       phaseProductCalculating:"Worker内でテンソル積を分解しています…",
       phaseProductValidating:"次元と指標の再構成を検証しています…",
       phaseProductRendering:"検証済みのテンソル積を描画しています…",
-      productRuntimeResult:"\\({system}\\) の \\(({left})\\otimes({right})\\) を {elapsed} ms で計算しました。",
-      productCachedResult:"検証済みのメモリ内結果を再利用して、\\({system}\\) の \\(({left})\\otimes({right})\\) を表示しました。",
-      productStaticResult:"このテンソル積は静的な数理データとして収録済みです。ランタイムは読み込んでいません。",
       productErrorINVALID_INPUT:"階数に合う2つの支配的整ウェイトを入力してください。",
       productErrorLIMIT_EXCEEDED:"このテンソル積は候補点、ウェイト対、結果サイズ、または時間の上限を超えています。",
-      productStatus:"\\({summary}\\)<br>異なるウェイトは{count}個；次元の不変量：\\({dimension}={decompositionDimension}\\)。",
+      productMetrics:"異なるウェイトは{count}個；次元の不変量：\\({dimension}={decompositionDimension}\\)。",
     },
   };
   const t = (key, values={}) => Object.entries(values).reduce(
@@ -429,8 +427,6 @@ _APPLICATION_HTML = r"""<!doctype html>
   }
   const systemLatex = system => system.replace(/^([A-Z])(\d+)$/, "$1_{$2}");
   const matrixLatex = matrix => `\\begin{pmatrix}${matrix.map(row => row.join(" & ")).join(" \\\\ ")}\\end{pmatrix}`;
-  const decompositionLatex = value => value
-    .replaceAll("⊗", "\\otimes").replaceAll("⊕", "\\oplus").replaceAll("·", "\\,");
   const pendingMathTargets = new Set();
   let mathFlushScheduled = false;
   function typeset(target) {
@@ -975,11 +971,35 @@ _APPLICATION_HTML = r"""<!doctype html>
     const step = Number(byId("product-step").value);
     byId("product-step-value").textContent = `${step} / ${product.steps.length - 1}`;
     const drawing = draw("product-plot", productFigure(product, step, byId("product-factors").checked));
-    byId("product-status").innerHTML = t("productStatus", {
-      summary:decompositionLatex(product.summary), count:product.distinctWeights, dimension:product.dimension,
+    const equation = document.createElement("div");
+    equation.className = "decomposition-equation";
+    const factors = product.factors.map((labels, index) => {
+      const dimension = weightData(product.factorWeightKeys[index]).dimension;
+      return `V(${labels.join(",")})[${dimension}]`;
+    });
+    const chunks = [
+      `${factors.join("\\otimes")}=`,
+      ...product.components.map((component, index) => {
+        const prefix = component.multiplicity > 1 ? `${component.multiplicity}\\,` : "";
+        const operator = index > 0 ? "\\oplus " : "";
+        return `${operator}${prefix}V(${component.highestDynkin.join(",")})[${component.dimension}]`;
+      }),
+    ];
+    equation.replaceChildren(...chunks.map(latex => {
+      const chunk = document.createElement("span");
+      chunk.className = "decomposition-chunk";
+      chunk.textContent = `\\(${latex}\\)`;
+      return chunk;
+    }));
+    const metrics = document.createElement("div");
+    metrics.className = "decomposition-meta";
+    metrics.textContent = t("productMetrics", {
+      count:product.distinctWeights, dimension:product.dimension,
       decompositionDimension:product.decompositionDimension,
     });
-    typeset(byId("product-status"));
+    const status = byId("product-status");
+    status.replaceChildren(equation, metrics);
+    typeset(status);
     return drawing;
   }
   function renderComponent() {
@@ -1006,7 +1026,7 @@ _APPLICATION_HTML = r"""<!doctype html>
       runtimeProduct = staticProduct;
       await configureProductState();
       if (activeWeightRequestId || activeProductRequestId) return;
-      setProductRuntimeStatus(t("productStaticResult"));
+      setProductRuntimeStatus("");
       return;
     }
     const request = {
@@ -1049,12 +1069,7 @@ _APPLICATION_HTML = r"""<!doctype html>
       runtimeProduct = response.result;
       await configureProductState();
       if (activeProductRequestId !== request.requestId) return;
-      const values = {
-        system:systemLatex(system), left:factors[0].join(", "), right:factors[1].join(", "),
-      };
-      setProductRuntimeStatus(response.provider.cacheHit
-        ? t("productCachedResult", values)
-        : t("productRuntimeResult", {...values, elapsed:response.provider.elapsedMs}));
+      setProductRuntimeStatus("");
     } catch (error) {
       console.error(error);
       if (activeProductRequestId === request.requestId) {

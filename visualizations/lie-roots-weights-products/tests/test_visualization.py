@@ -221,8 +221,19 @@ def test_static_build_contract(
     assert 'customTwoFactorProduct:"任意の2因子テンソル積"' in html
     assert 'calculateWeight:"Calculate"' in html
     assert 'calculateWeight:"計算"' in html
-    for removed_message in ("runtimeHint", "runtimeResult", "cachedResult", "staticResult"):
+    for removed_message in (
+        "runtimeHint",
+        "runtimeResult",
+        "cachedResult",
+        "staticResult",
+        "productRuntimeResult",
+        "productCachedResult",
+        "productStaticResult",
+    ):
         assert removed_message not in html
+    assert 'className = "decomposition-equation"' in html
+    assert 'className = "decomposition-chunk"' in html
+    assert 'operator = index > 0 ? "\\\\oplus " : ""' in html
     assert "Try the non-preset highest weight" not in html
     assert "プリセットにない最高ウェイト" not in html
     assert 'aria-live="polite"' in html

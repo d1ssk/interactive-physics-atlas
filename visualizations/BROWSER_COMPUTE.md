@@ -131,6 +131,12 @@ labels, and recovery guidance must be aligned in English and Japanese. Plot
 internals remain English when the repository policy permits a shared figure
 payload.
 
+Use the transient runtime status for active phases, errors, cancellation, and
+recovery guidance. After a successful static, calculated, or cached result has
+rendered, clear that status and let the visible validated result confirm
+completion. Do not keep calculation timing or cache provenance on screen unless
+it supports a specific user decision.
+
 Browser QA uses the final generated site served from `site/` over loopback HTTP.
 For a runtime change, verify at minimum:
 
