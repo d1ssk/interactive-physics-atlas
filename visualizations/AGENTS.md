@@ -73,21 +73,22 @@ second measurement formula without an explicit repository-wide change.
    again on load, resize, MathJax readiness, font readiness, and explicit parent requests.
 6. Observe body and main size changes with `ResizeObserver`, retain the observer for the page
    lifetime, and disconnect it on `pagehide`.
-7. Support direct `file://` viewing. In Chrome, a file parent reports `location.origin` as
-   `file://`, child messages arrive with `event.origin === "null"`, the parent cannot read
-   `iframe.contentDocument`, and the child can have `window.frameElement === null`. Therefore:
-   - accept a `"null"` message origin only when the receiving page uses the `file:` protocol
-   - on the parent, also require `event.source` to equal the target iframe's `contentWindow`
-   - never rely exclusively on direct `frameElement` mutation or same-origin DOM inspection
-   - use the existing file-only debounced `MutationObserver` fallback because Chrome may suppress
-     `ResizeObserver` delivery in an opaque-origin child frame
+7. Support the published HTTP/HTTPS execution contract. Visualization iframes and their parent
+   pages are same-origin in the built site. Therefore:
+   - send messages to the explicit `window.location.origin`, never `"*"`
+   - require both the expected origin and expected parent/frame window when receiving messages
+   - retain both the child height report and parent same-origin measurement paths
+   - use `ResizeObserver` for content-size changes; do not add a second `file://`-only observer or
+     loader path
+   - treat direct `file://` opening as unsupported; local browser QA must serve the built site over
+     loopback HTTP
 8. Any interaction that changes application height—tabs, expanding details, localized text,
    responsive reflow, or dynamically rendered mathematics—must trigger the reporting lifecycle.
 
-Height QA must exercise the built site, not a manually edited generated file. At minimum, verify
-English and Japanese over both HTTP and `file:///.../site/...`, change every height-changing panel
-at least once, and compare the iframe client height with the rounded bottom of `main`. Also inspect
-the rendered bottom edge visually; equality with `documentElement.scrollHeight` alone can miss the
+Height QA must exercise the built site, not a manually edited generated file. At minimum, serve
+`site/` over loopback HTTP, verify English and Japanese, change every height-changing panel at
+least once, and compare the iframe client height with the rounded bottom of `main`. Also inspect the
+rendered bottom edge visually; equality with `documentElement.scrollHeight` alone can miss the
 original trailing-whitespace failure.
 
 ## Tests

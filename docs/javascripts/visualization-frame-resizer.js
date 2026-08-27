@@ -3,7 +3,7 @@
 
   const FRAME_HEIGHT_MESSAGE = "physics-atlas:frame-height";
   const FRAME_HEIGHT_REQUEST = "physics-atlas:request-frame-height";
-  const FRAME_TARGET_ORIGIN = window.location.protocol === "file:" ? "*" : window.location.origin;
+  const FRAME_TARGET_ORIGIN = window.location.origin;
   const frameObservers = new WeakMap();
 
   function visualizationFrames() {
@@ -11,8 +11,7 @@
   }
 
   function isExpectedOrigin(event) {
-    const localFileFrame = window.location.protocol === "file:" && event.origin === "null";
-    return localFileFrame || event.origin === window.location.origin;
+    return event.origin === FRAME_TARGET_ORIGIN;
   }
 
   function applyHeight(frame, value) {
