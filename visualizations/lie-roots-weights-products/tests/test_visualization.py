@@ -233,6 +233,7 @@ def test_static_build_contract(
         assert removed_message not in html
     assert 'className = "decomposition-equation"' in html
     assert 'className = "decomposition-chunk"' in html
+    assert 'factors.join("\\\\otimes ")' in html
     assert 'operator = index > 0 ? "\\\\oplus " : ""' in html
     assert "Try the non-preset highest weight" not in html
     assert "プリセットにない最高ウェイト" not in html

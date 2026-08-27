@@ -801,13 +801,16 @@ _APPLICATION_HTML = r"""<!doctype html>
       computeProviderPromise.then(provider => provider.cancel(requestId));
     }
   }
-  function customLabels() {
-    const values = [...byId("weight-custom-labels").querySelectorAll("input")].map(
+  function readLabels(containerId) {
+    const values = [...byId(containerId).querySelectorAll("input")].map(
       input => input.value === "" ? NaN : Number(input.value)
     );
     const maximum = DATA.runtime.limits.maxDynkinLabel;
     if (values.some(value => !Number.isInteger(value) || value < 0 || value > maximum)) return null;
     return values;
+  }
+  function customLabels() {
+    return readLabels("weight-custom-labels");
   }
   async function calculateCustomWeight() {
     const system = byId("weight-system").value;
@@ -932,15 +935,10 @@ _APPLICATION_HTML = r"""<!doctype html>
     });
   }
   function customProductFactors() {
-    const maximum = DATA.runtime.limits.maxDynkinLabel;
     const factors = ["left", "right"].map(factor =>
-      [...byId(`product-${factor}-labels`).querySelectorAll("input")].map(
-        input => input.value === "" ? NaN : Number(input.value)
-      )
+      readLabels(`product-${factor}-labels`)
     );
-    if (factors.flat().some(value =>
-      !Number.isInteger(value) || value < 0 || value > maximum
-    )) return null;
+    if (factors.some(labels => labels === null)) return null;
     return factors;
   }
   function sameLabels(left, right) {
@@ -978,7 +976,7 @@ _APPLICATION_HTML = r"""<!doctype html>
       return `V(${labels.join(",")})[${dimension}]`;
     });
     const chunks = [
-      `${factors.join("\\otimes")}=`,
+      `${factors.join("\\otimes ")}=`,
       ...product.components.map((component, index) => {
         const prefix = component.multiplicity > 1 ? `${component.multiplicity}\\,` : "";
         const operator = index > 0 ? "\\oplus " : "";
