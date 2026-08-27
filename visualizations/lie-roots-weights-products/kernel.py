@@ -10,6 +10,7 @@ from .physics import get_root_system, representation_weights
 from .protocol import (
     COMPUTE_PROTOCOL_SCHEMA,
     HARD_MAX_CANDIDATES,
+    HARD_MAX_ELAPSED_MS,
     HARD_MAX_RESULT_WEIGHTS,
     KERNEL_VERSION,
     MAX_DYNKIN_LABEL,
@@ -90,6 +91,7 @@ def _validate_request(request: object) -> tuple[str, tuple[int, ...], int, int]:
         "maxResultWeights",
         HARD_MAX_RESULT_WEIGHTS,
     )
+    _bounded_integer(limits, "maxElapsedMs", HARD_MAX_ELAPSED_MS)
     return root_system.key, labels, max_candidates, max_result_weights
 
 

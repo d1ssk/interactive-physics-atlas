@@ -3,6 +3,7 @@ import {loadPyodide} from "./pyodide/pyodide.mjs";
 const PROTOCOL = "__COMPUTE_PROTOCOL__";
 const KERNEL_VERSION = "__KERNEL_VERSION__";
 const WEIGHT_OPERATION = "__WEIGHT_OPERATION__";
+const WEIGHT_RESULT_SCHEMA = "__WEIGHT_RESULT_SCHEMA__";
 const KERNEL_WHEEL = "__KERNEL_WHEEL__";
 const RUNTIME = Object.freeze({
   name:"pyodide",
@@ -53,7 +54,7 @@ function validateWeightResult(request, response) {
   }
   if (!response.ok) return;
   const result = response.result;
-  if (result?.schema !== "physics-atlas.weight-diagram.v1" || result.kernelVersion !== KERNEL_VERSION) {
+  if (result?.schema !== WEIGHT_RESULT_SCHEMA || result.kernelVersion !== KERNEL_VERSION) {
     throw new Error("Invalid weight result schema");
   }
   const arrays = [
