@@ -148,6 +148,9 @@ def test_static_build_contract(
     assert runtime_build.KERNEL_WHEEL_NAME in worker
     assert "from physics_atlas_lie_kernel.kernel import handle_request_json" in worker
     assert "import plotly" not in worker.lower()
+    assert worker.index("const pyodide = await ensureRuntime(requestId)") < worker.index(
+        'loading = false;\n    reportPhase(requestId, "calculating")'
+    )
     assert "#worker = null" in provider
     assert "this.#ensureWorker().postMessage(request)" in provider
     assert 'new Worker(url, {type:"module"' in provider

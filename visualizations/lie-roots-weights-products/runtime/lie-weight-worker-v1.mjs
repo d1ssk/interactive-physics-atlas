@@ -87,6 +87,7 @@ self.addEventListener("message", async event => {
   try {
     loading = !runtimePromise;
     const pyodide = await ensureRuntime(requestId);
+    loading = false;
     reportPhase(requestId, "calculating");
     pyodide.globals.set("__atlas_request_json", JSON.stringify(request));
     let responseJson;
