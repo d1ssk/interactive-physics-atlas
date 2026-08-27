@@ -756,34 +756,30 @@ _APPLICATION_HTML = r"""<!doctype html>
 <script>
   (() => {
     if (window.parent === window) return;
-    const parentTargetOrigin = window.location.protocol === "file:" ? "*" : window.location.origin;
+    const PARENT_TARGET_ORIGIN = window.location.origin;
     function report() {
       const main = document.querySelector("main");
       const contentBottom = main ? main.getBoundingClientRect().bottom : 0;
       const contentHeight = Math.max(contentBottom, document.body.getBoundingClientRect().height);
       const frameHeight = Math.ceil(contentHeight);
-      try {
-        if (window.frameElement) {
-          window.frameElement.style.minHeight = "0";
-          window.frameElement.style.height = `${frameHeight}px`;
-          window.frameElement.setAttribute("scrolling", "no");
-          window.frameElement.style.overflow = "hidden";
-        }
-      } catch (_error) {
-        // Cross-origin embedding falls back to postMessage.
+      if (window.frameElement) {
+        window.frameElement.style.minHeight = "0";
+        window.frameElement.style.height = `${frameHeight}px`;
+        window.frameElement.setAttribute("scrolling", "no");
+        window.frameElement.style.overflow = "hidden";
       }
       window.parent.postMessage(
         {type:"physics-atlas:frame-height", height:frameHeight},
-        parentTargetOrigin,
+        PARENT_TARGET_ORIGIN,
       );
     }
     window.addEventListener("load", report);
     window.addEventListener("resize", report);
     window.addEventListener("physics-atlas:mathjax-ready", report);
     window.addEventListener("message", event => {
-      const localFileParent = window.location.protocol === "file:" && event.origin === "null";
-      const expectedOrigin = localFileParent || event.origin === window.location.origin;
-      if (expectedOrigin && event.data?.type === "physics-atlas:request-frame-height") {
+      const expectedParent = event.source === window.parent;
+      const expectedOrigin = event.origin === PARENT_TARGET_ORIGIN;
+      if (expectedParent && expectedOrigin && event.data?.type === "physics-atlas:request-frame-height") {
         report();
       }
     });
@@ -793,27 +789,6 @@ _APPLICATION_HTML = r"""<!doctype html>
       const main = document.querySelector("main");
       if (main) observer.observe(main);
       window.addEventListener("pagehide", () => observer.disconnect(), {once: true});
-    }
-    if (window.location.protocol === "file:" && "MutationObserver" in window) {
-      let reportTimer;
-      const observer = new MutationObserver(() => {
-        window.clearTimeout(reportTimer);
-        reportTimer = window.setTimeout(report, 0);
-      });
-      const main = document.querySelector("main");
-      if (main) {
-        observer.observe(main, {
-          attributes: true,
-          attributeFilter: ["class", "hidden", "open", "style"],
-          characterData: true,
-          childList: true,
-          subtree: true,
-        });
-      }
-      window.addEventListener("pagehide", () => {
-        window.clearTimeout(reportTimer);
-        observer.disconnect();
-      }, {once: true});
     }
     document.fonts?.ready.then(report);
     report();

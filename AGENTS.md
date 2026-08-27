@@ -51,6 +51,9 @@ Visual appeal is important, but must never override correctness.
     home page.
 13. Translation must never change a physical equation, mathematical convention, numerical
     result, or plot data.
+14. Published applications are supported over HTTP/HTTPS. Use a loopback HTTP server for local
+    browser QA; direct `file://` viewing is unsupported and must not drive alternate loaders,
+    wildcard messaging, or browser-specific fallback paths.
 
 ## Bilingual content policy
 

@@ -105,9 +105,12 @@ def test_shared_iframe_resizer_tracks_content_height() -> None:
     assert 'querySelectorAll("iframe[data-auto-height]")' in source
     assert "event.data?.type !== FRAME_HEIGHT_MESSAGE" in source
     assert "candidate.contentWindow === event.source" in source
-    assert 'window.location.protocol === "file:" && event.origin === "null"' in source
-    assert 'const FRAME_TARGET_ORIGIN = window.location.protocol === "file:" ? "*"' in source
+    assert "const FRAME_TARGET_ORIGIN = window.location.origin" in source
+    assert "event.origin === FRAME_TARGET_ORIGIN" in source
     assert "postMessage({type: FRAME_HEIGHT_REQUEST}, FRAME_TARGET_ORIGIN)" in source
+    assert 'window.location.protocol === "file:"' not in source
+    assert 'event.origin === "null"' not in source
+    assert 'FRAME_TARGET_ORIGIN = "*"' not in source
     assert "frame.style.height" in source
     assert 'frame.setAttribute("scrolling", "no")' in source
     assert 'frame.style.overflow = "hidden"' in source
@@ -121,6 +124,17 @@ def test_shared_iframe_resizer_tracks_content_height() -> None:
 
     stylesheet = (ROOT / "docs" / "stylesheets" / "extra.css").read_text(encoding="utf-8")
     assert "box-sizing: content-box" in stylesheet
+
+
+def test_repository_documents_http_visualization_preview() -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    root_contract = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+    visualization_contract = (ROOT / "visualizations" / "AGENTS.md").read_text(encoding="utf-8")
+
+    assert "python -m http.server --bind 127.0.0.1 --directory site 8000" in readme
+    assert "http://127.0.0.1:8000/" in readme
+    assert "direct `file://` viewing is unsupported" in root_contract
+    assert "local browser QA must serve the built site over" in visualization_contract
 
 
 def test_docs_mathjax_callbacks_wait_for_startup() -> None:

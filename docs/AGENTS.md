@@ -49,7 +49,7 @@ After changing an embed or its surrounding layout, build the complete site and v
 following:
 
 - English and Japanese pages
-- normal HTTP serving and direct `file:///.../site/.../index.html` viewing
+- the built site served over loopback HTTP and the production HTTP/HTTPS path
 - initial load and every UI state that materially changes height
 - a desktop width and a narrow mobile width
 - the iframe bottom is aligned with the last meaningful child element, not merely that

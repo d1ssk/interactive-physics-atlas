@@ -39,6 +39,19 @@ uv run python scripts/build_site.py
 uv run zensical serve
 ```
 
+Published applications are supported over HTTP/HTTPS rather than direct `file://` opening. To
+inspect the complete bilingual production build locally, build it and serve `site/` from a
+loopback address:
+
+```bash
+uv run python scripts/build_site.py
+uv run python -m http.server --bind 127.0.0.1 --directory site 8000
+```
+
+Then open the English site at `http://127.0.0.1:8000/` or the Japanese site at
+`http://127.0.0.1:8000/ja/`. This same-origin HTTP environment is also the local development
+contract for module workers and future WebAssembly assets.
+
 The main repository areas are:
 
 ```text
