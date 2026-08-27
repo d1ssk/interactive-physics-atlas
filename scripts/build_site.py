@@ -8,7 +8,13 @@ from pathlib import Path
 from build_visualizations import build_all
 from validate_metadata import validate_all
 
-from physics_atlas.assets import MATHJAX_LICENSE_PATH, MATHJAX_SVG_PATH
+from physics_atlas.assets import (
+    MATHJAX_LICENSE_PATH,
+    MATHJAX_SVG_PATH,
+    PLOTLY_GL3D_ASSET_NAME,
+    PLOTLY_LICENSE_ASSET_NAME,
+    copy_shared_plotly_assets,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 ENGLISH_DOCS_DIR = ROOT / "docs"
@@ -31,6 +37,7 @@ def stage_english_docs() -> Path:
     javascript_dir.mkdir(parents=True, exist_ok=True)
     shutil.copy2(MATHJAX_SVG_PATH, javascript_dir / "mathjax-tex-svg.js")
     shutil.copy2(MATHJAX_LICENSE_PATH, javascript_dir / "mathjax-LICENSE.txt")
+    copy_shared_plotly_assets(ENGLISH_BUILD_DOCS_DIR)
     return ENGLISH_BUILD_DOCS_DIR
 
 
@@ -41,6 +48,9 @@ def stage_japanese_docs() -> Path:
         shutil.rmtree(JAPANESE_BUILD_DOCS_DIR)
     shutil.copytree(ENGLISH_BUILD_DOCS_DIR, JAPANESE_BUILD_DOCS_DIR)
     shutil.copytree(JAPANESE_DOCS_DIR, JAPANESE_BUILD_DOCS_DIR, dirs_exist_ok=True)
+    javascript_dir = JAPANESE_BUILD_DOCS_DIR / "javascripts"
+    for shared_asset in (PLOTLY_GL3D_ASSET_NAME, PLOTLY_LICENSE_ASSET_NAME):
+        (javascript_dir / shared_asset).unlink()
     return JAPANESE_BUILD_DOCS_DIR
 
 

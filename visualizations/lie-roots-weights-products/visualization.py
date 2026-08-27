@@ -1,522 +1,29 @@
-"""Plotly rendering and static application builder for Lie-algebra structures."""
+"""Domain-data and browser application builder for Lie-algebra structures."""
 
 # ruff: noqa: E501 -- embedded HTML/CSS/JavaScript is kept readable in its native syntax.
 
 from __future__ import annotations
 
-import itertools
 import json
 from pathlib import Path
 
-import numpy as np
-import plotly.graph_objects as go
-from plotly.offline import get_plotlyjs
-from plotly.utils import PlotlyJSONEncoder
+from physics_atlas.assets import PLOTLY_GL3D_ASSET_NAME, copy_mathjax_assets
 
-from physics_atlas.assets import copy_mathjax_assets
-
+from .domain import (
+    APPLICATION_SCHEMA,
+    root_system_domain,
+    tensor_product_domain,
+    weight_diagram_domain,
+    weight_diagram_key,
+)
 from .physics import (
     RANK2_SYSTEMS,
     RANK3_SYSTEMS,
     REPRESENTATION_PRESETS,
-    TensorProduct,
-    WeightDiagram,
-    decomposition_residual_character,
-    format_decomposition,
     get_root_system,
     representation_weights,
     tensor_product_many,
 )
-
-PALETTE = {
-    "blue": "#3B6FB6",
-    "blue_light": "#83A6D6",
-    "blue_dark": "#244A73",
-    "gold": "#C69214",
-    "violet": "#6A4C93",
-    "ink": "#263238",
-    "muted": "#687078",
-    "grid": "#DDE2E6",
-    "background": "#FCFCFD",
-}
-
-PLOTLY_CONFIG = {"scrollZoom": True, "displaylogo": False, "responsive": True}
-
-
-def _axis_style(title: str, *, three_dimensional: bool = False) -> dict[str, object]:
-    style: dict[str, object] = {
-        "title": title,
-        "gridcolor": PALETTE["grid"],
-        "zerolinecolor": PALETTE["muted"],
-        "showspikes": False,
-    }
-    if three_dimensional:
-        style["showbackground"] = False
-    else:
-        style["automargin"] = True
-    return style
-
-
-def _apply_layout(figure: go.Figure, rank: int, title: str) -> go.Figure:
-    common = {
-        "template": None,
-        "title": {
-            "text": title,
-            "x": 0.01,
-            "xanchor": "left",
-            "y": 0.98,
-            "yanchor": "top",
-            "font": {"size": 18},
-        },
-        "paper_bgcolor": PALETTE["background"],
-        "plot_bgcolor": PALETTE["background"],
-        "font": {"family": "Arial, sans-serif", "color": PALETTE["ink"]},
-        "legend": {
-            "orientation": "h",
-            "yanchor": "top",
-            "y": -0.1,
-            "xanchor": "left",
-            "x": 0.0,
-        },
-        "margin": {"l": 55, "r": 25, "b": 125, "t": 90},
-        "height": 700,
-    }
-    if rank == 2:
-        figure.update_layout(
-            **common,
-            dragmode="pan",
-            xaxis={**_axis_style("v1"), "scaleanchor": "y", "scaleratio": 1},
-            yaxis=_axis_style("v2"),
-        )
-    else:
-        figure.update_layout(
-            **common,
-            scene={
-                "xaxis": _axis_style("v1", three_dimensional=True),
-                "yaxis": _axis_style("v2", three_dimensional=True),
-                "zaxis": _axis_style("v3", three_dimensional=True),
-                "aspectmode": "data",
-                "camera": {"eye": {"x": 1.55, "y": 1.45, "z": 1.15}},
-                "dragmode": "turntable",
-            },
-        )
-    return figure
-
-
-def _length_classes(vectors: np.ndarray) -> tuple[np.ndarray, list[float]]:
-    lengths = np.linalg.norm(vectors, axis=1)
-    unique = sorted({round(float(value), 8) for value in lengths})
-    classes = np.asarray(
-        [min(range(len(unique)), key=lambda index: abs(value - unique[index])) for value in lengths]
-    )
-    return classes, unique
-
-
-def _segments(points: np.ndarray, rank: int):
-    coordinates: list[list[float | None]] = [[] for _ in range(rank)]
-    for point in points:
-        for axis in range(rank):
-            coordinates[axis].extend([0.0, float(point[axis]), None])
-    return coordinates
-
-
-def _integer_tuple(values: np.ndarray) -> tuple[int, ...]:
-    return tuple(int(value) for value in values)
-
-
-def plot_root_system(
-    system: str,
-    show_fundamental_weights: bool = False,
-) -> go.Figure:
-    """Return a Plotly root-system figure for rank 2 or rank 3."""
-
-    root_system = get_root_system(system)
-    points = root_system.display_roots
-    classes, lengths = _length_classes(points)
-    figure = go.Figure()
-    for class_index in range(len(lengths)):
-        mask = classes == class_index
-        selected = points[mask]
-        name = (
-            "roots" if len(lengths) == 1 else ("short roots" if class_index == 0 else "long roots")
-        )
-        color = (
-            PALETTE["blue"]
-            if len(lengths) == 1
-            else (PALETTE["blue_light"] if class_index == 0 else PALETTE["blue_dark"])
-        )
-        coordinates = _segments(selected, root_system.rank)
-        coroot_labels = np.asarray(
-            [
-                np.rint(
-                    2.0
-                    * root
-                    @ root_system.simple_roots.T
-                    / np.einsum("ij,ij->i", root_system.simple_roots, root_system.simple_roots)
-                ).astype(int)
-                for root in root_system.roots[mask]
-            ]
-        )
-        hover = []
-        for point, labels in zip(selected, coroot_labels, strict=True):
-            first_nonzero = next(value for value in point if abs(value) > 1e-9)
-            sign = "positive" if first_nonzero > 0 else "negative"
-            vector_text = tuple(round(float(value), 4) for value in point)
-            hover.append(
-                f"v = {vector_text}<br>{sign} root<br>coroot coordinates: {_integer_tuple(labels)}"
-            )
-        if root_system.rank == 2:
-            figure.add_trace(
-                go.Scatter(
-                    x=coordinates[0],
-                    y=coordinates[1],
-                    mode="lines",
-                    line={"color": color, "width": 2},
-                    name=name,
-                    hoverinfo="skip",
-                )
-            )
-            figure.add_trace(
-                go.Scatter(
-                    x=selected[:, 0],
-                    y=selected[:, 1],
-                    mode="markers",
-                    marker={"size": 7, "color": color},
-                    text=hover,
-                    hovertemplate="%{text}<extra></extra>",
-                    showlegend=False,
-                )
-            )
-        else:
-            figure.add_trace(
-                go.Scatter3d(
-                    x=coordinates[0],
-                    y=coordinates[1],
-                    z=coordinates[2],
-                    mode="lines",
-                    line={"color": color, "width": 4},
-                    name=name,
-                    hoverinfo="skip",
-                )
-            )
-            figure.add_trace(
-                go.Scatter3d(
-                    x=selected[:, 0],
-                    y=selected[:, 1],
-                    z=selected[:, 2],
-                    mode="markers",
-                    marker={"size": 2, "color": color},
-                    text=hover,
-                    hovertemplate="%{text}<extra></extra>",
-                    showlegend=False,
-                )
-            )
-
-    simple = root_system.display_simple_roots
-    for index, point in enumerate(simple):
-        coordinates = _segments(point[np.newaxis, :], root_system.rank)
-        common = {
-            "mode": "lines+markers",
-            "line": {"color": PALETTE["gold"], "width": 7},
-            "marker": {
-                "size": 8 if root_system.rank == 2 else 3,
-                "color": PALETTE["gold"],
-            },
-            "name": f"simple root alpha{index + 1}",
-            "hovertemplate": f"alpha{index + 1}<extra></extra>",
-        }
-        if root_system.rank == 2:
-            figure.add_trace(go.Scatter(x=coordinates[0][:-1], y=coordinates[1][:-1], **common))
-        else:
-            figure.add_trace(
-                go.Scatter3d(
-                    x=coordinates[0][:-1], y=coordinates[1][:-1], z=coordinates[2][:-1], **common
-                )
-            )
-
-    if show_fundamental_weights:
-        fundamental = root_system.to_display(root_system.fundamental_weights)
-        for index, point in enumerate(fundamental):
-            coordinates = _segments(point[np.newaxis, :], root_system.rank)
-            common = {
-                "mode": "lines+markers",
-                "line": {"color": PALETTE["violet"], "width": 5, "dash": "dot"},
-                "marker": {
-                    "size": 9 if root_system.rank == 2 else 3,
-                    "color": PALETTE["violet"],
-                },
-                "name": f"fundamental weight omega{index + 1}",
-                "hovertemplate": (
-                    f"omega{index + 1}<br>Dynkin coordinates: "
-                    f"{tuple(1 if j == index else 0 for j in range(root_system.rank))}"
-                    "<extra></extra>"
-                ),
-            }
-            if root_system.rank == 2:
-                figure.add_trace(go.Scatter(x=coordinates[0][:-1], y=coordinates[1][:-1], **common))
-            else:
-                figure.add_trace(
-                    go.Scatter3d(
-                        x=coordinates[0][:-1],
-                        y=coordinates[1][:-1],
-                        z=coordinates[2][:-1],
-                        **common,
-                    )
-                )
-    return _apply_layout(
-        figure,
-        root_system.rank,
-        f"{root_system.key}: {root_system.groups} — {len(root_system.roots)} roots",
-    )
-
-
-def _weight_edges(diagram: WeightDiagram) -> list[tuple[int, int]]:
-    system = get_root_system(diagram.system_key)
-    lookup = {
-        tuple(int(value) for value in labels): index
-        for index, labels in enumerate(diagram.dynkin_coordinates)
-    }
-    edges: set[tuple[int, int]] = set()
-    for source_index, labels in enumerate(diagram.dynkin_coordinates):
-        for root_index in range(system.rank):
-            target = tuple(int(value) for value in labels - system.cartan_matrix[root_index])
-            if target in lookup:
-                edges.add(tuple(sorted((source_index, lookup[target]))))
-    return sorted(edges)
-
-
-def _edge_coordinates(points: np.ndarray, edges: list[tuple[int, int]], rank: int):
-    coordinates: list[list[float | None]] = [[] for _ in range(rank)]
-    for source, target in edges:
-        for axis in range(rank):
-            coordinates[axis].extend(
-                [float(points[source, axis]), float(points[target, axis]), None]
-            )
-    return coordinates
-
-
-def plot_weight_diagram(
-    diagram: WeightDiagram,
-    connect: bool = True,
-) -> go.Figure:
-    """Plot an irreducible weight diagram with multiplicities."""
-
-    system = get_root_system(diagram.system_key)
-    points = diagram.display_weights
-    figure = go.Figure()
-    if connect:
-        coordinates = _edge_coordinates(points, _weight_edges(diagram), system.rank)
-        common = {
-            "mode": "lines",
-            "line": {"color": PALETTE["grid"], "width": 2},
-            "hoverinfo": "skip",
-            "name": "simple-root steps",
-        }
-        if system.rank == 2:
-            figure.add_trace(go.Scatter(x=coordinates[0], y=coordinates[1], **common))
-        else:
-            figure.add_trace(
-                go.Scatter3d(x=coordinates[0], y=coordinates[1], z=coordinates[2], **common)
-            )
-
-    hover = [
-        f"Dynkin: {_integer_tuple(labels)}<br>multiplicity: {multiplicity}<br>level: {level}"
-        for labels, multiplicity, level in zip(
-            diagram.dynkin_coordinates,
-            diagram.multiplicities,
-            diagram.levels,
-            strict=True,
-        )
-    ]
-    marker = {
-        "size": 8 + 3 * np.sqrt(diagram.multiplicities),
-        "color": diagram.multiplicities,
-        "colorscale": [[0.0, PALETTE["blue_light"]], [1.0, PALETTE["blue_dark"]]],
-        "line": {"color": PALETTE["ink"], "width": 1},
-        "colorbar": {"title": "multiplicity", "thickness": 14},
-        "showscale": bool(np.max(diagram.multiplicities) > 1),
-    }
-    common = {
-        "mode": "markers",
-        "marker": marker,
-        "text": hover,
-        "hovertemplate": "%{text}<extra></extra>",
-        "name": "weights",
-    }
-    if system.rank == 2:
-        figure.add_trace(go.Scatter(x=points[:, 0], y=points[:, 1], **common))
-    else:
-        figure.add_trace(go.Scatter3d(x=points[:, 0], y=points[:, 1], z=points[:, 2], **common))
-
-    highest_index = int(np.argmin(diagram.levels))
-    highest = points[highest_index]
-    highest_common = {
-        "mode": "markers",
-        "marker": {"size": 14, "symbol": "diamond-open", "color": PALETTE["gold"]},
-        "name": "highest weight",
-        "hovertemplate": f"highest weight {diagram.highest_dynkin}<extra></extra>",
-    }
-    if system.rank == 2:
-        figure.add_trace(go.Scatter(x=[highest[0]], y=[highest[1]], **highest_common))
-    else:
-        figure.add_trace(
-            go.Scatter3d(x=[highest[0]], y=[highest[1]], z=[highest[2]], **highest_common)
-        )
-
-    return _apply_layout(
-        figure,
-        system.rank,
-        f"{system.key} weights: highest {diagram.highest_dynkin} — dim {diagram.dimension}",
-    )
-
-
-def plot_weights(system: str, dynkin_labels, **kwargs) -> go.Figure:
-    return plot_weight_diagram(representation_weights(system, dynkin_labels), **kwargs)
-
-
-def plot_tensor_product(
-    product: TensorProduct,
-    extraction_step: int | None = None,
-    show_factor_weights: bool = True,
-) -> go.Figure:
-    """Plot the product or a residual character during decomposition."""
-
-    system = get_root_system(product.system_key)
-    if extraction_step is None:
-        dynkin_labels = product.dynkin_coordinates
-        multiplicities = product.multiplicities
-        points = product.display_weights
-        shown_components = product.components
-        step_suffix = "final decomposition overview"
-    else:
-        residual = decomposition_residual_character(product, extraction_step)
-        ordered = sorted(residual)
-        dynkin_labels = np.asarray(ordered, dtype=int)
-        multiplicities = np.asarray([residual[labels] for labels in ordered], dtype=int)
-        ambient = (
-            dynkin_labels @ system.fundamental_weights
-            if ordered
-            else np.empty((0, system.simple_roots.shape[1]))
-        )
-        points = system.to_display(ambient)
-        shown_components = (
-            (product.components[extraction_step],)
-            if extraction_step < len(product.components)
-            else ()
-        )
-        step_suffix = f"extraction step {extraction_step}/{len(product.components)}"
-
-    figure = go.Figure()
-    hover = [
-        f"Dynkin: {_integer_tuple(labels)}<br>residual multiplicity: {multiplicity}"
-        for labels, multiplicity in zip(dynkin_labels, multiplicities, strict=True)
-    ]
-    if len(points):
-        common = {
-            "mode": "markers",
-            "marker": {
-                "size": 8 + 2.5 * np.sqrt(multiplicities),
-                "color": multiplicities,
-                "colorscale": [
-                    [0.0, PALETTE["blue_light"]],
-                    [1.0, PALETTE["blue_dark"]],
-                ],
-                "line": {"color": PALETTE["ink"], "width": 1},
-                "colorbar": {"title": "multiplicity", "thickness": 14},
-            },
-            "text": hover,
-            "hovertemplate": "%{text}<extra></extra>",
-            "name": "residual weights" if extraction_step is not None else "product weights",
-        }
-        if system.rank == 2:
-            figure.add_trace(go.Scatter(x=points[:, 0], y=points[:, 1], **common))
-        else:
-            figure.add_trace(go.Scatter3d(x=points[:, 0], y=points[:, 1], z=points[:, 2], **common))
-
-    if show_factor_weights:
-        factor_colors = ("#2A9D8F", "#E76F51", "#8F5DA2")
-        factor_symbols = ("circle-open", "square-open", "diamond-open")
-        for factor_index, highest_labels in enumerate(product.factor_highest):
-            diagram = representation_weights(product.system_key, highest_labels)
-            factor_points = diagram.display_weights
-            factor_hover = [
-                f"factor {factor_index + 1}: V{highest_labels}<br>"
-                f"Dynkin: {_integer_tuple(labels)}<br>multiplicity: {multiplicity}"
-                for labels, multiplicity in zip(
-                    diagram.dynkin_coordinates, diagram.multiplicities, strict=True
-                )
-            ]
-            factor_common = {
-                "mode": "markers",
-                "marker": {
-                    "size": 7,
-                    "symbol": factor_symbols[factor_index],
-                    "color": factor_colors[factor_index],
-                    "line": {"color": factor_colors[factor_index], "width": 2},
-                },
-                "text": factor_hover,
-                "hovertemplate": "%{text}<extra></extra>",
-                "name": f"factor {factor_index + 1} weights: V{highest_labels}",
-            }
-            if system.rank == 2:
-                figure.add_trace(
-                    go.Scatter(x=factor_points[:, 0], y=factor_points[:, 1], **factor_common)
-                )
-            else:
-                figure.add_trace(
-                    go.Scatter3d(
-                        x=factor_points[:, 0],
-                        y=factor_points[:, 1],
-                        z=factor_points[:, 2],
-                        **factor_common,
-                    )
-                )
-
-    if shown_components:
-        component_labels = np.asarray([component.highest_dynkin for component in shown_components])
-        highest = system.to_display(component_labels @ system.fundamental_weights)
-        highest_hover = [
-            f"highest: {component.highest_dynkin}<br>"
-            f"dim: {component.dimension}<br>copies: {component.multiplicity}"
-            for component in shown_components
-        ]
-        highest_common = {
-            "mode": "markers",
-            "marker": {
-                "size": 14,
-                "symbol": "diamond-open",
-                "color": PALETTE["gold"],
-            },
-            "text": highest_hover,
-            "hovertemplate": "%{text}<extra></extra>",
-            "name": (
-                "next highest weight" if extraction_step is not None else "summand highest weights"
-            ),
-        }
-        if system.rank == 2:
-            figure.add_trace(go.Scatter(x=highest[:, 0], y=highest[:, 1], **highest_common))
-        else:
-            figure.add_trace(
-                go.Scatter3d(x=highest[:, 0], y=highest[:, 1], z=highest[:, 2], **highest_common)
-            )
-    elif extraction_step is not None:
-        figure.add_annotation(
-            text="Residual character is zero: decomposition complete",
-            x=0.5,
-            y=0.5,
-            xref="paper",
-            yref="paper",
-            showarrow=False,
-            font={"size": 16, "color": PALETTE["ink"]},
-        )
-
-    factors = " ⊗ ".join(f"V{labels}" for labels in product.factor_highest)
-    return _apply_layout(
-        figure,
-        system.rank,
-        f"{system.key}: {factors}<br><sup>dimension {product.dimension}; {step_suffix}</sup>",
-    )
-
 
 PRODUCT_CASES = {
     "A2": (
@@ -561,93 +68,71 @@ PRODUCT_CASES = {
 }
 
 
-def _figure_data(figure: go.Figure) -> dict[str, object]:
-    return figure.to_plotly_json()
-
-
 def _build_application_data() -> dict[str, object]:
     systems = (*RANK2_SYSTEMS, *RANK3_SYSTEMS)
-    catalog: dict[str, object] = {
-        "systems": {},
-        "roots": {},
-        "weights": {},
-        "products": {},
-    }
+    system_catalog: dict[str, object] = {}
+    root_catalog: dict[str, object] = {}
+    weight_catalog: dict[str, object] = {}
+    product_catalog: dict[str, object] = {}
+
+    def register_weight(system_key: str, labels: tuple[int, ...]) -> str:
+        key = weight_diagram_key(system_key, labels)
+        if key not in weight_catalog:
+            weight_catalog[key] = weight_diagram_domain(representation_weights(system_key, labels))
+        return key
+
     for system_key in systems:
         system = get_root_system(system_key)
-        catalog["systems"][system_key] = {
+        presets = []
+        for name, labels in REPRESENTATION_PRESETS[system_key].items():
+            labels_tuple = tuple(labels)
+            presets.append(
+                {
+                    "name": name,
+                    "labels": list(labels_tuple),
+                    "weightKey": register_weight(system_key, labels_tuple),
+                }
+            )
+        system_catalog[system_key] = {
             "rank": system.rank,
             "groups": system.groups,
             "note": system.note,
             "cartan": system.cartan_matrix.tolist(),
-            "presets": [
-                {"name": name, "labels": labels}
-                for name, labels in REPRESENTATION_PRESETS[system_key].items()
-            ],
+            "presets": presets,
         }
-        for show_fundamental in (False, True):
-            key = f"{system_key}|{int(show_fundamental)}"
-            catalog["roots"][key] = _figure_data(
-                plot_root_system(
-                    system_key,
-                    show_fundamental_weights=show_fundamental,
-                )
-            )
-        for labels in itertools.product(range(4), repeat=system.rank):
-            key = f"{system_key}|{','.join(map(str, labels))}"
-            catalog["weights"][key] = _figure_data(
-                plot_weight_diagram(representation_weights(system_key, labels))
-            )
+        root_catalog[system_key] = root_system_domain(system)
 
         product_cases = []
         for case_index, (name, factors) in enumerate(PRODUCT_CASES[system_key]):
             product = tensor_product_many(system_key, factors)
+            for labels in product.factor_highest:
+                register_weight(system_key, tuple(labels))
+            for component in product.components:
+                register_weight(system_key, component.highest_dynkin)
             product_cases.append(
                 {
                     "id": str(case_index),
                     "name": name,
-                    "factors": factors,
-                    "summary": format_decomposition(product),
-                    "distinctWeights": product.distinct_weight_count,
-                    "dimension": product.dimension,
-                    "decompositionDimension": product.decomposition_dimension,
-                    "steps": [
-                        _figure_data(plot_tensor_product(product, extraction_step=step))
-                        for step in range(len(product.components) + 1)
-                    ],
-                    "components": [
-                        {
-                            "name": (
-                                f"V{component.highest_dynkin}, dim {component.dimension}"
-                                + (
-                                    f" x {component.multiplicity}"
-                                    if component.multiplicity > 1
-                                    else ""
-                                )
-                            ),
-                            "figure": _figure_data(
-                                plot_weights(system_key, component.highest_dynkin)
-                            ),
-                        }
-                        for component in product.components
-                    ],
+                    **tensor_product_domain(product),
                 }
             )
-        catalog["products"][system_key] = product_cases
-    return catalog
+        product_catalog[system_key] = product_cases
+    return {
+        "schema": APPLICATION_SCHEMA,
+        "systems": system_catalog,
+        "roots": root_catalog,
+        "weights": weight_catalog,
+        "products": product_catalog,
+    }
 
 
 def build(output_dir: Path) -> None:
-    """Build a self-contained static Plotly application."""
+    """Build the static browser application with compact domain data."""
 
     output_dir.mkdir(parents=True, exist_ok=True)
     copy_mathjax_assets(output_dir)
-    payload = json.dumps(
-        _build_application_data(),
-        cls=PlotlyJSONEncoder,
-        separators=(",", ":"),
-    ).replace("</", "<\\/")
-    html = _APPLICATION_HTML.replace("__PLOTLY_JS__", get_plotlyjs()).replace(
+    payload = json.dumps(_build_application_data(), separators=(",", ":")).replace("</", "<\\/")
+    html = _APPLICATION_HTML.replace("__PLOTLY_ASSET__", PLOTLY_GL3D_ASSET_NAME).replace(
         "__APPLICATION_DATA__", payload
     )
     (output_dir / "index.html").write_text(html, encoding="utf-8")
@@ -682,12 +167,11 @@ _APPLICATION_HTML = r"""<!doctype html>
     label.inline { display:flex; align-items:center; gap:7px; padding-bottom:8px; }
     select, input[type="range"] { min-width:150px; }
     select { padding:7px 9px; border:1px solid #bac3c9; border-radius:5px; background:white; }
-    .label-sliders { display:flex; flex-wrap:wrap; gap:10px; }
-    .label-sliders output { color:var(--ink); font-variant-numeric:tabular-nums; }
     .plot { width:100%; min-height:700px; }
     .product-grid { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(380px,.85fr); gap:12px; }
     .status { white-space:pre-wrap; margin:12px 0 0; padding:10px 12px; border-left:3px solid var(--gold);
       background:#fffaf0; line-height:1.45; }
+    .error { margin:0 0 12px; padding:10px 12px; border-left:3px solid #a33; background:#fff1f1; }
     .hint { color:var(--muted); font-size:.9rem; margin:10px 0 0; }
     @media (max-width:960px) { .product-grid { grid-template-columns:1fr; } main { padding:10px; }
       .panel { padding:10px; } }
@@ -706,13 +190,24 @@ _APPLICATION_HTML = r"""<!doctype html>
     };
   </script>
   <script defer src="mathjax-tex-svg.js"></script>
-  <script>__PLOTLY_JS__</script>
+  <script>
+    window.physicsAtlasPlotlyReady = new Promise((resolve, reject) => {
+      const locale = new URLSearchParams(window.location.search).get("lang") === "ja" ? "ja" : "en";
+      const siteRoot = locale === "ja" ? "../../../../" : "../../../";
+      const script = document.createElement("script");
+      script.src = new URL(`${siteRoot}javascripts/__PLOTLY_ASSET__`, window.location.href);
+      script.addEventListener("load", resolve, {once:true});
+      script.addEventListener("error", () => reject(new Error("Plotly asset failed to load")), {once:true});
+      document.head.append(script);
+    });
+  </script>
 </head>
 <body>
 <main>
   <h1 data-i18n="title">Lie Roots, Weights, and Tensor Products</h1>
   <p class="lede" data-i18n="lede">Explore rank-2 and rank-3 root systems, irreducible highest-weight
     characters, and the stepwise extraction of tensor-product summands.</p>
+  <p id="application-error" class="error" role="alert" hidden></p>
   <nav class="tabs" role="tablist" aria-label="Explorer sections">
     <button id="roots-tab" class="tab" role="tab" data-i18n="rootsTab" data-panel="roots-panel" aria-controls="roots-panel" aria-selected="true" tabindex="0">1. Root systems</button>
     <button id="weights-tab" class="tab" role="tab" data-i18n="weightsTab" data-panel="weights-panel" aria-controls="weights-panel" aria-selected="false" tabindex="-1">2. Representation weights</button>
@@ -732,7 +227,6 @@ _APPLICATION_HTML = r"""<!doctype html>
     <div class="controls">
       <label><span data-i18n="cartanType">Cartan type</span> <select id="weight-system"></select></label>
       <label><span data-i18n="preset">Preset</span> <select id="weight-preset"></select></label>
-      <div id="weight-labels" class="label-sliders"></div>
     </div>
     <p id="weight-status" class="hint"></p>
     <div id="weight-plot" class="plot" role="img" aria-label="Weight diagram"></div>
@@ -796,14 +290,14 @@ _APPLICATION_HTML = r"""<!doctype html>
 </script>
 <script id="application-data" type="application/json">__APPLICATION_DATA__</script>
 <script>
+  (async () => {
   "use strict";
   const DATA = JSON.parse(document.getElementById("application-data").textContent);
   const LOCALE = new URLSearchParams(window.location.search).get("lang") === "ja" ? "ja" : "en";
   const MESSAGES = {
     en: {
-      customLabels:"Custom Dynkin labels",
       rootNote:"{groups}; {note}. Cartan matrix: \\(A={cartan}\\).",
-      weightStatus:"\\({system}\\) highest weight \\(({labels})\\); labels are precomputed for 0..3.",
+      weightStatus:"\\({system}\\) highest weight \\(({labels})\\); published preset.",
       productStatus:"\\({summary}\\)<br>{count} distinct weights; dimension invariant: \\({dimension}={decompositionDimension}\\).",
     },
     ja: {
@@ -812,9 +306,9 @@ _APPLICATION_HTML = r"""<!doctype html>
       rootsTab:"1. ルート系", weightsTab:"2. 表現のウェイト", productsTab:"3. テンソル積",
       cartanType:"カルタン型", showFundamental:"基本ウェイトを表示", preset:"プリセット",
       product:"テンソル積", extractionStep:"抽出ステップ", inspectSummand:"既約成分を確認",
-      showFactors:"因子のウェイトを表示", customLabels:"ディンキンラベルを指定",
+      showFactors:"因子のウェイトを表示",
       rootNote:"{groups}；{note}。カルタン行列：\\(A={cartan}\\)。",
-      weightStatus:"\\({system}\\) の最高ウェイト \\(({labels})\\)。各ラベルは0から3まで事前計算されています。",
+      weightStatus:"\\({system}\\) の最高ウェイト \\(({labels})\\)；公開プリセット。",
       productStatus:"\\({summary}\\)<br>異なるウェイトは{count}個；次元の不変量：\\({dimension}={decompositionDimension}\\)。",
     },
   };
@@ -879,19 +373,207 @@ _APPLICATION_HTML = r"""<!doctype html>
     Object.entries(aria).forEach(([selector, label]) => document.querySelector(selector)?.setAttribute("aria-label", label));
   }
   localizeStaticContent();
+  await window.physicsAtlasPlotlyReady;
   const CONFIG = {scrollZoom:true, displaylogo:false, responsive:true};
+  const PALETTE = {
+    blue:"#3B6FB6", blueLight:"#83A6D6", blueDark:"#244A73", gold:"#C69214",
+    violet:"#6A4C93", ink:"#263238", muted:"#687078", grid:"#DDE2E6", background:"#FCFCFD",
+  };
   const systemKeys = Object.keys(DATA.systems);
   const byId = id => document.getElementById(id);
   const fillSystems = select => {
     select.replaceChildren(...systemKeys.map(key => new Option(`${key} — ${DATA.systems[key].groups}`, key)));
   };
   [byId("root-system"), byId("weight-system"), byId("product-system")].forEach(fillSystems);
-  const draw = (target, figure, filterFactors=false) => {
-    const traces = filterFactors
-      ? figure.data.filter(trace => !(trace.name || "").startsWith("factor "))
-      : figure.data;
-    Plotly.react(target, traces, figure.layout, CONFIG);
-  };
+  const draw = (target, figure) => Plotly.react(target, figure.data, figure.layout, CONFIG);
+  const tupleText = values => `(${values.join(", ")})`;
+  const zeroPoint = rank => Array.from({length:rank}, () => 0);
+  function coordinateTrace(rank, points, attributes) {
+    const trace = {
+      ...attributes,
+      type:rank === 2 ? "scatter" : "scatter3d",
+      x:points.map(point => point === null ? null : point[0]),
+      y:points.map(point => point === null ? null : point[1]),
+    };
+    if (rank === 3) trace.z = points.map(point => point === null ? null : point[2]);
+    return trace;
+  }
+  function axisStyle(title, threeDimensional=false) {
+    return {
+      title, gridcolor:PALETTE.grid, zerolinecolor:PALETTE.muted, showspikes:false,
+      ...(threeDimensional ? {showbackground:false} : {automargin:true}),
+    };
+  }
+  function figureLayout(rank, title) {
+    const layout = {
+      template:null,
+      title:{text:title, x:0.01, xanchor:"left", y:0.98, yanchor:"top", font:{size:18}},
+      paper_bgcolor:PALETTE.background, plot_bgcolor:PALETTE.background,
+      font:{family:"Arial, sans-serif", color:PALETTE.ink},
+      legend:{orientation:"h", yanchor:"top", y:-0.1, xanchor:"left", x:0},
+      margin:{l:55, r:25, b:125, t:90}, height:700,
+    };
+    if (rank === 2) {
+      layout.dragmode = "pan";
+      layout.xaxis = {...axisStyle("v1"), scaleanchor:"y", scaleratio:1};
+      layout.yaxis = axisStyle("v2");
+    } else {
+      layout.scene = {
+        xaxis:axisStyle("v1", true), yaxis:axisStyle("v2", true), zaxis:axisStyle("v3", true),
+        aspectmode:"data", camera:{eye:{x:1.55, y:1.45, z:1.15}}, dragmode:"turntable",
+      };
+    }
+    return layout;
+  }
+  function rootFigure(root, info, showFundamental) {
+    const traces = [];
+    for (let classIndex = 0; classIndex < root.rootLengthClassCount; classIndex += 1) {
+      const indices = root.rootLengthClasses
+        .map((value, index) => value === classIndex ? index : -1)
+        .filter(index => index >= 0);
+      const points = indices.map(index => root.displayRoots[index]);
+      const segments = points.flatMap(point => [zeroPoint(root.rank), point, null]);
+      const singleLength = root.rootLengthClassCount === 1;
+      const name = singleLength ? "roots" : (classIndex === 0 ? "short roots" : "long roots");
+      const color = singleLength ? PALETTE.blue : (classIndex === 0 ? PALETTE.blueLight : PALETTE.blueDark);
+      traces.push(coordinateTrace(root.rank, segments, {
+        mode:"lines", line:{color, width:root.rank === 2 ? 2 : 4}, name, hoverinfo:"skip",
+      }));
+      const hover = indices.map(index => {
+        const point = root.displayRoots[index];
+        const firstNonzero = point.find(value => Math.abs(value) > 1e-9);
+        const sign = firstNonzero > 0 ? "positive" : "negative";
+        const vector = point.map(value => Number(value.toFixed(4)));
+        return `v = ${tupleText(vector)}<br>${sign} root<br>coroot coordinates: ${tupleText(root.rootDynkinCoordinates[index])}`;
+      });
+      traces.push(coordinateTrace(root.rank, points, {
+        mode:"markers", marker:{size:root.rank === 2 ? 7 : 2, color}, text:hover,
+        hovertemplate:"%{text}<extra></extra>", showlegend:false,
+      }));
+    }
+    root.displaySimpleRoots.forEach((point, index) => {
+      traces.push(coordinateTrace(root.rank, [zeroPoint(root.rank), point], {
+        mode:"lines+markers", line:{color:PALETTE.gold, width:7},
+        marker:{size:root.rank === 2 ? 8 : 3, color:PALETTE.gold},
+        name:`simple root alpha${index + 1}`, hovertemplate:`alpha${index + 1}<extra></extra>`,
+      }));
+    });
+    if (showFundamental) {
+      root.displayFundamentalWeights.forEach((point, index) => {
+        const labels = Array.from({length:root.rank}, (_, position) => position === index ? 1 : 0);
+        traces.push(coordinateTrace(root.rank, [zeroPoint(root.rank), point], {
+          mode:"lines+markers", line:{color:PALETTE.violet, width:5, dash:"dot"},
+          marker:{size:root.rank === 2 ? 9 : 3, color:PALETTE.violet},
+          name:`fundamental weight omega${index + 1}`,
+          hovertemplate:`omega${index + 1}<br>Dynkin coordinates: ${tupleText(labels)}<extra></extra>`,
+        }));
+      });
+    }
+    return {
+      data:traces,
+      layout:figureLayout(root.rank, `${root.system}: ${info.groups} — ${root.displayRoots.length} roots`),
+    };
+  }
+  function edgeSegments(diagram) {
+    return diagram.edges.flatMap(([source, target]) => [
+      diagram.displayWeights[source], diagram.displayWeights[target], null,
+    ]);
+  }
+  function highestPoint(diagram) {
+    const highestLevel = Math.min(...diagram.levels);
+    return diagram.displayWeights[diagram.levels.indexOf(highestLevel)];
+  }
+  function weightFigure(diagram) {
+    const rank = DATA.systems[diagram.system].rank;
+    const traces = [coordinateTrace(rank, edgeSegments(diagram), {
+      mode:"lines", line:{color:PALETTE.grid, width:2}, hoverinfo:"skip", name:"simple-root steps",
+    })];
+    const hover = diagram.dynkinCoordinates.map((labels, index) =>
+      `Dynkin: ${tupleText(labels)}<br>multiplicity: ${diagram.multiplicities[index]}<br>level: ${diagram.levels[index]}`
+    );
+    traces.push(coordinateTrace(rank, diagram.displayWeights, {
+      mode:"markers",
+      marker:{
+        size:diagram.multiplicities.map(value => 8 + 3 * Math.sqrt(value)),
+        color:diagram.multiplicities, colorscale:[[0, PALETTE.blueLight], [1, PALETTE.blueDark]],
+        line:{color:PALETTE.ink, width:1}, colorbar:{title:"multiplicity", thickness:14},
+        showscale:Math.max(...diagram.multiplicities) > 1,
+      },
+      text:hover, hovertemplate:"%{text}<extra></extra>", name:"weights",
+    }));
+    traces.push(coordinateTrace(rank, [highestPoint(diagram)], {
+      mode:"markers", marker:{size:14, symbol:"diamond-open", color:PALETTE.gold},
+      name:"highest weight",
+      hovertemplate:`highest weight ${tupleText(diagram.highestDynkin)}<extra></extra>`,
+    }));
+    return {
+      data:traces,
+      layout:figureLayout(
+        rank,
+        `${diagram.system} weights: highest ${tupleText(diagram.highestDynkin)} — dim ${diagram.dimension}`,
+      ),
+    };
+  }
+  function productFigure(product, stepIndex, showFactors) {
+    const rank = DATA.systems[product.system].rank;
+    const residual = product.steps[stepIndex];
+    const traces = [];
+    if (residual.displayWeights.length) {
+      const hover = residual.dynkinCoordinates.map((labels, index) =>
+        `Dynkin: ${tupleText(labels)}<br>residual multiplicity: ${residual.multiplicities[index]}`
+      );
+      traces.push(coordinateTrace(rank, residual.displayWeights, {
+        mode:"markers",
+        marker:{
+          size:residual.multiplicities.map(value => 8 + 2.5 * Math.sqrt(value)),
+          color:residual.multiplicities, colorscale:[[0, PALETTE.blueLight], [1, PALETTE.blueDark]],
+          line:{color:PALETTE.ink, width:1}, colorbar:{title:"multiplicity", thickness:14},
+        },
+        text:hover, hovertemplate:"%{text}<extra></extra>", name:"residual weights",
+      }));
+    }
+    if (showFactors) {
+      const colors = ["#2A9D8F", "#E76F51", "#8F5DA2"];
+      const symbols = ["circle-open", "square-open", "diamond-open"];
+      product.factorWeightKeys.forEach((key, factorIndex) => {
+        const diagram = DATA.weights[key];
+        const highest = product.factors[factorIndex];
+        const hover = diagram.dynkinCoordinates.map((labels, index) =>
+          `factor ${factorIndex + 1}: V${tupleText(highest)}<br>Dynkin: ${tupleText(labels)}<br>multiplicity: ${diagram.multiplicities[index]}`
+        );
+        traces.push(coordinateTrace(rank, diagram.displayWeights, {
+          mode:"markers",
+          marker:{
+            size:7, symbol:symbols[factorIndex], color:colors[factorIndex],
+            line:{color:colors[factorIndex], width:2},
+          },
+          text:hover, hovertemplate:"%{text}<extra></extra>",
+          name:`factor ${factorIndex + 1} weights: V${tupleText(highest)}`,
+        }));
+      });
+    }
+    const component = product.components[stepIndex];
+    if (component) {
+      const diagram = DATA.weights[component.weightKey];
+      traces.push(coordinateTrace(rank, [highestPoint(diagram)], {
+        mode:"markers", marker:{size:14, symbol:"diamond-open", color:PALETTE.gold},
+        text:[`highest: ${tupleText(component.highestDynkin)}<br>dim: ${component.dimension}<br>copies: ${component.multiplicity}`],
+        hovertemplate:"%{text}<extra></extra>", name:"next highest weight",
+      }));
+    }
+    const factors = product.factors.map(tupleText).map(labels => `V${labels}`).join(" ⊗ ");
+    const layout = figureLayout(
+      rank,
+      `${product.system}: ${factors}<br><sup>dimension ${product.dimension}; extraction step ${stepIndex}/${product.components.length}</sup>`,
+    );
+    if (!component && !residual.displayWeights.length) {
+      layout.annotations = [{
+        text:"Residual character is zero: decomposition complete", x:0.5, y:0.5,
+        xref:"paper", yref:"paper", showarrow:false, font:{size:16, color:PALETTE.ink},
+      }];
+    }
+    return {data:traces, layout};
+  }
 
   const tabs = [...document.querySelectorAll(".tab")];
   const panels = [...document.querySelectorAll(".panel")];
@@ -925,9 +607,8 @@ _APPLICATION_HTML = r"""<!doctype html>
 
   function renderRoots() {
     const system = byId("root-system").value;
-    const fundamental = Number(byId("root-fundamental").checked);
-    draw("root-plot", DATA.roots[`${system}|${fundamental}`]);
     const info = DATA.systems[system];
+    draw("root-plot", rootFigure(DATA.roots[system], info, byId("root-fundamental").checked));
     byId("root-note").innerHTML = t("rootNote", {
       groups:info.groups, note:LOCALE === "ja" ? (NOTE_JA[info.note] ?? info.note) : info.note,
       cartan:matrixLatex(info.cartan),
@@ -941,44 +622,22 @@ _APPLICATION_HTML = r"""<!doctype html>
     const system = byId("weight-system").value;
     const info = DATA.systems[system];
     const preset = byId("weight-preset");
-    preset.replaceChildren(new Option(t("customLabels"), ""), ...info.presets.map((item, i) => new Option(`${localizedLabel(item.name)} — (${item.labels.join(", ")})`, i)));
-    byId("weight-labels").replaceChildren(...Array.from({length:info.rank}, (_, i) => {
-      const label = document.createElement("label");
-      const symbol = document.createElement("span");
-      symbol.textContent = `\\(a_{${i + 1}}\\)`;
-      const input = Object.assign(document.createElement("input"), {type:"range", min:0, max:3, step:1, value:i === 0 ? 1 : 0});
-      input.dataset.index = i;
-      const output = document.createElement("output");
-      output.textContent = input.value;
-      input.addEventListener("input", () => { output.textContent = input.value; preset.value = ""; renderWeights(); });
-      label.append(symbol, input, output);
-      typeset(label);
-      return label;
-    }));
+    preset.replaceChildren(...info.presets.map((item, i) =>
+      new Option(`${localizedLabel(item.name)} — (${item.labels.join(", ")})`, i)
+    ));
     renderWeights();
-  }
-  function currentWeightLabels() {
-    return [...byId("weight-labels").querySelectorAll("input")].map(input => Number(input.value));
   }
   function renderWeights() {
     const system = byId("weight-system").value;
-    const labels = currentWeightLabels();
-    const figure = DATA.weights[`${system}|${labels.join(",")}`];
-    draw("weight-plot", figure);
+    const item = DATA.systems[system].presets[Number(byId("weight-preset").value)];
+    draw("weight-plot", weightFigure(DATA.weights[item.weightKey]));
     byId("weight-status").innerHTML = t("weightStatus", {
-      system:systemLatex(system), labels:labels.join(", "),
+      system:systemLatex(system), labels:item.labels.join(", "),
     });
     typeset(byId("weight-status"));
   }
   byId("weight-system").addEventListener("change", configureWeightControls);
-  byId("weight-preset").addEventListener("change", event => {
-    if (event.target.value === "") return;
-    const item = DATA.systems[byId("weight-system").value].presets[Number(event.target.value)];
-    [...byId("weight-labels").querySelectorAll("input")].forEach((input, i) => {
-      input.value = item.labels[i]; input.nextElementSibling.textContent = item.labels[i];
-    });
-    renderWeights();
-  });
+  byId("weight-preset").addEventListener("change", renderWeights);
 
   function currentProduct() {
     return DATA.products[byId("product-system").value][Number(byId("product-case").value)];
@@ -1002,7 +661,7 @@ _APPLICATION_HTML = r"""<!doctype html>
     const product = currentProduct();
     const step = Number(byId("product-step").value);
     byId("product-step-value").textContent = `${step} / ${product.steps.length - 1}`;
-    draw("product-plot", product.steps[step], !byId("product-factors").checked);
+    draw("product-plot", productFigure(product, step, byId("product-factors").checked));
     byId("product-status").innerHTML = t("productStatus", {
       summary:decompositionLatex(product.summary), count:product.distinctWeights, dimension:product.dimension,
       decompositionDimension:product.decompositionDimension,
@@ -1011,7 +670,8 @@ _APPLICATION_HTML = r"""<!doctype html>
   }
   function renderComponent() {
     const product = currentProduct();
-    draw("component-plot", product.components[Number(byId("product-component").value)].figure);
+    const component = product.components[Number(byId("product-component").value)];
+    draw("component-plot", weightFigure(DATA.weights[component.weightKey]));
   }
   byId("product-system").addEventListener("change", configureProductCases);
   byId("product-case").addEventListener("change", configureProductState);
@@ -1022,6 +682,16 @@ _APPLICATION_HTML = r"""<!doctype html>
   renderRoots();
   configureWeightControls();
   configureProductCases();
+  })().catch(error => {
+    console.error(error);
+    const japanese = new URLSearchParams(window.location.search).get("lang") === "ja";
+    const target = document.getElementById("application-error");
+    target.textContent = japanese
+      ? "可視化の描画ライブラリを読み込めませんでした。HTTP接続と配信ファイルを確認してください。"
+      : "The visualization library could not be loaded. Check the HTTP connection and deployed assets.";
+    target.hidden = false;
+    window.dispatchEvent(new Event("resize"));
+  });
 </script>
 </body>
 </html>

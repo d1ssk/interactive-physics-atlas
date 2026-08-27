@@ -1,55 +1,114 @@
 from __future__ import annotations
 
-import plotly.graph_objects as go
+import json
+from pathlib import Path
+
+from physics_atlas.assets import PLOTLY_GL3D_ASSET_NAME
 
 
-def test_rank2_and_rank3_root_figures(visualization):
-    rank2 = visualization.plot_root_system("G2")
-    rank3 = visualization.plot_root_system("B3", show_fundamental_weights=True)
-
-    assert isinstance(rank2, go.Figure)
-    assert isinstance(rank3, go.Figure)
-    assert rank2.layout.title.xanchor == "left"
-    assert rank2.layout.dragmode == "pan"
-    assert rank3.layout.scene.dragmode == "turntable"
-    assert len(rank3.data) == len(visualization.plot_root_system("B3").data) + 3
-
-    root_markers = [trace for trace in rank3.data if trace.mode == "markers"]
-    simple_roots = [trace for trace in rank3.data if (trace.name or "").startswith("simple root")]
-    fundamental_weights = [
-        trace for trace in rank3.data if (trace.name or "").startswith("fundamental weight")
-    ]
-    assert all(trace.marker.size == 2 for trace in root_markers)
-    assert all(trace.marker.size == 3 for trace in simple_roots)
-    assert all(trace.marker.size == 3 for trace in fundamental_weights)
+def _contains_plotly_figure_key(value) -> bool:
+    if isinstance(value, dict):
+        if "figure" in value or ({"data", "layout"} <= value.keys()):
+            return True
+        return any(_contains_plotly_figure_key(item) for item in value.values())
+    if isinstance(value, list):
+        return any(_contains_plotly_figure_key(item) for item in value)
+    return False
 
 
-def test_weight_and_three_factor_figures(physics, visualization):
-    diagram = physics.representation_weights("A2", (1, 1))
-    product = physics.tensor_product_many("A2", [(1, 0), (1, 0), (1, 0)])
+def test_application_data_uses_versioned_domain_schemas(physics, domain, visualization):
+    application = visualization._build_application_data()
 
-    assert isinstance(visualization.plot_weight_diagram(diagram), go.Figure)
-    first = visualization.plot_tensor_product(product, extraction_step=0)
-    complete = visualization.plot_tensor_product(
-        product,
-        extraction_step=len(product.components),
-        show_factor_weights=False,
+    assert application["schema"] == domain.APPLICATION_SCHEMA
+    assert set(application["systems"]) == {
+        *physics.RANK2_SYSTEMS,
+        *physics.RANK3_SYSTEMS,
+    }
+    assert all(
+        root["schema"] == domain.ROOT_SYSTEM_SCHEMA for root in application["roots"].values()
     )
-    assert first.data[-1].name == "next highest weight"
-    assert len(complete.data) == 0
-    assert complete.layout.annotations[0].text.startswith("Residual character is zero")
+    assert all(
+        diagram["schema"] == domain.WEIGHT_DIAGRAM_SCHEMA
+        for diagram in application["weights"].values()
+    )
+    assert all(
+        product["schema"] == domain.TENSOR_PRODUCT_SCHEMA
+        for cases in application["products"].values()
+        for product in cases
+    )
+    assert all(
+        step["schema"] == domain.CHARACTER_SCHEMA
+        for cases in application["products"].values()
+        for product in cases
+        for step in product["steps"]
+    )
+    assert not _contains_plotly_figure_key(application)
+
+    published_keys = {
+        item["weightKey"]
+        for system in application["systems"].values()
+        for item in system["presets"]
+    }
+    expected_keys = {
+        domain.weight_diagram_key(system, tuple(labels))
+        for system, presets in physics.REPRESENTATION_PRESETS.items()
+        for labels in presets.values()
+    }
+    assert published_keys == expected_keys
 
 
-def test_static_build_contract(tmp_path, monkeypatch, visualization):
-    monkeypatch.setattr(visualization, "_build_application_data", lambda: {"systems": {}})
-    monkeypatch.setattr(visualization, "get_plotlyjs", lambda: "window.Plotly = {};")
+def test_domain_results_preserve_scientific_invariants(physics, domain):
+    diagram = physics.representation_weights("A2", (2, 1))
+    weight_data = domain.weight_diagram_domain(diagram)
+
+    assert sum(weight_data["multiplicities"]) == weight_data["dimension"]
+    assert weight_data["dimension"] == weight_data["weylDimension"]
+    assert weight_data["highestDynkin"] in weight_data["dynkinCoordinates"]
+    assert len(weight_data["displayWeights"]) == len(weight_data["multiplicities"])
+    assert all(
+        0 <= source < len(weight_data["displayWeights"]) for source, _ in weight_data["edges"]
+    )
+    assert all(
+        0 <= target < len(weight_data["displayWeights"]) for _, target in weight_data["edges"]
+    )
+
+    product = physics.tensor_product("A2", (1, 0), (0, 1))
+    steps = [
+        domain.residual_character_domain(product, step)
+        for step in range(len(product.components) + 1)
+    ]
+    assert sum(steps[0]["multiplicities"]) == product.dimension
+    assert steps[-1]["multiplicities"] == []
+    assert steps[-1]["displayWeights"] == []
+
+
+def test_static_build_contract(tmp_path, monkeypatch, domain, visualization):
+    monkeypatch.setattr(
+        visualization,
+        "_build_application_data",
+        lambda: {
+            "schema": domain.APPLICATION_SCHEMA,
+            "systems": {},
+            "roots": {},
+            "weights": {},
+            "products": {},
+        },
+    )
 
     visualization.build(tmp_path)
 
     html = (tmp_path / "index.html").read_text(encoding="utf-8")
     assert "__APPLICATION_DATA__" not in html
-    assert "window.Plotly = {};" in html
-    assert '"systems":{}' in html
+    assert "__PLOTLY_ASSET__" not in html
+    assert PLOTLY_GL3D_ASSET_NAME in html
+    assert "plotly.js v3.7.0" not in html
+    assert '"schema":"physics-atlas.lie-application.v1"' in html
+    assert "function rootFigure(" in html
+    assert "function weightFigure(" in html
+    assert "function productFigure(" in html
+    assert "Plotly.react(target, figure.data, figure.layout, CONFIG)" in html
+    assert "physicsAtlasPlotlyReady" in html
+    assert 'siteRoot = locale === "ja" ? "../../../../" : "../../../"' in html
     assert "2. Representation weights" in html
     assert "リー代数のルート・ウェイト・テンソル積" in html
     assert 'const LOCALE = new URLSearchParams(window.location.search).get("lang")' in html
@@ -61,9 +120,6 @@ def test_static_build_contract(tmp_path, monkeypatch, visualization):
     assert 'new Event("physics-atlas:mathjax-ready")' in html
     assert "pendingMathTargets" in html
     assert "startup.then" in html
-    assert "Plotly.react(target, traces, figure.layout, CONFIG)" in html
-    assert "Highlight simple root" not in html
-    assert 'id="root-simple"' not in html
     assert "pyodide" not in html.lower()
     assert "ipywidgets" not in html.lower()
     assert 'type:"physics-atlas:frame-height"' in html
@@ -96,3 +152,22 @@ def test_static_build_contract(tmp_path, monkeypatch, visualization):
     assert "panel.hidden = !active" in html
     assert 'event.key === "ArrowRight"' in html
     assert 'event.key === "ArrowLeft"' in html
+
+
+def test_built_html_stays_within_initial_payload_budget(tmp_path, visualization):
+    visualization.build(tmp_path)
+
+    html_path = tmp_path / "index.html"
+    html = html_path.read_text(encoding="utf-8")
+    payload = json.loads(
+        html.split('<script id="application-data" type="application/json">', 1)[1].split(
+            "</script>", 1
+        )[0]
+    )
+    source = Path(visualization.__file__).read_text(encoding="utf-8")
+
+    assert html_path.stat().st_size <= 1_048_576
+    assert not _contains_plotly_figure_key(payload)
+    assert "itertools.product(range(4)" not in source
+    assert "get_plotlyjs" not in source
+    assert "PlotlyJSONEncoder" not in source

@@ -448,6 +448,23 @@ def representation_weights(
     return _representation_weights_cached(root_system.key, labels, max_candidates)
 
 
+def weight_graph_edges(diagram: WeightDiagram) -> tuple[tuple[int, int], ...]:
+    """Return weight-index pairs joined by one ordered simple-root step."""
+
+    system = get_root_system(diagram.system_key)
+    lookup = {
+        tuple(int(value) for value in labels): index
+        for index, labels in enumerate(diagram.dynkin_coordinates)
+    }
+    edges: set[tuple[int, int]] = set()
+    for source_index, labels in enumerate(diagram.dynkin_coordinates):
+        for root_index in range(system.rank):
+            target = tuple(int(value) for value in labels - system.cartan_matrix[root_index])
+            if target in lookup:
+                edges.add(tuple(sorted((source_index, lookup[target]))))
+    return tuple(sorted(edges))
+
+
 WeightKey = tuple[int, ...]
 
 

@@ -120,3 +120,17 @@ def test_physics_module_has_no_rendering_dependency(physics):
         "import nbformat",
     ):
         assert forbidden_import not in source
+
+
+def test_weight_graph_edges_are_simple_root_steps(physics):
+    diagram = physics.representation_weights("B3", (1, 0, 1))
+    system = physics.get_root_system("B3")
+    edges = physics.weight_graph_edges(diagram)
+
+    assert edges == tuple(sorted(set(edges)))
+    for source, target in edges:
+        difference = diagram.dynkin_coordinates[source] - diagram.dynkin_coordinates[target]
+        assert any(
+            np.array_equal(difference, row) or np.array_equal(difference, -row)
+            for row in system.cartan_matrix
+        )
