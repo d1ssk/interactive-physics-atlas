@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from physics_atlas.assets import PLOTLY_GL3D_ASSET_NAME
+from physics_atlas.assets import PLOTLY_GL3D_ASSET_NAME, PYODIDE_NUMPY_WHEEL
 
 
 def _contains_plotly_figure_key(value) -> bool:
@@ -16,19 +16,30 @@ def _contains_plotly_figure_key(value) -> bool:
     return False
 
 
-def test_application_data_uses_versioned_domain_schemas(physics, domain, visualization):
+def test_application_data_uses_versioned_domain_schemas(
+    physics,
+    domain,
+    protocol,
+    visualization,
+):
     application = visualization._build_application_data()
 
     assert application["schema"] == domain.APPLICATION_SCHEMA
+    assert application["kernelVersion"] == protocol.KERNEL_VERSION
+    assert application["runtime"]["protocol"] == protocol.COMPUTE_PROTOCOL_SCHEMA
+    assert application["runtime"]["operation"] == protocol.WEIGHT_OPERATION
     assert set(application["systems"]) == {
         *physics.RANK2_SYSTEMS,
         *physics.RANK3_SYSTEMS,
     }
     assert all(
-        root["schema"] == domain.ROOT_SYSTEM_SCHEMA for root in application["roots"].values()
+        root["schema"] == domain.ROOT_SYSTEM_SCHEMA
+        and root["kernelVersion"] == protocol.KERNEL_VERSION
+        for root in application["roots"].values()
     )
     assert all(
         diagram["schema"] == domain.WEIGHT_DIAGRAM_SCHEMA
+        and diagram["kernelVersion"] == protocol.KERNEL_VERSION
         for diagram in application["weights"].values()
     )
     assert all(
@@ -82,12 +93,21 @@ def test_domain_results_preserve_scientific_invariants(physics, domain):
     assert steps[-1]["displayWeights"] == []
 
 
-def test_static_build_contract(tmp_path, monkeypatch, domain, visualization):
+def test_static_build_contract(
+    tmp_path,
+    monkeypatch,
+    domain,
+    protocol,
+    runtime_build,
+    visualization,
+):
     monkeypatch.setattr(
         visualization,
         "_build_application_data",
         lambda: {
             "schema": domain.APPLICATION_SCHEMA,
+            "kernelVersion": protocol.KERNEL_VERSION,
+            "runtime": runtime_build.runtime_manifest(),
             "systems": {},
             "roots": {},
             "weights": {},
@@ -115,12 +135,38 @@ def test_static_build_contract(tmp_path, monkeypatch, domain, visualization):
     assert 'defer src="mathjax-tex-svg.js"' in html
     assert (tmp_path / "mathjax-tex-svg.js").is_file()
     assert (tmp_path / "mathjax-LICENSE.txt").is_file()
+    runtime_dir = tmp_path / runtime_build.RUNTIME_DIRECTORY_NAME
+    assert (runtime_dir / runtime_build.PROVIDER_ASSET_NAME).is_file()
+    assert (runtime_dir / runtime_build.WORKER_ASSET_NAME).is_file()
+    assert (runtime_dir / runtime_build.KERNEL_WHEEL_NAME).is_file()
+    assert (runtime_dir / "pyodide" / "pyodide.asm.wasm").is_file()
+    assert (runtime_dir / "pyodide" / PYODIDE_NUMPY_WHEEL).is_file()
+    worker = (runtime_dir / runtime_build.WORKER_ASSET_NAME).read_text(encoding="utf-8")
+    provider = (runtime_dir / runtime_build.PROVIDER_ASSET_NAME).read_text(encoding="utf-8")
+    assert "__COMPUTE_PROTOCOL__" not in worker
+    assert protocol.COMPUTE_PROTOCOL_SCHEMA in worker
+    assert runtime_build.KERNEL_WHEEL_NAME in worker
+    assert "from physics_atlas_lie_kernel.kernel import handle_request_json" in worker
+    assert "import plotly" not in worker.lower()
+    assert "#worker = null" in provider
+    assert "this.#ensureWorker().postMessage(request)" in provider
+    assert 'new Worker(url, {type:"module"' in provider
     assert "MathJax.loader" not in html
     assert 'src="https://cdn.jsdelivr.net/npm/mathjax' not in html
     assert 'new Event("physics-atlas:mathjax-ready")' in html
     assert "pendingMathTargets" in html
     assert "startup.then" in html
-    assert "pyodide" not in html.lower()
+    assert "pyodide.asm.wasm" not in html
+    assert 'src="runtime/' not in html
+    assert "getComputeProvider()" in html
+    assert "import(new URL(DATA.runtime.providerAsset, base))" in html
+    assert "new module.PyodideComputeProvider({workerUrl:" in html
+    assert "Calculate in browser" in html
+    assert "ブラウザで計算" in html
+    assert 'aria-live="polite"' in html
+    assert html.index("if (!labels)") < html.index("const provider = await getComputeProvider()")
+    for error_code in protocol.ERROR_CODES:
+        assert html.count(f"error{error_code}:") == 2
     assert "ipywidgets" not in html.lower()
     assert 'type:"physics-atlas:frame-height"' in html
     assert "window.frameElement.style.height" in html
@@ -171,3 +217,4 @@ def test_built_html_stays_within_initial_payload_budget(tmp_path, visualization)
     assert "itertools.product(range(4)" not in source
     assert "get_plotlyjs" not in source
     assert "PlotlyJSONEncoder" not in source
+    assert b"WebAssembly" not in html_path.read_bytes()

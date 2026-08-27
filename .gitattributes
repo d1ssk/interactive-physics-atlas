@@ -1,1 +1,6 @@
 src/physics_atlas/vendor/plotly/*.min.js -diff whitespace=-trailing-space
+src/physics_atlas/vendor/pyodide/*.json -diff
+src/physics_atlas/vendor/pyodide/*.mjs -diff
+src/physics_atlas/vendor/pyodide/*.wasm -diff
+src/physics_atlas/vendor/pyodide/*.whl -diff
+src/physics_atlas/vendor/pyodide/*.zip -diff

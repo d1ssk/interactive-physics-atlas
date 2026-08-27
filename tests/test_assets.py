@@ -9,6 +9,13 @@ from physics_atlas.assets import (
     PLOTLY_GL3D_PATH,
     PLOTLY_GL3D_SHA256,
     PLOTLY_LICENSE_ASSET_NAME,
+    PYODIDE_NUMPY_VERSION,
+    PYODIDE_NUMPY_WHEEL,
+    PYODIDE_PYTHON_VERSION,
+    PYODIDE_RUNTIME_SHA256,
+    PYODIDE_VENDOR_DIR,
+    PYODIDE_VERSION,
+    copy_pyodide_runtime_assets,
     copy_shared_plotly_assets,
 )
 
@@ -39,8 +46,45 @@ def test_plotly_bundle_is_not_duplicated_in_japanese_site_assets(tmp_path, monke
     monkeypatch.setattr(build_site, "JAPANESE_BUILD_DOCS_DIR", japanese_dir)
 
     build_site.stage_english_docs()
+    lie_runtime = english_dir / build_site.LIE_RUNTIME_RELATIVE_DIR
+    lie_runtime.mkdir(parents=True)
+    (lie_runtime / "worker.mjs").write_text("worker", encoding="utf-8")
     build_site.stage_japanese_docs()
 
     assert (english_dir / "javascripts" / PLOTLY_GL3D_ASSET_NAME).is_file()
     assert not (japanese_dir / "javascripts" / PLOTLY_GL3D_ASSET_NAME).exists()
     assert not (japanese_dir / "javascripts" / PLOTLY_LICENSE_ASSET_NAME).exists()
+    assert not (japanese_dir / build_site.LIE_RUNTIME_RELATIVE_DIR).exists()
+
+
+def test_pinned_pyodide_subset_has_expected_versions_and_digests():
+    assert PYODIDE_VERSION == "314.0.6"
+    assert PYODIDE_PYTHON_VERSION == "3.14.2"
+    assert PYODIDE_NUMPY_VERSION == "2.4.6"
+    assert PYODIDE_NUMPY_WHEEL in PYODIDE_RUNTIME_SHA256
+
+    for name, expected_digest in PYODIDE_RUNTIME_SHA256.items():
+        assert (
+            hashlib.sha256((PYODIDE_VENDOR_DIR / name).read_bytes()).hexdigest() == expected_digest
+        )
+    assert sum((PYODIDE_VENDOR_DIR / name).stat().st_size for name in PYODIDE_RUNTIME_SHA256) < (
+        16 * 1024 * 1024
+    )
+
+    retained = {path.name for path in PYODIDE_VENDOR_DIR.iterdir() if path.is_file()}
+    assert retained == {
+        *PYODIDE_RUNTIME_SHA256,
+        "LICENSE",
+        "NUMPY-LICENSE.txt",
+        "README.md",
+    }
+    assert not any("scipy" in name or "micropip" in name for name in retained)
+
+
+def test_pyodide_subset_stages_with_local_licenses(tmp_path):
+    copy_pyodide_runtime_assets(tmp_path)
+
+    assert (tmp_path / "pyodide.mjs").is_file()
+    assert (tmp_path / PYODIDE_NUMPY_WHEEL).is_file()
+    assert "Mozilla Public License" in (tmp_path / "LICENSE").read_text(encoding="utf-8")
+    assert "Redistribution and use" in (tmp_path / "NUMPY-LICENSE.txt").read_text(encoding="utf-8")

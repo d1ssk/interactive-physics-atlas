@@ -21,6 +21,9 @@ ENGLISH_DOCS_DIR = ROOT / "docs"
 JAPANESE_DOCS_DIR = ROOT / "docs_ja"
 ENGLISH_BUILD_DOCS_DIR = ROOT / "build" / "docs-en"
 JAPANESE_BUILD_DOCS_DIR = ROOT / "build" / "docs-ja"
+LIE_RUNTIME_RELATIVE_DIR = (
+    Path("mathematics-for-physics") / "lie-roots-weights-products" / "app" / "runtime"
+)
 
 
 def stage_english_docs() -> Path:
@@ -51,6 +54,9 @@ def stage_japanese_docs() -> Path:
     javascript_dir = JAPANESE_BUILD_DOCS_DIR / "javascripts"
     for shared_asset in (PLOTLY_GL3D_ASSET_NAME, PLOTLY_LICENSE_ASSET_NAME):
         (javascript_dir / shared_asset).unlink()
+    lie_runtime_dir = JAPANESE_BUILD_DOCS_DIR / LIE_RUNTIME_RELATIVE_DIR
+    if lie_runtime_dir.exists():
+        shutil.rmtree(lie_runtime_dir)
     return JAPANESE_BUILD_DOCS_DIR
 
 
