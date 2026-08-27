@@ -217,6 +217,10 @@ def test_static_build_contract(
     assert 'input.value === "" ? NaN : Number(input.value)' in html
     assert "if (activeWeightRequestId !== request.requestId) return;" in html
     assert "if (activeProductRequestId !== request.requestId) return;" in html
+    assert "const requestId = activeWeightRequestId;" in html
+    assert "if (activeWeightRequestId === requestId) provider.cancel(requestId);" in html
+    assert "const requestId = activeProductRequestId;" in html
+    assert "if (activeProductRequestId === requestId) provider.cancel(requestId);" in html
     assert 'customTwoFactorProduct:"Custom two-factor product"' in html
     assert 'customTwoFactorProduct:"任意の2因子テンソル積"' in html
     assert 'calculateWeight:"Calculate"' in html

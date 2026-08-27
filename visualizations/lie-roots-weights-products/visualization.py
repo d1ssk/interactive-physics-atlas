@@ -873,9 +873,10 @@ _APPLICATION_HTML = r"""<!doctype html>
   }
   byId("weight-compute").addEventListener("click", calculateCustomWeight);
   byId("weight-cancel").addEventListener("click", async () => {
-    if (!activeWeightRequestId || !computeProviderPromise) return;
+    const requestId = activeWeightRequestId;
+    if (!requestId || !computeProviderPromise) return;
     const provider = await computeProviderPromise;
-    provider.cancel(activeWeightRequestId);
+    if (activeWeightRequestId === requestId) provider.cancel(requestId);
   });
   window.addEventListener("pagehide", () => {
     computeProviderPromise?.then(provider => provider.dispose());
@@ -1089,9 +1090,10 @@ _APPLICATION_HTML = r"""<!doctype html>
   byId("product-factors").addEventListener("change", renderProduct);
   byId("product-compute").addEventListener("click", calculateCustomProduct);
   byId("product-cancel").addEventListener("click", async () => {
-    if (!activeProductRequestId || !computeProviderPromise) return;
+    const requestId = activeProductRequestId;
+    if (!requestId || !computeProviderPromise) return;
     const provider = await computeProviderPromise;
-    provider.cancel(activeProductRequestId);
+    if (activeProductRequestId === requestId) provider.cancel(requestId);
   });
 
   renderRoots();
