@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import {PyodideComputeProvider} from "../runtime/pyodide-compute-provider-v2.mjs";
+import {PyodideComputeProvider} from "../runtime/pyodide-compute-provider-v3.mjs";
 
 class FakeWorker {
   constructor() {
@@ -57,11 +57,27 @@ function request(requestId, labels = [4, 0], overrides = {}) {
   return {
     protocol:"physics-atlas.compute.v1",
     requestId,
-    kernelVersion:"1.0.0",
+    kernelVersion:"1.1.0",
     operation:"lie.weight-diagram.v1",
     input:{system:"A2", highestDynkin:labels},
     limits:{maxCandidates:250000, maxResultWeights:20000, maxElapsedMs:30000},
     ...overrides,
+  };
+}
+
+function tensorRequest(requestId) {
+  return {
+    protocol:"physics-atlas.compute.v1",
+    requestId,
+    kernelVersion:"1.1.0",
+    operation:"lie.tensor-product.v1",
+    input:{system:"A2", factors:[[2, 0], [1, 1]]},
+    limits:{
+      maxCandidates:250000,
+      maxWeightPairs:250000,
+      maxResultWeights:20000,
+      maxElapsedMs:30000,
+    },
   };
 }
 
@@ -77,12 +93,28 @@ function successResponse(value) {
   };
 }
 
+function tensorSuccessResponse(value) {
+  return {
+    protocol:value.protocol,
+    requestId:value.requestId,
+    kernelVersion:value.kernelVersion,
+    operation:value.operation,
+    ok:true,
+    result:{schema:"physics-atlas.tensor-product.v1"},
+    dependencies:{weights:{}},
+    runtime:{name:"pyodide", version:"test", pythonVersion:"test", numpyVersion:"test"},
+  };
+}
+
 function harness(options = {}) {
   const workers = [];
   const clock = fakeClock();
   const provider = new PyodideComputeProvider({
     workerUrl:new URL("https://example.test/worker.mjs"),
-    resultSchema:"physics-atlas.weight-diagram.v1",
+    resultSchemas:{
+      "lie.weight-diagram.v1":"physics-atlas.weight-diagram.v1",
+      "lie.tensor-product.v1":"physics-atlas.tensor-product.v1",
+    },
     runtime:{name:"pyodide", version:"test"},
     workerFactory:() => {
       const worker = new FakeWorker();
@@ -122,6 +154,29 @@ test("successful responses are cached by versioned calculation identity", async 
   assert.equal(cachedResponse.requestId, "second");
   assert.deepEqual(cachedResponse.provider, {cacheHit:true, elapsedMs:0});
   assert.deepEqual(cachedPhases, ["cache-hit"]);
+});
+
+test("operation and result schema separate weight and tensor-product cache entries", async () => {
+  const {provider, workers} = harness();
+  const weight = request("weight");
+  const weightResult = provider.compute(weight);
+  workers[0].emit("message", {
+    type:"response", requestId:"weight", response:successResponse(weight),
+  });
+  await weightResult;
+
+  const tensor = tensorRequest("tensor");
+  const tensorResult = provider.compute(tensor);
+  assert.equal(workers[0].requests.length, 2);
+  workers[0].emit("message", {
+    type:"response", requestId:"tensor", response:tensorSuccessResponse(tensor),
+  });
+  assert.equal((await tensorResult).provider.cacheHit, false);
+
+  const cached = await provider.compute({...tensor, requestId:"tensor-cached"});
+  assert.equal(cached.provider.cacheHit, true);
+  assert.equal(cached.requestId, "tensor-cached");
+  assert.equal(workers[0].requests.length, 2);
 });
 
 test("a newer request supersedes synchronous Worker work and ignores stale messages", async () => {
@@ -205,8 +260,12 @@ test("malformed and excessive elapsed-time budgets fail before Worker creation",
   const excessive = await provider.compute(request("large", [4, 0], {
     limits:{maxCandidates:250000, maxResultWeights:20000, maxElapsedMs:60001},
   }));
+  const unsupported = await provider.compute(request("unsupported", [4, 0], {
+    operation:"lie.unknown.v1",
+  }));
 
   assert.equal(malformed.error.code, "INVALID_REQUEST");
   assert.equal(excessive.error.code, "LIMIT_EXCEEDED");
+  assert.equal(unsupported.error.code, "UNSUPPORTED_OPERATION");
   assert.equal(workers.length, 0);
 });

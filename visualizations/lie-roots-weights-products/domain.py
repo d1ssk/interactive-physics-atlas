@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections import Counter
 from collections.abc import Mapping
 
 import numpy as np
@@ -14,15 +15,16 @@ from .physics import (
     dynkin_coordinates,
     format_decomposition,
     get_root_system,
+    representation_weights,
     weight_graph_edges,
 )
-from .protocol import KERNEL_VERSION, WEIGHT_RESULT_SCHEMA
+from .protocol import KERNEL_VERSION, TENSOR_PRODUCT_RESULT_SCHEMA, WEIGHT_RESULT_SCHEMA
 
 APPLICATION_SCHEMA = "physics-atlas.lie-application.v1"
 ROOT_SYSTEM_SCHEMA = "physics-atlas.root-system.v1"
 WEIGHT_DIAGRAM_SCHEMA = WEIGHT_RESULT_SCHEMA
 CHARACTER_SCHEMA = "physics-atlas.character.v1"
-TENSOR_PRODUCT_SCHEMA = "physics-atlas.tensor-product.v1"
+TENSOR_PRODUCT_SCHEMA = TENSOR_PRODUCT_RESULT_SCHEMA
 DISPLAY_COORDINATE_DECIMALS = 12
 
 
@@ -141,10 +143,15 @@ def validate_weight_diagram_domain(result: Mapping[str, object]) -> None:
 def residual_character_domain(
     product: TensorProduct,
     extraction_step: int,
+    max_candidates: int = 250_000,
 ) -> dict[str, object]:
     """Serialize one residual tensor-product character in display coordinates."""
 
-    residual = decomposition_residual_character(product, extraction_step)
+    residual = decomposition_residual_character(
+        product,
+        extraction_step,
+        max_candidates=max_candidates,
+    )
     ordered = sorted(residual)
     display_lookup = {
         tuple(int(value) for value in labels): point
@@ -164,10 +171,13 @@ def residual_character_domain(
     }
 
 
-def tensor_product_domain(product: TensorProduct) -> dict[str, object]:
+def tensor_product_domain(
+    product: TensorProduct,
+    max_candidates: int = 250_000,
+) -> dict[str, object]:
     """Serialize a tensor product and its complete extraction sequence."""
 
-    return {
+    result = {
         "schema": TENSOR_PRODUCT_SCHEMA,
         "kernelVersion": KERNEL_VERSION,
         "system": product.system_key,
@@ -180,7 +190,8 @@ def tensor_product_domain(product: TensorProduct) -> dict[str, object]:
         "dimension": product.dimension,
         "decompositionDimension": product.decomposition_dimension,
         "steps": [
-            residual_character_domain(product, step) for step in range(len(product.components) + 1)
+            residual_character_domain(product, step, max_candidates=max_candidates)
+            for step in range(len(product.components) + 1)
         ],
         "components": [
             {
@@ -199,3 +210,149 @@ def tensor_product_domain(product: TensorProduct) -> dict[str, object]:
             for component in product.components
         ],
     }
+    validate_tensor_product_domain(result)
+    return result
+
+
+def tensor_product_weight_dependencies(
+    product: TensorProduct,
+    max_candidates: int = 250_000,
+) -> dict[str, dict[str, object]]:
+    """Return the weight diagrams referenced by one tensor-product DTO."""
+
+    labels = sorted(
+        {
+            *product.factor_highest,
+            *(component.highest_dynkin for component in product.components),
+        }
+    )
+    return {
+        weight_diagram_key(product.system_key, highest): weight_diagram_domain(
+            representation_weights(
+                product.system_key,
+                highest,
+                max_candidates=max_candidates,
+            )
+        )
+        for highest in labels
+    }
+
+
+def _character_from_domain(character: Mapping[str, object]) -> Counter[tuple[int, ...]]:
+    coordinates = character.get("dynkinCoordinates")
+    display_weights = character.get("displayWeights")
+    multiplicities = character.get("multiplicities")
+    if not all(isinstance(value, list) for value in (coordinates, display_weights, multiplicities)):
+        raise ArithmeticError("Tensor-product character arrays are missing")
+    if len(coordinates) != len(display_weights) or len(coordinates) != len(multiplicities):
+        raise ArithmeticError("Tensor-product character arrays have inconsistent lengths")
+    if any(
+        not isinstance(coordinate, list)
+        or any(isinstance(value, bool) or not isinstance(value, int) for value in coordinate)
+        for coordinate in coordinates
+    ):
+        raise ArithmeticError("Tensor-product Dynkin coordinates are invalid")
+    if any(
+        isinstance(value, bool) or not isinstance(value, int) or value <= 0
+        for value in multiplicities
+    ):
+        raise ArithmeticError("Tensor-product multiplicities must be positive integers")
+    result = Counter(
+        {
+            tuple(coordinate): multiplicity
+            for coordinate, multiplicity in zip(coordinates, multiplicities, strict=True)
+        }
+    )
+    if len(result) != len(coordinates):
+        raise ArithmeticError("Tensor-product character contains duplicate weights")
+    return result
+
+
+def validate_tensor_product_domain(
+    result: Mapping[str, object],
+    weight_diagrams: Mapping[str, Mapping[str, object]] | None = None,
+) -> None:
+    """Validate tensor-product DTO shape, dimensions, residuals, and reconstruction."""
+
+    if result.get("schema") != TENSOR_PRODUCT_SCHEMA:
+        raise ArithmeticError("Unexpected tensor-product schema")
+    if result.get("kernelVersion") != KERNEL_VERSION:
+        raise ArithmeticError("Unexpected Lie kernel version")
+    factors = result.get("factors")
+    factor_keys = result.get("factorWeightKeys")
+    components = result.get("components")
+    steps = result.get("steps")
+    if not isinstance(factors, list) or not 2 <= len(factors) <= 3:
+        raise ArithmeticError("Tensor product must contain two or three factors")
+    if not isinstance(factor_keys, list) or len(factor_keys) != len(factors):
+        raise ArithmeticError("Tensor-product factor references are inconsistent")
+    if not isinstance(components, list) or not components:
+        raise ArithmeticError("Tensor-product components are missing")
+    if not isinstance(steps, list) or len(steps) != len(components) + 1:
+        raise ArithmeticError("Tensor-product extraction steps are inconsistent")
+
+    if any(
+        not isinstance(step, Mapping)
+        or step.get("schema") != CHARACTER_SCHEMA
+        or step.get("kernelVersion") != KERNEL_VERSION
+        or step.get("system") != result.get("system")
+        for step in steps
+    ):
+        raise ArithmeticError("Tensor-product character schema is inconsistent")
+    characters = [_character_from_domain(step) for step in steps]
+    dimension = result.get("dimension")
+    if not isinstance(dimension, int) or sum(characters[0].values()) != dimension:
+        raise ArithmeticError("Tensor-product character dimension is inconsistent")
+    if result.get("distinctWeights") != len(characters[0]):
+        raise ArithmeticError("Tensor-product distinct-weight count is inconsistent")
+    if characters[-1]:
+        raise ArithmeticError("Final tensor-product residual is not empty")
+    component_dimension = 0
+    for component in components:
+        if not isinstance(component, Mapping):
+            raise ArithmeticError("Tensor-product component is invalid")
+        multiplicity = component.get("multiplicity")
+        irrep_dimension = component.get("dimension")
+        if any(
+            isinstance(value, bool) or not isinstance(value, int) or value <= 0
+            for value in (multiplicity, irrep_dimension)
+        ):
+            raise ArithmeticError("Tensor-product component dimensions are invalid")
+        component_dimension += multiplicity * irrep_dimension
+    if component_dimension != dimension or result.get("decompositionDimension") != dimension:
+        raise ArithmeticError("Tensor-product decomposition dimension is inconsistent")
+
+    if weight_diagrams is None:
+        return
+    references = [
+        *zip(factor_keys, factors, strict=True),
+        *((component.get("weightKey"), component.get("highestDynkin")) for component in components),
+    ]
+    for key, expected_highest in references:
+        diagram = weight_diagrams.get(key) if isinstance(key, str) else None
+        if diagram is None:
+            raise ArithmeticError("Referenced tensor-product weight diagram is missing")
+        validate_weight_diagram_domain(diagram)
+        if (
+            diagram.get("system") != result.get("system")
+            or diagram.get("highestDynkin") != expected_highest
+        ):
+            raise ArithmeticError("Referenced tensor-product weight diagram does not match")
+
+    reconstructed: Counter[tuple[int, ...]] = Counter()
+    expected_residual = characters[0].copy()
+    for index, component in enumerate(components):
+        diagram = weight_diagrams[component["weightKey"]]
+        irrep_character = _character_from_domain(diagram)
+        copies = component["multiplicity"]
+        for weight, multiplicity in irrep_character.items():
+            reconstructed[weight] += copies * multiplicity
+            expected_residual[weight] -= copies * multiplicity
+            if expected_residual[weight] < 0:
+                raise ArithmeticError("Tensor-product residual became negative")
+            if expected_residual[weight] == 0:
+                del expected_residual[weight]
+        if expected_residual != characters[index + 1]:
+            raise ArithmeticError("Tensor-product extraction step is inconsistent")
+    if reconstructed != characters[0]:
+        raise ArithmeticError("Irreducible characters do not reconstruct the product")

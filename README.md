@@ -62,6 +62,8 @@ site/            generated output; never edit or commit
 ```
 
 Repository-specific development rules live in `AGENTS.md`.
+Reusable rules for bounded Pyodide/Wasm-style computation runtimes live in
+[`visualizations/BROWSER_COMPUTE.md`](visualizations/BROWSER_COMPUTE.md).
 
 This project is developed with assistance from OpenAI Codex. Scientific content,
 conventions, and final editorial decisions remain the responsibility of Daichi Sasaki.

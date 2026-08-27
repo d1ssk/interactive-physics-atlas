@@ -605,9 +605,13 @@ def _tensor_product_many_cached(
     system_key: str,
     factor_highest: tuple[WeightKey, ...],
     max_weight_pairs: int,
+    max_candidates: int,
 ) -> TensorProduct:
     system = get_root_system(system_key)
-    diagrams = [representation_weights(system.key, labels) for labels in factor_highest]
+    diagrams = [
+        representation_weights(system.key, labels, max_candidates=max_candidates)
+        for labels in factor_highest
+    ]
     product_character = _diagram_character(diagrams[0])
     work = 0
     for diagram in diagrams[1:]:
@@ -625,7 +629,7 @@ def _tensor_product_many_cached(
     while residual:
         highest = _highest_dominant_weight(system, residual)
         copies = residual[highest]
-        diagram = representation_weights(system.key, highest)
+        diagram = representation_weights(system.key, highest, max_candidates=max_candidates)
         components.append(
             IrreducibleComponent(
                 highest_dynkin=highest,
@@ -659,7 +663,7 @@ def _tensor_product_many_cached(
         raise ArithmeticError("Tensor character does not have dim(V) * dim(W)")
     if result.decomposition_dimension != dimension:
         raise ArithmeticError("Irreducible dimensions do not sum to dim(V) * dim(W)")
-    if reconstructed_character(result) != result.character():
+    if reconstructed_character(result, max_candidates=max_candidates) != result.character():
         raise ArithmeticError("Irreducible characters do not reconstruct the product")
     return result
 
@@ -669,6 +673,7 @@ def tensor_product(
     left_dynkin: Sequence[int],
     right_dynkin: Sequence[int],
     max_weight_pairs: int = 2_000_000,
+    max_candidates: int = 250_000,
 ) -> TensorProduct:
     """Compute the weight character and irreducible decomposition of ``V ⊗ W``.
 
@@ -680,6 +685,7 @@ def tensor_product(
         system,
         (left_dynkin, right_dynkin),
         max_weight_pairs=max_weight_pairs,
+        max_candidates=max_candidates,
     )
 
 
@@ -687,6 +693,7 @@ def tensor_product_many(
     system: str,
     factors: Sequence[Sequence[int]],
     max_weight_pairs: int = 2_000_000,
+    max_candidates: int = 250_000,
 ) -> TensorProduct:
     """Decompose a product of two or three highest-weight representations."""
 
@@ -696,22 +703,38 @@ def tensor_product_many(
         raise ValueError("Choose two or three tensor factors")
     if max_weight_pairs <= 0:
         raise ValueError("max_weight_pairs must be positive")
-    return _tensor_product_many_cached(root_system.key, factor_tuple, max_weight_pairs)
+    if max_candidates <= 0:
+        raise ValueError("max_candidates must be positive")
+    return _tensor_product_many_cached(
+        root_system.key,
+        factor_tuple,
+        max_weight_pairs,
+        max_candidates,
+    )
 
 
-def reconstructed_character(product: TensorProduct) -> dict[WeightKey, int]:
+def reconstructed_character(
+    product: TensorProduct,
+    max_candidates: int = 250_000,
+) -> dict[WeightKey, int]:
     """Rebuild a product character from its listed irreducible components."""
 
     reconstructed: Counter[WeightKey] = Counter()
     for component in product.components:
-        diagram = representation_weights(product.system_key, component.highest_dynkin)
+        diagram = representation_weights(
+            product.system_key,
+            component.highest_dynkin,
+            max_candidates=max_candidates,
+        )
         for weight, multiplicity in _diagram_character(diagram).items():
             reconstructed[weight] += component.multiplicity * multiplicity
     return dict(reconstructed)
 
 
 def decomposition_residual_character(
-    product: TensorProduct, extracted_components: int
+    product: TensorProduct,
+    extracted_components: int,
+    max_candidates: int = 250_000,
 ) -> dict[WeightKey, int]:
     """Return the residual character after the first decomposition steps.
 
@@ -723,7 +746,11 @@ def decomposition_residual_character(
         raise ValueError(f"extracted_components must lie in [0, {len(product.components)}]")
     residual = Counter(product.character())
     for component in product.components[:extracted_components]:
-        diagram = representation_weights(product.system_key, component.highest_dynkin)
+        diagram = representation_weights(
+            product.system_key,
+            component.highest_dynkin,
+            max_candidates=max_candidates,
+        )
         _subtract_irrep(residual, diagram, component.multiplicity)
     return dict(residual)
 

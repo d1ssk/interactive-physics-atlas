@@ -111,6 +111,12 @@ Prefer Plotly for standard interactive 2D/3D visualizations.
 Avoid using browser-side Python unless runtime numerical computation is
 genuinely required.
 
+When a published visualization does require Pyodide, Wasm, or another browser
+calculation runtime, follow `BROWSER_COMPUTE.md`. In particular, preserve the
+authoritative physics/domain/protocol/provider boundaries, define limits and
+cache invalidation before implementation, and exercise the final built Worker
+path over loopback HTTP in the required browser matrix.
+
 Unless a visualization has a documented interaction-specific reason to do
 otherwise, Cartesian 2D plots must start with `dragmode="pan"`, and 3D scenes
 must start with `dragmode="turntable"`. Keep zoom available through the wheel,

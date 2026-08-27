@@ -20,18 +20,22 @@ from .protocol import (
     DEFAULT_MAX_CANDIDATES,
     DEFAULT_MAX_ELAPSED_MS,
     DEFAULT_MAX_RESULT_WEIGHTS,
+    DEFAULT_MAX_WEIGHT_PAIRS,
     ERROR_CODES,
     HARD_MAX_ELAPSED_MS,
     KERNEL_VERSION,
     MAX_DYNKIN_LABEL,
     MEMORY_CACHE_MAX_ENTRIES,
+    RESULT_SCHEMAS,
+    TENSOR_PRODUCT_OPERATION,
+    TENSOR_PRODUCT_RESULT_SCHEMA,
     WEIGHT_OPERATION,
     WEIGHT_RESULT_SCHEMA,
 )
 
 RUNTIME_DIRECTORY_NAME = "runtime"
-PROVIDER_ASSET_NAME = "pyodide-compute-provider-v2.mjs"
-WORKER_ASSET_NAME = "lie-weight-worker-v1.mjs"
+PROVIDER_ASSET_NAME = "pyodide-compute-provider-v3.mjs"
+WORKER_ASSET_NAME = "lie-compute-worker-v2.mjs"
 KERNEL_DISTRIBUTION = "physics_atlas_lie_kernel"
 KERNEL_WHEEL_NAME = f"{KERNEL_DISTRIBUTION}-{KERNEL_VERSION}-py3-none-any.whl"
 KERNEL_SOURCE_NAMES = ("physics.py", "domain.py", "protocol.py", "kernel.py")
@@ -43,8 +47,17 @@ def runtime_manifest() -> dict[str, object]:
 
     return {
         "protocol": COMPUTE_PROTOCOL_SCHEMA,
-        "operation": WEIGHT_OPERATION,
-        "resultSchema": WEIGHT_RESULT_SCHEMA,
+        "operations": {
+            "weight": {
+                "name": WEIGHT_OPERATION,
+                "resultSchema": WEIGHT_RESULT_SCHEMA,
+            },
+            "tensorProduct": {
+                "name": TENSOR_PRODUCT_OPERATION,
+                "resultSchema": TENSOR_PRODUCT_RESULT_SCHEMA,
+            },
+        },
+        "resultSchemas": dict(RESULT_SCHEMAS),
         "kernelVersion": KERNEL_VERSION,
         "providerAsset": PROVIDER_ASSET_NAME,
         "workerAsset": WORKER_ASSET_NAME,
@@ -55,6 +68,7 @@ def runtime_manifest() -> dict[str, object]:
             "maxDynkinLabel": MAX_DYNKIN_LABEL,
             "maxCandidates": DEFAULT_MAX_CANDIDATES,
             "maxResultWeights": DEFAULT_MAX_RESULT_WEIGHTS,
+            "maxWeightPairs": DEFAULT_MAX_WEIGHT_PAIRS,
             "maxElapsedMs": DEFAULT_MAX_ELAPSED_MS,
             "hardMaxElapsedMs": HARD_MAX_ELAPSED_MS,
             "memoryCacheEntries": MEMORY_CACHE_MAX_ENTRIES,
@@ -88,7 +102,7 @@ def build_kernel_wheel(source_dir: Path, output_path: Path) -> None:
             "Metadata-Version: 2.1\n"
             "Name: physics-atlas-lie-kernel\n"
             f"Version: {KERNEL_VERSION}\n"
-            "Summary: Authoritative Lie weight kernel for Interactive Physics Atlas\n"
+            "Summary: Authoritative Lie computation kernel for Interactive Physics Atlas\n"
             "License: MIT\n"
             "Requires-Python: >=3.12\n"
             "Requires-Dist: numpy\n"
@@ -135,6 +149,8 @@ def build_runtime_assets(output_dir: Path, source_dir: Path) -> Path:
         "__KERNEL_VERSION__": KERNEL_VERSION,
         "__WEIGHT_OPERATION__": WEIGHT_OPERATION,
         "__WEIGHT_RESULT_SCHEMA__": WEIGHT_RESULT_SCHEMA,
+        "__TENSOR_PRODUCT_OPERATION__": TENSOR_PRODUCT_OPERATION,
+        "__TENSOR_PRODUCT_RESULT_SCHEMA__": TENSOR_PRODUCT_RESULT_SCHEMA,
         "__KERNEL_WHEEL__": KERNEL_WHEEL_NAME,
         "__PYODIDE_VERSION__": PYODIDE_VERSION,
         "__PYTHON_VERSION__": PYODIDE_PYTHON_VERSION,
