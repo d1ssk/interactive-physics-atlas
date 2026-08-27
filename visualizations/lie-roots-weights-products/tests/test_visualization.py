@@ -164,8 +164,8 @@ def test_static_build_contract(
     assert "getComputeProvider()" in html
     assert "import(new URL(DATA.runtime.providerAsset, base))" in html
     assert "new module.PyodideComputeProvider({workerUrl:" in html
-    assert "Calculate in browser" in html
-    assert "ブラウザで計算" in html
+    assert 'calculateWeight:"Calculate"' in html
+    assert 'calculateWeight:"計算"' in html
     assert 'aria-live="polite"' in html
     assert html.index("if (!labels)") < html.index("const provider = await getComputeProvider()")
     for error_code in protocol.ERROR_CODES:

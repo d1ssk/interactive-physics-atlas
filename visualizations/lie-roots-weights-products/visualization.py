@@ -244,7 +244,7 @@ _APPLICATION_HTML = r"""<!doctype html>
       <fieldset class="custom-weight">
         <legend data-i18n="customHighestWeight">Custom highest weight</legend>
         <div id="weight-custom-labels" class="dynkin-inputs"></div>
-        <button id="weight-compute" class="compute" type="button" data-i18n="calculateWeight">Calculate in browser</button>
+        <button id="weight-compute" class="compute" type="button" data-i18n="calculateWeight">Calculate</button>
       </fieldset>
     </div>
     <p class="hint" data-i18n="runtimeHint">Try the non-preset highest weight \(A_2\), \((4,0)\). Pyodide loads only when requested.</p>
@@ -319,7 +319,7 @@ _APPLICATION_HTML = r"""<!doctype html>
     en: {
       rootNote:"{groups}; {note}. Cartan matrix: \\(A={cartan}\\).",
       weightStatus:"\\({system}\\) highest weight \\(({labels})\\); published preset.",
-      customHighestWeight:"Custom highest weight", calculateWeight:"Calculate in browser",
+      customHighestWeight:"Custom highest weight", calculateWeight:"Calculate",
       calculatingButton:"Calculating…",
       dynkinLabelAria:"Dynkin label {index}",
       runtimeHint:"Try the non-preset highest weight \\(A_2\\), \\((4,0)\\). Pyodide loads only when requested.",
@@ -344,7 +344,7 @@ _APPLICATION_HTML = r"""<!doctype html>
       lede:"階数2・3のルート系、既約最高ウェイト指標、テンソル積成分を段階的に取り出す過程。",
       rootsTab:"1. ルート系", weightsTab:"2. 表現のウェイト", productsTab:"3. テンソル積",
       cartanType:"カルタン型", showFundamental:"基本ウェイトを表示", preset:"プリセット",
-      customHighestWeight:"任意の最高ウェイト", calculateWeight:"ブラウザで計算", calculatingButton:"計算中…",
+      customHighestWeight:"任意の最高ウェイト", calculateWeight:"計算", calculatingButton:"計算中…",
       dynkinLabelAria:"ディンキンラベル {index}",
       product:"テンソル積", extractionStep:"抽出ステップ", inspectSummand:"既約成分を確認",
       showFactors:"因子のウェイトを表示",
