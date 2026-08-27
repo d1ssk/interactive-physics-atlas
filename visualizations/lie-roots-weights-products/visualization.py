@@ -250,7 +250,6 @@ _APPLICATION_HTML = r"""<!doctype html>
         <button id="weight-cancel" class="cancel" type="button" data-i18n="cancelWeight" disabled>Cancel</button>
       </fieldset>
     </div>
-    <p class="hint" data-i18n="runtimeHint">Try the non-preset highest weight \(A_2\), \((4,0)\). Pyodide loads only when requested.</p>
     <p id="weight-runtime-status" class="hint" aria-live="polite"></p>
     <p id="weight-status" class="hint"></p>
     <div id="weight-plot" class="plot" role="img" aria-label="Weight diagram"></div>
@@ -325,13 +324,9 @@ _APPLICATION_HTML = r"""<!doctype html>
       customHighestWeight:"Custom highest weight", calculateWeight:"Calculate",
       replaceCalculation:"Replace calculation", cancelWeight:"Cancel",
       dynkinLabelAria:"Dynkin label {index}",
-      runtimeHint:"Try the non-preset highest weight \\(A_2\\), \\((4,0)\\). Pyodide loads only when requested.",
       phaseRuntimeLoading:"Loading the Pyodide runtime…", phaseKernelLoading:"Loading the Atlas Lie kernel…",
       phaseCalculating:"Calculating the weight diagram in a Worker…", phaseValidating:"Validating mathematical invariants…",
       phaseRendering:"Rendering the validated result…",
-      runtimeResult:"Computed \\({system}\\) highest weight \\(({labels})\\) in {elapsed} ms with Pyodide {pyodide}, Python {python}, and NumPy {numpy}.",
-      cachedResult:"Reused the validated in-memory result for \\({system}\\) highest weight \\(({labels})\\); no Worker calculation was needed.",
-      staticResult:"This weight is already available as static domain data; the runtime was not loaded.",
       errorPROTOCOL_MISMATCH:"The compute protocol version is not supported.",
       errorKERNEL_MISMATCH:"The Lie kernel version is not supported.",
       errorUNSUPPORTED_OPERATION:"The requested calculation is not supported.",
@@ -358,13 +353,9 @@ _APPLICATION_HTML = r"""<!doctype html>
       showFactors:"因子のウェイトを表示",
       rootNote:"{groups}；{note}。カルタン行列：\\(A={cartan}\\)。",
       weightStatus:"\\({system}\\) の最高ウェイト \\(({labels})\\)；公開プリセット。",
-      runtimeHint:"プリセットにない最高ウェイト \\(A_2\\)、\\((4,0)\\) を試せます。Pyodideは計算を要求したときだけ読み込みます。",
       phaseRuntimeLoading:"Pyodideランタイムを読み込んでいます…", phaseKernelLoading:"Atlasのリー代数カーネルを読み込んでいます…",
       phaseCalculating:"Worker内でウェイト図を計算しています…", phaseValidating:"数学的不変量を検証しています…",
       phaseRendering:"検証済みの結果を描画しています…",
-      runtimeResult:"Pyodide {pyodide}、Python {python}、NumPy {numpy}により、\\({system}\\) の最高ウェイト \\(({labels})\\) を {elapsed} ms で計算しました。",
-      cachedResult:"検証済みのメモリ内結果を再利用して、\\({system}\\) の最高ウェイト \\(({labels})\\) を表示しました。Workerでの再計算は行っていません。",
-      staticResult:"このウェイトは静的な数理データとして収録済みです。ランタイムは読み込んでいません。",
       errorPROTOCOL_MISMATCH:"計算プロトコルの版に対応していません。",
       errorKERNEL_MISMATCH:"リー代数カーネルの版に対応していません。",
       errorUNSUPPORTED_OPERATION:"要求された計算には対応していません。",
@@ -798,7 +789,7 @@ _APPLICATION_HTML = r"""<!doctype html>
       cancelActiveCalculation();
       await draw("weight-plot", weightFigure(DATA.weights[key]));
       byId("weight-status").textContent = "";
-      setRuntimeStatus(t("staticResult"));
+      setRuntimeStatus("");
       return;
     }
     const request = {
@@ -830,11 +821,7 @@ _APPLICATION_HTML = r"""<!doctype html>
       setRuntimeStatus(t("phaseRendering"));
       await draw("weight-plot", weightFigure(response.result));
       byId("weight-status").textContent = "";
-      const values = {system:systemLatex(system), labels:labels.join(", ")};
-      setRuntimeStatus(response.provider.cacheHit ? t("cachedResult", values) : t("runtimeResult", {
-        ...values, elapsed:response.provider.elapsedMs, pyodide:response.runtime.version,
-        python:response.runtime.pythonVersion, numpy:response.runtime.numpyVersion,
-      }));
+      setRuntimeStatus("");
     } catch (error) {
       console.error(error);
       if (activeRequestId === request.requestId) setRuntimeStatus(t("errorRUNTIME_LOAD_FAILED"));

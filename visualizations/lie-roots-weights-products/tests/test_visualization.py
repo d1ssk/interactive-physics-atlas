@@ -199,6 +199,10 @@ def test_static_build_contract(
     assert 'id="weight-cancel"' in html
     assert 'calculateWeight:"Calculate"' in html
     assert 'calculateWeight:"計算"' in html
+    for removed_message in ("runtimeHint", "runtimeResult", "cachedResult", "staticResult"):
+        assert removed_message not in html
+    assert "Try the non-preset highest weight" not in html
+    assert "プリセットにない最高ウェイト" not in html
     assert 'aria-live="polite"' in html
     assert html.index("if (!labels)") < html.index("const provider = await getComputeProvider()")
     for error_code in protocol.ERROR_CODES:
