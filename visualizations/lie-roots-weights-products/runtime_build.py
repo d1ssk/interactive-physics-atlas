@@ -18,15 +18,19 @@ from physics_atlas.assets import (
 from .protocol import (
     COMPUTE_PROTOCOL_SCHEMA,
     DEFAULT_MAX_CANDIDATES,
+    DEFAULT_MAX_ELAPSED_MS,
     DEFAULT_MAX_RESULT_WEIGHTS,
     ERROR_CODES,
+    HARD_MAX_ELAPSED_MS,
     KERNEL_VERSION,
     MAX_DYNKIN_LABEL,
+    MEMORY_CACHE_MAX_ENTRIES,
     WEIGHT_OPERATION,
+    WEIGHT_RESULT_SCHEMA,
 )
 
 RUNTIME_DIRECTORY_NAME = "runtime"
-PROVIDER_ASSET_NAME = "pyodide-compute-provider-v1.mjs"
+PROVIDER_ASSET_NAME = "pyodide-compute-provider-v2.mjs"
 WORKER_ASSET_NAME = "lie-weight-worker-v1.mjs"
 KERNEL_DISTRIBUTION = "physics_atlas_lie_kernel"
 KERNEL_WHEEL_NAME = f"{KERNEL_DISTRIBUTION}-{KERNEL_VERSION}-py3-none-any.whl"
@@ -40,6 +44,7 @@ def runtime_manifest() -> dict[str, object]:
     return {
         "protocol": COMPUTE_PROTOCOL_SCHEMA,
         "operation": WEIGHT_OPERATION,
+        "resultSchema": WEIGHT_RESULT_SCHEMA,
         "kernelVersion": KERNEL_VERSION,
         "providerAsset": PROVIDER_ASSET_NAME,
         "workerAsset": WORKER_ASSET_NAME,
@@ -50,6 +55,9 @@ def runtime_manifest() -> dict[str, object]:
             "maxDynkinLabel": MAX_DYNKIN_LABEL,
             "maxCandidates": DEFAULT_MAX_CANDIDATES,
             "maxResultWeights": DEFAULT_MAX_RESULT_WEIGHTS,
+            "maxElapsedMs": DEFAULT_MAX_ELAPSED_MS,
+            "hardMaxElapsedMs": HARD_MAX_ELAPSED_MS,
+            "memoryCacheEntries": MEMORY_CACHE_MAX_ENTRIES,
         },
         "errorCodes": list(ERROR_CODES),
     }
@@ -126,6 +134,7 @@ def build_runtime_assets(output_dir: Path, source_dir: Path) -> Path:
         "__COMPUTE_PROTOCOL__": COMPUTE_PROTOCOL_SCHEMA,
         "__KERNEL_VERSION__": KERNEL_VERSION,
         "__WEIGHT_OPERATION__": WEIGHT_OPERATION,
+        "__WEIGHT_RESULT_SCHEMA__": WEIGHT_RESULT_SCHEMA,
         "__KERNEL_WHEEL__": KERNEL_WHEEL_NAME,
         "__PYODIDE_VERSION__": PYODIDE_VERSION,
         "__PYTHON_VERSION__": PYODIDE_PYTHON_VERSION,

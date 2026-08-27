@@ -42,6 +42,8 @@ def test_nonpreset_a2_weight_request_matches_native_domain_data(
         (lambda request: request["input"].update(highestDynkin=[-1, 0]), "INVALID_INPUT"),
         (lambda request: request["input"].update(highestDynkin=[9, 0]), "LIMIT_EXCEEDED"),
         (lambda request: request["limits"].update(maxCandidates=250_001), "LIMIT_EXCEEDED"),
+        (lambda request: request["limits"].update(maxElapsedMs=0), "INVALID_REQUEST"),
+        (lambda request: request["limits"].update(maxElapsedMs=60_001), "LIMIT_EXCEEDED"),
     ],
 )
 def test_kernel_returns_stable_error_codes(kernel, protocol, mutation, error_code):

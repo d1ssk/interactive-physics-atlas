@@ -16,5 +16,32 @@ Domain adapters round non-authoritative display coordinates to 12 decimal places
 so native NumPy and Pyodide NumPy produce identical transfer data; exact Dynkin
 coordinates, multiplicities, dimensions, and conventions are not rounded.
 
+## Browser runtime policy
+
+The provider executes at most one request at a time. A newer request supersedes
+older work; explicit cancellation and the 30-second default timeout terminate
+the module Worker because synchronous Python execution cannot be interrupted
+reliably in place. The next request creates a fresh Worker and reloads the
+self-hosted runtime. The protocol rejects elapsed-time budgets above 60 seconds,
+Dynkin labels above 8, candidate lattices above 250,000 points, and results above
+20,000 distinct weights. Weight-pair budgets belong to the tensor-product
+operation planned for C8-3E and are not silently applied to this weight-only
+operation.
+
+Successful results use a page-lifetime, in-memory LRU cache with at most 16
+entries. Its canonical key includes the compute and result schemas, kernel
+version, Pyodide runtime identity, operation, mathematical input, and
+result-affecting limits. Errors are never cached. Reloading the page, disposing
+the provider, or changing any versioned identity invalidates the cache. There is
+deliberately no IndexedDB persistence yet; a future persistent cache must define
+its storage cap and eviction and invalidation rules before adoption.
+
+The build keeps the provider below 24 KiB and Worker bootstrap below 12 KiB and
+tests those limits. Local browser QA must serve the complete `site/` directory
+over loopback HTTP rather than open generated files with `file:`. Verify the
+module and wheel responses use a JavaScript-compatible MIME type and the Wasm
+response uses `application/wasm`; exercise cold calculation, warm calculation,
+cache reuse, cancellation/replacement, timeout recovery, and both locales.
+
 Conventions and usage are documented on the matching page under
 `docs/mathematics-for-physics/lie-roots-weights-products/`.

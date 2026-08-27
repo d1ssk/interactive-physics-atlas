@@ -1,9 +1,30 @@
 from __future__ import annotations
 
 import json
+import shutil
+import subprocess
 from pathlib import Path
 
 from physics_atlas.assets import PLOTLY_GL3D_ASSET_NAME, PYODIDE_NUMPY_WHEEL
+
+
+def test_compute_provider_lifecycle_contract():
+    node = shutil.which("node")
+    if node is None:
+        import pytest
+
+        pytest.skip("Node.js is unavailable")
+    test_file = Path(__file__).with_name("provider-v2.test.mjs")
+
+    completed = subprocess.run(
+        [node, "--test", str(test_file)],
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+
+    assert completed.returncode == 0, completed.stdout + completed.stderr
 
 
 def _contains_plotly_figure_key(value) -> bool:
@@ -28,6 +49,11 @@ def test_application_data_uses_versioned_domain_schemas(
     assert application["kernelVersion"] == protocol.KERNEL_VERSION
     assert application["runtime"]["protocol"] == protocol.COMPUTE_PROTOCOL_SCHEMA
     assert application["runtime"]["operation"] == protocol.WEIGHT_OPERATION
+    assert application["runtime"]["resultSchema"] == protocol.WEIGHT_RESULT_SCHEMA
+    assert application["runtime"]["limits"]["maxElapsedMs"] == protocol.DEFAULT_MAX_ELAPSED_MS
+    assert (
+        application["runtime"]["limits"]["memoryCacheEntries"] == protocol.MEMORY_CACHE_MAX_ENTRIES
+    )
     assert set(application["systems"]) == {
         *physics.RANK2_SYSTEMS,
         *physics.RANK3_SYSTEMS,
@@ -152,8 +178,13 @@ def test_static_build_contract(
         'loading = false;\n    reportPhase(requestId, "calculating")'
     )
     assert "#worker = null" in provider
-    assert "this.#ensureWorker().postMessage(request)" in provider
+    assert 'this.#stopActive("SUPERSEDED")' in provider
+    assert 'this.#stopActive("TIMEOUT")' in provider
+    assert 'return this.#stopActive("CANCELLED")' in provider
+    assert "#cache = new Map()" in provider
     assert 'new Worker(url, {type:"module"' in provider
+    assert (runtime_dir / runtime_build.PROVIDER_ASSET_NAME).stat().st_size <= 24_576
+    assert (runtime_dir / runtime_build.WORKER_ASSET_NAME).stat().st_size <= 12_288
     assert "MathJax.loader" not in html
     assert 'src="https://cdn.jsdelivr.net/npm/mathjax' not in html
     assert 'new Event("physics-atlas:mathjax-ready")' in html
@@ -163,7 +194,9 @@ def test_static_build_contract(
     assert 'src="runtime/' not in html
     assert "getComputeProvider()" in html
     assert "import(new URL(DATA.runtime.providerAsset, base))" in html
-    assert "new module.PyodideComputeProvider({workerUrl:" in html
+    assert "new module.PyodideComputeProvider({" in html
+    assert "maximumTimeoutMs:DATA.runtime.limits.hardMaxElapsedMs" in html
+    assert 'id="weight-cancel"' in html
     assert 'calculateWeight:"Calculate"' in html
     assert 'calculateWeight:"計算"' in html
     assert 'aria-live="polite"' in html

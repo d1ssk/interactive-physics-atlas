@@ -16,11 +16,11 @@ from .physics import (
     get_root_system,
     weight_graph_edges,
 )
-from .protocol import KERNEL_VERSION
+from .protocol import KERNEL_VERSION, WEIGHT_RESULT_SCHEMA
 
 APPLICATION_SCHEMA = "physics-atlas.lie-application.v1"
 ROOT_SYSTEM_SCHEMA = "physics-atlas.root-system.v1"
-WEIGHT_DIAGRAM_SCHEMA = "physics-atlas.weight-diagram.v1"
+WEIGHT_DIAGRAM_SCHEMA = WEIGHT_RESULT_SCHEMA
 CHARACTER_SCHEMA = "physics-atlas.character.v1"
 TENSOR_PRODUCT_SCHEMA = "physics-atlas.tensor-product.v1"
 DISPLAY_COORDINATE_DECIMALS = 12
