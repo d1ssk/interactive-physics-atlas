@@ -50,8 +50,9 @@ residual and preserves the total dimension.
 1. Compare $B_2$ and $C_2$: the root sets are dual under the long/short-root convention.
 2. Turn on fundamental weights and verify that each $\omega_i$ is dual to the corresponding simple coroot.
 3. Select the $A_2$ adjoint representation $(1, 1)$ and inspect the multiplicity of the zero weight.
-4. Step through $\mathbf{3}\otimes\mathbf{3}\otimes\mathbf{3}$ for $A_2$ and watch the residual character reach zero.
-5. Compare the $B_3$ spinor square with the dimensions of its four irreducible summands.
+4. Enter the non-preset $A_2$ highest weight $(4,0)$ and calculate its weight diagram in the browser.
+5. Step through $\mathbf{3}\otimes\mathbf{3}\otimes\mathbf{3}$ for $A_2$ and watch the residual character reach zero.
+6. Compare the $B_3$ spinor square with the dimensions of its four irreducible summands.
 
 ## What to notice
 
@@ -74,12 +75,6 @@ simple root of $C_r$ is long, and $G_2$ uses short $\alpha_1$ with Cartan matrix
 $$
 \begin{pmatrix}2&-1\\-3&2\end{pmatrix}
 $$
-
-The highest-weight explorer currently provides a curated set of named presets.
-The tensor-product explorer likewise uses selected small representations so that
-the initial application remains compact, responsive, and independent of a Python
-server. These are current interface and computational safety limits, not
-mathematical restrictions.
 
 ## References
 

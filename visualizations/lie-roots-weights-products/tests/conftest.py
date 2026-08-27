@@ -38,5 +38,20 @@ def domain(physics):
 
 
 @pytest.fixture(scope="session")
-def visualization(physics, domain):
+def protocol():
+    return _load_module("protocol")
+
+
+@pytest.fixture(scope="session")
+def kernel(physics, domain, protocol):
+    return _load_module("kernel")
+
+
+@pytest.fixture(scope="session")
+def runtime_build(protocol):
+    return _load_module("runtime_build")
+
+
+@pytest.fixture(scope="session")
+def visualization(physics, domain, protocol, runtime_build):
     return _load_module("visualization")

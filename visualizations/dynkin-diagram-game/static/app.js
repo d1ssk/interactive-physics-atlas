@@ -23,7 +23,7 @@ const MESSAGES = {
     cycle: "the underlying graph contains a cycle. Every connected finite Dynkin diagram is a tree.",
     degree: "a node has degree greater than three, which does not occur in a finite Dynkin diagram.",
     multiple: "a connected finite Dynkin diagram has at most one multiple bond.",
-    triple: "a triple bond occurs only in the rank-two G2 diagram.",
+    tripleConstraint: "a triple bond occurs only in the rank-two G2 diagram.",
     branchingLaced: "finite diagrams with a branching node are simply laced.",
     branchingCount: "the tree has more than one branching node; finite D and E diagrams have exactly one.",
     multipleMismatch: "the multiple bond position or arrow direction does not match a finite B, C, F, or G diagram.",
@@ -64,7 +64,7 @@ const MESSAGES = {
     cycle: "基礎グラフに閉路があります。連結な有限型ディンキン図形はすべて木です。",
     degree: "次数4以上のノードがあります。有限型ディンキン図形には現れません。",
     multiple: "連結な有限型ディンキン図形に含まれる多重辺は高々1本です。",
-    triple: "三重辺が現れるのは階数2のG2図形だけです。",
+    tripleConstraint: "三重辺が現れるのは階数2のG2図形だけです。",
     branchingLaced: "分岐ノードをもつ有限型図形は単純結合型です。",
     branchingCount: "木に複数の分岐ノードがあります。有限型D、E図形の分岐ノードは1つだけです。",
     multipleMismatch: "多重辺の位置または矢印の向きが有限型B、C、F、G図形と一致しません。",
@@ -491,7 +491,7 @@ function invalidReason(matrix) {
       return `${prefix}${t("multiple")}`;
     }
     if (multiple.some(edge => edge.multiplicity === 3) && component.length !== 2) {
-      return `${prefix}${t("triple")}`;
+      return `${prefix}${t("tripleConstraint")}`;
     }
     if (multiple.length && degrees.some(degree => degree === 3)) {
       return `${prefix}${t("branchingLaced")}`;

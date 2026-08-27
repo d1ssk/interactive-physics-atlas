@@ -24,6 +24,8 @@ from .physics import (
     representation_weights,
     tensor_product_many,
 )
+from .protocol import KERNEL_VERSION
+from .runtime_build import build_runtime_assets, runtime_manifest
 
 PRODUCT_CASES = {
     "A2": (
@@ -119,6 +121,8 @@ def _build_application_data() -> dict[str, object]:
         product_catalog[system_key] = product_cases
     return {
         "schema": APPLICATION_SCHEMA,
+        "kernelVersion": KERNEL_VERSION,
+        "runtime": runtime_manifest(),
         "systems": system_catalog,
         "roots": root_catalog,
         "weights": weight_catalog,
@@ -131,6 +135,7 @@ def build(output_dir: Path) -> None:
 
     output_dir.mkdir(parents=True, exist_ok=True)
     copy_mathjax_assets(output_dir)
+    build_runtime_assets(output_dir, Path(__file__).resolve().parent)
     payload = json.dumps(_build_application_data(), separators=(",", ":")).replace("</", "<\\/")
     html = _APPLICATION_HTML.replace("__PLOTLY_ASSET__", PLOTLY_GL3D_ASSET_NAME).replace(
         "__APPLICATION_DATA__", payload
@@ -163,6 +168,15 @@ _APPLICATION_HTML = r"""<!doctype html>
     .panel[hidden] { display:none; }
     .controls { display:flex; flex-wrap:wrap; align-items:end; gap:12px; padding:12px;
       border:1px solid var(--line); border-radius:8px; background:#f7f9fa; }
+    .custom-weight { display:flex; flex-wrap:wrap; align-items:end; gap:8px; margin:0; padding:7px 10px;
+      border:1px solid var(--line); border-radius:6px; }
+    .custom-weight legend { padding:0 5px; color:var(--muted); font-size:.82rem; font-weight:650; }
+    .dynkin-inputs { display:flex; gap:6px; }
+    .dynkin-inputs label { display:grid; grid-template-columns:auto 4.5rem; align-items:center; gap:4px; }
+    .dynkin-inputs input { width:4.5rem; padding:7px; border:1px solid #bac3c9; border-radius:5px; }
+    button.compute { padding:8px 12px; border:0; border-radius:5px; background:var(--blue); color:white;
+      cursor:pointer; font-weight:700; }
+    button.compute:disabled { cursor:wait; opacity:.65; }
     label { display:grid; gap:5px; color:var(--muted); font-size:.82rem; font-weight:650; }
     label.inline { display:flex; align-items:center; gap:7px; padding-bottom:8px; }
     select, input[type="range"] { min-width:150px; }
@@ -227,7 +241,14 @@ _APPLICATION_HTML = r"""<!doctype html>
     <div class="controls">
       <label><span data-i18n="cartanType">Cartan type</span> <select id="weight-system"></select></label>
       <label><span data-i18n="preset">Preset</span> <select id="weight-preset"></select></label>
+      <fieldset class="custom-weight">
+        <legend data-i18n="customHighestWeight">Custom highest weight</legend>
+        <div id="weight-custom-labels" class="dynkin-inputs"></div>
+        <button id="weight-compute" class="compute" type="button" data-i18n="calculateWeight">Calculate</button>
+      </fieldset>
     </div>
+    <p class="hint" data-i18n="runtimeHint">Try the non-preset highest weight \(A_2\), \((4,0)\). Pyodide loads only when requested.</p>
+    <p id="weight-runtime-status" class="hint" aria-live="polite"></p>
     <p id="weight-status" class="hint"></p>
     <div id="weight-plot" class="plot" role="img" aria-label="Weight diagram"></div>
   </section>
@@ -298,6 +319,24 @@ _APPLICATION_HTML = r"""<!doctype html>
     en: {
       rootNote:"{groups}; {note}. Cartan matrix: \\(A={cartan}\\).",
       weightStatus:"\\({system}\\) highest weight \\(({labels})\\); published preset.",
+      customHighestWeight:"Custom highest weight", calculateWeight:"Calculate",
+      calculatingButton:"Calculating…",
+      dynkinLabelAria:"Dynkin label {index}",
+      runtimeHint:"Try the non-preset highest weight \\(A_2\\), \\((4,0)\\). Pyodide loads only when requested.",
+      phaseRuntimeLoading:"Loading the Pyodide runtime…", phaseKernelLoading:"Loading the Atlas Lie kernel…",
+      phaseCalculating:"Calculating the weight diagram in a Worker…", phaseValidating:"Validating mathematical invariants…",
+      phaseRendering:"Rendering the validated result…",
+      runtimeResult:"Computed \\({system}\\) highest weight \\(({labels})\\) with Pyodide {pyodide}, Python {python}, and NumPy {numpy}.",
+      staticResult:"This weight is already available as static domain data; the runtime was not loaded.",
+      errorPROTOCOL_MISMATCH:"The compute protocol version is not supported.",
+      errorKERNEL_MISMATCH:"The Lie kernel version is not supported.",
+      errorUNSUPPORTED_OPERATION:"The requested calculation is not supported.",
+      errorINVALID_REQUEST:"The calculation request is malformed.",
+      errorINVALID_INPUT:"Enter non-negative integer Dynkin labels with the correct rank.",
+      errorLIMIT_EXCEEDED:"This input exceeds the current browser calculation limits.",
+      errorCALCULATION_FAILED:"The browser calculation failed.",
+      errorINVARIANT_FAILED:"The calculated result failed a mathematical invariant.",
+      errorRUNTIME_LOAD_FAILED:"The local Pyodide runtime could not be loaded. Check the HTTP connection and deployed assets.",
       productStatus:"\\({summary}\\)<br>{count} distinct weights; dimension invariant: \\({dimension}={decompositionDimension}\\).",
     },
     ja: {
@@ -305,10 +344,27 @@ _APPLICATION_HTML = r"""<!doctype html>
       lede:"階数2・3のルート系、既約最高ウェイト指標、テンソル積成分を段階的に取り出す過程。",
       rootsTab:"1. ルート系", weightsTab:"2. 表現のウェイト", productsTab:"3. テンソル積",
       cartanType:"カルタン型", showFundamental:"基本ウェイトを表示", preset:"プリセット",
+      customHighestWeight:"任意の最高ウェイト", calculateWeight:"計算", calculatingButton:"計算中…",
+      dynkinLabelAria:"ディンキンラベル {index}",
       product:"テンソル積", extractionStep:"抽出ステップ", inspectSummand:"既約成分を確認",
       showFactors:"因子のウェイトを表示",
       rootNote:"{groups}；{note}。カルタン行列：\\(A={cartan}\\)。",
       weightStatus:"\\({system}\\) の最高ウェイト \\(({labels})\\)；公開プリセット。",
+      runtimeHint:"プリセットにない最高ウェイト \\(A_2\\)、\\((4,0)\\) を試せます。Pyodideは計算を要求したときだけ読み込みます。",
+      phaseRuntimeLoading:"Pyodideランタイムを読み込んでいます…", phaseKernelLoading:"Atlasのリー代数カーネルを読み込んでいます…",
+      phaseCalculating:"Worker内でウェイト図を計算しています…", phaseValidating:"数学的不変量を検証しています…",
+      phaseRendering:"検証済みの結果を描画しています…",
+      runtimeResult:"Pyodide {pyodide}、Python {python}、NumPy {numpy}により、\\({system}\\) の最高ウェイト \\(({labels})\\) を計算しました。",
+      staticResult:"このウェイトは静的な数理データとして収録済みです。ランタイムは読み込んでいません。",
+      errorPROTOCOL_MISMATCH:"計算プロトコルの版に対応していません。",
+      errorKERNEL_MISMATCH:"リー代数カーネルの版に対応していません。",
+      errorUNSUPPORTED_OPERATION:"要求された計算には対応していません。",
+      errorINVALID_REQUEST:"計算要求の形式が正しくありません。",
+      errorINVALID_INPUT:"階数に合う非負整数のディンキンラベルを入力してください。",
+      errorLIMIT_EXCEEDED:"この入力は現在のブラウザ計算上限を超えています。",
+      errorCALCULATION_FAILED:"ブラウザ内の計算に失敗しました。",
+      errorINVARIANT_FAILED:"計算結果が数学的不変量の検証に失敗しました。",
+      errorRUNTIME_LOAD_FAILED:"ローカルのPyodideランタイムを読み込めませんでした。HTTP接続と配信ファイルを確認してください。",
       productStatus:"\\({summary}\\)<br>異なるウェイトは{count}個；次元の不変量：\\({dimension}={decompositionDimension}\\)。",
     },
   };
@@ -625,7 +681,27 @@ _APPLICATION_HTML = r"""<!doctype html>
     preset.replaceChildren(...info.presets.map((item, i) =>
       new Option(`${localizedLabel(item.name)} — (${item.labels.join(", ")})`, i)
     ));
+    configureCustomWeightInputs();
     renderWeights();
+  }
+  function configureCustomWeightInputs() {
+    const system = byId("weight-system").value;
+    const rank = DATA.systems[system].rank;
+    const container = byId("weight-custom-labels");
+    const labels = Array.from({length:rank}, (_, index) => {
+      const label = document.createElement("label");
+      const symbol = document.createElement("span");
+      symbol.textContent = `\\(a_{${index + 1}}\\)`;
+      const input = document.createElement("input");
+      input.type = "number"; input.min = "0"; input.max = String(DATA.runtime.limits.maxDynkinLabel);
+      input.step = "1"; input.value = index === 0 ? "4" : "0";
+      input.setAttribute("aria-label", t("dynkinLabelAria", {index:index + 1}));
+      label.append(symbol, input);
+      return label;
+    });
+    container.replaceChildren(...labels);
+    typeset(container);
+    byId("weight-runtime-status").textContent = "";
   }
   function renderWeights() {
     const system = byId("weight-system").value;
@@ -638,6 +714,92 @@ _APPLICATION_HTML = r"""<!doctype html>
   }
   byId("weight-system").addEventListener("change", configureWeightControls);
   byId("weight-preset").addEventListener("change", renderWeights);
+
+  let requestSequence = 0;
+  let computeProviderPromise = null;
+  function runtimeBaseUrl() {
+    const siteRoot = LOCALE === "ja" ? "../../../../" : "../../../";
+    return new URL(
+      `${siteRoot}mathematics-for-physics/lie-roots-weights-products/app/runtime/`,
+      window.location.href,
+    );
+  }
+  function getComputeProvider() {
+    if (!computeProviderPromise) {
+      const base = runtimeBaseUrl();
+      computeProviderPromise = import(new URL(DATA.runtime.providerAsset, base)).then(module =>
+        new module.PyodideComputeProvider({workerUrl:new URL(DATA.runtime.workerAsset, base)})
+      );
+    }
+    return computeProviderPromise;
+  }
+  function setRuntimeStatus(message) {
+    const target = byId("weight-runtime-status");
+    target.textContent = message;
+    typeset(target);
+  }
+  const PHASE_MESSAGES = {
+    "runtime-loading":"phaseRuntimeLoading", "kernel-loading":"phaseKernelLoading",
+    calculating:"phaseCalculating", validating:"phaseValidating", rendering:"phaseRendering",
+  };
+  function customLabels() {
+    const values = [...byId("weight-custom-labels").querySelectorAll("input")].map(input => Number(input.value));
+    const maximum = DATA.runtime.limits.maxDynkinLabel;
+    if (values.some(value => !Number.isInteger(value) || value < 0 || value > maximum)) return null;
+    return values;
+  }
+  async function calculateCustomWeight() {
+    const button = byId("weight-compute");
+    const system = byId("weight-system").value;
+    const labels = customLabels();
+    if (!labels) {
+      setRuntimeStatus(t("errorINVALID_INPUT"));
+      return;
+    }
+    const key = `${system}|${labels.join(",")}`;
+    if (DATA.weights[key]) {
+      draw("weight-plot", weightFigure(DATA.weights[key]));
+      byId("weight-status").textContent = "";
+      setRuntimeStatus(t("staticResult"));
+      return;
+    }
+    button.disabled = true; button.textContent = t("calculatingButton");
+    const request = {
+      protocol:DATA.runtime.protocol,
+      requestId:`weight-${Date.now()}-${++requestSequence}`,
+      kernelVersion:DATA.runtime.kernelVersion,
+      operation:DATA.runtime.operation,
+      input:{system, highestDynkin:labels},
+      limits:{
+        maxCandidates:DATA.runtime.limits.maxCandidates,
+        maxResultWeights:DATA.runtime.limits.maxResultWeights,
+      },
+    };
+    try {
+      const provider = await getComputeProvider();
+      const response = await provider.compute(request, {onPhase:phase => {
+        const key = PHASE_MESSAGES[phase];
+        if (key) setRuntimeStatus(t(key));
+      }});
+      if (!response.ok) {
+        setRuntimeStatus(t(`error${response.error?.code ?? "CALCULATION_FAILED"}`));
+        return;
+      }
+      setRuntimeStatus(t("phaseRendering"));
+      draw("weight-plot", weightFigure(response.result));
+      byId("weight-status").textContent = "";
+      setRuntimeStatus(t("runtimeResult", {
+        system:systemLatex(system), labels:labels.join(", "), pyodide:response.runtime.version,
+        python:response.runtime.pythonVersion, numpy:response.runtime.numpyVersion,
+      }));
+    } catch (error) {
+      console.error(error);
+      setRuntimeStatus(t("errorRUNTIME_LOAD_FAILED"));
+    } finally {
+      button.disabled = false; button.textContent = t("calculateWeight");
+    }
+  }
+  byId("weight-compute").addEventListener("click", calculateCustomWeight);
 
   function currentProduct() {
     return DATA.products[byId("product-system").value][Number(byId("product-case").value)];

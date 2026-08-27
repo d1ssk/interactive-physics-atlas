@@ -55,6 +55,9 @@ def test_static_build_contract(tmp_path, visualization):
     assert ".edge:focus-visible .arrow" in html
     assert "Tab reaches nodes and bonds" in html
     assert "Tabでノードと辺へ移動" in html
+    assert html.count('triple: "三重辺"') == 1
+    assert 'tripleConstraint: "三重辺が現れるのは階数2のG2図形だけです。"' in html
+    assert 't("tripleConstraint")' in html
     assert "Plotly" not in html
     assert "pyodide" not in html.lower()
 
