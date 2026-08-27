@@ -182,6 +182,7 @@ def test_static_build_contract(
     provider = (runtime_dir / runtime_build.PROVIDER_ASSET_NAME).read_text(encoding="utf-8")
     assert "__COMPUTE_PROTOCOL__" not in worker
     assert protocol.COMPUTE_PROTOCOL_SCHEMA in worker
+    assert domain.CHARACTER_SCHEMA in worker
     assert protocol.TENSOR_PRODUCT_OPERATION in worker
     assert protocol.TENSOR_PRODUCT_RESULT_SCHEMA in worker
     assert runtime_build.KERNEL_WHEEL_NAME in worker

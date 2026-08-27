@@ -1034,6 +1034,7 @@ _APPLICATION_HTML = r"""<!doctype html>
         return;
       }
       setProductRuntimeStatus(t("phaseProductRendering"));
+      Object.keys(RUNTIME_WEIGHTS).forEach(key => delete RUNTIME_WEIGHTS[key]);
       Object.assign(RUNTIME_WEIGHTS, response.dependencies.weights);
       runtimeProduct = response.result;
       await configureProductState();

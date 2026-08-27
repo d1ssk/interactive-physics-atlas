@@ -15,6 +15,7 @@ from physics_atlas.assets import (
     copy_pyodide_runtime_assets,
 )
 
+from .domain import CHARACTER_SCHEMA
 from .protocol import (
     COMPUTE_PROTOCOL_SCHEMA,
     DEFAULT_MAX_CANDIDATES,
@@ -151,6 +152,7 @@ def build_runtime_assets(output_dir: Path, source_dir: Path) -> Path:
         "__WEIGHT_RESULT_SCHEMA__": WEIGHT_RESULT_SCHEMA,
         "__TENSOR_PRODUCT_OPERATION__": TENSOR_PRODUCT_OPERATION,
         "__TENSOR_PRODUCT_RESULT_SCHEMA__": TENSOR_PRODUCT_RESULT_SCHEMA,
+        "__CHARACTER_SCHEMA__": CHARACTER_SCHEMA,
         "__KERNEL_WHEEL__": KERNEL_WHEEL_NAME,
         "__PYODIDE_VERSION__": PYODIDE_VERSION,
         "__PYTHON_VERSION__": PYODIDE_PYTHON_VERSION,

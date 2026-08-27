@@ -177,6 +177,11 @@ test("operation and result schema separate weight and tensor-product cache entri
   assert.equal(cached.provider.cacheHit, true);
   assert.equal(cached.requestId, "tensor-cached");
   assert.equal(workers[0].requests.length, 2);
+
+  const weightCached = await provider.compute({...weight, requestId:"weight-cached"});
+  assert.equal(weightCached.provider.cacheHit, true);
+  assert.equal(weightCached.requestId, "weight-cached");
+  assert.equal(workers[0].requests.length, 2);
 });
 
 test("a newer request supersedes synchronous Worker work and ignores stale messages", async () => {

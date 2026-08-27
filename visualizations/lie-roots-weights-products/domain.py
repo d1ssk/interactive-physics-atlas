@@ -18,7 +18,12 @@ from .physics import (
     representation_weights,
     weight_graph_edges,
 )
-from .protocol import KERNEL_VERSION, TENSOR_PRODUCT_RESULT_SCHEMA, WEIGHT_RESULT_SCHEMA
+from .protocol import (
+    DEFAULT_MAX_CANDIDATES,
+    KERNEL_VERSION,
+    TENSOR_PRODUCT_RESULT_SCHEMA,
+    WEIGHT_RESULT_SCHEMA,
+)
 
 APPLICATION_SCHEMA = "physics-atlas.lie-application.v1"
 ROOT_SYSTEM_SCHEMA = "physics-atlas.root-system.v1"
@@ -143,7 +148,7 @@ def validate_weight_diagram_domain(result: Mapping[str, object]) -> None:
 def residual_character_domain(
     product: TensorProduct,
     extraction_step: int,
-    max_candidates: int = 250_000,
+    max_candidates: int = DEFAULT_MAX_CANDIDATES,
 ) -> dict[str, object]:
     """Serialize one residual tensor-product character in display coordinates."""
 
@@ -173,7 +178,7 @@ def residual_character_domain(
 
 def tensor_product_domain(
     product: TensorProduct,
-    max_candidates: int = 250_000,
+    max_candidates: int = DEFAULT_MAX_CANDIDATES,
 ) -> dict[str, object]:
     """Serialize a tensor product and its complete extraction sequence."""
 
@@ -216,7 +221,7 @@ def tensor_product_domain(
 
 def tensor_product_weight_dependencies(
     product: TensorProduct,
-    max_candidates: int = 250_000,
+    max_candidates: int = DEFAULT_MAX_CANDIDATES,
 ) -> dict[str, dict[str, object]]:
     """Return the weight diagrams referenced by one tensor-product DTO."""
 
