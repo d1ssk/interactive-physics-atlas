@@ -33,5 +33,10 @@ def physics():
 
 
 @pytest.fixture(scope="session")
-def visualization(physics):
+def domain(physics):
+    return _load_module("domain")
+
+
+@pytest.fixture(scope="session")
+def visualization(physics, domain):
     return _load_module("visualization")

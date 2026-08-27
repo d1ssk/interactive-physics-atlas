@@ -75,10 +75,11 @@ $$
 \begin{pmatrix}2&-1\\-3&2\end{pmatrix}
 $$
 
-The highest-weight explorer precomputes Dynkin labels from 0 through 3. The
-tensor-product explorer uses a curated set of small representations so that the
-published application remains static, responsive, and independent of a Python
-server. These are computational safety limits, not mathematical restrictions.
+The highest-weight explorer currently provides a curated set of named presets.
+The tensor-product explorer likewise uses selected small representations so that
+the initial application remains compact, responsive, and independent of a Python
+server. These are current interface and computational safety limits, not
+mathematical restrictions.
 
 ## References
 
