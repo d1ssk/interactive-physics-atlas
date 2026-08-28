@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ising Model Phase Transition</title>
+  <style>__APPLICATION_CSS__</style>
+  <script>
+    window.MathJax = {
+      tex: {inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]]},
+      startup: {
+        ready() {
+          MathJax.startup.defaultReady();
+          MathJax.startup.promise.then(() => {
+            window.dispatchEvent(new Event("physics-atlas:mathjax-ready"));
+          });
+        },
+      },
+    };
+  </script>
+  <script defer src="mathjax-tex-svg.js"></script>
+</head>
+<body>
+<main>
+  <header class="hero">
+    <h1 data-i18n="title">Ising Model Phase Transition</h1>
+    <div class="status-chip" id="status-chip" aria-live="polite">
+      <span class="status-dot"></span><span id="status-text" data-i18n="loading">Starting…</span>
+    </div>
+  </header>
+
+  <section class="controls" aria-label="Simulation settings">
+    <label><span data-i18n="dimension">Dimension</span>
+      <select id="dimension">
+        <option value="1">1D chain</option>
+        <option value="2" selected>2D square</option>
+        <option value="3">3D cubic</option>
+      </select>
+    </label>
+    <label><span data-i18n="latticeSize">Linear size</span>
+      <select id="lattice-size"></select>
+    </label>
+    <div class="temperature-control">
+      <div class="control-heading">
+        <label for="temperature" data-i18n="temperature">Temperature \(T/J\)</label>
+        <output id="temperature-value" for="temperature">2.27</output>
+      </div>
+      <input id="temperature" type="range" min="0.5" max="6" step="0.01" value="2.27">
+      <div class="critical-row">
+        <span id="transition-note"></span>
+        <button id="critical-button" type="button">\(T_c\)</button>
+        <button id="critical-above-button" type="button">\(1.01T_c\)</button>
+      </div>
+    </div>
+    <label><span data-i18n="batch">Work per update</span>
+      <select id="batch">
+        <option value="1" selected>1 sweep</option>
+        <option value="2">2 sweeps</option>
+        <option value="4">4 sweeps</option>
+      </select>
+    </label>
+    <label><span data-i18n="displayRate">Display rate</span>
+      <select id="display-rate">
+        <option value="5">5 Hz</option>
+        <option value="10" selected>10 Hz</option>
+        <option value="20">20 Hz</option>
+      </select>
+    </label>
+    <label><span data-i18n="seed">Seed</span>
+      <input id="seed" type="number" min="0" max="4294967295" step="1" value="1907">
+    </label>
+    <div class="button-row">
+      <button class="primary" id="pause-button" type="button" data-i18n="pause">Pause</button>
+      <button id="random-button" type="button" data-i18n="randomize">Randomize</button>
+      <button id="align-button" type="button" data-i18n="align">Align</button>
+    </div>
+  </section>
+
+  <section class="simulation-grid">
+    <article class="card lattice-card">
+      <div class="card-heading">
+        <h2 id="lattice-heading">2D square lattice</h2>
+        <div class="lattice-meta">
+          <div class="spin-legend" aria-label="Spin colors">
+            <span><i class="spin-up"></i>\(s=+1\)</span>
+            <span><i class="spin-down"></i>\(s=-1\)</span>
+          </div>
+          <span><strong id="sweep-count">0</strong> sweeps</span>
+        </div>
+      </div>
+      <div class="lattice-frame"><canvas id="lattice-canvas" aria-label="Ising spin configuration"></canvas></div>
+      <div class="slice-control" id="slice-control" hidden>
+        <label for="slice"><span data-i18n="slice">Displayed z slice</span> <output id="slice-value">0</output></label>
+        <input id="slice" type="range" min="0" max="13" step="1" value="0">
+      </div>
+      <p class="canvas-note" id="lattice-note"></p>
+    </article>
+
+    <div class="side-column">
+      <section class="metrics" aria-label="Current observables">
+        <article><span data-i18n="magnetization">Magnetization</span><strong id="magnetization">0.000</strong><small>\(m=M/N\)</small></article>
+        <article><span data-i18n="energy">Energy</span><strong id="energy">0.000</strong><small>\(e=E/(NJ)\)</small></article>
+        <article><span data-i18n="acceptance">Acceptance</span><strong id="acceptance">0.0%</strong><small data-i18n="latestSweep">latest sweep</small></article>
+      </section>
+      <article class="card history-card">
+        <div class="card-heading">
+          <h2 data-i18n="recentHistory">Recent history</h2>
+          <div class="legend"><span class="magnetization-line">|m|</span><span class="energy-line">e/d</span></div>
+        </div>
+        <canvas id="history-canvas" aria-label="Recent magnetization and energy history"></canvas>
+      </article>
+      <article class="model-card">
+        <p>\(H=-J\sum_{\langle i,j\rangle}s_i s_j,\quad s_i\in\{-1,+1\}\)</p>
+        <p data-i18n="modelNote">Zero field, \(J=k_B=1\), periodic boundaries, random-sequential single-spin-flip Metropolis updates.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="thermo-section card">
+    <div class="thermo-copy">
+      <h2 data-i18n="thermoTitle">Functions of temperature</h2>
+      <p id="thermo-description"></p>
+      <div id="thermo-formula" class="formula"></div>
+      <p class="limitation" id="thermo-limitation"></p>
+    </div>
+    <div class="thermo-chart-wrap">
+      <canvas id="thermo-canvas" aria-label="Exact thermodynamic functions versus temperature"></canvas>
+      <p id="thermo-empty" hidden></p>
+    </div>
+  </section>
+
+  <details class="method-note">
+    <summary data-i18n="howToRead">How to read the simulation</summary>
+    <div class="method-grid">
+      <p data-i18n="instantaneous">The lattice and metric cards show one instantaneous finite-system state, not a thermal average. Reliable estimates require equilibration, sampling, and uncertainty analysis.</p>
+      <p data-i18n="criticalSlowing">Near a critical point, local Metropolis updates decorrelate slowly. Consecutive samples are autocorrelated, so a high sweep count is not the same as many independent samples.</p>
+      <p data-i18n="threeDimensional">In 3D the canvas shows one selectable slice, while magnetization and energy use every spin in the cubic lattice.</p>
+    </div>
+  </details>
+</main>
+<script>
+  (() => {
+    if (window.parent === window) return;
+    const PARENT_TARGET_ORIGIN = window.location.origin;
+    function report() {
+      const main = document.querySelector("main");
+      const contentBottom = main ? main.getBoundingClientRect().bottom : 0;
+      const contentHeight = Math.max(contentBottom, document.body.getBoundingClientRect().height);
+      const frameHeight = Math.ceil(contentHeight);
+      if (window.frameElement) {
+        window.frameElement.style.minHeight = "0";
+        window.frameElement.style.height = `${frameHeight}px`;
+        window.frameElement.setAttribute("scrolling", "no");
+        window.frameElement.style.overflow = "hidden";
+      }
+      window.parent.postMessage({type: "physics-atlas:frame-height", height: frameHeight}, PARENT_TARGET_ORIGIN);
+    }
+    window.addEventListener("load", report);
+    window.addEventListener("resize", report);
+    window.addEventListener("physics-atlas:mathjax-ready", report);
+    window.addEventListener("message", event => {
+      if (event.source === window.parent && event.origin === PARENT_TARGET_ORIGIN && event.data?.type === "physics-atlas:request-frame-height") report();
+    });
+    if ("ResizeObserver" in window) {
+      const observer = new ResizeObserver(report);
+      observer.observe(document.body);
+      const main = document.querySelector("main");
+      if (main) observer.observe(main);
+      window.addEventListener("pagehide", () => observer.disconnect(), {once: true});
+    }
+    document.fonts?.ready.then(report);
+    report();
+  })();
+</script>
+<script id="application-data" type="application/json">__APPLICATION_DATA__</script>
+<script type="module" src="app-v1.mjs"></script>
+</body>
+</html>

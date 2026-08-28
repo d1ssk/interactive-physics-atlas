@@ -1,0 +1,16 @@
+id: ising-model
+title: Ising Model Phase Transition
+title_ja: Ising模型の相転移
+field: statistical-physics
+topics:
+  - Ising model
+  - phase transitions
+  - Monte Carlo methods
+  - critical phenomena
+level:
+  - advanced undergraduate
+  - graduate
+runtime: browser-static
+page: statistical-physics/ising-model
+summary: Simulate seeded Metropolis dynamics in one, two, and three dimensions and compare finite runs with exact thermodynamic-limit results where known.
+summary_ja: 1・2・3次元のシード付きMetropolisダイナミクスと、既知の場合には熱力学極限の厳密解との比較。
