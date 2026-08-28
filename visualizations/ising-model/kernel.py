@@ -15,14 +15,15 @@ MAX_SEED = 0xFFFFFFFF
 def _validated_temperature(value: Any) -> float:
     """Return a finite positive protocol temperature or raise ``ValueError``."""
 
-    if (
-        isinstance(value, bool)
-        or not isinstance(value, (int, float))
-        or not isfinite(value)
-        or value <= 0
-    ):
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
         raise ValueError("invalid temperature")
-    return float(value)
+    try:
+        temperature = float(value)
+    except (OverflowError, ValueError) as error:
+        raise ValueError("invalid temperature") from error
+    if not isfinite(temperature) or temperature <= 0:
+        raise ValueError("invalid temperature")
+    return temperature
 
 
 def _validated_seed(value: Any) -> int:

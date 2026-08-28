@@ -110,7 +110,10 @@ def initialization_request(**input_overrides):
     }
 
 
-@pytest.mark.parametrize("temperature", [None, True, 0, -1, float("nan"), float("inf")])
+@pytest.mark.parametrize(
+    "temperature",
+    [None, True, 0, -1, float("nan"), float("inf"), 10**1000],
+)
 def test_python_kernel_rejects_invalid_temperatures(visualization_package, temperature) -> None:
     import importlib
 
