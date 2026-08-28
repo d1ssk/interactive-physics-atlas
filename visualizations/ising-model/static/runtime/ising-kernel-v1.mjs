@@ -3,6 +3,7 @@ export const KERNEL_VERSION = "1.0.0";
 export const SNAPSHOT_SCHEMA = "physics-atlas.ising-snapshot.v1";
 export const MAX_SITES = 9216;
 export const MAX_SWEEPS_PER_BATCH = 8;
+export const MAX_SEED = 0xffffffff;
 export const PUBLISHED_SIZES = {
   1: new Set([128, 256, 512]),
   2: new Set([32, 48, 64, 96]),
@@ -59,7 +60,9 @@ export class IsingModel {
     this.size = size;
     this.siteCount = size ** dimension;
     this.temperature = requireTemperature(temperature);
-    this.rng = new XorShift32(requireInteger(seed, "seed"));
+    const validatedSeed = requireInteger(seed, "seed");
+    if (validatedSeed > MAX_SEED) throw new RangeError("invalid seed");
+    this.rng = new XorShift32(validatedSeed);
     this.spins = new Int8Array(this.siteCount);
     if (initialState === "random") {
       for (let index = 0; index < this.siteCount; index += 1) {

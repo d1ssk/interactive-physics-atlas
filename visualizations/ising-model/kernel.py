@@ -2,11 +2,35 @@
 
 from __future__ import annotations
 
+from math import isfinite
 from typing import Any
 
 from .domain import snapshot_payload
 from .physics import KERNEL_VERSION, IsingModel
 from .protocol import LIMITS, PROTOCOL_VERSION, validate_lattice, validate_request
+
+MAX_SEED = 0xFFFFFFFF
+
+
+def _validated_temperature(value: Any) -> float:
+    """Return a finite positive protocol temperature or raise ``ValueError``."""
+
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not isfinite(value)
+        or value <= 0
+    ):
+        raise ValueError("invalid temperature")
+    return float(value)
+
+
+def _validated_seed(value: Any) -> int:
+    """Return a uint32 protocol seed or raise ``ValueError``."""
+
+    if isinstance(value, bool) or not isinstance(value, int) or not 0 <= value <= MAX_SEED:
+        raise ValueError("invalid seed")
+    return value
 
 
 class IsingKernel:
@@ -30,11 +54,13 @@ class IsingKernel:
             dimension = inputs.get("dimension")
             size = inputs.get("size")
             validate_lattice(dimension, size)
+            temperature = _validated_temperature(inputs.get("temperature"))
+            seed = _validated_seed(inputs.get("seed"))
             self.model = IsingModel(
                 dimension,
                 size,
-                inputs.get("temperature"),
-                inputs.get("seed"),
+                temperature,
+                seed,
                 inputs.get("initialState", "random"),
             )
             self.generation_id = generation_id
@@ -45,7 +71,7 @@ class IsingKernel:
             if generation_id != self.generation_id:
                 raise ValueError("stale generation")
             if operation == "ising.configure.v1":
-                self.model.set_temperature(inputs.get("temperature"))
+                self.model.set_temperature(_validated_temperature(inputs.get("temperature")))
             elif operation == "ising.advance.v1":
                 sweeps = inputs.get("sweeps")
                 if not isinstance(sweeps, int) or not 1 <= sweeps <= LIMITS["maxSweepsPerBatch"]:

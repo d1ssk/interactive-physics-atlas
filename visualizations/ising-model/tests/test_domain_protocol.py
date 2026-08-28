@@ -87,3 +87,63 @@ def test_python_kernel_rejects_runtime_version_mismatch(visualization_package) -
 
     with pytest.raises(ValueError, match="kernel version"):
         kernel.handle(request)
+
+
+def initialization_request(**input_overrides):
+    """Return a valid initialization request with selected input overrides."""
+
+    inputs = {
+        "dimension": 2,
+        "size": 32,
+        "temperature": 2.0,
+        "seed": 1,
+        "initialState": "random",
+    }
+    inputs.update(input_overrides)
+    return {
+        "protocol": "physics-atlas.ising.v1",
+        "kernelVersion": "1.0.0",
+        "operation": "ising.initialize.v1",
+        "requestId": 1,
+        "generationId": 1,
+        "input": inputs,
+    }
+
+
+@pytest.mark.parametrize("temperature", [None, True, 0, -1, float("nan"), float("inf")])
+def test_python_kernel_rejects_invalid_temperatures(visualization_package, temperature) -> None:
+    import importlib
+
+    kernel_module = importlib.import_module(f"{visualization_package.__name__}.kernel")
+
+    with pytest.raises(ValueError, match="invalid temperature"):
+        kernel_module.IsingKernel().handle(initialization_request(temperature=temperature))
+
+
+@pytest.mark.parametrize("seed", [None, True, -1, 0x100000000])
+def test_python_kernel_rejects_invalid_seeds(visualization_package, seed) -> None:
+    import importlib
+
+    kernel_module = importlib.import_module(f"{visualization_package.__name__}.kernel")
+
+    with pytest.raises(ValueError, match="invalid seed"):
+        kernel_module.IsingKernel().handle(initialization_request(seed=seed))
+
+
+def test_python_kernel_validates_configured_temperature(visualization_package) -> None:
+    import importlib
+
+    kernel_module = importlib.import_module(f"{visualization_package.__name__}.kernel")
+    kernel = kernel_module.IsingKernel()
+    kernel.handle(initialization_request())
+    configure = {
+        "protocol": "physics-atlas.ising.v1",
+        "kernelVersion": "1.0.0",
+        "operation": "ising.configure.v1",
+        "requestId": 2,
+        "generationId": 1,
+        "input": {"temperature": None},
+    }
+
+    with pytest.raises(ValueError, match="invalid temperature"):
+        kernel.handle(configure)

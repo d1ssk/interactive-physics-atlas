@@ -41,6 +41,10 @@ def test_static_build_stages_worker_assets_and_localized_application(
     assert "thermoFormula.replaceChildren" in application
     assert "paragraph.textContent = formula" in application
     assert "thermoFormula.innerHTML = formulas[dimension]" not in application
+    assert "let advanceTimer = null" in application
+    assert "advanceTimer !== null" in application
+    assert "cancelScheduledAdvance()" in application
+    assert "window.clearTimeout(advanceTimer)" in application
     assert "Pyodide" not in html
     assert "Wasm" not in html
 

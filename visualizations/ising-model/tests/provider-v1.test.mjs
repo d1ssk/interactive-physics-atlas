@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {IsingWorkerProvider} from "../static/runtime/ising-worker-provider-v1.mjs";
+import {IsingModel} from "../static/runtime/ising-kernel-v1.mjs";
 
 class FakeWorker {
   constructor() { this.listeners = new Map(); this.requests = []; this.terminated = false; }
@@ -90,4 +91,10 @@ test("a Worker failure rejects current work and creates a clean replacement", as
   const recovery = provider.compute(recoveryRequest);
   workers[1].emit(response(recoveryRequest));
   assert.equal((await recovery).ok, true);
+});
+
+test("the JavaScript kernel accepts only uint32 seeds", () => {
+  const input = {dimension: 1, size: 128, temperature: 2, initialState: "random"};
+  assert.doesNotThrow(() => new IsingModel({...input, seed: 0xffffffff}));
+  assert.throws(() => new IsingModel({...input, seed: 0x100000000}), /invalid seed/);
 });

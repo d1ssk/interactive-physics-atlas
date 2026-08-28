@@ -96,6 +96,7 @@ let running = true;
 let current = null;
 let history = [];
 let latticeBuffer = document.createElement("canvas");
+let advanceTimer = null;
 
 function typeset(target) {
   const startup = window.MathJax?.startup?.promise;
@@ -318,6 +319,7 @@ function install(response, expectedGeneration) {
 }
 
 async function resetSimulation(initialState, operation = "ising.reset.v1") {
+  cancelScheduledAdvance();
   generationId += 1;
   const expectedGeneration = generationId;
   history = [];
@@ -340,9 +342,18 @@ async function resetSimulation(initialState, operation = "ising.reset.v1") {
 }
 
 function scheduleAdvance(expectedGeneration) {
-  if (!running || expectedGeneration !== generationId) return;
+  if (!running || advanceTimer !== null || expectedGeneration !== generationId) return;
   const delay = 1000 / Number(elements.displayRate.value);
-  window.setTimeout(() => advance(expectedGeneration), delay);
+  advanceTimer = window.setTimeout(() => {
+    advanceTimer = null;
+    advance(expectedGeneration);
+  }, delay);
+}
+
+function cancelScheduledAdvance() {
+  if (advanceTimer === null) return;
+  window.clearTimeout(advanceTimer);
+  advanceTimer = null;
 }
 
 async function advance(expectedGeneration) {
@@ -380,11 +391,17 @@ elements.size.addEventListener("change", () => resetSimulation("random"));
 elements.random.addEventListener("click", () => resetSimulation("random"));
 elements.align.addEventListener("click", () => resetSimulation("aligned-up"));
 elements.pause.addEventListener("click", () => {
-  running = !running; setStatus(running ? "running" : "paused"); if (running) scheduleAdvance(generationId);
+  running = !running;
+  if (!running) cancelScheduledAdvance();
+  setStatus(running ? "running" : "paused");
+  if (running) scheduleAdvance(generationId);
 });
 elements.slice.addEventListener("input", () => { elements.sliceValue.value = elements.slice.value; drawLattice(); });
 window.addEventListener("resize", () => { drawLattice(); drawHistory(); drawThermodynamics(); });
-window.addEventListener("pagehide", () => provider?.dispose(), {once: true});
+window.addEventListener("pagehide", () => {
+  cancelScheduledAdvance();
+  provider?.dispose();
+}, {once: true});
 
 localize();
 populateSizes();
