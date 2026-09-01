@@ -43,7 +43,7 @@ const MESSAGES = {
     hintConnect: "接続モード：2つのノードを選択します。多重辺の矢印は2番目のノードを指します。",
     classificationLabel: "分類", startBuilding: "構成を始める", startStatus: "まずノードを追加してください。",
     cartanMatrix: "Cartan行列", convention: "\\(A_{ij}=\\langle\\alpha_i,\\alpha_j^\\vee\\rangle\\)。矢印は短いルートを指します。",
-    finiteCriterion: "有限型の判定条件", validityHeading: "Dynkin図形が有限型となる条件",
+    validityHeading: "Dynkin図形が有限型となる条件",
     ruleCartan: "<strong>Cartan行列の成分。</strong>対角成分は2、非対角成分は非正整数で、\\(A_{ij}=0\\) と \\(A_{ji}=0\\) は同値です。単辺、二重辺、三重辺では \\(A_{ij}A_{ji}\\) がそれぞれ1、2、3になります。",
     ruleFinite: "<strong>有限型判定。</strong>\\(D=\\operatorname{diag}(d_i)\\) としたとき \\(DA\\) が対称になる正整数 \\(d_i\\) が存在し、その対称行列が正定値でなければなりません。Pythonカタログはこの完全な代数的条件を使用します。",
     ruleShape: "<strong>図形の形。</strong>各連結成分は \\(A,B,C,D,E,F,G\\) 系列のいずれかの木です。閉路をもたず、多重辺は高々1本で、次数4以上のノードはありません。これらは必要条件ですが、枝の長さと多重辺の位置も有限型と一致する必要があります。",

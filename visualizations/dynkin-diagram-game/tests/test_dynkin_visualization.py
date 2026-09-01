@@ -18,6 +18,8 @@ def test_static_build_contract(tmp_path, visualization):
     assert 'id="diagram"' in html
     assert 'id="group-label"' in html
     assert "When is a Dynkin diagram valid?" in html
+    assert "Finite-type criterion" not in html
+    assert "有限型の判定条件" not in html
     assert "Dynkin図形ビルダー" in html
     assert "Cartan行列" in html
     assert "--panel: #fbfcfa" in html
