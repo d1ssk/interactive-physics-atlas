@@ -64,10 +64,7 @@
     --atlas-palette-muted,
     color-mix(in srgb, var(--atlas-ink) 62%, var(--atlas-paper))
   );
-  --atlas-placeholder: var(
-    --atlas-palette-placeholder,
-    color-mix(in srgb, var(--atlas-header) 58%, var(--atlas-line))
-  );
+  --atlas-placeholder: var(--atlas-palette-placeholder, #e4e6e7);
   --atlas-accent: var(--atlas-heading);
   --md-default-bg-color: var(--atlas-paper);
   --md-default-fg-color: var(--atlas-ink);
