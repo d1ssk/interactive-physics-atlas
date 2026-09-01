@@ -45,6 +45,53 @@ def test_header_uses_linked_brand_without_default_logo() -> None:
     assert 'include "partials/logo.html"' not in header
 
 
+def test_japanese_public_copy_keeps_person_names_in_latin_script() -> None:
+    sources = list((ROOT / "docs_ja").rglob("*.md"))
+    sources.extend(
+        (
+            ROOT / "visualizations" / "dynkin-diagram-game" / "metadata.yml",
+            ROOT / "visualizations" / "dynkin-diagram-game" / "static" / "app.js",
+            ROOT / "visualizations" / "ising-model" / "metadata.yml",
+            ROOT / "visualizations" / "ising-model" / "static" / "app-v1.mjs",
+            ROOT / "visualizations" / "lie-roots-weights-products" / "metadata.yml",
+            ROOT / "visualizations" / "lie-roots-weights-products" / "visualization.py",
+        )
+    )
+    katakana_person_names = (
+        "リー",
+        "ディンキン",
+        "カルタン",
+        "ハミルトン",
+        "マルコフ",
+        "イジング",
+        "ワイル",
+        "フロイデンタール",
+        "キリング",
+        "コクセター",
+        "ラグランジュ",
+        "ローレンツ",
+        "リーマン",
+        "クリストッフェル",
+        "アインシュタイン",
+        "シュワルツシルト",
+        "パウリ",
+        "ガウス",
+        "フーリエ",
+        "ヒルベルト",
+        "ミンコフスキー",
+        "ポアンカレ",
+        "ボルツマン",
+        "ギブス",
+        "メトロポリス",
+        "オンサーガー",
+        "ネーター",
+    )
+
+    for source in sources:
+        contents = source.read_text(encoding="utf-8")
+        assert not any(name in contents for name in katakana_person_names), source
+
+
 def test_japanese_staging_overlays_pages_and_keeps_shared_assets(
     tmp_path: Path, monkeypatch
 ) -> None:

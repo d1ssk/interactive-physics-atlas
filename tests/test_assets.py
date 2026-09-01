@@ -110,8 +110,10 @@ def test_body_fonts_are_self_hosted_woff2_assets_with_local_licenses():
     assert "Atlas Japanese System" in stylesheet
     assert "Atlas Japanese Display" in stylesheet
     assert "unicode-range:" in stylesheet
-    assert 'font-family: "Atlas Japanese System", "Atlas Source Serif 4", sans-serif;' in stylesheet
+    assert 'font-family: "Atlas Japanese System", var(--md-text-font-family);' in stylesheet
     assert 'font-family: "Atlas Japanese Display", "Atlas Source Serif 4", serif;' in stylesheet
+    assert 'html[lang="ja"] .atlas-language-switch' in stylesheet
+    assert "font-family: var(--md-text-font-family);" in stylesheet
     assert ".md-footer .md-copyright__highlight" in stylesheet
     assert ".md-footer .md-copyright a" in stylesheet
     assert ".md-footer-meta.md-typeset .md-copyright a:not(:focus, :hover)" in stylesheet

@@ -218,18 +218,18 @@ body,
 }
 
 html[lang="ja"] .md-typeset {
-  font-family: "Atlas Japanese System", "Atlas Source Serif 4", sans-serif;
+  font-family: "Atlas Japanese System", var(--md-text-font-family);
   font-size: 0.71rem;
   line-height: 1.82;
 }
 
 html[lang="ja"] .md-nav--primary,
 html[lang="ja"] .md-footer {
-  font-family: "Atlas Japanese System", "Atlas Source Serif 4", sans-serif;
+  font-family: "Atlas Japanese System", var(--md-text-font-family);
 }
 
 html[lang="ja"] .atlas-language-switch {
-  font-family: "Atlas Source Serif 4", Georgia, serif;
+  font-family: var(--md-text-font-family);
 }
 
 .md-typeset :is(h1, h2, h3, h4, h5, h6) {
@@ -258,7 +258,7 @@ html[lang="ja"] .md-typeset h1 {
   box-sizing: content-box;
   border: 1px solid var(--atlas-line) !important;
   border-radius: 0.55rem;
-  background: #f8fafb;
+  background: color-mix(in srgb, var(--atlas-paper) 88%, var(--atlas-line));
 }
 
 html[lang="en"] .md-nav--primary {

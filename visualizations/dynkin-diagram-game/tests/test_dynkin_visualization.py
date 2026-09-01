@@ -15,7 +15,9 @@ def test_static_build_contract(tmp_path, visualization):
     assert 'id="diagram"' in html
     assert 'id="group-label"' in html
     assert "When is a Dynkin diagram valid?" in html
-    assert "ディンキン図形ビルダー" in html
+    assert "Dynkin図形ビルダー" in html
+    assert "Cartan行列" in html
+    assert "--panel: #f1f3f1" in html
     assert 'const LOCALE = new URLSearchParams(window.location.search).get("lang")' in html
     assert 'defer src="mathjax-tex-svg.js"' in html
     assert (tmp_path / "mathjax-tex-svg.js").is_file()

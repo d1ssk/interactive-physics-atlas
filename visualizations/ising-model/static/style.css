@@ -1,8 +1,8 @@
 :root {
   color-scheme: light;
-  --bg: #fbfcfb;
-  --panel: #ffffff;
-  --panel-soft: #f7faf8;
+  --bg: #f7f8f6;
+  --panel: #f2f4f1;
+  --panel-soft: #edf1ed;
   --line: #dbe6de;
   --text: #24352c;
   --muted: #6c7d73;
