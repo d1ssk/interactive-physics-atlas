@@ -127,6 +127,8 @@ def test_bilingual_pages_align_equations_and_embedding() -> None:
     japanese = (root / "docs_ja" / "statistical-physics" / "ising-model" / "index.md").read_text(
         encoding="utf-8"
     )
+    english = re.sub(r"<!--.*?-->", "", english, flags=re.DOTALL)
+    japanese = re.sub(r"<!--.*?-->", "", japanese, flags=re.DOTALL)
 
     english_math = re.findall(r"\$\$\s*(.*?)\s*\$\$", english, flags=re.DOTALL)
     japanese_math = re.findall(r"\$\$\s*(.*?)\s*\$\$", japanese, flags=re.DOTALL)
@@ -140,8 +142,8 @@ def test_bilingual_pages_align_equations_and_embedding() -> None:
         assert 'loading="eager"' in source
         assert "<iframe\n" not in source
         assert "\x08" not in source
-        assert "$\\beta=1/T$" in source
-    assert "## What to notice" in english
-    assert "## 注目する点" in japanese
+        assert "\\beta=\\frac{1}{T}" in source
+    assert "## Points to observe" in english
+    assert "## 観察のポイント" in japanese
     assert "Checks performed" not in english
     assert "## 実施したチェック" not in japanese

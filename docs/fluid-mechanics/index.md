@@ -1,3 +1,3 @@
 # Fluid Mechanics
 
-Interactive explorations of continuum flows, waves, instabilities, and turbulence.
+Continuum flows, waves, instabilities, and turbulence.

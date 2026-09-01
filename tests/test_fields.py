@@ -21,6 +21,7 @@ def test_field_catalog_uses_agreed_labels() -> None:
     assert FIELD_BY_SLUG["condensed-matter-physics"].label == "Condensed Matter Physics"
     assert FIELD_BY_SLUG["supersymmetry"].label == "Supersymmetry"
     assert FIELD_BY_SLUG["mathematics-for-physics"].label == "Mathematics for Physics"
+    assert FIELD_BY_SLUG["statistical-physics"].image == "assets/images/statistical-physics.png"
     assert FIELD_BY_SLUG["relativity"].localized_label("ja") == "相対論"
     assert FIELD_BY_SLUG["quantum-field-theory"].localized_label("ja") == "場の量子論"
     assert FIELD_BY_SLUG["mathematics-for-physics"].localized_label("ja") == "物理数学"
@@ -51,3 +52,10 @@ def test_japanese_navigation_and_field_pages_match_canonical_fields() -> None:
     assert navigation[0] == {"ホーム": "index.md"}
     assert navigation[1:] == expected
     assert all((ROOT / "docs_ja" / field.slug / "index.md").is_file() for field in FIELDS)
+
+
+def test_outdated_field_redirect_directories_are_removed() -> None:
+    outdated_slugs = ("condensed-matter", "mathematical-physics", "statistical-mechanics")
+
+    for docs_dir in (ROOT / "docs", ROOT / "docs_ja"):
+        assert all(not (docs_dir / slug).exists() for slug in outdated_slugs)
