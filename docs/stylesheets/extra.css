@@ -1,3 +1,43 @@
+@font-face {
+  font-family: "Atlas Source Serif 4";
+  font-style: normal;
+  font-weight: 200 900;
+  font-display: swap;
+  src: url("../assets/fonts/source-serif-4/source-serif-4-roman.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Atlas Source Serif 4";
+  font-style: italic;
+  font-weight: 200 900;
+  font-display: swap;
+  src: url("../assets/fonts/source-serif-4/source-serif-4-italic.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Atlas Zen Old Mincho";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../assets/fonts/zen-old-mincho/zen-old-mincho-regular.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Atlas Zen Old Mincho";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../assets/fonts/zen-old-mincho/zen-old-mincho-semibold.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Atlas Zen Old Mincho";
+  font-style: normal;
+  font-weight: 700 900;
+  font-display: swap;
+  src: url("../assets/fonts/zen-old-mincho/zen-old-mincho-bold.woff2") format("woff2");
+}
+
 :root {
   --atlas-pale-blue: #e6f2fa;
   --atlas-blue: #3b6f91;
@@ -71,11 +111,13 @@
 }
 
 .md-typeset {
+  font-family: "Atlas Source Serif 4", Georgia, serif;
   font-size: 0.78rem;
   line-height: 1.75;
 }
 
 html[lang="ja"] .md-typeset {
+  font-family: "Atlas Zen Old Mincho", "Yu Mincho", "Hiragino Mincho ProN", serif;
   font-size: 0.74rem;
   line-height: 1.78;
 }
@@ -85,6 +127,10 @@ html[lang="ja"] .md-typeset {
   color: var(--atlas-ink);
   font-weight: 750;
   letter-spacing: -0.025em;
+}
+
+html[lang="ja"] .md-typeset h1 {
+  font-weight: 700;
 }
 
 .md-typeset h2 {
@@ -139,11 +185,19 @@ html[lang="ja"] .md-typeset {
   display: block;
   aspect-ratio: 16 / 9;
   background-color: #f5f9fc;
-  background-image: url("../assets/images/topic-default.svg");
+  background-image:
+    linear-gradient(rgb(59 111 145 / 5%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(59 111 145 / 5%) 1px, transparent 1px);
   background-position: center;
   background-repeat: no-repeat;
-  background-size: contain;
+  background-size: 1rem 1rem;
   border-bottom: 1px solid var(--atlas-line);
+}
+
+.topic-card__diagram {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .topic-card__body {

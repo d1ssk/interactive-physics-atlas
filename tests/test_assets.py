@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+from pathlib import Path
 
 import build_site
 
@@ -18,6 +19,8 @@ from physics_atlas.assets import (
     copy_pyodide_runtime_assets,
     copy_shared_plotly_assets,
 )
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_pinned_plotly_gl3d_asset_has_expected_version_and_digest():
@@ -88,3 +91,25 @@ def test_pyodide_subset_stages_with_local_licenses(tmp_path):
     assert (tmp_path / PYODIDE_NUMPY_WHEEL).is_file()
     assert "Mozilla Public License" in (tmp_path / "LICENSE").read_text(encoding="utf-8")
     assert "Redistribution and use" in (tmp_path / "NUMPY-LICENSE.txt").read_text(encoding="utf-8")
+
+
+def test_body_fonts_are_self_hosted_woff2_assets_with_local_licenses():
+    fonts_dir = ROOT / "docs" / "assets" / "fonts"
+    font_paths = (
+        fonts_dir / "source-serif-4" / "source-serif-4-roman.woff2",
+        fonts_dir / "source-serif-4" / "source-serif-4-italic.woff2",
+        fonts_dir / "zen-old-mincho" / "zen-old-mincho-regular.woff2",
+        fonts_dir / "zen-old-mincho" / "zen-old-mincho-semibold.woff2",
+        fonts_dir / "zen-old-mincho" / "zen-old-mincho-bold.woff2",
+    )
+
+    assert all(path.read_bytes().startswith(b"wOF2") for path in font_paths)
+    for family in ("source-serif-4", "zen-old-mincho"):
+        license_text = (fonts_dir / family / "OFL.txt").read_text(encoding="utf-8")
+        assert "SIL OPEN FONT LICENSE Version 1.1" in license_text
+
+    stylesheet = (ROOT / "docs" / "stylesheets" / "extra.css").read_text(encoding="utf-8")
+    assert "Atlas Source Serif 4" in stylesheet
+    assert "Atlas Zen Old Mincho" in stylesheet
+    assert "fonts.googleapis.com" not in stylesheet
+    assert "fonts.gstatic.com" not in stylesheet

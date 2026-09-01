@@ -114,6 +114,10 @@ section {
   border-bottom: 1px solid var(--line);
 }
 
+.specimen.selected {
+  box-shadow: inset 3px 0 var(--accent);
+}
+
 .specimen .label {
   color: var(--muted);
   font-family: system-ui, sans-serif;

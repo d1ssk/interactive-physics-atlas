@@ -14,7 +14,6 @@ class FieldDefinition:
     summary: str
     label_ja: str
     summary_ja: str
-    image: str | None = None
 
     def localized_label(self, locale: str) -> str:
         """Return the field label for a supported publication locale."""
@@ -125,7 +124,6 @@ FIELDS = (
         "Mathematical structures and methods used throughout physics.",
         "物理数学",
         "物理学で用いられる数学的構造と手法。",
-        "assets/images/mathematics-for-physics.png",
     ),
 )
 
