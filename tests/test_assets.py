@@ -124,15 +124,41 @@ def test_named_site_palettes_default_to_burgundy_and_share_one_switch():
     stylesheets_dir = ROOT / "docs" / "stylesheets"
     palette_entrypoint = (stylesheets_dir / "palette.css").read_text(encoding="utf-8")
     expected_palettes = {
-        "burgundy": ("#e2d3d0", "#713c42", "#f8f5ef", "#292525", "#ded6cc"),
-        "dusty-blue": ("#d6dee3", "#35576a", "#f7f5ef", "#242522", "#ddd8cd"),
-        "terracotta": ("#e7d8cd", "#865345", "#f8f5ef", "#2b2926", "#ddd5ca"),
+        "burgundy": (
+            "#e2d3d0",
+            "#713c42",
+            "#3f2529",
+            "#f8f5ef",
+            "#292525",
+            "#ded6cc",
+        ),
+        "dusty-blue": (
+            "#d6dee3",
+            "#35576a",
+            "#26353c",
+            "#f7f5ef",
+            "#242522",
+            "#ddd8cd",
+        ),
+        "terracotta": (
+            "#e7d8cd",
+            "#865345",
+            "#412e29",
+            "#f8f5ef",
+            "#2b2926",
+            "#ddd5ca",
+        ),
     }
 
     assert '@import url("palettes/burgundy.css");' in palette_entrypoint
     for name, colors in expected_palettes.items():
         palette = (stylesheets_dir / "palettes" / f"{name}.css").read_text(encoding="utf-8")
         assert all(color in palette for color in colors)
+
+    stylesheet = (stylesheets_dir / "extra.css").read_text(encoding="utf-8")
+    assert "--atlas-content-heading" in stylesheet
+    assert ".md-typeset :is(h1, h2, h3, h4, h5, h6)" in stylesheet
+    assert "color: var(--atlas-content-heading);" in stylesheet
 
     favicon = (ROOT / "docs" / "assets" / "images" / "favicon.svg").read_text(encoding="utf-8")
     favicon_script = (ROOT / "docs" / "javascripts" / "palette-favicon.js").read_text(

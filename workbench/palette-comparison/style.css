@@ -193,7 +193,7 @@ body {
 }
 
 .site-content h3 {
-  color: var(--heading);
+  color: var(--content-heading);
   font-family: "Atlas Source Serif 4", Georgia, serif;
   font-size: 1.3rem;
   line-height: 1.15;
@@ -247,7 +247,7 @@ body {
 }
 
 .topic-card strong {
-  color: var(--heading);
+  color: var(--content-heading);
   font-family: "Atlas Source Serif 4", Georgia, serif;
   font-size: 0.72rem;
   line-height: 1.2;
