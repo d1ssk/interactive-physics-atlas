@@ -40,6 +40,8 @@ def test_create_visualization_populates_contract(scaffold_root: tuple[Path, Path
     ).read_text(encoding="utf-8")
     assert "## 規約と制限" in japanese_page
     assert (visualization_dir / "tests" / "test_physics.py").is_file()
+    visualization_source = (visualization_dir / "visualization.py").read_text(encoding="utf-8")
+    assert "copy_visualization_theme_assets(output_dir)" in visualization_source
 
 
 def test_create_visualization_refuses_existing_docs_page(

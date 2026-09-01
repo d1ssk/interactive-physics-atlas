@@ -17,11 +17,38 @@ from physics_atlas.assets import (
     PYODIDE_RUNTIME_SHA256,
     PYODIDE_VENDOR_DIR,
     PYODIDE_VERSION,
+    VISUALIZATION_THEME_CSS_NAME,
+    VISUALIZATION_THEME_SCRIPT_NAME,
     copy_pyodide_runtime_assets,
     copy_shared_plotly_assets,
+    copy_visualization_theme_assets,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_shared_visualization_theme_stages_only_foundational_palette_tokens(tmp_path):
+    copy_visualization_theme_assets(tmp_path)
+
+    stylesheet = (tmp_path / VISUALIZATION_THEME_CSS_NAME).read_text(encoding="utf-8")
+    script = (tmp_path / VISUALIZATION_THEME_SCRIPT_NAME).read_text(encoding="utf-8")
+
+    for token in (
+        "--atlas-viz-background",
+        "--atlas-viz-panel",
+        "--atlas-viz-border",
+        "--atlas-viz-accent",
+        "--atlas-viz-focus",
+    ):
+        assert token in stylesheet
+    for semantic_token in ("--spin", "--success", "--warning", "--error", "--root-color"):
+        assert semantic_token not in stylesheet
+
+    assert "window.parent.getComputedStyle" in script
+    assert '"--atlas-viz-background": "--atlas-paper"' in script
+    assert '"--atlas-viz-accent": "--atlas-accent"' in script
+    assert 'window.location.protocol === "file:"' in script
+    assert "postMessage" not in script
 
 
 def test_pinned_plotly_gl3d_asset_has_expected_version_and_digest():

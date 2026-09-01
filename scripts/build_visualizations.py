@@ -13,6 +13,10 @@ from types import ModuleType
 
 from validate_metadata import validate_all
 
+from physics_atlas.assets import (
+    VISUALIZATION_THEME_CSS_NAME,
+    VISUALIZATION_THEME_SCRIPT_NAME,
+)
 from physics_atlas.metadata import MetadataValidationError, load_metadata
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -62,6 +66,22 @@ def _discard_modules(package_name: str) -> None:
             del sys.modules[name]
 
 
+def _validate_theme_contract(directory: Path, output_dir: Path, index: Path) -> None:
+    """Require every published application to consume the shared foundational theme."""
+
+    html = index.read_text(encoding="utf-8")
+    for asset_name in (VISUALIZATION_THEME_CSS_NAME, VISUALIZATION_THEME_SCRIPT_NAME):
+        asset = output_dir / asset_name
+        if not asset.is_file():
+            raise VisualizationBuildError(
+                f"{directory}: build() did not stage required theme asset {asset_name}"
+            )
+        if asset_name not in html:
+            raise VisualizationBuildError(
+                f"{directory}: {index.name} does not load required theme asset {asset_name}"
+            )
+
+
 def build_all(directories: list[Path] | None = None, docs_dir: Path = DOCS_DIR) -> list[Path]:
     """Build every visualization and return the generated index files."""
 
@@ -88,6 +108,7 @@ def build_all(directories: list[Path] | None = None, docs_dir: Path = DOCS_DIR) 
             raise VisualizationBuildError(
                 f"{directory}: build() did not create required output {index}"
             )
+        _validate_theme_contract(directory, output_dir, index)
         outputs.append(index)
         print(f"Built {metadata.id}: {index.relative_to(ROOT)}")
     return outputs

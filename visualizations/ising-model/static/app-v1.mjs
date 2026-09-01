@@ -87,6 +87,18 @@ const elements = {
   magnetization: byId("magnetization"), energy: byId("energy"), acceptance: byId("acceptance"),
 };
 
+function elementBackgroundRgb(selector) {
+  const element = document.querySelector(selector);
+  const channels = getComputedStyle(element).backgroundColor.match(/[\d.]+/g)?.slice(0, 3);
+  if (!channels || channels.length !== 3) throw new Error(`Could not resolve color for ${selector}`);
+  return channels.map(channel => Math.round(Number(channel)));
+}
+
+const SPIN_COLORS = {
+  up: elementBackgroundRgb(".spin-up"),
+  down: elementBackgroundRgb(".spin-down"),
+};
+
 const SIZES = DATA.limits.sizes;
 const HISTORY_LIMIT = DATA.limits.historyLength;
 let provider;
@@ -148,9 +160,10 @@ function drawLattice() {
     const spinIndex = dimension === 3 ? pixel + size * size * slice : pixel;
     const offset = pixel * 4;
     const up = spins[spinIndex] > 0;
-    image.data[offset] = up ? 114 : 196;
-    image.data[offset + 1] = up ? 181 : 203;
-    image.data[offset + 2] = up ? 138 : 199;
+    const color = up ? SPIN_COLORS.up : SPIN_COLORS.down;
+    image.data[offset] = color[0];
+    image.data[offset + 1] = color[1];
+    image.data[offset + 2] = color[2];
     image.data[offset + 3] = 255;
   }
   bufferContext.putImageData(image, 0, 0);

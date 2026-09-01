@@ -39,6 +39,19 @@ Use LaTeX rendering for mathematical expressions in the application UI. Plot-int
 including axes, legends, hover text, and Plotly controls, remains English in both site languages
 so that one scientifically identical figure payload can be shared.
 
+## Shared visualization theme
+
+- Every published application must stage the shared assets with
+  `physics_atlas.assets.copy_visualization_theme_assets(output_dir)` and load
+  `visualization-theme.css` and `visualization-theme.js` from its document head.
+- Use the shared `--atlas-viz-*` tokens only for foundational backgrounds, panels, borders,
+  controls, focus indication, and the basic non-semantic accent.
+- Keep colors with scientific or status meaning local to each visualization. Examples include
+  physical states or phases, positive and negative values, warnings and errors, roots and
+  weights, and distinct data series.
+- Do not duplicate the shared palette values in individual applications. Their single source of
+  truth is `src/physics_atlas/static/visualization-theme.css`.
+
 ## MathJax application contract
 
 - Use the vendored MathJax TeX-to-SVG bundle. Do not add a CDN dependency.

@@ -7,7 +7,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from physics_atlas.assets import PLOTLY_GL3D_ASSET_NAME, copy_mathjax_assets
+from physics_atlas.assets import (
+    PLOTLY_GL3D_ASSET_NAME,
+    copy_mathjax_assets,
+    copy_visualization_theme_assets,
+)
 
 from .domain import (
     APPLICATION_SCHEMA,
@@ -132,6 +136,7 @@ def build(output_dir: Path) -> None:
 
     output_dir.mkdir(parents=True, exist_ok=True)
     copy_mathjax_assets(output_dir)
+    copy_visualization_theme_assets(output_dir)
     build_runtime_assets(output_dir, Path(__file__).resolve().parent)
     payload = json.dumps(_build_application_data(), separators=(",", ":")).replace("</", "<\\/")
     html = _APPLICATION_HTML.replace("__PLOTLY_ASSET__", PLOTLY_GL3D_ASSET_NAME).replace(
@@ -146,9 +151,11 @@ _APPLICATION_HTML = r"""<!doctype html>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lie Roots, Weights, and Tensor Products</title>
+  <link rel="stylesheet" href="visualization-theme.css">
   <style>
-    :root { color-scheme: light; --ink:#263238; --muted:#687078; --line:#d8dedb;
-      --blue:#3b6fb6; --paper:#f7f8f6; --panel:#fbfcfa; --gold:#c69214; }
+    :root { color-scheme: light; --ink:#263238; --muted:#687078;
+      --blue:var(--atlas-viz-accent); --paper:var(--atlas-viz-background);
+      --panel:var(--atlas-viz-panel); --line:var(--atlas-viz-border); --gold:#c69214; }
     * { box-sizing: border-box; }
     body { margin:0; background:var(--paper); color:var(--ink);
       font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
@@ -192,9 +199,12 @@ _APPLICATION_HTML = r"""<!doctype html>
     .decomposition-meta { margin-top:.5rem; }
     .error { margin:0 0 12px; padding:10px 12px; border-left:3px solid #a33; background:#fff1f1; }
     .hint { color:var(--muted); font-size:.9rem; margin:10px 0 0; }
+    button:focus-visible, select:focus-visible, input:focus-visible {
+      outline:3px solid var(--atlas-viz-focus); outline-offset:2px; }
     @media (max-width:960px) { .product-grid { grid-template-columns:1fr; } main { padding:10px; }
       .panel { padding:10px; } }
   </style>
+  <script src="visualization-theme.js"></script>
   <script>
     window.MathJax = {
       tex: {inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]]},
@@ -462,9 +472,13 @@ _APPLICATION_HTML = r"""<!doctype html>
   localizeStaticContent();
   await window.physicsAtlasPlotlyReady;
   const CONFIG = {scrollZoom:true, displaylogo:false, responsive:true};
+  const themeStyles = getComputedStyle(document.documentElement);
+  const themeColor = (property, fallback) => themeStyles.getPropertyValue(property).trim() || fallback;
   const PALETTE = {
     blue:"#3B6FB6", blueLight:"#83A6D6", blueDark:"#244A73", gold:"#C69214",
-    violet:"#6A4C93", ink:"#263238", muted:"#687078", grid:"#DDE2E6", background:"#FCFCFD",
+    violet:"#6A4C93", ink:"#263238", muted:"#687078",
+    grid:themeColor("--atlas-viz-border", "#DDE2E6"),
+    background:themeColor("--atlas-viz-panel", "#FCFCFD"),
   };
   const systemKeys = Object.keys(DATA.systems);
   const byId = id => document.getElementById(id);

@@ -2,11 +2,11 @@
   color-scheme: light;
   --ink: #223038;
   --muted: #66747c;
-  --line: #d8e0e4;
-  --paper: #f7f8f6;
-  --panel: #fbfcfa;
-  --blue: #3069a8;
-  --blue-dark: #214b79;
+  --line: var(--atlas-viz-border);
+  --paper: var(--atlas-viz-background);
+  --panel: var(--atlas-viz-panel);
+  --blue: var(--atlas-viz-accent);
+  --blue-dark: var(--atlas-viz-accent-strong);
   --gold: #b98308;
   --green: #297a58;
   --red: #af3f3f;
@@ -61,11 +61,12 @@ select { min-width: 112px; padding: 8px 10px; border: 1px solid #b9c5cb; border-
 button { border: 1px solid #b9c5cb; border-radius: 7px; padding: 8px 12px; background: white; color: var(--ink); cursor: pointer; font-weight: 700; }
 button:hover:not(:disabled) { border-color: var(--blue); color: var(--blue-dark); }
 button[aria-pressed="true"] { border-color: var(--blue); background: var(--blue); color: white; }
-button:focus-visible, select:focus-visible { outline: 3px solid rgb(48 105 168 / 25%); outline-offset: 2px; }
+button:focus-visible, select:focus-visible { outline: 3px solid var(--atlas-viz-focus); outline-offset: 2px; }
 button:disabled { cursor: not-allowed; opacity: .42; }
 
 .canvas-wrap { padding: 12px; }
-#diagram { display: block; width: 100%; min-height: 360px; max-height: 64vh; border: 1px solid var(--line); border-radius: 8px; background: #fbfcfd; touch-action: none; }
+#diagram { display: block; width: 100%; min-height: 360px; max-height: 64vh; border: 1px solid var(--line); border-radius: 8px; background: var(--atlas-viz-panel-subtle); touch-action: none; }
+.diagram-grid-line { stroke: var(--atlas-viz-border); }
 .canvas-background { cursor: crosshair; }
 #empty-hint { fill: #84929a; font-size: 22px; font-weight: 700; pointer-events: none; }
 #empty-subhint { fill: #9aa6ac; font-size: 14px; pointer-events: none; }
@@ -101,7 +102,7 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 .matrix.empty { display: block; color: var(--muted); }
 .matrix-row { display: grid; grid-template-columns: repeat(var(--rank), minmax(32px, 42px)); gap: 3px; }
 .matrix-cell { display: grid; place-items: center; min-height: 32px; border-radius: 4px; background: #f0f4f6; font-variant-numeric: tabular-nums; }
-.matrix-cell.diagonal { background: #e4edf6; color: var(--blue-dark); font-weight: 800; }
+.matrix-cell.diagonal { background: var(--atlas-viz-accent-soft); color: var(--blue-dark); font-weight: 800; }
 
 .validity-rules { margin-top: 14px; padding: 18px; }
 .validity-rules h2 { margin: 5px 0 14px; font-size: 1.35rem; }

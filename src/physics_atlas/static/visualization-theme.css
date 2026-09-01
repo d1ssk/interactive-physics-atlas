@@ -1,0 +1,16 @@
+:root {
+  --atlas-viz-background: #faf8f4;
+  --atlas-viz-panel: #fdfcf9;
+  --atlas-viz-border: #ded6cc;
+  --atlas-viz-accent: #713c42;
+  --atlas-viz-panel-subtle: color-mix(
+    in srgb,
+    var(--atlas-viz-panel) 58%,
+    var(--atlas-viz-background)
+  );
+  --atlas-viz-accent-strong: color-mix(in srgb, var(--atlas-viz-accent) 82%, black);
+  --atlas-viz-accent-soft: color-mix(in srgb, var(--atlas-viz-accent) 22%, white);
+  --atlas-viz-accent-pale: color-mix(in srgb, var(--atlas-viz-accent) 9%, white);
+  --atlas-viz-focus: color-mix(in srgb, var(--atlas-viz-accent) 30%, transparent);
+  --atlas-viz-accent-contrast: white;
+}

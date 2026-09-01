@@ -4,6 +4,11 @@ import shutil
 from pathlib import Path
 
 VENDOR_DIR = Path(__file__).resolve().parent / "vendor"
+STATIC_DIR = Path(__file__).resolve().parent / "static"
+VISUALIZATION_THEME_CSS_NAME = "visualization-theme.css"
+VISUALIZATION_THEME_SCRIPT_NAME = "visualization-theme.js"
+VISUALIZATION_THEME_CSS_PATH = STATIC_DIR / VISUALIZATION_THEME_CSS_NAME
+VISUALIZATION_THEME_SCRIPT_PATH = STATIC_DIR / VISUALIZATION_THEME_SCRIPT_NAME
 MATHJAX_SVG_PATH = VENDOR_DIR / "mathjax" / "tex-svg.js"
 MATHJAX_LICENSE_PATH = VENDOR_DIR / "mathjax" / "LICENSE"
 PLOTLY_GL3D_VERSION = "3.7.0"
@@ -32,6 +37,14 @@ def copy_mathjax_assets(output_dir: Path) -> None:
 
     shutil.copy2(MATHJAX_SVG_PATH, output_dir / "mathjax-tex-svg.js")
     shutil.copy2(MATHJAX_LICENSE_PATH, output_dir / "mathjax-LICENSE.txt")
+
+
+def copy_visualization_theme_assets(output_dir: Path) -> None:
+    """Copy the shared visualization surface and accent theme into an application."""
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(VISUALIZATION_THEME_CSS_PATH, output_dir / VISUALIZATION_THEME_CSS_NAME)
+    shutil.copy2(VISUALIZATION_THEME_SCRIPT_PATH, output_dir / VISUALIZATION_THEME_SCRIPT_NAME)
 
 
 def copy_shared_plotly_assets(docs_dir: Path) -> None:

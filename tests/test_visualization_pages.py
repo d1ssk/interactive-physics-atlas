@@ -135,6 +135,8 @@ def test_repository_documents_http_visualization_preview() -> None:
     assert "http://127.0.0.1:8000/" in readme
     assert "direct `file://` viewing is unsupported" in root_contract
     assert "local browser QA must serve the built site over" in visualization_contract
+    assert "copy_visualization_theme_assets(output_dir)" in visualization_contract
+    assert "Keep colors with scientific or status meaning local" in visualization_contract
 
 
 def test_docs_mathjax_callbacks_wait_for_startup() -> None:

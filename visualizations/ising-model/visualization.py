@@ -8,7 +8,7 @@ from pathlib import Path
 
 import numpy as np
 
-from physics_atlas.assets import copy_mathjax_assets
+from physics_atlas.assets import copy_mathjax_assets, copy_visualization_theme_assets
 
 from .physics import CRITICAL_TEMPERATURES, KERNEL_VERSION, exact_thermodynamics
 from .protocol import LIMITS, PROTOCOL_VERSION
@@ -49,6 +49,7 @@ def build(output_dir: Path) -> None:
 
     output_dir.mkdir(parents=True, exist_ok=True)
     copy_mathjax_assets(output_dir)
+    copy_visualization_theme_assets(output_dir)
     payload = json.dumps(application_data(), separators=(",", ":")).replace("</", "<\\/")
     html = (
         (STATIC_DIR / "index.html")

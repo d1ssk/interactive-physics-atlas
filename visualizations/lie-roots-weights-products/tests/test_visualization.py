@@ -170,7 +170,14 @@ def test_static_build_contract(
     assert "Lie代数のルート・ウェイト・テンソル積" in html
     assert "Cartan型" in html
     assert "Dynkinラベル" in html
-    assert "--panel:#fbfcfa" in html
+    assert "--panel:var(--atlas-viz-panel)" in html
+    assert 'rel="stylesheet" href="visualization-theme.css"' in html
+    assert 'src="visualization-theme.js"' in html
+    assert (tmp_path / "visualization-theme.css").is_file()
+    assert (tmp_path / "visualization-theme.js").is_file()
+    assert 'blue:"#3B6FB6"' in html
+    assert 'grid:themeColor("--atlas-viz-border", "#DDE2E6")' in html
+    assert 'background:themeColor("--atlas-viz-panel", "#FCFCFD")' in html
     assert 'const LOCALE = new URLSearchParams(window.location.search).get("lang")' in html
     assert 'defer src="mathjax-tex-svg.js"' in html
     assert (tmp_path / "mathjax-tex-svg.js").is_file()
