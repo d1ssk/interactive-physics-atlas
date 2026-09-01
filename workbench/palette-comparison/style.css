@@ -311,7 +311,7 @@ body {
 }
 
 .palette-values code {
-  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
   font-size: 0.57rem;
   font-weight: 700;
 }

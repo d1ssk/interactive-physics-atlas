@@ -7,8 +7,8 @@ import pytest
 def test_theme_contract_accepts_staged_and_loaded_assets(tmp_path: Path) -> None:
     index = tmp_path / "index.html"
     index.write_text(
-        '<link rel="stylesheet" href="visualization-theme.css">'
-        '<script src="visualization-theme.js"></script>',
+        '<head><link rel="stylesheet" href="visualization-theme.css">'
+        '<script src="visualization-theme.js"></script></head>',
         encoding="utf-8",
     )
     (tmp_path / "visualization-theme.css").write_text(":root {}", encoding="utf-8")
@@ -29,8 +29,8 @@ def test_theme_contract_rejects_missing_asset(
 ) -> None:
     index = tmp_path / "index.html"
     index.write_text(
-        '<link rel="stylesheet" href="visualization-theme.css">'
-        '<script src="visualization-theme.js"></script>',
+        '<head><link rel="stylesheet" href="visualization-theme.css">'
+        '<script src="visualization-theme.js"></script></head>',
         encoding="utf-8",
     )
     for asset_name in ("visualization-theme.css", "visualization-theme.js"):
@@ -44,6 +44,28 @@ def test_theme_contract_rejects_missing_asset(
 def test_theme_contract_rejects_unloaded_asset(tmp_path: Path) -> None:
     index = tmp_path / "index.html"
     index.write_text('<link rel="stylesheet" href="visualization-theme.css">', encoding="utf-8")
+    (tmp_path / "visualization-theme.css").write_text(":root {}", encoding="utf-8")
+    (tmp_path / "visualization-theme.js").write_text("", encoding="utf-8")
+
+    with pytest.raises(build_visualizations.VisualizationBuildError, match="does not load"):
+        build_visualizations._validate_theme_contract(tmp_path, tmp_path, index)
+
+
+@pytest.mark.parametrize(
+    "html",
+    (
+        '<head><meta content="visualization-theme.css visualization-theme.js"></head>',
+        '<head><link rel="stylesheet" href="visualization-theme.css">'
+        '<script data-src="visualization-theme.js"></script></head>',
+        '<body><link rel="stylesheet" href="visualization-theme.css">'
+        '<script src="visualization-theme.js"></script></body>',
+    ),
+)
+def test_theme_contract_rejects_asset_names_outside_expected_head_elements(
+    tmp_path: Path, html: str
+) -> None:
+    index = tmp_path / "index.html"
+    index.write_text(html, encoding="utf-8")
     (tmp_path / "visualization-theme.css").write_text(":root {}", encoding="utf-8")
     (tmp_path / "visualization-theme.js").write_text("", encoding="utf-8")
 

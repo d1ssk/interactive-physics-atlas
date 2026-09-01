@@ -5,7 +5,7 @@
  *   palettes/terracotta.css
  *   palettes/deep-navy.css   (design from 3eb8bd6)
  */
-/* @import url("palettes/burgundy.css"); */
-/* @import url("palettes/dusty-blue.css"); */
-@import url("palettes/terracotta.css");
-/* @import url("palettes/deep-navy.css"); */
+@import "palettes/burgundy.css";
+/* @import "palettes/dusty-blue.css"; */
+/* @import "palettes/terracotta.css"; */
+/* @import "palettes/deep-navy.css"; */

@@ -54,6 +54,9 @@ def test_visualization_pages_use_latex_and_omit_developer_checklists() -> None:
     assert "## Mathematics shown here" in english_lie
     assert "## 数学的背景" in japanese_lie
     assert "## ここで見える数学" in japanese_lie
+    tensor_product_character = r"\operatorname{ch}(V_\lambda\otimes V_\nu)"
+    assert tensor_product_character in english_lie
+    assert tensor_product_character in japanese_lie
 
 
 def test_bilingual_visualization_pages_share_display_math() -> None:
@@ -69,8 +72,15 @@ def test_bilingual_visualization_pages_share_display_math() -> None:
         japanese = re.sub(r"<!--.*?-->", "", japanese, flags=re.DOTALL)
         english_math = re.findall(r"\$\$\s*(.*?)\s*\$\$", english, flags=re.DOTALL)
         japanese_math = re.findall(r"\$\$\s*(.*?)\s*\$\$", japanese, flags=re.DOTALL)
-        english_math = [re.sub(r"\\text\{[^{}]*\}", r"\\text{}", math) for math in english_math]
-        japanese_math = [re.sub(r"\\text\{[^{}]*\}", r"\\text{}", math) for math in japanese_math]
+        locale_only_labels = {
+            r"\text{元の積指標}": r"\text{original product character}",
+            r"\text{抽出済みの既約指標}": r"\text{extracted irreducible characters}",
+            r"\text{残差指標}": r"\text{residual character}",
+        }
+        for japanese_label, english_label in locale_only_labels.items():
+            japanese_math = [
+                expression.replace(japanese_label, english_label) for expression in japanese_math
+            ]
 
         assert english_math == japanese_math
 

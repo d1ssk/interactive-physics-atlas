@@ -192,7 +192,10 @@ def test_named_site_palettes_default_to_burgundy_and_share_one_switch():
         ),
     }
 
-    assert '@import url("palettes/burgundy.css");' in palette_entrypoint
+    active_imports = [
+        line for line in palette_entrypoint.splitlines() if line.startswith("@import ")
+    ]
+    assert active_imports == ['@import "palettes/burgundy.css";']
     assert "palettes/deep-navy.css" in palette_entrypoint
     for name, colors in expected_palettes.items():
         palette = (stylesheets_dir / "palettes" / f"{name}.css").read_text(encoding="utf-8")

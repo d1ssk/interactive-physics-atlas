@@ -23,7 +23,8 @@ $$
 An irreducible tensor-product decomposition is expressed by the character identity
 
 $$
-\sum_\kappa N_{\lambda\nu}^{\kappa}\operatorname{ch}V_\kappa
+\operatorname{ch}(V_\lambda\otimes V_\nu)
+=\sum_\kappa N_{\lambda\nu}^{\kappa}\operatorname{ch}V_\kappa
 $$
 
 The explorer successively identifies the highest weight in the residual character and removes the

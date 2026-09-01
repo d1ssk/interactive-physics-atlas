@@ -19,7 +19,8 @@ $$
 テンソル積の既約分解は、指標の恒等式
 
 $$
-\sum_\kappa N_{\lambda\nu}^{\kappa}\operatorname{ch}V_\kappa
+\operatorname{ch}(V_\lambda\otimes V_\nu)
+=\sum_\kappa N_{\lambda\nu}^{\kappa}\operatorname{ch}V_\kappa
 $$
 
 として表されます。エクスプローラーでは、指標の残差に現れる最高ウェイトを順に特定し、それに対応する既約表現の指標を取り除いていきます。分解が完了すると残差はゼロとなり、テンソル積の次元と各既約成分の次元の総和が一致することを確認できます。

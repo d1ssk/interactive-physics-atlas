@@ -171,6 +171,8 @@ def test_static_build_contract(
     assert "Cartan型" in html
     assert "Dynkinラベル" in html
     assert "--panel:var(--atlas-viz-panel)" in html
+    assert "background:#f9faf8" not in html
+    assert "background:var(--paper)" in html
     assert 'rel="stylesheet" href="visualization-theme.css"' in html
     assert 'src="visualization-theme.js"' in html
     assert (tmp_path / "visualization-theme.css").is_file()
