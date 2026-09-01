@@ -1,5 +1,4 @@
 import tomllib
-import xml.etree.ElementTree as ET
 from pathlib import Path
 
 from physics_atlas.fields import CANONICAL_FIELDS, FIELD_BY_SLUG, FIELDS
@@ -25,6 +24,10 @@ def test_field_catalog_uses_agreed_labels() -> None:
     assert FIELD_BY_SLUG["relativity"].localized_label("ja") == "相対論"
     assert FIELD_BY_SLUG["quantum-field-theory"].localized_label("ja") == "場の量子論"
     assert FIELD_BY_SLUG["mathematics-for-physics"].localized_label("ja") == "物理数学"
+    assert (
+        FIELD_BY_SLUG["mathematics-for-physics"].image
+        == "assets/images/mathematics-for-physics.png"
+    )
 
 
 def test_field_catalog_matches_navigation_and_documentation() -> None:
@@ -34,14 +37,9 @@ def test_field_catalog_matches_navigation_and_documentation() -> None:
     expected = [{field.label: f"{field.slug}/index.md"} for field in FIELDS]
 
     assert navigation[0] == {"Home": "index.md"}
-    assert navigation[1:] == [{"Fields": expected}]
+    assert navigation[1:] == expected
     assert all((ROOT / "docs" / field.slug / "index.md").is_file() for field in FIELDS)
-
-    sprite = ET.parse(ROOT / "docs" / "assets" / "images" / "topic-diagrams.svg")
-    symbol_ids = {
-        element.attrib["id"] for element in sprite.iter() if element.tag.endswith("symbol")
-    }
-    assert symbol_ids == set(CANONICAL_FIELDS)
+    assert all(field.image is None or (ROOT / "docs" / field.image).is_file() for field in FIELDS)
 
 
 def test_japanese_navigation_and_field_pages_match_canonical_fields() -> None:
@@ -51,5 +49,5 @@ def test_japanese_navigation_and_field_pages_match_canonical_fields() -> None:
     expected = [{field.localized_label("ja"): f"{field.slug}/index.md"} for field in FIELDS]
 
     assert navigation[0] == {"ホーム": "index.md"}
-    assert navigation[1:] == [{"分野": expected}]
+    assert navigation[1:] == expected
     assert all((ROOT / "docs_ja" / field.slug / "index.md").is_file() for field in FIELDS)

@@ -98,18 +98,13 @@ def test_body_fonts_are_self_hosted_woff2_assets_with_local_licenses():
     font_paths = (
         fonts_dir / "source-serif-4" / "source-serif-4-roman.woff2",
         fonts_dir / "source-serif-4" / "source-serif-4-italic.woff2",
-        fonts_dir / "zen-old-mincho" / "zen-old-mincho-regular.woff2",
-        fonts_dir / "zen-old-mincho" / "zen-old-mincho-semibold.woff2",
-        fonts_dir / "zen-old-mincho" / "zen-old-mincho-bold.woff2",
     )
 
     assert all(path.read_bytes().startswith(b"wOF2") for path in font_paths)
-    for family in ("source-serif-4", "zen-old-mincho"):
-        license_text = (fonts_dir / family / "OFL.txt").read_text(encoding="utf-8")
-        assert "SIL OPEN FONT LICENSE Version 1.1" in license_text
+    license_text = (fonts_dir / "source-serif-4" / "OFL.txt").read_text(encoding="utf-8")
+    assert "SIL OPEN FONT LICENSE Version 1.1" in license_text
 
     stylesheet = (ROOT / "docs" / "stylesheets" / "extra.css").read_text(encoding="utf-8")
     assert "Atlas Source Serif 4" in stylesheet
-    assert "Atlas Zen Old Mincho" in stylesheet
     assert "fonts.googleapis.com" not in stylesheet
     assert "fonts.gstatic.com" not in stylesheet

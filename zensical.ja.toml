@@ -13,22 +13,20 @@ extra_javascript = [
 ]
 nav = [
     { "ホーム" = "index.md" },
-    { "分野" = [
-        { "古典力学" = "classical-mechanics/index.md" },
-        { "電磁気学" = "electromagnetism/index.md" },
-        { "量子力学" = "quantum-mechanics/index.md" },
-        { "熱力学" = "thermodynamics/index.md" },
-        { "統計物理学" = "statistical-physics/index.md" },
-        { "物性物理学" = "condensed-matter-physics/index.md" },
-        { "流体力学" = "fluid-mechanics/index.md" },
-        { "相対論" = "relativity/index.md" },
-        { "宇宙論" = "cosmology/index.md" },
-        { "場の量子論" = "quantum-field-theory/index.md" },
-        { "素粒子物理学" = "particle-physics/index.md" },
-        { "超対称性" = "supersymmetry/index.md" },
-        { "弦理論" = "string-theory/index.md" },
-        { "物理数学" = "mathematics-for-physics/index.md" },
-    ] },
+    { "古典力学" = "classical-mechanics/index.md" },
+    { "電磁気学" = "electromagnetism/index.md" },
+    { "量子力学" = "quantum-mechanics/index.md" },
+    { "熱力学" = "thermodynamics/index.md" },
+    { "統計物理学" = "statistical-physics/index.md" },
+    { "物性物理学" = "condensed-matter-physics/index.md" },
+    { "流体力学" = "fluid-mechanics/index.md" },
+    { "相対論" = "relativity/index.md" },
+    { "宇宙論" = "cosmology/index.md" },
+    { "場の量子論" = "quantum-field-theory/index.md" },
+    { "素粒子物理学" = "particle-physics/index.md" },
+    { "超対称性" = "supersymmetry/index.md" },
+    { "弦理論" = "string-theory/index.md" },
+    { "物理数学" = "mathematics-for-physics/index.md" },
 ]
 
 [project.theme]

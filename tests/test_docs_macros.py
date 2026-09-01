@@ -3,7 +3,6 @@ from pathlib import Path
 import yaml
 
 from physics_atlas.docs_macros import render_topic_cards, visualization_counts
-from physics_atlas.fields import FIELDS
 
 
 def test_topic_cards_count_visualizations_from_metadata(tmp_path: Path) -> None:
@@ -31,8 +30,8 @@ def test_topic_cards_count_visualizations_from_metadata(tmp_path: Path) -> None:
 
     assert counts["mathematics-for-physics"] == 1
     assert 'href="mathematics-for-physics/"' in cards
-    for field in FIELDS:
-        assert f'href="assets/images/topic-diagrams.svg#{field.slug}"' in cards
+    assert "background-image: url('assets/images/mathematics-for-physics.png')" in cards
+    assert cards.count("background-image:") == 1
     assert "1 visualization" in cards
     assert "0 visualizations" in cards
     assert cards.count('class="topic-card"') == 14

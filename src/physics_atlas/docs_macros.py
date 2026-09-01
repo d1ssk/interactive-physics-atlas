@@ -33,15 +33,15 @@ def render_topic_cards(project_root: Path, locale: str = "en") -> str:
             if locale == "ja"
             else ("visualization" if count == 1 else "visualizations")
         )
-        diagram_href = f"assets/images/topic-diagrams.svg#{field.slug}"
+        image_style = (
+            f" style=\"background-image: url('{escape(field.image, quote=True)}')\""
+            if field.image
+            else ""
+        )
         cards.extend(
             [
                 f'<a class="topic-card" href="{escape(field.slug, quote=True)}/">',
-                '  <span class="topic-card__media" aria-hidden="true">',
-                '    <svg class="topic-card__diagram" viewBox="0 0 320 180" focusable="false">',
-                f'      <use href="{escape(diagram_href, quote=True)}"></use>',
-                "    </svg>",
-                "  </span>",
+                f'  <span class="topic-card__media"{image_style} aria-hidden="true"></span>',
                 '  <span class="topic-card__body">',
                 '    <strong class="topic-card__title">'
                 f"{escape(field.localized_label(locale))}</strong>",
