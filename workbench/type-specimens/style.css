@@ -274,7 +274,7 @@ section {
 .color-card code,
 .surface-grid code {
   color: var(--ink);
-  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
   font-size: 0.78rem;
   font-weight: 700;
 }
