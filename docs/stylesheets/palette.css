@@ -1,0 +1,7 @@
+/*
+ * Active site palette. Change only the imported filename to switch themes:
+ *   palettes/burgundy.css   (default)
+ *   palettes/dusty-blue.css
+ *   palettes/terracotta.css
+ */
+@import url("palettes/burgundy.css");

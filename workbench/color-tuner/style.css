@@ -53,6 +53,13 @@ main {
   line-height: 1.6;
 }
 
+.workbench-links {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
 .eyebrow {
   color: var(--tuned);
   font-size: 0.72rem;
@@ -338,6 +345,10 @@ input[type="range"] {
   .workbench-header {
     align-items: start;
     flex-direction: column;
+  }
+
+  .workbench-links {
+    align-items: flex-start;
   }
 
   main {

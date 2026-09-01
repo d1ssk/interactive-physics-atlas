@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import tomllib
 from pathlib import Path
 
 import build_site
@@ -105,9 +106,6 @@ def test_body_fonts_are_self_hosted_woff2_assets_with_local_licenses():
     assert "SIL OPEN FONT LICENSE Version 1.1" in license_text
 
     stylesheet = (ROOT / "docs" / "stylesheets" / "extra.css").read_text(encoding="utf-8")
-    favicon = (ROOT / "docs" / "assets" / "images" / "favicon.svg").read_text(encoding="utf-8")
-    assert "#193843" in stylesheet
-    assert 'fill="#193843"' in favicon
     assert "Atlas Source Serif 4" in stylesheet
     assert "Atlas Japanese System" in stylesheet
     assert "Atlas Japanese Display" in stylesheet
@@ -120,3 +118,30 @@ def test_body_fonts_are_self_hosted_woff2_assets_with_local_licenses():
     assert "opacity: 1" in stylesheet
     assert "fonts.googleapis.com" not in stylesheet
     assert "fonts.gstatic.com" not in stylesheet
+
+
+def test_named_site_palettes_default_to_burgundy_and_share_one_switch():
+    stylesheets_dir = ROOT / "docs" / "stylesheets"
+    palette_entrypoint = (stylesheets_dir / "palette.css").read_text(encoding="utf-8")
+    expected_palettes = {
+        "burgundy": ("#e2d3d0", "#713c42", "#f8f5ef", "#292525", "#ded6cc"),
+        "dusty-blue": ("#d6dee3", "#35576a", "#f7f5ef", "#242522", "#ddd8cd"),
+        "terracotta": ("#e7d8cd", "#865345", "#f8f5ef", "#2b2926", "#ddd5ca"),
+    }
+
+    assert '@import url("palettes/burgundy.css");' in palette_entrypoint
+    for name, colors in expected_palettes.items():
+        palette = (stylesheets_dir / "palettes" / f"{name}.css").read_text(encoding="utf-8")
+        assert all(color in palette for color in colors)
+
+    favicon = (ROOT / "docs" / "assets" / "images" / "favicon.svg").read_text(encoding="utf-8")
+    favicon_script = (ROOT / "docs" / "javascripts" / "palette-favicon.js").read_text(
+        encoding="utf-8"
+    )
+    assert 'fill="#713c42"' in favicon
+    assert "--atlas-palette-heading" in favicon_script
+
+    for config_name in ("zensical.toml", "zensical.ja.toml"):
+        config = tomllib.loads((ROOT / config_name).read_text(encoding="utf-8"))["project"]
+        assert config["extra_css"][:2] == ["stylesheets/palette.css", "stylesheets/extra.css"]
+        assert "javascripts/palette-favicon.js" in config["extra_javascript"]

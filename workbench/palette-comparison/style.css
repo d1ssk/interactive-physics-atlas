@@ -107,6 +107,11 @@ body {
   font-size: 1.45rem;
 }
 
+.palette--default .mock-home {
+  outline: 2px solid var(--heading);
+  outline-offset: 3px;
+}
+
 .mock-home {
   overflow: hidden;
   color: var(--text);
