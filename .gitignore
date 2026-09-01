@@ -223,10 +223,11 @@ __marimo__/
 docs/**/app/
 
 # Local exploratory work
-workbench/*
-!workbench/README.md
-!workbench/type-specimens/
-!workbench/type-specimens/**
+/workbench/**
+!/workbench/README.md
+!/workbench/type-specimens/
+/workbench/type-specimens/**
+!/workbench/type-specimens/README.md
 
 # Common local files
 .DS_Store
