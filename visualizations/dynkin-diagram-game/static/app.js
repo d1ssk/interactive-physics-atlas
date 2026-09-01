@@ -32,7 +32,7 @@ const MESSAGES = {
     sandbox: "Sandbox", buildType: "Build {type}",
   },
   ja: {
-    eyebrow: "インタラクティブLie理論", title: "Dynkin図形ビルダー",
+    title: "Dynkin図形ビルダー",
     lede: "ノードを1つずつ追加して図形を構成します。エディターは全階数8までの有限結晶型を判定し、対応するCartan行列を表示します。",
     mode: "モード", move: "移動", addNode: "ノードを追加", connect: "接続", bond: "辺",
     single: "単辺", double: "二重辺", triple: "三重辺", reverse: "矢印を反転", delete: "削除",

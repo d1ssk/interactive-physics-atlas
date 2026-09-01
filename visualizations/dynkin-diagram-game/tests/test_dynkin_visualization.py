@@ -12,6 +12,9 @@ def test_static_build_contract(tmp_path, visualization):
     assert "__APPLICATION_JS__" not in html
     assert "__APPLICATION_CSS__" not in html
     assert "Dynkin Diagram Builder" in html
+    assert "Interactive Lie theory" not in html
+    assert "インタラクティブLie理論" not in html
+    assert 'class="eyebrow"' not in html
     assert 'id="diagram"' in html
     assert 'id="group-label"' in html
     assert "When is a Dynkin diagram valid?" in html

@@ -32,7 +32,7 @@ header {
 }
 
 h1 { margin: 2px 0 8px; font-size: clamp(1.7rem, 4vw, 2.7rem); letter-spacing: -.035em; }
-.eyebrow, .result-label { margin: 0; color: var(--blue); font-size: .75rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.result-label { margin: 0; color: var(--blue); font-size: .75rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
 .lede { max-width: 70ch; margin: 0; color: var(--muted); line-height: 1.55; }
 
 label { display: grid; gap: 5px; color: var(--muted); font-size: .78rem; font-weight: 750; }
