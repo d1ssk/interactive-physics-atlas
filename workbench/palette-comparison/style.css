@@ -1,0 +1,334 @@
+@font-face {
+  font-family: "Atlas Source Serif 4";
+  font-style: normal;
+  font-weight: 200 900;
+  font-display: swap;
+  src: url("../../docs/assets/fonts/source-serif-4/source-serif-4-roman.woff2") format("woff2");
+}
+
+:root {
+  color-scheme: light;
+  --workbench-paper: #f3f3f0;
+  --workbench-ink: #293943;
+  --workbench-muted: #697985;
+  --workbench-line: #ccd7de;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--workbench-ink);
+  background: var(--workbench-paper);
+  font-family: system-ui, sans-serif;
+}
+
+.workbench-header,
+.comparison-grid {
+  width: min(100% - 2rem, 108rem);
+  margin-inline: auto;
+}
+
+.workbench-header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 3rem 0 2rem;
+  border-bottom: 1px solid var(--workbench-line);
+}
+
+.workbench-header h1,
+.workbench-header p {
+  margin: 0;
+}
+
+.workbench-header h1 {
+  margin-top: 0.35rem;
+  font-family: "Atlas Source Serif 4", Georgia, serif;
+  font-size: clamp(2rem, 5vw, 4rem);
+  letter-spacing: -0.04em;
+}
+
+.workbench-header p:not(.eyebrow) {
+  margin-top: 0.75rem;
+  color: var(--workbench-muted);
+}
+
+.eyebrow {
+  font-size: 0.7rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.workbench-header nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 1rem;
+  font-size: 0.75rem;
+}
+
+.workbench-header a {
+  color: var(--workbench-ink);
+  text-underline-offset: 0.2em;
+}
+
+.comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(22rem, 1fr));
+  gap: 1.25rem;
+  padding: 2rem 0 4rem;
+}
+
+.palette-heading {
+  min-height: 4.5rem;
+  margin-bottom: 0.8rem;
+}
+
+.palette-heading p,
+.palette-heading h2 {
+  margin: 0;
+}
+
+.palette-heading p {
+  color: var(--workbench-muted);
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+}
+
+.palette-heading h2 {
+  margin-top: 0.25rem;
+  font-family: "Atlas Source Serif 4", Georgia, serif;
+  font-size: 1.45rem;
+}
+
+.mock-home {
+  overflow: hidden;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+  background: var(--background);
+  box-shadow: 0 0.8rem 2rem rgb(41 57 67 / 7%);
+}
+
+.site-header {
+  display: flex;
+  min-height: 3.4rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  color: var(--heading);
+  background: var(--header);
+}
+
+.site-header strong {
+  font-family: "Atlas Source Serif 4", Georgia, serif;
+  font-size: 0.86rem;
+  letter-spacing: 0.01em;
+}
+
+.site-header div {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.site-header span {
+  padding: 0.27rem 0.4rem;
+  border: 1px solid color-mix(in srgb, var(--heading) 32%, transparent);
+  border-radius: 0.2rem;
+  font-size: 0.48rem;
+  font-weight: 700;
+}
+
+.site-header .search {
+  min-width: 4.3rem;
+  border-color: transparent;
+  background: rgb(255 255 255 / 38%);
+}
+
+.site-layout {
+  display: grid;
+  min-height: 34rem;
+  grid-template-columns: 6.6rem minmax(0, 1fr);
+  gap: 1rem;
+  padding: 1.35rem 1rem 2.5rem;
+}
+
+.site-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.62rem;
+  font-family: "Atlas Source Serif 4", Georgia, serif;
+  font-size: 0.55rem;
+}
+
+.site-nav b {
+  padding: 0.36rem 0.48rem;
+  color: var(--heading);
+  border-radius: 0.22rem;
+  background: color-mix(in srgb, var(--header) 70%, var(--background));
+}
+
+.site-nav a {
+  margin-left: 0.48rem;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.site-content h3,
+.site-content p {
+  margin: 0;
+}
+
+.site-content h3 {
+  color: var(--heading);
+  font-family: "Atlas Source Serif 4", Georgia, serif;
+  font-size: 1.3rem;
+  line-height: 1.15;
+}
+
+.site-content p {
+  margin-top: 0.65rem;
+  font-family: "Atlas Source Serif 4", Georgia, serif;
+  font-size: 0.62rem;
+  line-height: 1.55;
+}
+
+.site-content .intro-copy {
+  color: color-mix(in srgb, var(--text) 76%, var(--background));
+}
+
+.topic-list {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 1.2rem;
+}
+
+.topic-card {
+  display: grid;
+  min-height: 5.2rem;
+  grid-template-columns: 4.8rem minmax(0, 1fr);
+  overflow: hidden;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 0.3rem;
+  background: rgb(255 255 255 / 28%);
+  text-decoration: none;
+}
+
+.topic-image {
+  background: color-mix(in srgb, var(--header) 58%, var(--border));
+}
+
+.topic-image.mathematics {
+  background:
+    linear-gradient(135deg, transparent 44%, var(--heading) 45% 47%, transparent 48%),
+    color-mix(in srgb, var(--header) 40%, white);
+}
+
+.topic-card > span:last-child {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.28rem;
+  padding: 0.65rem;
+}
+
+.topic-card strong {
+  color: var(--heading);
+  font-family: "Atlas Source Serif 4", Georgia, serif;
+  font-size: 0.72rem;
+  line-height: 1.2;
+}
+
+.topic-card small {
+  color: color-mix(in srgb, var(--heading) 78%, var(--background));
+  font-family: "Atlas Source Serif 4", Georgia, serif;
+  font-size: 0.5rem;
+  font-weight: 650;
+}
+
+.mock-home footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin: 0 1rem;
+  padding: 0.75rem 0;
+  color: color-mix(in srgb, var(--text) 65%, var(--background));
+  border-top: 1px solid var(--border);
+  font-size: 0.48rem;
+}
+
+.mock-home footer a {
+  color: var(--heading);
+}
+
+.palette-values {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem 1rem;
+  margin: 1rem 0 0;
+  padding: 0;
+}
+
+.palette-values div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.palette-values dt {
+  color: var(--workbench-muted);
+  font-size: 0.58rem;
+}
+
+.palette-values dd {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+}
+
+.palette-values i {
+  width: 0.85rem;
+  height: 0.85rem;
+  border: 1px solid var(--workbench-line);
+  border-radius: 50%;
+  background: var(--chip);
+}
+
+.palette-values code {
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-size: 0.57rem;
+  font-weight: 700;
+}
+
+@media (max-width: 75rem) {
+  .comparison-grid {
+    grid-template-columns: 1fr;
+    max-width: 44rem;
+  }
+
+  .palette-heading {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 44rem) {
+  .workbench-header {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .workbench-header nav {
+    justify-content: flex-start;
+  }
+}
