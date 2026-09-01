@@ -170,7 +170,7 @@ def test_static_build_contract(
     assert "Lie代数のルート・ウェイト・テンソル積" in html
     assert "Cartan型" in html
     assert "Dynkinラベル" in html
-    assert "--panel:#f1f3f1" in html
+    assert "--panel:#fbfcfa" in html
     assert 'const LOCALE = new URLSearchParams(window.location.search).get("lang")' in html
     assert 'defer src="mathjax-tex-svg.js"' in html
     assert (tmp_path / "mathjax-tex-svg.js").is_file()

@@ -148,7 +148,7 @@ _APPLICATION_HTML = r"""<!doctype html>
   <title>Lie Roots, Weights, and Tensor Products</title>
   <style>
     :root { color-scheme: light; --ink:#263238; --muted:#687078; --line:#d8dedb;
-      --blue:#3b6fb6; --paper:#f7f8f6; --panel:#f1f3f1; --gold:#c69214; }
+      --blue:#3b6fb6; --paper:#f7f8f6; --panel:#fbfcfa; --gold:#c69214; }
     * { box-sizing: border-box; }
     body { margin:0; background:var(--paper); color:var(--ink);
       font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
@@ -157,14 +157,14 @@ _APPLICATION_HTML = r"""<!doctype html>
     .lede { margin:0 0 18px; color:var(--muted); max-width:76ch; line-height:1.5; }
     .tabs { display:flex; flex-wrap:wrap; gap:8px; border-bottom:1px solid var(--line); }
     .tab { appearance:none; border:1px solid var(--line); border-bottom:0; border-radius:8px 8px 0 0;
-      padding:10px 16px; background:#e9eeeb; color:var(--ink); cursor:pointer; font-weight:650; }
+      padding:10px 16px; background:#f9faf8; color:var(--ink); cursor:pointer; font-weight:650; }
     .tab[aria-selected="true"] { background:var(--panel); color:var(--blue); }
     .panel { display:none; background:var(--panel); border:1px solid var(--line); border-top:0;
       padding:16px; min-height:790px; }
     .panel.active { display:block; }
     .panel[hidden] { display:none; }
     .controls { display:flex; flex-wrap:wrap; align-items:end; gap:12px; padding:12px;
-      border:1px solid var(--line); border-radius:8px; background:#e9eeeb; }
+      border:1px solid var(--line); border-radius:8px; background:#f9faf8; }
     .custom-compute { display:flex; flex-wrap:wrap; align-items:end; gap:8px; margin:0; padding:7px 10px;
       border:1px solid var(--line); border-radius:6px; }
     .custom-compute legend { padding:0 5px; color:var(--muted); font-size:.82rem; font-weight:650; }

@@ -258,7 +258,7 @@ html[lang="ja"] .md-typeset h1 {
   box-sizing: content-box;
   border: 1px solid var(--atlas-line) !important;
   border-radius: 0.55rem;
-  background: color-mix(in srgb, var(--atlas-paper) 88%, var(--atlas-line));
+  background: color-mix(in srgb, var(--atlas-paper) 72%, white);
 }
 
 html[lang="en"] .md-nav--primary {

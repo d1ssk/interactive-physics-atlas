@@ -31,7 +31,8 @@ def test_static_build_stages_worker_assets_and_localized_application(
     assert "THERMODYNAMIC LIMIT" not in html
     assert "color-scheme: light" in html
     assert "--bg: #f7f8f6" in html
-    assert "--panel: #f2f4f1" in html
+    assert "--panel: #fbfcfa" in html
+    assert "--panel-soft: #f9faf8" in html
     assert "--spin-up: #72b58a" in html
     assert "--spin-down: #c4cbc7" in html
     assert "image.data[offset] = up ? 114 : 196" in application
