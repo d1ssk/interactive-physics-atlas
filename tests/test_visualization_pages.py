@@ -166,3 +166,10 @@ def test_docs_mathjax_callbacks_wait_for_startup() -> None:
     assert "const task = mathJaxQueue.then" in source
     assert "void withMathJax" in source
     assert "MathJax.typesetPromise([ref])" not in source
+
+
+def test_mobile_display_math_preserves_svg_content_width() -> None:
+    stylesheet = (ROOT / "docs" / "stylesheets" / "extra.css").read_text(encoding="utf-8")
+
+    assert '.md-typeset div.arithmatex > mjx-container[jax="SVG"][display="true"]' in stylesheet
+    assert "width: max-content;" in stylesheet
