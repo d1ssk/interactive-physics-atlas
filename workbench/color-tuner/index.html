@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Title-bar color tuner — Interactive Physics Atlas</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="tuner.js" defer></script>
+  </head>
+  <body>
+    <header class="workbench-header">
+      <div>
+        <p class="eyebrow">Interactive Physics Atlas · local design workbench</p>
+        <h1>Title-bar color tuner</h1>
+        <p>
+          Adjust hue, saturation, and lightness independently. The title bar, controls, favicon
+          sample, links, and footer update together.
+        </p>
+      </div>
+      <a href="../type-specimens/#colors">Back to type and color specimens</a>
+    </header>
+
+    <main>
+      <aside class="controls" aria-label="Color controls">
+        <div class="value-summary">
+          <span class="favicon-sample" aria-hidden="true"></span>
+          <div>
+            <span>Current color</span>
+            <code id="hex-value">#21364A</code>
+          </div>
+          <button id="copy-color" type="button">Copy</button>
+        </div>
+
+        <label for="hue">
+          <span>Hue</span>
+          <output id="hue-value" for="hue">209°</output>
+        </label>
+        <input id="hue" type="range" min="180" max="240" value="209" />
+
+        <label for="saturation">
+          <span>Saturation</span>
+          <output id="saturation-value" for="saturation">38%</output>
+        </label>
+        <input id="saturation" type="range" min="0" max="70" value="38" />
+
+        <label for="lightness">
+          <span>Lightness</span>
+          <output id="lightness-value" for="lightness">21%</output>
+        </label>
+        <input id="lightness" type="range" min="10" max="45" value="21" />
+
+        <div class="contrast-readout">
+          <span>Paper-text contrast</span>
+          <strong id="contrast-value">—</strong>
+          <small id="contrast-status"></small>
+        </div>
+
+        <div class="presets" aria-label="Color presets">
+          <p>Starting points</p>
+          <button type="button" data-color="#21364a">Selected</button>
+          <button type="button" data-color="#27363d">Low chroma</button>
+          <button type="button" data-color="#203549">More navy</button>
+          <button type="button" data-color="#334852">Lighter</button>
+        </div>
+      </aside>
+
+      <section class="preview" aria-label="Live site preview">
+        <div class="mock-header">
+          <strong>Interactive Physics Atlas</strong>
+          <div class="mock-tools">
+            <span>日本語</span>
+            <span class="mock-search">⌕&nbsp;&nbsp; Search</span>
+          </div>
+        </div>
+
+        <div class="mock-page">
+          <nav aria-label="Mock navigation">
+            <b>Home</b>
+            <a href="#">Classical Mechanics</a>
+            <a href="#">Electromagnetism</a>
+            <a href="#">Quantum Mechanics</a>
+            <a href="#">Mathematics for Physics</a>
+          </nav>
+          <article>
+            <p class="kicker">MATHEMATICS FOR PHYSICS</p>
+            <h2 lang="ja">物理数学</h2>
+            <p>
+              Mathematical structures and methods used throughout physics. This compact mockup
+              makes the relationship between the dark accent and paper background visible.
+            </p>
+            <a class="mock-link" href="#">Explore visualizations →</a>
+            <div class="mock-card">
+              <span></span>
+              <div><strong>Dynkin Diagram Game</strong><small>Interactive visualization</small></div>
+            </div>
+          </article>
+        </div>
+
+        <footer class="mock-footer">
+          <span>Copyright © 2026 Daichi Sasaki</span>
+          <a href="#">Made with Zensical</a>
+        </footer>
+      </section>
+    </main>
+  </body>
+</html>

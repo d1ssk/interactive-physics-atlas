@@ -26,21 +26,33 @@
     U+4E00-9FFF, U+F900-FAFF, U+FF00-FFEF, U+20000-2FA1F;
 }
 
+@font-face {
+  font-family: "Atlas Japanese Display";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src:
+    local("Hiragino Mincho ProN"), local("Yu Mincho"), local("YuMincho");
+  unicode-range:
+    U+2E80-2EFF, U+2F00-2FDF, U+3000-30FF, U+3100-312F, U+31F0-31FF, U+3400-4DBF,
+    U+4E00-9FFF, U+F900-FAFF, U+FF00-FFEF, U+20000-2FA1F;
+}
+
 :root {
   --atlas-paper: #f7f8f6;
   --atlas-panel: #fbfaf7;
   --atlas-ink: #293943;
-  --atlas-navy: #27363d;
+  --atlas-navy: #21364a;
   --atlas-muted: #697985;
   --atlas-line: #ccd7de;
   --atlas-placeholder: #d9dddf;
   --atlas-accent: var(--atlas-navy);
   --md-default-bg-color: #f7f8f6;
   --md-default-fg-color: #293943;
-  --md-primary-fg-color: #27363d;
-  --md-accent-fg-color: #27363d;
-  --md-accent-fg-color--transparent: rgb(39 54 61 / 10%);
-  --md-typeset-a-color: #27363d;
+  --md-primary-fg-color: #21364a;
+  --md-accent-fg-color: #21364a;
+  --md-accent-fg-color--transparent: rgb(33 54 74 / 10%);
+  --md-typeset-a-color: #21364a;
 }
 
 body,
@@ -199,6 +211,7 @@ html[lang="ja"] .atlas-language-switch {
 }
 
 html[lang="ja"] .md-typeset h1 {
+  font-family: "Atlas Japanese Display", "Atlas Source Serif 4", serif;
   font-weight: 700;
 }
 
