@@ -223,6 +223,8 @@ docs/**/app/
 # Local exploratory work
 workbench/*
 !workbench/README.md
+!workbench/type-specimens/
+!workbench/type-specimens/**
 
 # Common local files
 .DS_Store

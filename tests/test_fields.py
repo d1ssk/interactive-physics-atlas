@@ -37,7 +37,7 @@ def test_field_catalog_matches_navigation_and_documentation() -> None:
     expected = [{field.label: f"{field.slug}/index.md"} for field in FIELDS]
 
     assert navigation[0] == {"Home": "index.md"}
-    assert navigation[1:] == expected
+    assert navigation[1:] == [{"Fields": expected}]
     assert all((ROOT / "docs" / field.slug / "index.md").is_file() for field in FIELDS)
     assert all(field.image is None or (ROOT / "docs" / field.image).is_file() for field in FIELDS)
     assert (ROOT / "docs" / "assets" / "images" / "topic-default.svg").is_file()
@@ -50,5 +50,5 @@ def test_japanese_navigation_and_field_pages_match_canonical_fields() -> None:
     expected = [{field.localized_label("ja"): f"{field.slug}/index.md"} for field in FIELDS]
 
     assert navigation[0] == {"ホーム": "index.md"}
-    assert navigation[1:] == expected
+    assert navigation[1:] == [{"分野": expected}]
     assert all((ROOT / "docs_ja" / field.slug / "index.md").is_file() for field in FIELDS)

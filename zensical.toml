@@ -13,20 +13,22 @@ extra_javascript = [
 ]
 nav = [
     { "Home" = "index.md" },
-    { "Classical Mechanics" = "classical-mechanics/index.md" },
-    { "Electromagnetism" = "electromagnetism/index.md" },
-    { "Quantum Mechanics" = "quantum-mechanics/index.md" },
-    { "Thermodynamics" = "thermodynamics/index.md" },
-    { "Statistical Physics" = "statistical-physics/index.md" },
-    { "Condensed Matter Physics" = "condensed-matter-physics/index.md" },
-    { "Fluid Mechanics" = "fluid-mechanics/index.md" },
-    { "Relativity" = "relativity/index.md" },
-    { "Cosmology" = "cosmology/index.md" },
-    { "Quantum Field Theory" = "quantum-field-theory/index.md" },
-    { "Particle Physics" = "particle-physics/index.md" },
-    { "Supersymmetry" = "supersymmetry/index.md" },
-    { "String Theory" = "string-theory/index.md" },
-    { "Mathematics for Physics" = "mathematics-for-physics/index.md" },
+    { "Fields" = [
+        { "Classical Mechanics" = "classical-mechanics/index.md" },
+        { "Electromagnetism" = "electromagnetism/index.md" },
+        { "Quantum Mechanics" = "quantum-mechanics/index.md" },
+        { "Thermodynamics" = "thermodynamics/index.md" },
+        { "Statistical Physics" = "statistical-physics/index.md" },
+        { "Condensed Matter Physics" = "condensed-matter-physics/index.md" },
+        { "Fluid Mechanics" = "fluid-mechanics/index.md" },
+        { "Relativity" = "relativity/index.md" },
+        { "Cosmology" = "cosmology/index.md" },
+        { "Quantum Field Theory" = "quantum-field-theory/index.md" },
+        { "Particle Physics" = "particle-physics/index.md" },
+        { "Supersymmetry" = "supersymmetry/index.md" },
+        { "String Theory" = "string-theory/index.md" },
+        { "Mathematics for Physics" = "mathematics-for-physics/index.md" },
+    ] },
 ]
 
 [project.theme]

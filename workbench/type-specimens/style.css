@@ -1,0 +1,238 @@
+:root {
+  color-scheme: light;
+  --ink: #1f2c35;
+  --muted: #697985;
+  --line: #ccd7de;
+  --accent: #356f91;
+  --paper: #f7f8f6;
+  --panel: #fff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--paper);
+  font-family: system-ui, sans-serif;
+}
+
+.page-header,
+main,
+footer {
+  width: min(100% - 2rem, 76rem);
+  margin-inline: auto;
+}
+
+.page-header {
+  padding: 4.5rem 0 3.5rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.eyebrow,
+.label,
+nav,
+footer {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.eyebrow {
+  margin: 0 0 0.65rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.page-header h1 {
+  max-width: 15ch;
+  margin: 0;
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: clamp(2.6rem, 7vw, 5.2rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 0.98;
+}
+
+.intro {
+  max-width: 42rem;
+  margin: 1.6rem 0 0;
+  color: var(--muted);
+  font-family: "Source Sans 3", system-ui, sans-serif;
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  margin-top: 2rem;
+  font-weight: 700;
+}
+
+a {
+  color: var(--accent);
+  text-underline-offset: 0.25em;
+}
+
+section {
+  padding: 4rem 0 1rem;
+}
+
+.section-heading {
+  display: grid;
+  grid-template-columns: minmax(9rem, 1fr) 3fr;
+  align-items: end;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.section-heading h2 {
+  margin: 0;
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+.specimen-grid {
+  border-top: 1px solid var(--line);
+}
+
+.specimen {
+  display: grid;
+  grid-template-columns: minmax(9rem, 1fr) minmax(15rem, 1.35fr) minmax(18rem, 1.65fr);
+  gap: 1.5rem;
+  padding: 2.2rem 0 2.4rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.specimen .label {
+  color: var(--muted);
+  font-family: system-ui, sans-serif;
+  line-height: 1.45;
+  text-transform: none;
+}
+
+.label b,
+.label span {
+  display: block;
+}
+
+.label b {
+  margin-bottom: 1rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.label span {
+  margin-top: 0.3rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+}
+
+.specimen h3,
+.specimen p {
+  margin: 0;
+}
+
+.specimen h3 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: -0.018em;
+  line-height: 1.25;
+}
+
+.specimen > p:not(.label) {
+  font-size: 1rem;
+  line-height: 1.72;
+}
+
+.specimen .characters {
+  grid-column: 2 / -1;
+  color: var(--muted);
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+}
+
+.source-sans {
+  font-family: "Source Sans 3", sans-serif;
+}
+
+.ibm-plex {
+  font-family: "IBM Plex Sans", sans-serif;
+}
+
+.figtree {
+  font-family: Figtree, sans-serif;
+}
+
+.source-serif {
+  font-family: "Source Serif 4", serif;
+}
+
+.literata {
+  font-family: Literata, serif;
+}
+
+.newsreader {
+  font-family: Newsreader, serif;
+}
+
+.noto-sans-jp {
+  font-family: "Noto Sans JP", sans-serif;
+}
+
+.zen-kaku {
+  font-family: "Zen Kaku Gothic New", sans-serif;
+}
+
+.biz-udp {
+  font-family: "BIZ UDPGothic", sans-serif;
+}
+
+.noto-serif-jp {
+  font-family: "Noto Serif JP", serif;
+}
+
+.shippori {
+  font-family: "Shippori Mincho", serif;
+}
+
+.zen-old-mincho {
+  font-family: "Zen Old Mincho", serif;
+}
+
+footer {
+  margin-top: 4rem;
+  padding: 2rem 0 3rem;
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+  line-height: 1.6;
+}
+
+@media (max-width: 48rem) {
+  .page-header {
+    padding: 3rem 0 2.5rem;
+  }
+
+  .section-heading,
+  .specimen {
+    grid-template-columns: 1fr;
+  }
+
+  .specimen {
+    gap: 1rem;
+  }
+
+  .specimen .characters {
+    grid-column: auto;
+  }
+}
