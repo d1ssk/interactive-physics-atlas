@@ -99,6 +99,10 @@ const SPIN_COLORS = {
   down: elementBackgroundRgb(".spin-down"),
 };
 
+function rgba([red, green, blue], alpha = 1) {
+  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+}
+
 const SIZES = DATA.limits.sizes;
 const HISTORY_LIMIT = DATA.limits.historyLength;
 let provider;
@@ -184,12 +188,12 @@ function drawHistory() {
   context.lineWidth = ratio;
   for (let step = 0; step <= 4; step += 1) {
     const y = pad.top + innerHeight * step / 4;
-    context.strokeStyle = "rgba(75,100,85,.14)";
+    context.strokeStyle = "rgba(72, 72, 68, .14)";
     context.beginPath(); context.moveTo(pad.left, y); context.lineTo(width - pad.right, y); context.stroke();
-    context.fillStyle = "#6c7d73"; context.textAlign = "right"; context.textBaseline = "middle";
+    context.fillStyle = "#6b6d6a"; context.textAlign = "right"; context.textBaseline = "middle";
     context.fillText((1 - step / 4).toFixed(2), pad.left - 6 * ratio, y);
   }
-  context.fillStyle = "#6c7d73"; context.textAlign = "left"; context.fillText("past", pad.left, height - 9 * ratio);
+  context.fillStyle = "#6b6d6a"; context.textAlign = "left"; context.fillText("past", pad.left, height - 9 * ratio);
   context.textAlign = "right"; context.fillText("now", width - pad.right, height - 9 * ratio);
   const x = index => pad.left + innerWidth * index / Math.max(HISTORY_LIMIT - 1, 1);
   function line(getValue, color) {
@@ -227,9 +231,9 @@ function drawThermodynamics() {
   context.font = `${10 * ratio}px ui-monospace, monospace`; context.lineWidth = ratio;
   panels.forEach((panel, panelIndex) => {
     const panelTop = top + panelIndex * (panelHeight + gap);
-    context.fillStyle = "#6c7d73"; context.textAlign = "right"; context.textBaseline = "top";
+    context.fillStyle = "#6b6d6a"; context.textAlign = "right"; context.textBaseline = "top";
     context.fillText(panel.label, left - 8 * ratio, panelTop);
-    context.strokeStyle = "rgba(75,100,85,.14)"; context.strokeRect(left, panelTop, innerWidth, panelHeight);
+    context.strokeStyle = "rgba(72, 72, 68, .14)"; context.strokeRect(left, panelTop, innerWidth, panelHeight);
     context.beginPath();
     panel.values.forEach((value, index) => {
       const clipped = Math.max(panel.minimum, Math.min(panel.maximum, value));
@@ -240,15 +244,15 @@ function drawThermodynamics() {
     context.strokeStyle = panel.color; context.lineWidth = 1.8 * ratio; context.stroke();
   });
   const markerX = temperatureToX(Number(elements.temperature.value));
-  context.strokeStyle = "rgba(55,75,63,.55)"; context.setLineDash([4 * ratio, 4 * ratio]);
+  context.strokeStyle = "rgba(64, 64, 61, .5)"; context.setLineDash([4 * ratio, 4 * ratio]);
   context.beginPath(); context.moveTo(markerX, top); context.lineTo(markerX, height - bottom); context.stroke(); context.setLineDash([]);
   const critical = DATA.criticalTemperatures[String(dimension)];
   if (critical) {
     const criticalX = temperatureToX(critical);
-    context.strokeStyle = "rgba(56,116,81,.58)"; context.beginPath(); context.moveTo(criticalX, top); context.lineTo(criticalX, height - bottom); context.stroke();
-    context.fillStyle = "#387451"; context.textAlign = "center"; context.textBaseline = "bottom"; context.fillText("Tc", criticalX, height - 2 * ratio);
+    context.strokeStyle = rgba(SPIN_COLORS.up, .58); context.beginPath(); context.moveTo(criticalX, top); context.lineTo(criticalX, height - bottom); context.stroke();
+    context.fillStyle = rgba(SPIN_COLORS.up); context.textAlign = "center"; context.textBaseline = "bottom"; context.fillText("Tc", criticalX, height - 2 * ratio);
   }
-  context.fillStyle = "#6c7d73"; context.textAlign = "left"; context.textBaseline = "bottom"; context.fillText("0.5", left, height - 2 * ratio);
+  context.fillStyle = "#6b6d6a"; context.textAlign = "left"; context.textBaseline = "bottom"; context.fillText("0.5", left, height - 2 * ratio);
   context.textAlign = "right"; context.fillText("6.0  T/J", width - right, height - 2 * ratio);
 }
 
