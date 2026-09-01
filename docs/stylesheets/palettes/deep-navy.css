@@ -1,0 +1,16 @@
+:root {
+  --atlas-palette-header: #193843;
+  --atlas-palette-header-text: #f7f8f6;
+  --atlas-palette-header-title-hover: #cbd8df;
+  --atlas-palette-header-control: rgb(247 248 246 / 12%);
+  --atlas-palette-header-control-hover: rgb(247 248 246 / 18%);
+  --atlas-palette-header-badge: rgb(247 248 246 / 78%);
+  --atlas-palette-heading: #193843;
+  --atlas-palette-content-heading: #193843;
+  --atlas-palette-background: #f7f8f6;
+  --atlas-palette-text: #293943;
+  --atlas-palette-border: #ccd7de;
+  --atlas-palette-panel: #fbfaf7;
+  --atlas-palette-muted: #697985;
+  --atlas-palette-placeholder: #d9dddf;
+}

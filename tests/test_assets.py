@@ -148,15 +148,27 @@ def test_named_site_palettes_default_to_burgundy_and_share_one_switch():
             "#2b2926",
             "#ddd5ca",
         ),
+        "deep-navy": (
+            "#193843",
+            "#f7f8f6",
+            "#293943",
+            "#ccd7de",
+            "#fbfaf7",
+            "#697985",
+            "#d9dddf",
+        ),
     }
 
     assert '@import url("palettes/burgundy.css");' in palette_entrypoint
+    assert "palettes/deep-navy.css" in palette_entrypoint
     for name, colors in expected_palettes.items():
         palette = (stylesheets_dir / "palettes" / f"{name}.css").read_text(encoding="utf-8")
         assert all(color in palette for color in colors)
 
     stylesheet = (stylesheets_dir / "extra.css").read_text(encoding="utf-8")
     assert "--atlas-content-heading" in stylesheet
+    assert "--atlas-header-text" in stylesheet
+    assert "--atlas-header-control" in stylesheet
     assert ".md-typeset :is(h1, h2, h3, h4, h5, h6)" in stylesheet
     assert "color: var(--atlas-content-heading);" in stylesheet
 

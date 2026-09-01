@@ -40,14 +40,34 @@
 
 :root {
   --atlas-header: var(--atlas-palette-header, #e2d3d0);
+  --atlas-header-text: var(--atlas-palette-header-text, var(--atlas-heading));
+  --atlas-header-title-hover: var(
+    --atlas-palette-header-title-hover,
+    color-mix(in srgb, var(--atlas-heading) 76%, var(--atlas-ink))
+  );
+  --atlas-header-control: var(--atlas-palette-header-control, rgb(255 255 255 / 38%));
+  --atlas-header-control-hover: var(
+    --atlas-palette-header-control-hover,
+    rgb(255 255 255 / 58%)
+  );
+  --atlas-header-badge: var(--atlas-palette-header-badge, rgb(255 255 255 / 70%));
   --atlas-heading: var(--atlas-palette-heading, #713c42);
   --atlas-content-heading: var(--atlas-palette-content-heading, #3f2529);
   --atlas-paper: var(--atlas-palette-background, #f8f5ef);
   --atlas-ink: var(--atlas-palette-text, #292525);
   --atlas-line: var(--atlas-palette-border, #ded6cc);
-  --atlas-panel: color-mix(in srgb, var(--atlas-paper) 68%, white);
-  --atlas-muted: color-mix(in srgb, var(--atlas-ink) 62%, var(--atlas-paper));
-  --atlas-placeholder: color-mix(in srgb, var(--atlas-header) 58%, var(--atlas-line));
+  --atlas-panel: var(
+    --atlas-palette-panel,
+    color-mix(in srgb, var(--atlas-paper) 68%, white)
+  );
+  --atlas-muted: var(
+    --atlas-palette-muted,
+    color-mix(in srgb, var(--atlas-ink) 62%, var(--atlas-paper))
+  );
+  --atlas-placeholder: var(
+    --atlas-palette-placeholder,
+    color-mix(in srgb, var(--atlas-header) 58%, var(--atlas-line))
+  );
   --atlas-accent: var(--atlas-heading);
   --md-default-bg-color: var(--atlas-paper);
   --md-default-fg-color: var(--atlas-ink);
@@ -65,7 +85,7 @@ body,
 
 .md-header {
   background-color: var(--atlas-header);
-  color: var(--atlas-heading);
+  color: var(--atlas-header-text);
 }
 
 .md-footer {
@@ -127,7 +147,7 @@ body,
 
 .atlas-header-title-link:hover,
 .atlas-header-title-link:focus-visible {
-  color: color-mix(in srgb, var(--atlas-heading) 76%, var(--atlas-ink));
+  color: var(--atlas-header-title-hover);
 }
 
 .md-header__title {
@@ -142,8 +162,8 @@ body,
   flex: 0 0 auto;
   margin-left: 0.55rem;
   padding: 0.38rem 0.65rem;
-  color: var(--atlas-heading);
-  border: 1px solid color-mix(in srgb, var(--atlas-heading) 38%, transparent);
+  color: var(--atlas-header-text);
+  border: 1px solid color-mix(in srgb, var(--atlas-header-text) 38%, transparent);
   border-radius: 0.2rem;
   font-size: 0.67rem;
   font-weight: 700;
@@ -154,8 +174,8 @@ body,
 .atlas-language-switch:hover,
 .atlas-language-switch:focus-visible {
   color: var(--atlas-header);
-  border-color: var(--atlas-heading);
-  background: var(--atlas-heading);
+  border-color: var(--atlas-header-text);
+  background: var(--atlas-header-text);
 }
 
 .atlas-language-switch + .md-header__button[for="__search"] {
@@ -167,23 +187,23 @@ body,
 }
 
 .md-header .md-search__button {
-  color: var(--atlas-heading);
-  background-color: rgb(255 255 255 / 38%);
+  color: var(--atlas-header-text);
+  background-color: var(--atlas-header-control);
 }
 
 .md-header .md-search__button:hover,
 .md-header .md-search__button:focus {
-  color: var(--atlas-heading);
-  background-color: rgb(255 255 255 / 58%);
+  color: var(--atlas-header-text);
+  background-color: var(--atlas-header-control-hover);
 }
 
 .md-header .md-search__button::before {
-  background-color: var(--atlas-heading);
+  background-color: var(--atlas-header-text);
 }
 
 .md-header .md-search__button::after {
   color: var(--atlas-heading);
-  background-color: rgb(255 255 255 / 70%);
+  background-color: var(--atlas-header-badge);
 }
 
 .md-main__inner {
