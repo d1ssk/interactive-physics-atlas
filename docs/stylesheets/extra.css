@@ -262,6 +262,17 @@ html[lang="en"] .md-nav--primary {
   font-family: "Atlas Source Serif 4", Georgia, serif;
 }
 
+/*
+ * Zensical sizes direct children of display-math wrappers with min-content on
+ * narrow screens. Chromium can resolve that to zero for MathJax's custom SVG
+ * container, leaving the equation's height but no painted width.
+ */
+@media screen and (max-width: 44.984375em) {
+  .md-typeset div.arithmatex > mjx-container[jax="SVG"][display="true"] {
+    width: max-content;
+  }
+}
+
 .md-nav--primary > .md-nav__list > .md-nav__item:not(:first-child) > .md-nav__link {
   margin-left: 0.55rem;
 }
