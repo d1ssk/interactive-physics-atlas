@@ -42,17 +42,17 @@
   --atlas-paper: #f7f8f6;
   --atlas-panel: #fbfaf7;
   --atlas-ink: #293943;
-  --atlas-navy: #21364a;
+  --atlas-navy: #193843;
   --atlas-muted: #697985;
   --atlas-line: #ccd7de;
   --atlas-placeholder: #d9dddf;
   --atlas-accent: var(--atlas-navy);
   --md-default-bg-color: #f7f8f6;
   --md-default-fg-color: #293943;
-  --md-primary-fg-color: #21364a;
-  --md-accent-fg-color: #21364a;
-  --md-accent-fg-color--transparent: rgb(33 54 74 / 10%);
-  --md-typeset-a-color: #21364a;
+  --md-primary-fg-color: #193843;
+  --md-accent-fg-color: #193843;
+  --md-accent-fg-color--transparent: rgb(25 56 67 / 10%);
+  --md-typeset-a-color: #193843;
 }
 
 body,
@@ -67,35 +67,42 @@ body,
 }
 
 .md-footer {
-  background-color: var(--atlas-navy);
+  color: var(--atlas-ink);
+  background-color: transparent;
 }
 
 .md-footer-meta,
-.md-footer-meta__inner,
-.md-copyright {
-  color: var(--atlas-paper);
-  background-color: var(--atlas-navy);
+.md-footer-meta__inner {
+  background-color: transparent;
 }
 
-.md-footer .md-copyright,
-.md-footer .md-copyright__highlight,
-.md-footer .md-copyright a {
-  color: var(--atlas-paper);
+.md-footer-meta__inner {
+  width: min(100% - 2rem, 61rem);
+  margin-inline: auto;
+  padding: 0.9rem 0 1.2rem;
+  border-top: 1px solid var(--atlas-line);
 }
 
 .md-footer .md-copyright {
+  margin: 0;
+  color: var(--atlas-muted);
   opacity: 1;
+}
+
+.md-footer .md-copyright__highlight {
+  color: var(--atlas-muted);
+}
+
+.md-footer-meta.md-typeset .md-copyright a:not(:focus, :hover) {
+  color: var(--atlas-navy);
+  opacity: 1;
+  text-decoration-color: rgb(25 56 67 / 45%);
 }
 
 .md-footer .md-copyright a:hover,
 .md-footer .md-copyright a:focus-visible {
-  color: #fff;
-}
-
-.md-footer-meta.md-typeset .md-copyright a:not(:focus, :hover) {
-  color: #fff;
-  opacity: 1;
-  text-decoration-color: rgb(255 255 255 / 65%);
+  color: var(--atlas-navy);
+  text-decoration-color: currentcolor;
 }
 
 .md-header__inner {
@@ -190,8 +197,8 @@ body,
 
 html[lang="ja"] .md-typeset {
   font-family: "Atlas Japanese System", "Atlas Source Serif 4", sans-serif;
-  font-size: 0.74rem;
-  line-height: 1.78;
+  font-size: 0.71rem;
+  line-height: 1.82;
 }
 
 html[lang="ja"] .md-nav--primary,
@@ -212,6 +219,7 @@ html[lang="ja"] .atlas-language-switch {
 
 html[lang="ja"] .md-typeset h1 {
   font-family: "Atlas Japanese Display", "Atlas Source Serif 4", serif;
+  font-size: 1.4625rem;
   font-weight: 700;
 }
 
@@ -295,6 +303,10 @@ html[lang="en"] .md-nav--primary {
   font-size: 1.1rem;
   line-height: 1.3;
   text-decoration: none;
+}
+
+html[lang="ja"] .topic-card__title {
+  font-family: "Atlas Japanese Display", "Atlas Source Serif 4", serif;
 }
 
 .topic-card__count {

@@ -105,6 +105,9 @@ def test_body_fonts_are_self_hosted_woff2_assets_with_local_licenses():
     assert "SIL OPEN FONT LICENSE Version 1.1" in license_text
 
     stylesheet = (ROOT / "docs" / "stylesheets" / "extra.css").read_text(encoding="utf-8")
+    favicon = (ROOT / "docs" / "assets" / "images" / "favicon.svg").read_text(encoding="utf-8")
+    assert "#193843" in stylesheet
+    assert 'fill="#193843"' in favicon
     assert "Atlas Source Serif 4" in stylesheet
     assert "Atlas Japanese System" in stylesheet
     assert "Atlas Japanese Display" in stylesheet

@@ -1,6 +1,6 @@
 :root {
   color-scheme: light;
-  --tuned: #21364a;
+  --tuned: #193843;
   --paper: #f7f8f6;
   --panel: #fbfaf7;
   --ink: #293943;
@@ -322,14 +322,16 @@ input[type="range"] {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
-  padding: 1rem 2rem;
-  color: var(--paper);
-  background: var(--tuned);
+  margin: 0 2rem;
+  padding: 1rem 0;
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+  background: transparent;
   font-size: 0.7rem;
 }
 
 .mock-footer a {
-  color: #fff;
+  color: var(--tuned);
 }
 
 @media (max-width: 52rem) {
