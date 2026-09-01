@@ -30,10 +30,30 @@ def test_static_build_stages_worker_assets_and_localized_application(
     assert "RELAXATION" not in html
     assert "THERMODYNAMIC LIMIT" not in html
     assert "color-scheme: light" in html
-    assert "--bg: #fbfcfb" in html
-    assert "--spin-up: #72b58a" in html
-    assert "--spin-down: #c4cbc7" in html
-    assert "image.data[offset] = up ? 114 : 196" in application
+    assert "--bg: var(--atlas-viz-background)" in html
+    assert "--panel: var(--atlas-viz-panel)" in html
+    assert "--panel-soft: var(--atlas-viz-panel-subtle)" in html
+    assert "--spin-up: var(--atlas-viz-accent)" in html
+    assert "--spin-down: #c7c9c8" in html
+    assert "radial-gradient" not in html
+    assert "box-shadow" not in html
+    assert "--green" not in html
+    assert "#52665a" not in html
+    assert "#30483a" not in html
+    assert "#3f5749" not in html
+    assert "#5f7267" not in html
+    assert 'rel="stylesheet" href="visualization-theme.css"' in html
+    assert 'src="visualization-theme.js"' in html
+    assert (tmp_path / "visualization-theme.css").is_file()
+    assert (tmp_path / "visualization-theme.js").is_file()
+    assert 'up: elementBackgroundRgb(".spin-up")' in application
+    assert 'down: elementBackgroundRgb(".spin-down")' in application
+    assert "const color = up ? SPIN_COLORS.up : SPIN_COLORS.down" in application
+    assert "image.data[offset] = up ? 114 : 196" not in application
+    assert "context.strokeStyle = rgba(SPIN_COLORS.up, .58)" in application
+    assert "context.fillStyle = rgba(SPIN_COLORS.up)" in application
+    assert "rgba(75,100,85,.14)" not in application
+    assert "#387451" not in application
     assert 'color: "#2f7eb5"' in application
     assert 'color: "#d1783f"' in application
     assert 'color: "#8a63b8"' in application
@@ -107,6 +127,8 @@ def test_bilingual_pages_align_equations_and_embedding() -> None:
     japanese = (root / "docs_ja" / "statistical-physics" / "ising-model" / "index.md").read_text(
         encoding="utf-8"
     )
+    english = re.sub(r"<!--.*?-->", "", english, flags=re.DOTALL)
+    japanese = re.sub(r"<!--.*?-->", "", japanese, flags=re.DOTALL)
 
     english_math = re.findall(r"\$\$\s*(.*?)\s*\$\$", english, flags=re.DOTALL)
     japanese_math = re.findall(r"\$\$\s*(.*?)\s*\$\$", japanese, flags=re.DOTALL)
@@ -120,8 +142,8 @@ def test_bilingual_pages_align_equations_and_embedding() -> None:
         assert 'loading="eager"' in source
         assert "<iframe\n" not in source
         assert "\x08" not in source
-        assert "$\\beta=1/T$" in source
-    assert "## What to notice" in english
-    assert "## 注目する点" in japanese
+        assert "\\beta=\\frac{1}{T}" in source
+    assert "## Points to observe" in english
+    assert "## 観察のポイント" in japanese
     assert "Checks performed" not in english
     assert "## 実施したチェック" not in japanese

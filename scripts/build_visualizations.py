@@ -8,11 +8,17 @@ import importlib.util
 import shutil
 import sys
 from collections.abc import Callable
+from html.parser import HTMLParser
 from pathlib import Path
 from types import ModuleType
+from urllib.parse import urlsplit
 
 from validate_metadata import validate_all
 
+from physics_atlas.assets import (
+    VISUALIZATION_THEME_CSS_NAME,
+    VISUALIZATION_THEME_SCRIPT_NAME,
+)
 from physics_atlas.metadata import MetadataValidationError, load_metadata
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -21,6 +27,40 @@ DOCS_DIR = ROOT / "docs"
 
 class VisualizationBuildError(RuntimeError):
     """Raised when a visualization does not satisfy the build contract."""
+
+
+class _ThemeAssetParser(HTMLParser):
+    """Collect shared theme assets loaded from the document head."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.in_head = False
+        self.loaded_assets: set[str] = set()
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag == "head":
+            self.in_head = True
+            return
+        if not self.in_head:
+            return
+
+        attributes = dict(attrs)
+        if tag == "link" and "stylesheet" in (attributes.get("rel") or "").lower().split():
+            self._record_local_asset(attributes.get("href"), VISUALIZATION_THEME_CSS_NAME)
+        elif tag == "script":
+            self._record_local_asset(attributes.get("src"), VISUALIZATION_THEME_SCRIPT_NAME)
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag == "head":
+            self.in_head = False
+
+    def _record_local_asset(self, value: str | None, expected_name: str) -> None:
+        if value is None:
+            return
+        url = urlsplit(value)
+        normalized_path = url.path.removeprefix("./")
+        if not url.scheme and not url.netloc and normalized_path == expected_name:
+            self.loaded_assets.add(expected_name)
 
 
 def _load_build_function(directory: Path) -> tuple[Callable[[Path], None], str]:
@@ -62,6 +102,24 @@ def _discard_modules(package_name: str) -> None:
             del sys.modules[name]
 
 
+def _validate_theme_contract(directory: Path, output_dir: Path, index: Path) -> None:
+    """Require every published application to consume the shared foundational theme."""
+
+    html = index.read_text(encoding="utf-8")
+    parser = _ThemeAssetParser()
+    parser.feed(html)
+    for asset_name in (VISUALIZATION_THEME_CSS_NAME, VISUALIZATION_THEME_SCRIPT_NAME):
+        asset = output_dir / asset_name
+        if not asset.is_file():
+            raise VisualizationBuildError(
+                f"{directory}: build() did not stage required theme asset {asset_name}"
+            )
+        if asset_name not in parser.loaded_assets:
+            raise VisualizationBuildError(
+                f"{directory}: {index.name} does not load required theme asset {asset_name}"
+            )
+
+
 def build_all(directories: list[Path] | None = None, docs_dir: Path = DOCS_DIR) -> list[Path]:
     """Build every visualization and return the generated index files."""
 
@@ -88,6 +146,7 @@ def build_all(directories: list[Path] | None = None, docs_dir: Path = DOCS_DIR) 
             raise VisualizationBuildError(
                 f"{directory}: build() did not create required output {index}"
             )
+        _validate_theme_contract(directory, output_dir, index)
         outputs.append(index)
         print(f"Built {metadata.id}: {index.relative_to(ROOT)}")
     return outputs

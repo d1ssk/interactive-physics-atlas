@@ -12,10 +12,24 @@ def test_static_build_contract(tmp_path, visualization):
     assert "__APPLICATION_JS__" not in html
     assert "__APPLICATION_CSS__" not in html
     assert "Dynkin Diagram Builder" in html
+    assert "Interactive Lie theory" not in html
+    assert "インタラクティブLie理論" not in html
+    assert 'class="eyebrow"' not in html
     assert 'id="diagram"' in html
     assert 'id="group-label"' in html
     assert "When is a Dynkin diagram valid?" in html
-    assert "ディンキン図形ビルダー" in html
+    assert "Finite-type criterion" not in html
+    assert "有限型の判定条件" not in html
+    assert "Dynkin図形ビルダー" in html
+    assert "Cartan行列" in html
+    assert "--panel: var(--atlas-viz-panel)" in html
+    assert "--gold: #b98308" in html
+    assert "--green: #297a58" in html
+    assert "--red: #af3f3f" in html
+    assert 'rel="stylesheet" href="visualization-theme.css"' in html
+    assert 'src="visualization-theme.js"' in html
+    assert (tmp_path / "visualization-theme.css").is_file()
+    assert (tmp_path / "visualization-theme.js").is_file()
     assert 'const LOCALE = new URLSearchParams(window.location.search).get("lang")' in html
     assert 'defer src="mathjax-tex-svg.js"' in html
     assert (tmp_path / "mathjax-tex-svg.js").is_file()

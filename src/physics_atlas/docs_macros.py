@@ -28,11 +28,7 @@ def render_topic_cards(project_root: Path, locale: str = "en") -> str:
     cards: list[str] = ['<div class="topic-grid">']
     for field in FIELDS:
         count = counts[field.slug]
-        noun = (
-            "件の可視化"
-            if locale == "ja"
-            else ("visualization" if count == 1 else "visualizations")
-        )
+        noun = "visualization" if count == 1 else "visualizations"
         image_style = (
             f" style=\"background-image: url('{escape(field.image, quote=True)}')\""
             if field.image

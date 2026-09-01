@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from physics_atlas.assets import copy_mathjax_assets
+from physics_atlas.assets import copy_mathjax_assets, copy_visualization_theme_assets
 
 from .physics import catalog_payload
 
@@ -17,6 +17,7 @@ def build(output_dir: Path) -> None:
 
     output_dir.mkdir(parents=True, exist_ok=True)
     copy_mathjax_assets(output_dir)
+    copy_visualization_theme_assets(output_dir)
     payload = json.dumps(catalog_payload(), separators=(",", ":")).replace("</", "<\\/")
     html = (
         (SOURCE_DIR / "static" / "index.html")

@@ -39,6 +39,31 @@ Use LaTeX rendering for mathematical expressions in the application UI. Plot-int
 including axes, legends, hover text, and Plotly controls, remains English in both site languages
 so that one scientifically identical figure payload can be shared.
 
+## Shared visualization theme
+
+- Every published application must stage the shared assets with
+  `physics_atlas.assets.copy_visualization_theme_assets(output_dir)` and load
+  `visualization-theme.css` and `visualization-theme.js` from its document head.
+- Use the shared `--atlas-viz-*` tokens only for foundational backgrounds, panels, borders,
+  controls, focus indication, and the basic non-semantic accent.
+- Keep colors with scientific or status meaning local to each visualization. Examples include
+  physical states or phases, positive and negative values, warnings and errors, roots and
+  weights, and distinct data series.
+- Do not duplicate the shared palette values in individual applications. Their single source of
+  truth is `src/physics_atlas/static/visualization-theme.css`.
+- The shared script reads the parent site's active palette on same-origin HTTP/HTTPS pages. Use
+  `--atlas-viz-background` for the application background, `--atlas-viz-panel` for primary card
+  surfaces, `--atlas-viz-panel-subtle` for quieter inset surfaces, and `--atlas-viz-border` for
+  structural lines. Do not hard-code replacements for these surfaces in an individual app.
+- Restrict the shared accent and its derived tokens to controls, tabs, focus indicators, and
+  non-semantic decoration. Do not tint ordinary body text or every panel merely to make the theme
+  visible.
+- Define scientific and status colors together in the individual visualization, preferably as
+  clearly named custom properties near its stylesheet root. These local colors must not be added
+  to the shared theme. A local semantic color may intentionally reference the shared accent when
+  that relationship is part of the design—for example, the Ising model maps one spin state to the
+  accent and the other to a local neutral gray.
+
 ## MathJax application contract
 
 - Use the vendored MathJax TeX-to-SVG bundle. Do not add a CDN dependency.

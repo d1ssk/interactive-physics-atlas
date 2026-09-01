@@ -1,9 +1,9 @@
 # Interactive Physics Atlas
 
-An interactive visual atlas of physical and mathematical concepts.
+Visualizations for exploring physical concepts interactively.
 
-The atlas pairs concise explanations with interactive visualizations so that physical ideas,
-mathematical structures, symmetries, and dynamics can be explored directly. Its collection will
-grow over time across:
+The atlas pairs concise explanations with visualizations to support an intuitive understanding of
+physical ideas and mathematical structures. Its collection will continue to grow across the fields
+below.
 
 {{ topic_cards() }}

@@ -3,6 +3,8 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+.vscode
+
 # C extensions
 *.so
 
@@ -221,8 +223,8 @@ __marimo__/
 docs/**/app/
 
 # Local exploratory work
-workbench/*
-!workbench/README.md
+/workbench/**
+!/workbench/README.md
 
 # Common local files
 .DS_Store

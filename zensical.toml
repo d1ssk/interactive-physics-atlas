@@ -5,8 +5,9 @@ site_description = "An interactive visual atlas of physical and mathematical con
 copyright = "Copyright &copy; 2026 Daichi Sasaki"
 docs_dir = "build/docs-en"
 site_dir = "site"
-extra_css = ["stylesheets/extra.css"]
+extra_css = ["stylesheets/palette.css", "stylesheets/extra.css"]
 extra_javascript = [
+    "javascripts/palette-favicon.js",
     "javascripts/visualization-frame-resizer.js",
     "javascripts/mathjax.js",
     "javascripts/mathjax-tex-svg.js",

@@ -7,7 +7,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from physics_atlas.assets import PLOTLY_GL3D_ASSET_NAME, copy_mathjax_assets
+from physics_atlas.assets import (
+    PLOTLY_GL3D_ASSET_NAME,
+    copy_mathjax_assets,
+    copy_visualization_theme_assets,
+)
 
 from .domain import (
     APPLICATION_SCHEMA,
@@ -132,6 +136,7 @@ def build(output_dir: Path) -> None:
 
     output_dir.mkdir(parents=True, exist_ok=True)
     copy_mathjax_assets(output_dir)
+    copy_visualization_theme_assets(output_dir)
     build_runtime_assets(output_dir, Path(__file__).resolve().parent)
     payload = json.dumps(_build_application_data(), separators=(",", ":")).replace("</", "<\\/")
     html = _APPLICATION_HTML.replace("__PLOTLY_ASSET__", PLOTLY_GL3D_ASSET_NAME).replace(
@@ -146,9 +151,11 @@ _APPLICATION_HTML = r"""<!doctype html>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lie Roots, Weights, and Tensor Products</title>
+  <link rel="stylesheet" href="visualization-theme.css">
   <style>
-    :root { color-scheme: light; --ink:#263238; --muted:#687078; --line:#dde2e6;
-      --blue:#3b6fb6; --paper:#fcfcfd; --gold:#c69214; }
+    :root { color-scheme: light; --ink:#263238; --muted:#687078;
+      --blue:var(--atlas-viz-accent); --paper:var(--atlas-viz-background);
+      --panel:var(--atlas-viz-panel); --line:var(--atlas-viz-border); --gold:#c69214; }
     * { box-sizing: border-box; }
     body { margin:0; background:var(--paper); color:var(--ink);
       font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
@@ -157,14 +164,14 @@ _APPLICATION_HTML = r"""<!doctype html>
     .lede { margin:0 0 18px; color:var(--muted); max-width:76ch; line-height:1.5; }
     .tabs { display:flex; flex-wrap:wrap; gap:8px; border-bottom:1px solid var(--line); }
     .tab { appearance:none; border:1px solid var(--line); border-bottom:0; border-radius:8px 8px 0 0;
-      padding:10px 16px; background:#f2f5f7; color:var(--ink); cursor:pointer; font-weight:650; }
-    .tab[aria-selected="true"] { background:white; color:var(--blue); }
-    .panel { display:none; background:white; border:1px solid var(--line); border-top:0;
+      padding:10px 16px; background:var(--paper); color:var(--ink); cursor:pointer; font-weight:650; }
+    .tab[aria-selected="true"] { background:var(--panel); color:var(--blue); }
+    .panel { display:none; background:var(--panel); border:1px solid var(--line); border-top:0;
       padding:16px; min-height:790px; }
     .panel.active { display:block; }
     .panel[hidden] { display:none; }
     .controls { display:flex; flex-wrap:wrap; align-items:end; gap:12px; padding:12px;
-      border:1px solid var(--line); border-radius:8px; background:#f7f9fa; }
+      border:1px solid var(--line); border-radius:8px; background:var(--paper); }
     .custom-compute { display:flex; flex-wrap:wrap; align-items:end; gap:8px; margin:0; padding:7px 10px;
       border:1px solid var(--line); border-radius:6px; }
     .custom-compute legend { padding:0 5px; color:var(--muted); font-size:.82rem; font-weight:650; }
@@ -192,9 +199,12 @@ _APPLICATION_HTML = r"""<!doctype html>
     .decomposition-meta { margin-top:.5rem; }
     .error { margin:0 0 12px; padding:10px 12px; border-left:3px solid #a33; background:#fff1f1; }
     .hint { color:var(--muted); font-size:.9rem; margin:10px 0 0; }
+    button:focus-visible, select:focus-visible, input:focus-visible {
+      outline:3px solid var(--atlas-viz-focus); outline-offset:2px; }
     @media (max-width:960px) { .product-grid { grid-template-columns:1fr; } main { padding:10px; }
       .panel { padding:10px; } }
   </style>
+  <script src="visualization-theme.js"></script>
   <script>
     window.MathJax = {
       tex: {inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]]},
@@ -364,28 +374,28 @@ _APPLICATION_HTML = r"""<!doctype html>
       productMetrics:"{count} distinct weights; dimension invariant: \\({dimension}={decompositionDimension}\\).",
     },
     ja: {
-      title:"リー代数のルート・ウェイト・テンソル積",
+      title:"Lie代数のルート・ウェイト・テンソル積",
       lede:"階数2・3のルート系、既約最高ウェイト指標、テンソル積成分を段階的に取り出す過程。",
       rootsTab:"1. ルート系", weightsTab:"2. 表現のウェイト", productsTab:"3. テンソル積",
-      cartanType:"カルタン型", showFundamental:"基本ウェイトを表示", preset:"プリセット",
+      cartanType:"Cartan型", showFundamental:"基本ウェイトを表示", preset:"プリセット",
       customHighestWeight:"任意の最高ウェイト", calculateWeight:"計算",
       replaceCalculation:"計算を置換", cancelWeight:"キャンセル",
-      dynkinLabelAria:"ディンキンラベル {index}",
+      dynkinLabelAria:"Dynkinラベル {index}",
       customTwoFactorProduct:"任意の2因子テンソル積", leftFactor:"左因子", rightFactor:"右因子",
       calculateProduct:"テンソル積を計算", replaceProduct:"計算を置換", cancelProduct:"キャンセル",
-      productFactorAria:"{factor}因子、ディンキンラベル {index}",
+      productFactorAria:"{factor}因子、Dynkinラベル {index}",
       product:"テンソル積", extractionStep:"抽出ステップ", inspectSummand:"既約成分を確認",
       showFactors:"因子のウェイトを表示",
-      rootNote:"{groups}；{note}。カルタン行列：\\(A={cartan}\\)。",
+      rootNote:"{groups}；{note}。Cartan行列：\\(A={cartan}\\)。",
       weightStatus:"\\({system}\\) の最高ウェイト \\(({labels})\\)；公開プリセット。",
-      phaseRuntimeLoading:"Pyodideランタイムを読み込んでいます…", phaseKernelLoading:"Atlasのリー代数カーネルを読み込んでいます…",
+      phaseRuntimeLoading:"Pyodideランタイムを読み込んでいます…", phaseKernelLoading:"AtlasのLie代数カーネルを読み込んでいます…",
       phaseCalculating:"Worker内でウェイト図を計算しています…", phaseValidating:"数学的不変量を検証しています…",
       phaseRendering:"検証済みの結果を描画しています…",
       errorPROTOCOL_MISMATCH:"計算プロトコルの版に対応していません。",
-      errorKERNEL_MISMATCH:"リー代数カーネルの版に対応していません。",
+      errorKERNEL_MISMATCH:"Lie代数カーネルの版に対応していません。",
       errorUNSUPPORTED_OPERATION:"要求された計算には対応していません。",
       errorINVALID_REQUEST:"計算要求の形式が正しくありません。",
-      errorINVALID_INPUT:"階数に合う非負整数のディンキンラベルを入力してください。",
+      errorINVALID_INPUT:"階数に合う非負整数のDynkinラベルを入力してください。",
       errorLIMIT_EXCEEDED:"この入力は現在のブラウザ計算上限を超えています。",
       errorCALCULATION_FAILED:"ブラウザ内の計算に失敗しました。",
       errorINVARIANT_FAILED:"計算結果が数学的不変量の検証に失敗しました。",
@@ -462,9 +472,13 @@ _APPLICATION_HTML = r"""<!doctype html>
   localizeStaticContent();
   await window.physicsAtlasPlotlyReady;
   const CONFIG = {scrollZoom:true, displaylogo:false, responsive:true};
+  const themeStyles = getComputedStyle(document.documentElement);
+  const themeColor = (property, fallback) => themeStyles.getPropertyValue(property).trim() || fallback;
   const PALETTE = {
     blue:"#3B6FB6", blueLight:"#83A6D6", blueDark:"#244A73", gold:"#C69214",
-    violet:"#6A4C93", ink:"#263238", muted:"#687078", grid:"#DDE2E6", background:"#FCFCFD",
+    violet:"#6A4C93", ink:"#263238", muted:"#687078",
+    grid:themeColor("--atlas-viz-border", "#DDE2E6"),
+    background:themeColor("--atlas-viz-panel", "#FCFCFD"),
   };
   const systemKeys = Object.keys(DATA.systems);
   const byId = id => document.getElementById(id);

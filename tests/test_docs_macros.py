@@ -31,6 +31,9 @@ def test_topic_cards_count_visualizations_from_metadata(tmp_path: Path) -> None:
     assert counts["mathematics-for-physics"] == 1
     assert 'href="mathematics-for-physics/"' in cards
     assert "background-image: url('assets/images/mathematics-for-physics.png')" in cards
+    assert "background-image: url('assets/images/statistical-physics.png')" in cards
+    assert cards.count("background-image:") == 2
+    assert japanese_cards.count("background-image:") == 2
     assert "1 visualization" in cards
     assert "0 visualizations" in cards
     assert cards.count('class="topic-card"') == 14
@@ -38,4 +41,4 @@ def test_topic_cards_count_visualizations_from_metadata(tmp_path: Path) -> None:
     assert 'class="topic-card__summary"' not in japanese_cards
     assert "An example visualization." not in cards
     assert "物理数学" in japanese_cards
-    assert "1 件の可視化" in japanese_cards
+    assert "1 visualization" in japanese_cards

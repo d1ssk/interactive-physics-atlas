@@ -1,3 +1,3 @@
 # Particle Physics
 
-Interactive explorations of elementary particles, fundamental forces, and the Standard Model.
+Elementary particles, gauge fields, the Standard Model, and BSM physics.

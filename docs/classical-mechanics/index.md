@@ -1,3 +1,3 @@
 # Classical Mechanics
 
-Interactive explorations of motion, variational principles, and Hamiltonian dynamics.
+Motion, rigid bodies, and variational principles.

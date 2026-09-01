@@ -50,10 +50,13 @@ def test_visualization_pages_use_latex_and_omit_developer_checklists() -> None:
 
     english_lie = pages[0].read_text(encoding="utf-8")
     japanese_lie = pages[2].read_text(encoding="utf-8")
-    assert "## Relevant equations and constructions" in english_lie
-    assert "## What to notice" in english_lie
-    assert "## 関連する方程式・構成" in japanese_lie
-    assert "## 注目する点" in japanese_lie
+    assert "## Mathematical background" in english_lie
+    assert "## Mathematics shown here" in english_lie
+    assert "## 数学的背景" in japanese_lie
+    assert "## ここで見える数学" in japanese_lie
+    tensor_product_character = r"\operatorname{ch}(V_\lambda\otimes V_\nu)"
+    assert tensor_product_character in english_lie
+    assert tensor_product_character in japanese_lie
 
 
 def test_bilingual_visualization_pages_share_display_math() -> None:
@@ -65,8 +68,19 @@ def test_bilingual_visualization_pages_share_display_math() -> None:
     for page_name in page_pairs:
         english = (MATHEMATICS_DOCS / page_name / "index.md").read_text(encoding="utf-8")
         japanese = (JAPANESE_MATHEMATICS_DOCS / page_name / "index.md").read_text(encoding="utf-8")
+        english = re.sub(r"<!--.*?-->", "", english, flags=re.DOTALL)
+        japanese = re.sub(r"<!--.*?-->", "", japanese, flags=re.DOTALL)
         english_math = re.findall(r"\$\$\s*(.*?)\s*\$\$", english, flags=re.DOTALL)
         japanese_math = re.findall(r"\$\$\s*(.*?)\s*\$\$", japanese, flags=re.DOTALL)
+        locale_only_labels = {
+            r"\text{元の積指標}": r"\text{original product character}",
+            r"\text{抽出済みの既約指標}": r"\text{extracted irreducible characters}",
+            r"\text{残差指標}": r"\text{residual character}",
+        }
+        for japanese_label, english_label in locale_only_labels.items():
+            japanese_math = [
+                expression.replace(japanese_label, english_label) for expression in japanese_math
+            ]
 
         assert english_math == japanese_math
 
@@ -80,7 +94,7 @@ def test_lie_algebra_category_orders_roots_before_builder() -> None:
     assert source.index("Lie Roots, Weights, and Tensor Products") < source.index(
         "Dynkin Diagram Builder"
     )
-    assert ")**<br>\n  Explore rank-2" in source
+    assert ")**<br>\n  Rank-2 and rank-3" in source
     assert ")**<br>\n  階数2・3" in japanese
 
 
@@ -135,6 +149,11 @@ def test_repository_documents_http_visualization_preview() -> None:
     assert "http://127.0.0.1:8000/" in readme
     assert "direct `file://` viewing is unsupported" in root_contract
     assert "local browser QA must serve the built site over" in visualization_contract
+    assert "copy_visualization_theme_assets(output_dir)" in visualization_contract
+    assert "Keep colors with scientific or status meaning local" in visualization_contract
+    assert "--atlas-viz-panel-subtle" in visualization_contract
+    assert "Do not tint ordinary body text" in visualization_contract
+    assert "the other to a local neutral gray" in visualization_contract
 
 
 def test_docs_mathjax_callbacks_wait_for_startup() -> None:
