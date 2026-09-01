@@ -30,17 +30,17 @@
   --atlas-paper: #f7f8f6;
   --atlas-panel: #fbfaf7;
   --atlas-ink: #293943;
-  --atlas-navy: #455d6b;
+  --atlas-navy: #27363d;
   --atlas-muted: #697985;
   --atlas-line: #ccd7de;
   --atlas-placeholder: #d9dddf;
   --atlas-accent: var(--atlas-navy);
   --md-default-bg-color: #f7f8f6;
   --md-default-fg-color: #293943;
-  --md-primary-fg-color: #455d6b;
-  --md-accent-fg-color: #455d6b;
-  --md-accent-fg-color--transparent: rgb(69 93 107 / 10%);
-  --md-typeset-a-color: #455d6b;
+  --md-primary-fg-color: #27363d;
+  --md-accent-fg-color: #27363d;
+  --md-accent-fg-color--transparent: rgb(39 54 61 / 10%);
+  --md-typeset-a-color: #27363d;
 }
 
 body,
@@ -78,6 +78,12 @@ body,
 .md-footer .md-copyright a:hover,
 .md-footer .md-copyright a:focus-visible {
   color: #fff;
+}
+
+.md-footer-meta.md-typeset .md-copyright a:not(:focus, :hover) {
+  color: #fff;
+  opacity: 1;
+  text-decoration-color: rgb(255 255 255 / 65%);
 }
 
 .md-header__inner {

@@ -111,6 +111,7 @@ def test_body_fonts_are_self_hosted_woff2_assets_with_local_licenses():
     assert 'font-family: "Atlas Japanese System", "Atlas Source Serif 4", sans-serif;' in stylesheet
     assert ".md-footer .md-copyright__highlight" in stylesheet
     assert ".md-footer .md-copyright a" in stylesheet
+    assert ".md-footer-meta.md-typeset .md-copyright a:not(:focus, :hover)" in stylesheet
     assert "opacity: 1" in stylesheet
     assert "fonts.googleapis.com" not in stylesheet
     assert "fonts.gstatic.com" not in stylesheet

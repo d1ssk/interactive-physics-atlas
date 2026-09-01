@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Type specimens — Interactive Physics Atlas</title>
+    <title>Type and color specimens — Interactive Physics Atlas</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -15,14 +15,15 @@
   <body>
     <header class="page-header">
       <p class="eyebrow">Interactive Physics Atlas · local design workbench</p>
-      <h1>Body typeface specimens</h1>
+      <h1>Type and color specimens</h1>
       <p class="intro">
-        The text, size, measure, and spacing are held constant so that the character of each
-        typeface is easier to compare. This page is not part of the published site.
+        Type and color options for the atlas are held together here for easy comparison. This page
+        is not part of the published site.
       </p>
       <nav aria-label="Specimen sections">
         <a href="#english">English candidates</a>
         <a href="#japanese" lang="ja">日本語候補</a>
+        <a href="#colors">Color candidates</a>
       </nav>
     </header>
 
@@ -162,11 +163,64 @@
           </article>
         </div>
       </section>
+
+      <section id="colors" aria-labelledby="colors-title">
+        <div class="section-heading">
+          <p class="eyebrow">Site palette</p>
+          <h2 id="colors-title">Dark blue-gray candidates</h2>
+        </div>
+        <p class="palette-intro">
+          Candidates for the header, footer, links, focus states, and favicon. The selected color
+          is shown first; all swatches are paired with the atlas paper background.
+        </p>
+        <div class="color-grid">
+          <article class="color-card selected" style="--swatch: #27363d">
+            <div class="color-swatch"><span>01</span><strong>Selected</strong></div>
+            <p><code>#27363D</code><span>Inky blue-gray</span></p>
+          </article>
+          <article class="color-card" style="--swatch: #20282d">
+            <div class="color-swatch"><span>02</span><strong>Graphite</strong></div>
+            <p><code>#20282D</code><span>Closest to black</span></p>
+          </article>
+          <article class="color-card" style="--swatch: #243139">
+            <div class="color-swatch"><span>03</span><strong>Deep slate</strong></div>
+            <p><code>#243139</code><span>Cool and restrained</span></p>
+          </article>
+          <article class="color-card" style="--swatch: #293943">
+            <div class="color-swatch"><span>04</span><strong>Ink blue</strong></div>
+            <p><code>#293943</code><span>Slightly more chromatic</span></p>
+          </article>
+          <article class="color-card" style="--swatch: #2d3e47">
+            <div class="color-swatch"><span>05</span><strong>Mineral</strong></div>
+            <p><code>#2D3E47</code><span>Quiet mid-dark blue</span></p>
+          </article>
+          <article class="color-card" style="--swatch: #334852">
+            <div class="color-swatch"><span>06</span><strong>Harbor</strong></div>
+            <p><code>#334852</code><span>Balanced blue-gray</span></p>
+          </article>
+          <article class="color-card" style="--swatch: #3a505b">
+            <div class="color-swatch"><span>07</span><strong>Steel</strong></div>
+            <p><code>#3A505B</code><span>Clearly lighter</span></p>
+          </article>
+          <article class="color-card" style="--swatch: #455d6b">
+            <div class="color-swatch"><span>08</span><strong>Soft slate</strong></div>
+            <p><code>#455D6B</code><span>Previous revision</span></p>
+          </article>
+        </div>
+
+        <h3 class="surface-title">Supporting surfaces</h3>
+        <div class="surface-grid">
+          <div style="--swatch: #f7f8f6"><span>Paper</span><code>#F7F8F6</code></div>
+          <div style="--swatch: #fbfaf7"><span>Panel</span><code>#FBFAF7</code></div>
+          <div style="--swatch: #d9dddf"><span>Placeholder</span><code>#D9DDDF</code></div>
+          <div style="--swatch: #ccd7de"><span>Rule</span><code>#CCD7DE</code></div>
+        </div>
+      </section>
     </main>
 
     <footer>
-      Fonts are loaded from Google Fonts for comparison only. No font choice is applied to the
-      published atlas by this page.
+      Fonts are loaded from Google Fonts for comparison only. This workbench does not itself apply
+      type or color choices to the published atlas.
     </footer>
   </body>
 </html>
