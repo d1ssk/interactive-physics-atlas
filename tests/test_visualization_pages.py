@@ -6,6 +6,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 MATHEMATICS_DOCS = ROOT / "docs" / "mathematics-for-physics"
 JAPANESE_MATHEMATICS_DOCS = ROOT / "docs_ja" / "mathematics-for-physics"
+COSMOLOGY_DOCS = ROOT / "docs" / "cosmology"
+JAPANESE_COSMOLOGY_DOCS = ROOT / "docs_ja" / "cosmology"
 
 
 def test_visualization_iframes_opt_in_to_dynamic_height() -> None:
@@ -18,6 +20,12 @@ def test_visualization_iframes_opt_in_to_dynamic_height() -> None:
             1120,
         ),
         (JAPANESE_MATHEMATICS_DOCS / "dynkin-diagram-game" / "index.md", 2200, 1380),
+        (COSMOLOGY_DOCS / "cosmic-causal-structure" / "index.md", 1420, 1180),
+        (
+            JAPANESE_COSMOLOGY_DOCS / "cosmic-causal-structure" / "index.md",
+            1420,
+            1180,
+        ),
     )
 
     for page, initial_height, minimum_height in pages:
@@ -83,6 +91,37 @@ def test_bilingual_visualization_pages_share_display_math() -> None:
             ]
 
         assert english_math == japanese_math
+
+
+def test_cosmic_causal_structure_pages_are_aligned_and_linked() -> None:
+    english_page = COSMOLOGY_DOCS / "cosmic-causal-structure" / "index.md"
+    japanese_page = JAPANESE_COSMOLOGY_DOCS / "cosmic-causal-structure" / "index.md"
+    english = english_page.read_text(encoding="utf-8")
+    japanese = japanese_page.read_text(encoding="utf-8")
+    english = re.sub(r"<!--.*?-->", "", english, flags=re.DOTALL)
+    japanese = re.sub(r"<!--.*?-->", "", japanese, flags=re.DOTALL)
+    english_math = re.findall(r"\$\$\s*(.*?)\s*\$\$", english, flags=re.DOTALL)
+    japanese_math = re.findall(r"\$\$\s*(.*?)\s*\$\$", japanese, flags=re.DOTALL)
+
+    assert english_math == japanese_math
+    assert len(english_math) == 15
+    assert "## Coordinates and causal structure" in english
+    assert "## 座標と因果構造" in japanese
+    assert "## Suggested explorations" in english
+    assert "## 探索例" in japanese
+    assert "## Model parameters" in english
+    assert "## モデルの設定" in japanese
+    assert "?lang=en" in english
+    assert "?lang=ja" in japanese
+    assert "data-auto-height" in english
+    assert "data-auto-height" in japanese
+    assert "Checks performed" not in english
+    assert "実施したチェック" not in japanese
+
+    english_index = (COSMOLOGY_DOCS / "index.md").read_text(encoding="utf-8")
+    japanese_index = (JAPANESE_COSMOLOGY_DOCS / "index.md").read_text(encoding="utf-8")
+    assert ")**<br>\n  Light cones" in english_index
+    assert ")**<br>\n  4通りの座標" in japanese_index
 
 
 def test_lie_algebra_category_orders_roots_before_builder() -> None:

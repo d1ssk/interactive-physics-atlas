@@ -91,6 +91,7 @@ FIELDS = (
         "Thermal history, structure formation, and the early universe.",
         "宇宙論",
         "熱史、構造形成、初期宇宙",
+        "assets/images/cosmology.png",
     ),
     FieldDefinition(
         "quantum-field-theory",

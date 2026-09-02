@@ -149,6 +149,27 @@ def test_body_fonts_are_self_hosted_woff2_assets_with_local_licenses():
     assert "fonts.gstatic.com" not in stylesheet
 
 
+def test_desktop_grid_expands_article_between_the_sidebars():
+    stylesheet = (ROOT / "docs" / "stylesheets" / "extra.css").read_text(encoding="utf-8")
+
+    assert "--atlas-desktop-grid-width: 73.1rem;" in stylesheet
+    assert "@media screen and (min-width: 76.25em)" in stylesheet
+    assert "max-width: var(--atlas-desktop-grid-width);" in stylesheet
+    assert "width: min(100% - 2rem, var(--atlas-desktop-grid-width));" in stylesheet
+
+
+def test_home_content_keeps_the_original_article_width_and_is_centered():
+    stylesheet = (ROOT / "docs" / "stylesheets" / "extra.css").read_text(encoding="utf-8")
+
+    assert ".md-content__inner:has(> .topic-grid)" in stylesheet
+    assert ".md-sidebar--primary:not([hidden])" in stylesheet
+    assert "margin-inline: auto;" in stylesheet
+    topic_grid = stylesheet.split(".topic-grid {", maxsplit=1)[1].split("}", maxsplit=1)[0]
+    assert "width: 100%;" in topic_grid
+    assert "max-width: 36.8rem;" in topic_grid
+    assert "margin: 1.5rem auto;" in topic_grid
+
+
 def test_named_site_palettes_default_to_burgundy_and_share_one_switch():
     stylesheets_dir = ROOT / "docs" / "stylesheets"
     palette_entrypoint = (stylesheets_dir / "palette.css").read_text(encoding="utf-8")
