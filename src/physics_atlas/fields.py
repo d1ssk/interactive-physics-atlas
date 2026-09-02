@@ -85,6 +85,7 @@ FIELDS = (
         "Spacetime geometry, motion, gravitation, and causal structure.",
         "相対論",
         "時空の幾何、運動、重力、因果構造",
+        "assets/images/relativity.png",
     ),
     FieldDefinition(
         "quantum-field-theory",
