@@ -54,6 +54,9 @@ def test_static_build_contract(tmp_path, visualization) -> None:
     assert "height: mobile ? 2300 : 1060" in html
     assert html.count("{xDomain:[0,1]") == 4
     assert 'MOBILE_LAYOUT.addEventListener("change"' in html
+    assert "function renderWhenPlotlyReady()" in html
+    assert ".catch(showPlotlyLoadError)" in html
+    assert html.count("void renderWhenPlotlyReady()") == 2
     assert 'mode: "markers+text"' not in html
     assert "Math.max(1e-12,firstPositive(yPool))" in html
     assert "宇宙の因果構造" in html

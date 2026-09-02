@@ -390,14 +390,20 @@ async function render() {
   input.addEventListener("change", () => void render());
 });
 
+function showPlotlyLoadError() {
+  error.textContent = t("loadError");
+  error.hidden = false;
+  window.dispatchEvent(new Event("physics-atlas:plot-rendered"));
+}
+
+function renderWhenPlotlyReady() {
+  return window.physicsAtlasPlotlyReady
+    .then(() => render())
+    .catch(showPlotlyLoadError);
+}
+
 MOBILE_LAYOUT.addEventListener("change", () => {
-  void window.physicsAtlasPlotlyReady.then(() => render());
+  void renderWhenPlotlyReady();
 });
 
-window.physicsAtlasPlotlyReady
-  .then(() => render())
-  .catch(() => {
-    error.textContent = t("loadError");
-    error.hidden = false;
-    window.dispatchEvent(new Event("physics-atlas:plot-rendered"));
-  });
+void renderWhenPlotlyReady();
