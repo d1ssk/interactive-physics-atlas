@@ -218,6 +218,14 @@ body,
     max-width: var(--atlas-desktop-grid-width);
   }
 
+  .md-content__inner:has(> .topic-grid),
+  [dir] .md-sidebar--primary:not([hidden])
+    ~ .md-content
+    > .md-content__inner:has(> .topic-grid) {
+    max-width: 36.8rem;
+    margin-inline: auto;
+  }
+
   .md-footer-meta__inner {
     width: min(100% - 2rem, var(--atlas-desktop-grid-width));
   }
