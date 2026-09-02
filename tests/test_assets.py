@@ -149,6 +149,15 @@ def test_body_fonts_are_self_hosted_woff2_assets_with_local_licenses():
     assert "fonts.gstatic.com" not in stylesheet
 
 
+def test_desktop_grid_expands_article_between_the_sidebars():
+    stylesheet = (ROOT / "docs" / "stylesheets" / "extra.css").read_text(encoding="utf-8")
+
+    assert "--atlas-desktop-grid-width: 73.1rem;" in stylesheet
+    assert "@media screen and (min-width: 76.25em)" in stylesheet
+    assert "max-width: var(--atlas-desktop-grid-width);" in stylesheet
+    assert "width: min(100% - 2rem, var(--atlas-desktop-grid-width));" in stylesheet
+
+
 def test_named_site_palettes_default_to_burgundy_and_share_one_switch():
     stylesheets_dir = ROOT / "docs" / "stylesheets"
     palette_entrypoint = (stylesheets_dir / "palette.css").read_text(encoding="utf-8")

@@ -66,6 +66,7 @@
   );
   --atlas-placeholder: var(--atlas-palette-placeholder, #e4e6e7);
   --atlas-accent: var(--atlas-heading);
+  --atlas-desktop-grid-width: 73.1rem;
   --md-default-bg-color: var(--atlas-paper);
   --md-default-fg-color: var(--atlas-ink);
   --md-primary-fg-color: var(--atlas-heading);
@@ -205,6 +206,21 @@ body,
 
 .md-main__inner {
   margin-top: 1.4rem;
+}
+
+/*
+ * The theme's 61rem desktop grid leaves 36.8rem for the article after its two
+ * 12.1rem sidebars. Adding one sidebar width to the grid gives that space back
+ * to the article, so its edges sit near the former centers of the two sidebars.
+ */
+@media screen and (min-width: 76.25em) {
+  .md-grid {
+    max-width: var(--atlas-desktop-grid-width);
+  }
+
+  .md-footer-meta__inner {
+    width: min(100% - 2rem, var(--atlas-desktop-grid-width));
+  }
 }
 
 .md-typeset {
