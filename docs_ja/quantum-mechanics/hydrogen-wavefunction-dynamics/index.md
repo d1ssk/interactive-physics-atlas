@@ -1,5 +1,9 @@
 # 水素原子の波動関数
 
+## インタラクティブ可視化
+
+<iframe src="app/index.html?lang=ja" title="水素原子の波動関数の三次元時間発展と混成軌道ビルダー" data-auto-height scrolling="no" style="display: block; width: 100%; height: 2000px; min-height: 1200px; border: 0; overflow: hidden;" loading="eager"></iframe>
+
 ## 物理的背景
 
 水素原子では、動径方向と角度方向の節、確率密度、複素位相をもつ三次元の波動関数が厳密に得られます。この可視化では、波動関数の局所的な位相を色相、確率密度を点の配置と明るさで表します。基底状態を組み合わせ、水素原子の縮退した $n=2$ 部分空間内で、よく用いられる $sp$、$sp^2$、$sp^3$ 混成軌道を構成することもできます。
@@ -89,10 +93,6 @@ $$
 $$
 
 これらは水素原子の新しい固有状態ではなく、$n=2$ 部分空間内の基底の選び方です。理想的な Coulomb 問題ではこの部分空間が縮退しているため、表示色で表す共通位相は変化しても、混成軌道の確率密度は定常です。
-
-## インタラクティブ可視化
-
-<iframe src="app/index.html?lang=ja" title="水素原子の波動関数の三次元時間発展と混成軌道ビルダー" data-auto-height scrolling="no" style="display: block; width: 100%; height: 2000px; min-height: 1200px; border: 0; overflow: hidden;" loading="eager"></iframe>
 
 ## 探索例
 

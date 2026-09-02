@@ -136,6 +136,8 @@ def test_bilingual_pages_align_equations_embedding_and_category_links() -> None:
     assert len(english_math) == 9
     for source, locale in ((english, "en"), (japanese, "ja")):
         assert f"app/index.html?lang={locale}" in source
+        physical_idea_heading = "## Physical idea" if locale == "en" else "## 物理的背景"
+        assert source.index("<iframe") < source.index(physical_idea_heading)
         assert "data-auto-height" in source
         assert 'scrolling="no"' in source
         assert "height: 2000px" in source

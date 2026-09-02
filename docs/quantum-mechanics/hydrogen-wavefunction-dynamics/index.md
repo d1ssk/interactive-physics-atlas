@@ -1,5 +1,9 @@
 # Hydrogen Wavefunction
 
+## Interactive visualization
+
+<iframe src="app/index.html?lang=en" title="Three-dimensional hydrogen wavefunction time evolution and hybrid-orbital builder" data-auto-height scrolling="no" style="display: block; width: 100%; height: 2000px; min-height: 1200px; border: 0; overflow: hidden;" loading="eager"></iframe>
+
 ## Physical idea
 
 Hydrogen provides exact three-dimensional wavefunctions whose radial nodes, angular nodes,
@@ -99,10 +103,6 @@ $$
 These are not additional eigenstates of hydrogen. They are basis choices within the $n=2$
 subspace. In the ideal Coulomb problem that subspace is degenerate, so these hybrid densities are
 stationary even though their displayed phase color changes.
-
-## Interactive visualization
-
-<iframe src="app/index.html?lang=en" title="Three-dimensional hydrogen wavefunction time evolution and hybrid-orbital builder" data-auto-height scrolling="no" style="display: block; width: 100%; height: 2000px; min-height: 1200px; border: 0; overflow: hidden;" loading="eager"></iframe>
 
 ## Suggested explorations
 
