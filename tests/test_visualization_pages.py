@@ -98,17 +98,19 @@ def test_cosmic_causal_structure_pages_are_aligned_and_linked() -> None:
     japanese_page = JAPANESE_COSMOLOGY_DOCS / "cosmic-causal-structure" / "index.md"
     english = english_page.read_text(encoding="utf-8")
     japanese = japanese_page.read_text(encoding="utf-8")
+    english = re.sub(r"<!--.*?-->", "", english, flags=re.DOTALL)
+    japanese = re.sub(r"<!--.*?-->", "", japanese, flags=re.DOTALL)
     english_math = re.findall(r"\$\$\s*(.*?)\s*\$\$", english, flags=re.DOTALL)
     japanese_math = re.findall(r"\$\$\s*(.*?)\s*\$\$", japanese, flags=re.DOTALL)
 
     assert english_math == japanese_math
-    assert len(english_math) == 12
-    assert "## Physical idea" in english
-    assert "## 物理的な考え方" in japanese
+    assert len(english_math) == 15
+    assert "## Coordinates and causal structure" in english
+    assert "## 座標と因果構造" in japanese
     assert "## Suggested explorations" in english
     assert "## 探索例" in japanese
-    assert "## Conventions and limitations" in english
-    assert "## 規約と制限" in japanese
+    assert "## Model parameters" in english
+    assert "## モデルの設定" in japanese
     assert "?lang=en" in english
     assert "?lang=ja" in japanese
     assert "data-auto-height" in english
