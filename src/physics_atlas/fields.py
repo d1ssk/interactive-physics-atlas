@@ -87,14 +87,6 @@ FIELDS = (
         "時空の幾何、運動、重力、因果構造",
     ),
     FieldDefinition(
-        "cosmology",
-        "Cosmology",
-        "Thermal history, structure formation, and the early universe.",
-        "宇宙論",
-        "熱史、構造形成、初期宇宙",
-        "assets/images/cosmology.png",
-    ),
-    FieldDefinition(
         "quantum-field-theory",
         "Quantum Field Theory",
         "Symmetries, fields, particles, interactions, and renormalization.",
@@ -107,6 +99,14 @@ FIELDS = (
         "Elementary particles, gauge fields, the Standard Model, and BSM physics.",
         "素粒子物理学",
         "素粒子、ゲージ場、標準模型、BSM",
+    ),
+    FieldDefinition(
+        "cosmology",
+        "Cosmology",
+        "Thermal history, structure formation, and the early universe.",
+        "宇宙論",
+        "熱史、構造形成、初期宇宙",
+        "assets/images/cosmology.png",
     ),
     FieldDefinition(
         "supersymmetry",
