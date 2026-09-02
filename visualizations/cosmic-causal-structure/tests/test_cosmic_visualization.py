@@ -50,6 +50,13 @@ def test_static_build_contract(tmp_path, visualization) -> None:
     assert html.count('time:"cosmic"') == 2
     assert html.count('distance:"comoving"') == 2
     assert html.count('distance:"proper"') == 2
+    assert 'window.matchMedia("(max-width: 780px)")' in html
+    assert "height: mobile ? 2300 : 1060" in html
+    assert html.count("{xDomain:[0,1]") == 4
+    assert 'MOBILE_LAYOUT.addEventListener("change"' in html
+    assert "function renderWhenPlotlyReady()" in html
+    assert ".catch(showPlotlyLoadError)" in html
+    assert html.count("void renderWhenPlotlyReady()") == 2
     assert 'mode: "markers+text"' not in html
     assert "Math.max(1e-12,firstPositive(yPool))" in html
     assert "宇宙の因果構造" in html

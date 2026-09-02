@@ -71,6 +71,6 @@ h1 { margin: 0 0 7px; font-size: clamp(1.65rem, 3vw, 2.45rem); letter-spacing: -
 @media (max-width: 780px) {
   main { padding: 10px; }
   #plot-status { width: 100%; margin-left: 0; }
-  #causal-plot { min-height: 980px; }
+  #causal-plot { min-height: 2300px; }
   .notes { grid-template-columns: 1fr; }
 }

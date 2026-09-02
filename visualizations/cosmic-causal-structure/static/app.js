@@ -74,12 +74,30 @@ const timeLog = byId("time-log");
 const includeInflation = byId("include-inflation");
 const status = byId("plot-status");
 const error = byId("plot-error");
-const panels = [
-  {index:0,time:"conformal",distance:"comoving",xaxis:"x",yaxis:"y",xDomain:[0,.46],yDomain:[.56,1],title:"Comoving distance<br>Conformal time"},
-  {index:1,time:"conformal",distance:"proper",xaxis:"x2",yaxis:"y2",xDomain:[.54,1],yDomain:[.56,1],title:"Proper distance<br>Conformal time"},
-  {index:2,time:"cosmic",distance:"comoving",xaxis:"x3",yaxis:"y3",xDomain:[0,.46],yDomain:[0,.44],title:"Comoving distance<br>Cosmic time"},
-  {index:3,time:"cosmic",distance:"proper",xaxis:"x4",yaxis:"y4",xDomain:[.54,1],yDomain:[0,.44],title:"Proper distance<br>Cosmic time"},
+const MOBILE_LAYOUT = window.matchMedia("(max-width: 780px)");
+const panelDefinitions = [
+  {index:0,time:"conformal",distance:"comoving",xaxis:"x",yaxis:"y",title:"Comoving distance<br>Conformal time"},
+  {index:1,time:"conformal",distance:"proper",xaxis:"x2",yaxis:"y2",title:"Proper distance<br>Conformal time"},
+  {index:2,time:"cosmic",distance:"comoving",xaxis:"x3",yaxis:"y3",title:"Comoving distance<br>Cosmic time"},
+  {index:3,time:"cosmic",distance:"proper",xaxis:"x4",yaxis:"y4",title:"Proper distance<br>Cosmic time"},
 ];
+
+function panelsForViewport() {
+  const domains = MOBILE_LAYOUT.matches
+    ? [
+        {xDomain:[0,1],yDomain:[.81,1]},
+        {xDomain:[0,1],yDomain:[.54,.73]},
+        {xDomain:[0,1],yDomain:[.27,.46]},
+        {xDomain:[0,1],yDomain:[0,.19]},
+      ]
+    : [
+        {xDomain:[0,.46],yDomain:[.56,1]},
+        {xDomain:[.54,1],yDomain:[.56,1]},
+        {xDomain:[0,.46],yDomain:[0,.44]},
+        {xDomain:[.54,1],yDomain:[0,.44]},
+      ];
+  return panelDefinitions.map((panel,index) => ({...panel,...domains[index]}));
+}
 
 const signedLog = (value, threshold) => Math.sign(value) * Math.log10(1 + Math.abs(value) / threshold);
 const firstPositive = values => Math.min(...values.filter(value => value > 0 && Number.isFinite(value)));
@@ -145,17 +163,19 @@ function semanticColors() {
 async function render() {
   const model = includeInflation.checked ? DATA.inflation : DATA.hotBigBang;
   const colors = semanticColors();
+  const mobile = MOBILE_LAYOUT.matches;
+  const panels = panelsForViewport();
   const traces = [];
   const shapes = [];
   const layout = {
-    height: 1060,
-    margin: {l:84,r:38,t:164,b:72},
+    height: mobile ? 2300 : 1060,
+    margin: mobile ? {l:72,r:24,t:260,b:72} : {l:84,r:38,t:164,b:72},
     paper_bgcolor: colors.paper,
     plot_bgcolor: colors.paper,
     font: {family:"Inter, system-ui, sans-serif",color:colors.ink,size:12},
     dragmode: "pan",
     hovermode: "closest",
-    legend: {orientation:"h",x:.5,xanchor:"center",y:1.12,yanchor:"bottom"},
+    legend: {orientation:"h",x:.5,xanchor:"center",y:mobile ? 1.08 : 1.12,yanchor:"bottom"},
   };
 
   panels.forEach(panel => {
@@ -370,10 +390,20 @@ async function render() {
   input.addEventListener("change", () => void render());
 });
 
-window.physicsAtlasPlotlyReady
-  .then(() => render())
-  .catch(() => {
-    error.textContent = t("loadError");
-    error.hidden = false;
-    window.dispatchEvent(new Event("physics-atlas:plot-rendered"));
-  });
+function showPlotlyLoadError() {
+  error.textContent = t("loadError");
+  error.hidden = false;
+  window.dispatchEvent(new Event("physics-atlas:plot-rendered"));
+}
+
+function renderWhenPlotlyReady() {
+  return window.physicsAtlasPlotlyReady
+    .then(() => render())
+    .catch(showPlotlyLoadError);
+}
+
+MOBILE_LAYOUT.addEventListener("change", () => {
+  void renderWhenPlotlyReady();
+});
+
+void renderWhenPlotlyReady();
