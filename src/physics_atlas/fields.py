@@ -48,6 +48,7 @@ FIELDS = (
         "Quantum states, time evolution, and measurement.",
         "量子力学",
         "量子状態、時間発展、測定",
+        "assets/images/quantum-mechanics.png",
     ),
     FieldDefinition(
         "thermodynamics",

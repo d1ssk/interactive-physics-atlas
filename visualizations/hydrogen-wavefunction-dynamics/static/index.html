@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hydrogen Wavefunction</title>
+  <link rel="stylesheet" href="visualization-theme.css">
+  <style>__APPLICATION_CSS__</style>
+  <script src="visualization-theme.js"></script>
+  <script>
+    window.MathJax = {
+      tex: {inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]]},
+      startup: {
+        ready() {
+          MathJax.startup.defaultReady();
+          MathJax.startup.promise.then(() => {
+            window.dispatchEvent(new Event("physics-atlas:mathjax-ready"));
+          });
+        },
+      },
+    };
+  </script>
+  <script defer src="mathjax-tex-svg.js"></script>
+</head>
+<body>
+<main>
+  <header class="hero">
+    <h1 data-i18n="title">Hydrogen Wavefunction</h1>
+    <p data-i18n="lede">Explore the three-dimensional shape, probability density, and complex phase of hydrogen wavefunctions, including superpositions and time evolution.</p>
+  </header>
+
+  <section class="preset-panel" aria-label="State presets">
+    <span class="control-label" data-i18n="presets">Presets</span>
+    <div class="preset-row">
+      <button type="button" data-preset="1s">\(1s\)</button>
+      <button type="button" data-preset="2pz">\(2p_z\)</button>
+      <button type="button" data-preset="complex2p">\(2p,\ m=1\)</button>
+      <button type="button" data-preset="sp">\(sp\)</button>
+      <button type="button" data-preset="sp2">\(sp^2\)</button>
+      <button type="button" data-preset="sp3">\(sp^3\)</button>
+      <button type="button" data-preset="beat"><span>\(1s+2s\)</span> <span data-i18n="beatWord">beat</span></button>
+    </div>
+  </section>
+
+  <section class="app-shell">
+    <aside class="controls" aria-label="State and display settings">
+      <section class="control-section state-builder">
+        <div class="section-heading">
+          <h2 data-i18n="stateHeading">State superposition</h2>
+          <button type="button" id="add-component" class="small-button" data-i18n="addComponent">Add component</button>
+        </div>
+
+        <div class="basis-note">
+          <span class="control-label" data-i18n="angularBasis">Angular basis</span>
+          <p><span data-i18n="complexBasis">Complex</span> \(Y_\ell^m\) · \(L_z\) <span data-i18n="eigenstates">eigenstates</span></p>
+        </div>
+        <div id="component-list" class="component-list" aria-label="Wavefunction components"></div>
+        <p class="help-text" data-i18n="coefficientHelp">Coefficients are normalized automatically. Relative phases are entered in degrees.</p>
+      </section>
+
+      <section class="control-section time-controls">
+        <div class="section-heading time-heading">
+          <h2 data-i18n="timeHeading">Time evolution</h2>
+          <output id="time-output" for="time-slider">0.00 a.u. · 0.0 as</output>
+        </div>
+        <input id="time-slider" type="range" min="0" max="120" step="0.02" value="0" aria-label="Time in atomic units">
+        <div class="button-row">
+          <button type="button" id="play-toggle" class="primary" aria-pressed="false" data-i18n="play">Play</button>
+          <button type="button" id="reset-time" data-i18n="resetTime">Reset time</button>
+        </div>
+        <label><span><span data-i18n="playbackSpeed">Playback speed</span> <output id="speed-output">4.0 a.u./s</output></span>
+          <input id="speed-slider" type="range" min="0.25" max="16" step="0.25" value="4" aria-label="Playback speed">
+        </label>
+        <p class="help-text" data-i18n="timeHelp">One atomic time unit is 24.19 as. Each component evolves as \(\exp(-iE_n t/\hbar)\).</p>
+      </section>
+
+      <section class="control-section display-controls">
+        <h2 data-i18n="displayHeading">Display</h2>
+        <label><span data-i18n="pointCount">Point count</span>
+          <select id="points-select">
+            <option value="3500" data-i18n="pointsLight">3,500 · light</option>
+            <option value="7000" selected data-i18n="pointsStandard">7,000 · standard</option>
+            <option value="12000" data-i18n="pointsDense">12,000 · dense</option>
+          </select>
+        </label>
+        <div class="button-row">
+          <button type="button" id="regenerate" data-i18n="resample">Resample</button>
+          <button type="button" id="reset-view" data-i18n="resetView">Reset view</button>
+        </div>
+        <button type="button" id="spin-toggle" aria-pressed="false" data-i18n="spinOff">Auto-rotate: off</button>
+      </section>
+
+      <div class="phase-legend" aria-label="Complex phase color wheel">
+        <span class="control-label" data-i18n="phaseLabel">Phase \(\arg\psi\)</span>
+        <i></i>
+        <span>\(-\pi\)</span><span>\(0\)</span><span>\(+\pi\)</span>
+      </div>
+
+      <dl class="diagnostics">
+        <div><dt data-i18n="norm">Norm</dt><dd id="normalization">—</dd></div>
+        <div><dt data-i18n="expectedEnergy">Energy expectation value</dt><dd id="energy">—</dd></div>
+        <div><dt data-i18n="energySpread">Energy spread</dt><dd id="energy-spread">—</dd></div>
+        <div><dt data-i18n="beatPeriod">Shortest beat period</dt><dd id="beat-period">—</dd></div>
+      </dl>
+
+      <div class="radial-card">
+        <p data-i18n="radialLabel">Angle-integrated radial probability \(P(r,t)\)</p>
+        <canvas id="radial-chart" aria-label="Time-dependent radial probability distribution"></canvas>
+      </div>
+    </aside>
+
+    <div class="visual-column">
+      <section class="viewer-card" aria-label="Three-dimensional time-dependent wavefunction">
+        <canvas id="orbital-canvas" aria-label="Hydrogen wavefunction point cloud"></canvas>
+        <div id="loading" class="loading" role="status" data-i18n="loading">Calculating…</div>
+        <div class="viewer-help" data-i18n="viewerHelp">Drag: rotate · Wheel: zoom</div>
+        <div id="orbital-label" class="orbital-label">—</div>
+      </section>
+
+      <section class="about-display" aria-labelledby="about-display-heading">
+        <h2 id="about-display-heading" data-i18n="displayDetails">About the display</h2>
+        <div>
+          <p data-i18n="detailPhase">Hue represents the complex phase; point placement and brightness represent probability density. A hybrid containing only one principal quantum number has stationary density while its common phase evolves.</p>
+          <p data-i18n="detailHybrid">The \(sp\), \(sp^2\), and \(sp^3\) presets are normalized combinations of the \(n=2\) states \(2s\) and real \(2p\). Relative phases change when different principal quantum numbers are combined, so the interference pattern evolves.</p>
+        </div>
+      </section>
+    </div>
+  </section>
+</main>
+<script>
+  (() => {
+    if (window.parent === window) return;
+    const PARENT_TARGET_ORIGIN = window.location.origin;
+    function report() {
+      const main = document.querySelector("main");
+      const contentBottom = main ? main.getBoundingClientRect().bottom : 0;
+      const contentHeight = Math.max(contentBottom, document.body.getBoundingClientRect().height);
+      const frameHeight = Math.ceil(contentHeight);
+      if (window.frameElement) {
+        window.frameElement.style.minHeight = "0";
+        window.frameElement.style.height = `${frameHeight}px`;
+        window.frameElement.setAttribute("scrolling", "no");
+        window.frameElement.style.overflow = "hidden";
+      }
+      window.parent.postMessage(
+        {type: "physics-atlas:frame-height", height: frameHeight},
+        PARENT_TARGET_ORIGIN,
+      );
+    }
+    window.addEventListener("load", report);
+    window.addEventListener("resize", report);
+    window.addEventListener("physics-atlas:mathjax-ready", report);
+    window.addEventListener("message", event => {
+      const expectedParent = event.source === window.parent;
+      const expectedOrigin = event.origin === PARENT_TARGET_ORIGIN;
+      if (expectedParent && expectedOrigin && event.data?.type === "physics-atlas:request-frame-height") {
+        report();
+      }
+    });
+    if ("ResizeObserver" in window) {
+      const observer = new ResizeObserver(report);
+      observer.observe(document.body);
+      const main = document.querySelector("main");
+      if (main) observer.observe(main);
+      window.addEventListener("pagehide", () => observer.disconnect(), {once: true});
+    }
+    document.fonts?.ready.then(report);
+    report();
+  })();
+</script>
+<script type="module" src="app-v1.mjs"></script>
+</body>
+</html>
