@@ -95,6 +95,9 @@ def test_application_implements_z_up_camera_and_same_origin_height_contract(
 
     assert "horizontal: -sineAzimuth * point.x + cosineAzimuth * point.y" in camera
     assert "+ cosineElevation * point.z" in camera
+    application = (tmp_path / "app-v1.mjs").read_text(encoding="utf-8")
+    assert "state.azimuth -= dx * .008" in application
+    assert "state.elevation + dy * .008" in application
     assert 'type: "physics-atlas:frame-height"' in html
     assert "Math.max(contentBottom, document.body.getBoundingClientRect().height)" in html
     assert 'window.frameElement.style.minHeight = "0"' in html

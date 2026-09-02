@@ -545,7 +545,7 @@ canvas.addEventListener("pointermove", event => {
   const dy = event.clientY - state.dragging.y;
   state.dragging.x = event.clientX;
   state.dragging.y = event.clientY;
-  state.azimuth += dx * .008;
+  state.azimuth -= dx * .008;
   state.elevation = Math.max(-1.3, Math.min(1.3, state.elevation + dy * .008));
   render();
 });
