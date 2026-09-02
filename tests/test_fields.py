@@ -33,6 +33,19 @@ def test_field_catalog_uses_agreed_labels() -> None:
     )
 
 
+def test_field_catalog_keeps_high_energy_and_cosmology_order() -> None:
+    slugs = [field.slug for field in FIELDS]
+
+    assert slugs[7:13] == [
+        "relativity",
+        "quantum-field-theory",
+        "particle-physics",
+        "cosmology",
+        "supersymmetry",
+        "string-theory",
+    ]
+
+
 def test_field_catalog_matches_navigation_and_documentation() -> None:
     with (ROOT / "zensical.toml").open("rb") as file:
         navigation = tomllib.load(file)["project"]["nav"]

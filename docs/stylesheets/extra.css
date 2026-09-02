@@ -376,6 +376,10 @@ html[lang="ja"] .topic-card__title {
   letter-spacing: 0.02em;
 }
 
+html[lang="ja"] .topic-card__count {
+  font-family: "Atlas Source Serif 4", Georgia, serif;
+}
+
 @media screen and (max-width: 44.984375em) {
   .md-header__inner {
     min-height: 3.2rem;
