@@ -22,6 +22,7 @@ def test_field_catalog_uses_agreed_labels() -> None:
     assert FIELD_BY_SLUG["supersymmetry"].label == "Supersymmetry"
     assert FIELD_BY_SLUG["mathematics-for-physics"].label == "Mathematics for Physics"
     assert FIELD_BY_SLUG["statistical-physics"].image == "assets/images/statistical-physics.png"
+    assert FIELD_BY_SLUG["quantum-mechanics"].image == "assets/images/quantum-mechanics.png"
     assert FIELD_BY_SLUG["cosmology"].image == "assets/images/cosmology.png"
     assert FIELD_BY_SLUG["relativity"].localized_label("ja") == "相対論"
     assert FIELD_BY_SLUG["quantum-field-theory"].localized_label("ja") == "場の量子論"

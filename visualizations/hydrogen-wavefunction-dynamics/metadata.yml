@@ -1,0 +1,16 @@
+id: hydrogen-wavefunction-dynamics
+title: Hydrogen Wavefunction
+title_ja: 水素原子の波動関数
+field: quantum-mechanics
+topics:
+  - hydrogen atom
+  - wavefunctions
+  - quantum time evolution
+  - orbital hybridization
+level:
+  - undergraduate
+  - advanced undergraduate
+runtime: browser-static
+page: quantum-mechanics/hydrogen-wavefunction-dynamics
+summary: Inspect three-dimensional hydrogen wavefunctions, build coherent superpositions, and follow their phase and density through time.
+summary_ja: 水素原子の波動関数を三次元で観察し、重ね合わせ、位相、確率密度の時間発展も調べます。
