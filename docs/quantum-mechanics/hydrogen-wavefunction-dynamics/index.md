@@ -96,7 +96,7 @@ e^{-iE_{n_j}t/\hbar}
 \psi_{n_j\ell_jm_j}(\mathbf r).
 $$
 
-When every component has the same principal quantum number $n$, their energies are equal in the ideal Coulomb potential, and time evolution multiplies the entire state by one common phase factor. Consequently,
+When every component has the same principal quantum number $n$, their energies are equal in the ideal Coulomb potential, and time evolution multiplies the entire state by one common phase factor. Consequently, the following probability density
 
 $$
 |\Psi(\mathbf r,t)|^2

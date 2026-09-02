@@ -104,7 +104,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "numpy" },
+    { name = "numpy", specifier = ">=2" },
     { name = "pyyaml" },
     { name = "scipy" },
     { name = "zensical" },

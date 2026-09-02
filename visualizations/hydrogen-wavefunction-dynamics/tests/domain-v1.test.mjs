@@ -80,3 +80,11 @@ test("world +z remains vertically upward in the supported camera orbit", () => {
     }
   }
 });
+
+test("pointer deltas move the camera orbit in the direct-manipulation direction", () => {
+  const dragged = camera.dragOrbit(-.65, .32, 25, 10);
+  assert.ok(Math.abs(dragged.azimuth - (-.85)) < 1e-15);
+  assert.ok(Math.abs(dragged.elevation - .4) < 1e-15);
+  assert.equal(camera.dragOrbit(0, 1.29, 0, 10).elevation, 1.3);
+  assert.equal(camera.dragOrbit(0, -1.29, 0, -10).elevation, -1.3);
+});

@@ -415,6 +415,20 @@ function drawRadialDistribution() {
   radialContext.restore();
 }
 
+function clearDerivedDisplays() {
+  state.points = [];
+  for (const id of ["normalization", "energy", "energy-spread", "beat-period"]) {
+    byId(id).textContent = "—";
+  }
+  const orbitalLabel = byId("orbital-label");
+  window.MathJax?.typesetClear?.([orbitalLabel]);
+  orbitalLabel.textContent = "—";
+  const {width, height} = resizeCanvas(radialCanvas, radialContext);
+  radialContext.clearRect(0, 0, width, height);
+  radialContext.fillStyle = "#09131f";
+  radialContext.fillRect(0, 0, width, height);
+}
+
 function updateTimeDisplay() {
   byId("time-slider").value = String(state.timeAu);
   byId("time-output").textContent = `${state.timeAu.toFixed(2)} a.u. · ${(state.timeAu * Physics.ATOMIC_TIME_AS).toFixed(1)} as`;
@@ -475,6 +489,7 @@ async function regenerate({newSeed = false} = {}) {
   } catch (error) {
     if (generation !== state.generation) return;
     state.components = [];
+    clearDerivedDisplays();
     render();
     loading.textContent = t("invalidSettings");
   }
@@ -545,8 +560,9 @@ canvas.addEventListener("pointermove", event => {
   const dy = event.clientY - state.dragging.y;
   state.dragging.x = event.clientX;
   state.dragging.y = event.clientY;
-  state.azimuth -= dx * .008;
-  state.elevation = Math.max(-1.3, Math.min(1.3, state.elevation + dy * .008));
+  const orbit = Camera.dragOrbit(state.azimuth, state.elevation, dx, dy);
+  state.azimuth = orbit.azimuth;
+  state.elevation = orbit.elevation;
   render();
 });
 function finishDrag(event) {

@@ -96,8 +96,8 @@ def test_application_implements_z_up_camera_and_same_origin_height_contract(
     assert "horizontal: -sineAzimuth * point.x + cosineAzimuth * point.y" in camera
     assert "+ cosineElevation * point.z" in camera
     application = (tmp_path / "app-v1.mjs").read_text(encoding="utf-8")
-    assert "state.azimuth -= dx * .008" in application
-    assert "state.elevation + dy * .008" in application
+    assert "Camera.dragOrbit(state.azimuth, state.elevation, dx, dy)" in application
+    assert "function dragOrbit(azimuth, elevation, dx, dy)" in camera
     assert 'type: "physics-atlas:frame-height"' in html
     assert "Math.max(contentBottom, document.body.getBoundingClientRect().height)" in html
     assert 'window.frameElement.style.minHeight = "0"' in html
@@ -112,6 +112,16 @@ def test_application_implements_z_up_camera_and_same_origin_height_contract(
         'postMessage(\n        {type: "physics-atlas:frame-height", height: frameHeight},\n'
         "        PARENT_TARGET_ORIGIN,"
     ) in html
+
+
+def test_invalid_state_clears_all_derived_displays(tmp_path, visualization) -> None:
+    visualization.build(tmp_path)
+    application = (tmp_path / "app-v1.mjs").read_text(encoding="utf-8")
+
+    assert "function clearDerivedDisplays()" in application
+    assert '["normalization", "energy", "energy-spread", "beat-period"]' in application
+    catch_branch = application[application.index("} catch (error) {") :]
+    assert "state.components = [];\n    clearDerivedDisplays();\n    render();" in catch_branch
 
 
 def test_browser_domain_node_suite() -> None:

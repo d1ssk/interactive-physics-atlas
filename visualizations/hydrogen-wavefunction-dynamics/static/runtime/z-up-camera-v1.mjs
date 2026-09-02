@@ -1,4 +1,17 @@
 "use strict";
+  const DRAG_RADIANS_PER_PIXEL = .008;
+  const MAX_ELEVATION = 1.3;
+
+  function dragOrbit(azimuth, elevation, dx, dy) {
+    return {
+      azimuth: azimuth - dx * DRAG_RADIANS_PER_PIXEL,
+      elevation: Math.max(
+        -MAX_ELEVATION,
+        Math.min(MAX_ELEVATION, elevation + dy * DRAG_RADIANS_PER_PIXEL),
+      ),
+    };
+  }
+
   function coordinates(point, azimuth, elevation) {
     const cosineAzimuth = Math.cos(azimuth);
     const sineAzimuth = Math.sin(azimuth);
@@ -15,4 +28,4 @@
     };
   }
 
-  export {coordinates};
+  export {coordinates, dragOrbit};
