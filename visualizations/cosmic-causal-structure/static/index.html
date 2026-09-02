@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cosmic Causal Structure</title>
+  <link rel="stylesheet" href="visualization-theme.css">
+  <style>__APPLICATION_CSS__</style>
+  <script src="visualization-theme.js"></script>
+  <script>
+    window.MathJax = {
+      tex: {inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]]},
+      startup: {
+        ready() {
+          MathJax.startup.defaultReady();
+          MathJax.startup.promise.then(() => {
+            window.dispatchEvent(new Event("physics-atlas:mathjax-ready"));
+          });
+        },
+      },
+    };
+  </script>
+  <script defer src="mathjax-tex-svg.js"></script>
+  <script>
+    window.physicsAtlasPlotlyReady = new Promise((resolve, reject) => {
+      const locale = new URLSearchParams(window.location.search).get("lang") === "ja" ? "ja" : "en";
+      const siteRoot = locale === "ja" ? "../../../../" : "../../../";
+      const script = document.createElement("script");
+      script.src = new URL(`${siteRoot}javascripts/__PLOTLY_ASSET__`, window.location.href);
+      script.addEventListener("load", resolve, {once:true});
+      script.addEventListener("error", () => reject(new Error("Plotly asset failed to load")), {once:true});
+      document.head.append(script);
+    });
+  </script>
+</head>
+<body>
+<main>
+  <header>
+    <h1 data-i18n="title">Cosmic Causal Structure</h1>
+    <p class="lede" data-i18n="lede">The same light cones and cosmological horizons in four coordinate choices.</p>
+  </header>
+  <section class="plot-card" aria-label="Cosmic causal-structure controls and plots">
+    <div class="controls">
+      <label class="check">
+        <input id="time-log" type="checkbox">
+        <span data-i18n="timeLog">Logarithmic time</span>
+      </label>
+      <label class="check">
+        <input id="include-inflation" type="checkbox">
+        <span data-i18n="includeInflation">Include inflation</span>
+      </label>
+      <span id="plot-status" aria-live="polite">Hot Big Bang only · linear time · linear distance</span>
+    </div>
+    <div id="causal-plot" role="img" aria-label="Cosmic causal structure in four coordinate choices"></div>
+    <div id="plot-error" class="error" role="alert" hidden></div>
+    <div class="notes">
+      <p><strong data-i18n="timeHeading">Logarithmic time</strong><span data-i18n="timeNote">Without inflation, both time axes start at \(10^{-12}\) in their displayed units. With inflation, conformal time uses a signed logarithmic scale.</span></p>
+      <p><strong data-i18n="inflationHeading">Inflation</strong><span data-i18n="inflationNote">The inflation checkbox replaces all four panels with one finite inflation plus hot Big Bang history. The shaded interval is the inflationary stage.</span></p>
+      <p><strong data-i18n="contactHeading">CMB causal contact</strong><span data-i18n="contactNote">Blue lines trace the past light rays from opposite CMB points. Their first intersection is identified only by its marker and legend entry.</span></p>
+    </div>
+  </section>
+</main>
+<script>
+  (() => {
+    if (window.parent === window) return;
+    const PARENT_TARGET_ORIGIN = window.location.origin;
+    function report() {
+      const main = document.querySelector("main");
+      const contentBottom = main ? main.getBoundingClientRect().bottom : 0;
+      const contentHeight = Math.max(contentBottom, document.body.getBoundingClientRect().height);
+      const frameHeight = Math.ceil(contentHeight);
+      if (window.frameElement) {
+        window.frameElement.style.minHeight = "0";
+        window.frameElement.style.height = `${frameHeight}px`;
+        window.frameElement.setAttribute("scrolling", "no");
+        window.frameElement.style.overflow = "hidden";
+      }
+      window.parent.postMessage(
+        {type: "physics-atlas:frame-height", height: frameHeight},
+        PARENT_TARGET_ORIGIN,
+      );
+    }
+    window.addEventListener("load", report);
+    window.addEventListener("resize", report);
+    window.addEventListener("physics-atlas:mathjax-ready", report);
+    window.addEventListener("physics-atlas:plot-rendered", report);
+    window.addEventListener("message", event => {
+      const expectedParent = event.source === window.parent;
+      const expectedOrigin = event.origin === PARENT_TARGET_ORIGIN;
+      if (expectedParent && expectedOrigin && event.data?.type === "physics-atlas:request-frame-height") {
+        report();
+      }
+    });
+    if ("ResizeObserver" in window) {
+      const observer = new ResizeObserver(report);
+      observer.observe(document.body);
+      const main = document.querySelector("main");
+      if (main) observer.observe(main);
+      window.addEventListener("pagehide", () => observer.disconnect(), {once:true});
+    }
+    document.fonts?.ready.then(report);
+    report();
+  })();
+</script>
+<script id="application-data" type="application/json">__APPLICATION_DATA__</script>
+<script>__APPLICATION_JS__</script>
+</body>
+</html>

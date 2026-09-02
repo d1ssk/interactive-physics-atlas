@@ -1,0 +1,16 @@
+id: cosmic-causal-structure
+title: Cosmic Causal Structure
+title_ja: 宇宙の因果構造
+field: cosmology
+topics:
+  - FLRW cosmology
+  - causal horizons
+  - conformal time
+  - inflation
+level:
+  - advanced undergraduate
+  - graduate
+runtime: plotly-static
+page: cosmology/cosmic-causal-structure
+summary: Compare light cones and cosmological horizons in four coordinate choices, with optional logarithmic time and inflation.
+summary_ja: 4通りの座標で光円錐と宇宙論的地平線を比較し、時間の対数表示とinflationの効果を切り替えます。
