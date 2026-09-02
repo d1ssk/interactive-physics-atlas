@@ -158,6 +158,15 @@ def test_desktop_grid_expands_article_between_the_sidebars():
     assert "width: min(100% - 2rem, var(--atlas-desktop-grid-width));" in stylesheet
 
 
+def test_home_topic_grid_keeps_the_original_article_width_and_is_centered():
+    stylesheet = (ROOT / "docs" / "stylesheets" / "extra.css").read_text(encoding="utf-8")
+
+    topic_grid = stylesheet.split(".topic-grid {", maxsplit=1)[1].split("}", maxsplit=1)[0]
+    assert "width: 100%;" in topic_grid
+    assert "max-width: 36.8rem;" in topic_grid
+    assert "margin: 1.5rem auto;" in topic_grid
+
+
 def test_named_site_palettes_default_to_burgundy_and_share_one_switch():
     stylesheets_dir = ROOT / "docs" / "stylesheets"
     palette_entrypoint = (stylesheets_dir / "palette.css").read_text(encoding="utf-8")
