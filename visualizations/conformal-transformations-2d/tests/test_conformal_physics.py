@@ -72,10 +72,12 @@ def test_mobius_fixed_points_are_distinct_projective_eigenlines(physics):
     identity = physics.MobiusTransformation(2.0, 0.0, 0.0, 2.0)
     translation = physics.MobiusTransformation(1.0, 0.7 - 0.2j, 0.0, 1.0)
     dilation = physics.MobiusTransformation(2.0, 0.0, 0.0, 0.5)
+    near_identity = physics.MobiusTransformation(1.0, 0.0, 0.0, 1.0 + 5e-11)
 
     assert identity.fixed_point_spinors().shape == (2, 0)
     assert translation.fixed_point_spinors().shape == (2, 1)
     assert dilation.fixed_point_spinors().shape == (2, 2)
+    assert near_identity.fixed_point_spinors().shape == (2, 2)
 
     for transformation in (translation, dilation):
         fixed_points = transformation.fixed_point_spinors()

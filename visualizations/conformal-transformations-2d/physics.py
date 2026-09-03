@@ -187,7 +187,7 @@ class MobiusTransformation:
         """
 
         matrix = self.matrix
-        if np.allclose(matrix, matrix[0, 0] * np.eye(2), rtol=1e-10, atol=1e-12):
+        if matrix[0, 1] == 0 and matrix[1, 0] == 0 and matrix[0, 0] == matrix[1, 1]:
             return np.empty((2, 0), dtype=complex)
 
         _, eigenvectors = np.linalg.eig(matrix)
