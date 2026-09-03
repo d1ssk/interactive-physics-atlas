@@ -1,3 +1,3 @@
 # Electromagnetism
 
-Fields, potentials, and electromagnetic waves.
+Fields, currents, and electromagnetic waves.

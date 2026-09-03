@@ -1,3 +1,3 @@
 # Thermodynamics
 
-Equilibrium, heat, work, entropy, and thermodynamic potentials.
+Equilibrium, heat, entropy, and thermodynamic functions.

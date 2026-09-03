@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lorentz Transformation</title>
+  <link rel="stylesheet" href="visualization-theme.css">
+  <style>__APPLICATION_CSS__</style>
+  <script src="visualization-theme.js"></script>
+  <script>
+    window.MathJax = {
+      tex: {inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]]},
+      startup: {
+        ready() {
+          MathJax.startup.defaultReady();
+          MathJax.startup.promise.then(() => {
+            window.dispatchEvent(new Event("physics-atlas:mathjax-ready"));
+          });
+        },
+      },
+    };
+  </script>
+  <script defer src="mathjax-tex-svg.js"></script>
+</head>
+<body>
+<main>
+  <header class="application-header">
+    <h1 data-i18n="title">Lorentz Transformation</h1>
+    <p class="lede" data-i18n="lede">Compare the coordinates that two inertial frames assign to
+      one event, then exchange which frame is drawn orthogonally.</p>
+  </header>
+
+  <section class="visualization-card" aria-label="Interactive Lorentz transformation diagram">
+    <div class="toolbar">
+      <div class="mode-tabs" role="tablist" aria-label="Displayed construction">
+        <button id="mode-event" type="button" role="tab" aria-selected="true"
+          data-mode="event" data-i18n="eventCoordinates">Event coordinates</button>
+        <button id="mode-time" type="button" role="tab" aria-selected="false"
+          data-mode="time" data-i18n="timeDilation">Time dilation</button>
+        <button id="mode-length" type="button" role="tab" aria-selected="false"
+          data-mode="length" data-i18n="lengthContraction">Length contraction</button>
+      </div>
+      <div class="frame-choice" aria-label="Frame drawn with orthogonal axes">
+        <span data-i18n="orthogonalDisplay">Orthogonal display</span>
+        <div class="segmented-control">
+          <button id="focus-base" type="button" aria-pressed="true" data-frame="base">\(S\)</button>
+          <button id="focus-prime" type="button" aria-pressed="false" data-frame="prime">\(S'\)</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="canvas-wrap">
+      <canvas id="diagram"
+        aria-label="Spacetime diagram with two inertial coordinate systems and one event"></canvas>
+      <div class="legend" aria-hidden="true">
+        <span><i class="swatch swatch-base"></i>frame \(S\)</span>
+        <span><i class="swatch swatch-prime"></i>frame \(S'\)</span>
+        <span id="legend-event"><i class="swatch swatch-event"></i>event \(P\)</span>
+        <span id="legend-demo" hidden><i class="swatch swatch-demo"></i>proper interval</span>
+        <span id="legend-comparison" hidden><i class="swatch swatch-comparison"></i>measured interval</span>
+      </div>
+      <p class="drag-hint" id="drag-hint" data-i18n="dragHint">Drag the red event \(P\)</p>
+    </div>
+
+    <div class="control-area">
+      <div class="control-grid">
+        <label class="range-control beta-control">
+          <span><b data-i18n="relativeSpeed">Relative speed</b>
+            <span id="beta-value">\(\beta=0.55\)</span></span>
+          <input id="beta" type="range" min="-0.8" max="0.8" step="0.01" value="0.55">
+        </label>
+
+        <div id="event-controls" class="mode-controls">
+          <label class="range-control">
+            <span><b data-i18n="eventSpace">Spatial coordinate in \(S\)</b>
+              <span id="event-x-value">\(x=1.40\)</span></span>
+            <input id="event-x" type="range" min="-2.8" max="2.8" step="0.05" value="1.40">
+          </label>
+          <label class="range-control">
+            <span><b data-i18n="eventTime">Time coordinate in \(S\)</b>
+              <span id="event-ct-value">\(ct=2.15\)</span></span>
+            <input id="event-ct" type="range" min="-2.8" max="2.8" step="0.05" value="2.15">
+          </label>
+        </div>
+
+        <div id="demo-controls" class="mode-controls" hidden>
+          <label class="range-control">
+            <span><b id="demo-progress-label">Tilt the proper-time interval</b>
+              <span id="demo-progress-value">0%</span></span>
+            <input id="demo-progress" type="range" min="0" max="1" step="0.01" value="0">
+          </label>
+          <button id="replay-demo" class="replay-button" type="button"
+            data-i18n="playChange">Play transformation</button>
+        </div>
+      </div>
+
+      <section id="event-readouts" class="coordinate-readouts"
+        aria-label="Coordinates of the event in both frames" aria-live="polite">
+        <div class="frame-readout frame-readout-base">
+          <span data-i18n="frameBase">frame \(S\)</span>
+          <strong id="base-coordinate">\((x,ct)=(1.40,2.15)\)</strong>
+        </div>
+        <div class="frame-readout frame-readout-prime">
+          <span data-i18n="framePrime">frame \(S'\)</span>
+          <strong id="prime-coordinate">\((x',ct')=(0.26,1.65)\)</strong>
+        </div>
+        <div class="gamma-readout">
+          <span data-i18n="lorentzFactor">Lorentz factor</span>
+          <strong id="gamma-value">\(\gamma=1.197\)</strong>
+        </div>
+      </section>
+
+      <section id="time-explanation" class="explanation" hidden>
+        <div>
+          <span class="step-number">01</span>
+          <p data-i18n="timeStepOne">Mark a proper-time interval \(\Delta\tau\) in the
+            orthogonal frame. Its simultaneity line meets the other frame's time axis.</p>
+        </div>
+        <div>
+          <span class="step-number">02</span>
+          <p data-i18n="timeStepTwo">Tilt the segment while preserving its spacetime interval.
+            Its endpoint follows \((ct)^2-x^2=(c\Delta\tau)^2\).</p>
+        </div>
+        <div class="result-note">
+          <span data-i18n="comparison">Comparison</span>
+          <strong id="time-result">\(\Delta t=\gamma\Delta\tau\)</strong>
+        </div>
+      </section>
+
+      <section id="length-explanation" class="explanation" hidden>
+        <div>
+          <span class="step-number">01</span>
+          <p data-i18n="lengthStepOne">Tilt a segment of proper length \(L_0\) toward the other
+            frame's space axis while preserving its spacetime interval.</p>
+        </div>
+        <div>
+          <span class="step-number">02</span>
+          <p data-i18n="lengthStepTwo">Project the moving endpoint along its worldline to select
+            endpoints that are simultaneous in the orthogonal frame.</p>
+        </div>
+        <div class="result-note">
+          <span data-i18n="comparison">Comparison</span>
+          <strong id="length-result">\(L=L_0/\gamma\)</strong>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <p class="convention-note" data-i18n="convention">Convention: \(c=1\), coordinates
+    \((x,ct)\), metric signature \((+,-)\). For positive \(\beta\), \(S'\) moves in the
+    positive spatial direction of \(S\).</p>
+</main>
+<script>
+  (() => {
+    if (window.parent === window) return;
+    const PARENT_TARGET_ORIGIN = window.location.origin;
+    function report() {
+      const main = document.querySelector("main");
+      const contentBottom = main ? main.getBoundingClientRect().bottom : 0;
+      const contentHeight = Math.max(contentBottom, document.body.getBoundingClientRect().height);
+      const frameHeight = Math.ceil(contentHeight);
+      if (window.frameElement) {
+        window.frameElement.style.minHeight = "0";
+        window.frameElement.style.height = `${frameHeight}px`;
+        window.frameElement.setAttribute("scrolling", "no");
+        window.frameElement.style.overflow = "hidden";
+      }
+      window.parent.postMessage(
+        {type: "physics-atlas:frame-height", height: frameHeight},
+        PARENT_TARGET_ORIGIN,
+      );
+    }
+    window.addEventListener("load", report);
+    window.addEventListener("resize", report);
+    window.addEventListener("physics-atlas:mathjax-ready", report);
+    window.addEventListener("message", event => {
+      const expectedParent = event.source === window.parent;
+      const expectedOrigin = event.origin === PARENT_TARGET_ORIGIN;
+      if (expectedParent && expectedOrigin
+          && event.data?.type === "physics-atlas:request-frame-height") {
+        report();
+      }
+    });
+    if ("ResizeObserver" in window) {
+      const observer = new ResizeObserver(report);
+      observer.observe(document.body);
+      const main = document.querySelector("main");
+      if (main) observer.observe(main);
+      window.addEventListener("pagehide", () => observer.disconnect(), {once: true});
+    }
+    document.fonts?.ready.then(report);
+    report();
+  })();
+</script>
+<script type="module" src="app-v1.mjs"></script>
+</body>
+</html>

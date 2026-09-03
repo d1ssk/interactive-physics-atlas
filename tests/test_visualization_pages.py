@@ -8,6 +8,8 @@ MATHEMATICS_DOCS = ROOT / "docs" / "mathematics-for-physics"
 JAPANESE_MATHEMATICS_DOCS = ROOT / "docs_ja" / "mathematics-for-physics"
 COSMOLOGY_DOCS = ROOT / "docs" / "cosmology"
 JAPANESE_COSMOLOGY_DOCS = ROOT / "docs_ja" / "cosmology"
+RELATIVITY_DOCS = ROOT / "docs" / "relativity"
+JAPANESE_RELATIVITY_DOCS = ROOT / "docs_ja" / "relativity"
 
 
 def test_visualization_iframes_opt_in_to_dynamic_height() -> None:
@@ -25,6 +27,12 @@ def test_visualization_iframes_opt_in_to_dynamic_height() -> None:
             JAPANESE_COSMOLOGY_DOCS / "cosmic-causal-structure" / "index.md",
             1420,
             1180,
+        ),
+        (RELATIVITY_DOCS / "lorentz-transformation" / "index.md", 1450, 1000),
+        (
+            JAPANESE_RELATIVITY_DOCS / "lorentz-transformation" / "index.md",
+            1450,
+            1000,
         ),
     )
 

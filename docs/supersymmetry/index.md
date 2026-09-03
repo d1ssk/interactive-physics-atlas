@@ -1,3 +1,3 @@
 # Supersymmetry
 
-Supersymmetry, supersymmetric quantum field theory, and supersymmetric quantum mechanics.
+Supersymmetry algebra, supersymmetric quantum field theory, and supersymmetric quantum mechanics.

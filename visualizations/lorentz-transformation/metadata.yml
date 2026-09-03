@@ -1,0 +1,17 @@
+id: lorentz-transformation
+title: Lorentz Transformation
+title_ja: Lorentz変換
+field: relativity
+topics:
+  - special relativity
+  - Lorentz transformations
+  - Minkowski diagrams
+  - time dilation
+  - length contraction
+level:
+  - undergraduate
+  - advanced undergraduate
+runtime: browser-static
+page: relativity/lorentz-transformation
+summary: Compare one event in two inertial frames, exchange which frame is drawn orthogonally, and inspect geometric constructions of time dilation and length contraction.
+summary_ja: 一つの事象を二つの慣性系で比較し、直交表示する系の交換と時間の遅れ・長さの収縮の幾何学的構成を観察します。
