@@ -261,8 +261,9 @@ def mobius_sphere_figure(transformation: MobiusTransformation, title: str) -> go
                     showlegend=False,
                 )
             )
-    if not np.allclose(transformation.matrix, np.eye(2)):
-        fixed = spinor_to_sphere(transformation.fixed_point_spinors())
+    fixed_spinors = transformation.fixed_point_spinors()
+    if fixed_spinors.shape[1]:
+        fixed = spinor_to_sphere(fixed_spinors)
         figure.add_trace(
             go.Scatter3d(
                 x=fixed[0],
@@ -522,9 +523,15 @@ def build(output_dir: Path) -> None:
     html = (
         (SOURCE_DIR / "static" / "index.html")
         .read_text(encoding="utf-8")
-        .replace("__APPLICATION_CSS__", (SOURCE_DIR / "static" / "style.css").read_text())
+        .replace(
+            "__APPLICATION_CSS__",
+            (SOURCE_DIR / "static" / "style.css").read_text(encoding="utf-8"),
+        )
         .replace("__PLOTLY_JS__", get_plotlyjs())
         .replace("__APPLICATION_DATA__", payload)
-        .replace("__APPLICATION_JS__", (SOURCE_DIR / "static" / "app.js").read_text())
+        .replace(
+            "__APPLICATION_JS__",
+            (SOURCE_DIR / "static" / "app.js").read_text(encoding="utf-8"),
+        )
     )
     (output_dir / "index.html").write_text(html, encoding="utf-8")

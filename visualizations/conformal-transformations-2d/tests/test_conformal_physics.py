@@ -68,6 +68,22 @@ def test_mobius_cross_ratio_and_projective_scaling_invariance(physics):
     assert np.isclose(np.linalg.det(transformation.normalized_matrix()), 1.0)
 
 
+def test_mobius_fixed_points_are_distinct_projective_eigenlines(physics):
+    identity = physics.MobiusTransformation(2.0, 0.0, 0.0, 2.0)
+    translation = physics.MobiusTransformation(1.0, 0.7 - 0.2j, 0.0, 1.0)
+    dilation = physics.MobiusTransformation(2.0, 0.0, 0.0, 0.5)
+
+    assert identity.fixed_point_spinors().shape == (2, 0)
+    assert translation.fixed_point_spinors().shape == (2, 1)
+    assert dilation.fixed_point_spinors().shape == (2, 2)
+
+    for transformation in (translation, dilation):
+        fixed_points = transformation.fixed_point_spinors()
+        images = transformation.transform_homogeneous(fixed_points)
+        projective_wedge = fixed_points[0] * images[1] - fixed_points[1] * images[0]
+        assert np.allclose(projective_wedge, 0.0, atol=1e-12)
+
+
 def test_sphere_spinors_lie_on_unit_sphere_and_action_is_well_defined(physics):
     theta = np.linspace(0.0, np.pi, 15)
     phi = np.linspace(-np.pi, np.pi, 15)
@@ -99,6 +115,12 @@ def test_global_witt_modes_are_mobius_transformations(physics):
     }
     for mode, transformation in expected.items():
         assert np.allclose(physics.witt_flow(points, mode, epsilon), transformation(points))
+
+
+@pytest.mark.parametrize("mode", [-4, -3, -2, -1, 0, 1, 2, 3, 4])
+def test_zero_witt_flow_is_identity_including_at_singular_origin(physics, mode):
+    points = np.asarray([0.0, 0.5 + 0.2j, -0.3j])
+    assert np.array_equal(physics.witt_flow(points, mode, 0.0), points)
 
 
 def test_witt_bracket_identity(physics):

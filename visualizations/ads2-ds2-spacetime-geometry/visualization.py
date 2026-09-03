@@ -584,9 +584,15 @@ def build(output_dir: Path) -> None:
     html = (
         (SOURCE_DIR / "static" / "index.html")
         .read_text(encoding="utf-8")
-        .replace("__APPLICATION_CSS__", (SOURCE_DIR / "static" / "style.css").read_text())
+        .replace(
+            "__APPLICATION_CSS__",
+            (SOURCE_DIR / "static" / "style.css").read_text(encoding="utf-8"),
+        )
         .replace("__PLOTLY_JS__", get_plotlyjs())
         .replace("__APPLICATION_DATA__", payload)
-        .replace("__APPLICATION_JS__", (SOURCE_DIR / "static" / "app.js").read_text())
+        .replace(
+            "__APPLICATION_JS__",
+            (SOURCE_DIR / "static" / "app.js").read_text(encoding="utf-8"),
+        )
     )
     (output_dir / "index.html").write_text(html, encoding="utf-8")

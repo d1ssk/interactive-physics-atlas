@@ -180,10 +180,26 @@ class MobiusTransformation:
         return (self.matrix @ spinors.reshape(2, -1)).reshape(shape)
 
     def fixed_point_spinors(self) -> Array:
-        """Return the two eigenlines, i.e. the fixed points on CP1."""
+        """Return the distinct fixed eigenlines on CP1.
 
-        _, eigenvectors = np.linalg.eig(self.matrix)
-        return eigenvectors
+        A scalar matrix fixes every projective point, so an empty array denotes
+        that there is no discrete fixed-point set to mark.
+        """
+
+        matrix = self.matrix
+        if np.allclose(matrix, matrix[0, 0] * np.eye(2), rtol=1e-10, atol=1e-12):
+            return np.empty((2, 0), dtype=complex)
+
+        _, eigenvectors = np.linalg.eig(matrix)
+        distinct: list[Array] = []
+        for eigenvector in eigenvectors.T:
+            eigenvector = eigenvector / np.linalg.norm(eigenvector)
+            if all(
+                abs(existing[0] * eigenvector[1] - existing[1] * eigenvector[0]) > 1e-10
+                for existing in distinct
+            ):
+                distinct.append(eigenvector)
+        return np.column_stack(distinct)
 
 
 def su2_euler(alpha: float, beta: float, gamma: float) -> Array:
@@ -279,6 +295,8 @@ def witt_flow(z: Array | complex, mode: int, epsilon: complex) -> Array:
 
     z = np.asarray(z, dtype=complex)
     mode = int(mode)
+    if epsilon == 0:
+        return z
     if mode == -1:
         return z - epsilon
     if mode == 0:
