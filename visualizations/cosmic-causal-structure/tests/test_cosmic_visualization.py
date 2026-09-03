@@ -50,6 +50,15 @@ def test_static_build_contract(tmp_path, visualization) -> None:
     assert html.count('time:"cosmic"') == 2
     assert html.count('distance:"comoving"') == 2
     assert html.count('distance:"proper"') == 2
+    assert '"Comoving radial coordinate χ [Gpc]"' in html
+    assert '"Proper distance D = aχ [Gpc]"' in html
+    assert '"Conformal time cη [Gpc]"' in html
+    assert '"Cosmic time t [Gyr]"' in html
+    assert "title: {text:distanceAxisTitle(panel.distance),standoff:12}" in html
+    assert "title: {text:timeAxisTitle(panel.time),standoff:12}" in html
+    assert "xref: `${panel.xaxis} domain`" in html
+    assert "yref: `${panel.yaxis} domain`" in html
+    assert 'xanchor: "center"' in html
     assert 'window.matchMedia("(max-width: 780px)")' in html
     assert "height: mobile ? 2300 : 1060" in html
     assert html.count("{xDomain:[0,1]") == 4
