@@ -139,6 +139,12 @@ const actualDistance = (values,scaleFactor,distance) => distance === "comoving"
 const axisKey = axis => axis === "x" || axis === "y"
   ? `${axis}axis`
   : `${axis[0]}axis${axis.slice(1)}`;
+const distanceAxisTitle = distance => distance === "comoving"
+  ? "Comoving radial coordinate χ [Gpc]"
+  : "Proper distance D = aχ [Gpc]";
+const timeAxisTitle = time => time === "conformal"
+  ? "Conformal time cη [Gpc]"
+  : "Cosmic time t [Gyr]";
 
 function cssValue(name) {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -320,9 +326,7 @@ async function render() {
     layout[xKey] = {
       domain: panel.xDomain,
       anchor: panel.yaxis,
-      title: panel.distance === "comoving"
-        ? "Comoving radial coordinate χ [Gpc]"
-        : "Proper distance D = aχ [Gpc]",
+      title: {text:distanceAxisTitle(panel.distance),standoff:12},
       gridcolor: colors.grid,
       zerolinecolor: colors.muted,
       automargin: true,
@@ -330,9 +334,7 @@ async function render() {
     layout[yKey] = {
       domain: panel.yDomain,
       anchor: panel.xaxis,
-      title: panel.time === "conformal"
-        ? "Conformal time cη [Gpc]"
-        : "Cosmic time t [Gyr]",
+      title: {text:timeAxisTitle(panel.time),standoff:12},
       gridcolor: colors.grid,
       zerolinecolor: colors.muted,
       automargin: true,
@@ -340,7 +342,7 @@ async function render() {
     if (timeLog.checked) {
       if (useSymLog) {
         Object.assign(layout[yKey],symmetricTicks(yPool,yThreshold),{
-          title: layout[yKey].title+" — symlog",
+          title: {text:`${timeAxisTitle(panel.time)} — symlog`,standoff:12},
         });
       } else {
         const lowerBound = model.hasInflation
@@ -369,10 +371,13 @@ async function render() {
   layout.shapes = shapes;
   layout.annotations = panels.map(panel => ({
     text: panel.title,
-    x: (panel.xDomain[0]+panel.xDomain[1])/2,
-    y: panel.yDomain[1]+.035,
-    xref: "paper",
-    yref: "paper",
+    x: .5,
+    y: 1,
+    xref: `${panel.xaxis} domain`,
+    yref: `${panel.yaxis} domain`,
+    xanchor: "center",
+    yanchor: "bottom",
+    yshift: 18,
     showarrow: false,
     font: {size:12},
   }));
