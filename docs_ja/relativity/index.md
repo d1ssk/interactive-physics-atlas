@@ -4,5 +4,5 @@
 
 ## 時空の変換
 
-- **[Lorentz変換](lorentz-transformation/)**<br>
-  二つの慣性系で見た一つの事象、相互的な座標表示、時間の遅れと長さの収縮
+- **[Lorentz 変換](lorentz-transformation/)**<br>
+  二つの慣性系で見た一つの事象、時間の遅れと長さの収縮

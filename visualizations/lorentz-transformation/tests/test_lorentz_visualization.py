@@ -99,7 +99,10 @@ def test_bilingual_articles_put_visualization_before_detailed_explanation() -> N
     japanese_math = re.findall(r"\$\$\s*(.*?)\s*\$\$", japanese, flags=re.DOTALL)
 
     assert english_math == japanese_math
-    assert len(english_math) == 5
+    assert len(english_math) == 12
+    list_math = "    $$\n    |x|=|ct|,\\qquad |x'|=|ct'|\n    $$"
+    assert list_math in english
+    assert list_math in japanese
     assert english.index("<iframe") < english.index("## What to notice")
     assert japanese.index("<iframe") < japanese.index("## 図から読み取れること")
     for source, locale in ((english, "en"), (japanese, "ja")):
@@ -115,6 +118,6 @@ def test_bilingual_articles_put_visualization_before_detailed_explanation() -> N
     english_index = (root / "docs" / "relativity" / "index.md").read_text(encoding="utf-8")
     japanese_index = (root / "docs_ja" / "relativity" / "index.md").read_text(encoding="utf-8")
     assert "[Lorentz Transformation](lorentz-transformation/)" in english_index
-    assert "[Lorentz変換](lorentz-transformation/)" in japanese_index
+    assert "[Lorentz 変換](lorentz-transformation/)" in japanese_index
     assert ")**<br>\n  One event" in english_index
     assert ")**<br>\n  二つの慣性系" in japanese_index
