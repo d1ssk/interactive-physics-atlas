@@ -10,4 +10,4 @@ CFT, strings, branes, dualities, and higher-dimensional geometry.
 ## Geometry for holography
 
 - **[AdS₂ and dS₂ Spacetime Geometry](../relativity/ads2-ds2-spacetime-geometry/)**<br>
-  Ambient embeddings, coordinate patches, geodesics, and conformal boundaries, with AdS geometry relevant to holography.
+  Embeddings, coordinate patches, geodesics, and conformal boundaries, with AdS geometry relevant to holography.

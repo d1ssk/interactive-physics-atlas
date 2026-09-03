@@ -9,5 +9,5 @@
 
 ## 曲がった時空の幾何
 
-- **[AdS₂とdS₂の時空幾何](ads2-ds2-spacetime-geometry/)**<br>
-  周囲空間への埋め込み、座標パッチ、測地線、因果的共形図
+- **[AdS₂ と dS₂ の時空幾何](ads2-ds2-spacetime-geometry/)**<br>
+  埋め込み、座標パッチ、測地線、因果的共形図

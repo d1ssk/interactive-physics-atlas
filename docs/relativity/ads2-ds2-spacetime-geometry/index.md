@@ -1,218 +1,278 @@
 # AdS₂ and dS₂ Spacetime Geometry
 
-Anti-de Sitter and de Sitter spacetimes are the maximally symmetric Lorentzian geometries of
-negative and positive curvature. In two dimensions they can be displayed as quadrics in a
-three-dimensional ambient space, making coordinate patches and geodesics concrete. A separate
-conformal diagram is needed to read their causal structure correctly.
+Anti-de Sitter (AdS) and de Sitter (dS) spacetimes are maximally symmetric Lorentzian spacetimes
+with constant negative and positive curvature, respectively. In two dimensions they can be
+represented as quadrics in a flat three-dimensional embedding space, making coordinate patches
+and geodesics geometrically visible. Conformal diagrams are better suited to studying their
+causal structure.
 
 ## Visualization
 
 <iframe src="app/index.html?lang=en" title="AdS2 and dS2 ambient embeddings, coordinate patches, geodesics, and conformal diagrams" data-auto-height scrolling="no" style="display: block; width: 100%; height: 1900px; min-height: 1250px; border: 0; overflow: hidden;" loading="eager"></iframe>
 
-## Ambient-space definitions
+## Definitions via embedding spaces
 
 Let the spacetime dimension be $D=d+1$ and the curvature radius be $L>0$. Anti-de Sitter
-spacetime is the quadric in $\mathbb R^{2,d}$
+spacetime is the quadric in $\mathbb R^{2,d}$ whose embedding-space metric is
+
+$$
+ds_{\rm emb}^2
+=
+-dX_{-1}^2-dX_0^2+\sum_{i=1}^{d}dX_i^2
+$$
+
+and which satisfies
 
 $$
 -X_{-1}^2-X_0^2+\sum_{i=1}^{d}X_i^2=-L^2,
 $$
 
-whereas de Sitter spacetime is the quadric in $\mathbb R^{1,d+1}$
+De Sitter spacetime is the quadric in $\mathbb R^{1,d+1}$ whose embedding-space metric is
 
 $$
--X_0^2+\sum_{i=1}^{d+1}X_i^2=L^2.
+ds_{\rm emb}^2
+=
+-dX_0^2+\sum_{i=1}^{d+1}dX_i^2
 $$
 
-The metrics on AdS and dS are induced from these indefinite ambient metrics. With
-$\varepsilon=-1$ for AdS and $\varepsilon=+1$ for dS, the sign convention is
+and which satisfies
+
+$$
+-X_0^2+\sum_{i=1}^{d+1}X_i^2=L^2
+$$
+
+The metrics on AdS and dS are induced from their respective embedding-space metrics.
+
+Assign $\varepsilon=-1$ to AdS and $\varepsilon=+1$ to dS. With the curvature-tensor sign
+convention
 
 $$
 R^\rho{}_{\sigma\mu\nu}
-=\partial_\mu\Gamma^\rho_{\nu\sigma}-\partial_\nu\Gamma^\rho_{\mu\sigma}
+=
+\partial_\mu\Gamma^\rho_{\nu\sigma}
+-\partial_\nu\Gamma^\rho_{\mu\sigma}
 +\Gamma^\rho_{\mu\lambda}\Gamma^\lambda_{\nu\sigma}
--\Gamma^\rho_{\nu\lambda}\Gamma^\lambda_{\mu\sigma},
+-\Gamma^\rho_{\nu\lambda}\Gamma^\lambda_{\mu\sigma}
 $$
 
-and therefore
+the curvature is
 
 $$
 R_{\mu\nu\rho\sigma}
-=\frac{\varepsilon}{L^2}
-\left(g_{\mu\rho}g_{\nu\sigma}-g_{\mu\sigma}g_{\nu\rho}\right),
+=
+\frac{\varepsilon}{L^2}
+\left(
+g_{\mu\rho}g_{\nu\sigma}
+-g_{\mu\sigma}g_{\nu\rho}
+\right),
 \qquad
 R=\frac{\varepsilon d(d+1)}{L^2}.
 $$
 
-The visualization specializes the surfaces to $d=1$, so $R=-2/L^2$ for AdS₂ and $R=+2/L^2$
-for dS₂.
+The visualization uses $d=1$, so
 
-The displayed axes are ordinary screen coordinates for the ambient components. Their Euclidean
-lengths and angles do not determine causal type. A tangent $U$ is timelike, null, or spacelike
-according to whether its ambient norm is negative, zero, or positive.
+$$
+R_{\mathrm{AdS}_2}=-\frac{2}{L^2},
+\qquad
+R_{\mathrm{dS}_2}=+\frac{2}{L^2}
+$$
+
+The embedding diagram draws the embedding-space coordinates on an ordinary three-dimensional
+screen. Euclidean lengths and angles on the screen therefore do not reveal the causal structure
+of the spacetime. A tangent vector $U$ is timelike, null, or spacelike according to whether its
+norm $U\cdot U$ in the indefinite embedding-space metric is negative, zero, or positive.
 
 ## AdS₂ coordinate systems
 
-For global AdS₂ coordinates, the embedding is
+Global AdS₂ coordinates $(\tau,\rho)$ are related to the embedding coordinates by
 
 $$
 X_{-1}=L\cosh\rho\cos\tau,
 \qquad
 X_0=L\cosh\rho\sin\tau,
 \qquad
-X_1=L\sinh\rho,
+X_1=L\sinh\rho
 $$
 
-and the induced metric is
+The induced metric is
 
 $$
-ds^2=L^2\left(-\cosh^2\rho\,d\tau^2+d\rho^2\right).
+ds^2
+=
+L^2\left(
+-\cosh^2\rho\,d\tau^2+d\rho^2
+\right)
 $$
 
-On the embedded quadric, $\tau$ is periodic and closed timelike curves are present. The spacetime
-normally called AdS is its universal cover, obtained by unwrapping $\tau$.
+On the embedded quadric itself, $\tau$ is periodic and closed timelike curves are present. In
+physics, “AdS spacetime” normally means the universal cover obtained by unwrapping this
+periodicity.
 
-The Poincaré patch uses $z>0$ and
+In the Poincaré patch, take $z>0$ and set
 
 $$
-X_{-1}=\frac{L^2+z^2-t^2}{2z},
+X_{-1}
+=
+\frac{L^2+z^2-t^2}{2z},
 \qquad
 X_0=\frac{Lt}{z},
 \qquad
-X_1=\frac{L^2-z^2+t^2}{2z},
+X_1
+=
+\frac{L^2-z^2+t^2}{2z}
 $$
 
-which gives
+The metric is then
 
 $$
-ds^2=\frac{L^2}{z^2}\left(-dt^2+dz^2\right).
+ds^2
+=
+\frac{L^2}{z^2}
+\left(
+-dt^2+dz^2
+\right)
 $$
 
-This chart covers only one region of global AdS. The limit $z\to0$ approaches its conformal
-boundary, while $z\to\infty$ approaches the Poincaré horizon.
+Poincaré coordinates cover only part of global AdS₂. The limit $z\to0$ approaches the
+conformal boundary, while $z\to\infty$ approaches the Poincaré horizon.
 
 ## dS₂ coordinate systems
 
-Global dS₂ coordinates cover the complete hyperboloid:
+Global dS₂ coordinates $(\tau,\theta)$ cover the complete hyperboloid and are given by
 
 $$
 X_0=L\sinh(\tau/L),
 \qquad
 X_1=L\cosh(\tau/L)\cos\theta,
 \qquad
-X_2=L\cosh(\tau/L)\sin\theta,
+X_2=L\cosh(\tau/L)\sin\theta
 $$
 
-with metric
+The induced metric is
 
 $$
-ds^2=-d\tau^2+L^2\cosh^2(\tau/L)\,d\theta^2.
+ds^2
+=
+-d\tau^2
++
+L^2\cosh^2(\tau/L)\,d\theta^2
 $$
 
-The expanding flat patch instead has
+In the expanding flat patch,
 
 $$
-ds^2=-dt^2+e^{2t/L}dx^2,
+ds^2
+=
+-dt^2+e^{2t/L}dx^2
 $$
 
-and covers only one planar half of global dS₂. The static patch adapted to one inertial observer
-has
+This coordinate system covers only part of global dS₂.
+
+In the static patch centered on a particular inertial observer,
 
 $$
-ds^2=-\left(1-\frac{r^2}{L^2}\right)dt_s^2
-+\frac{dr^2}{1-r^2/L^2},
-\qquad |r|<L.
+ds^2
+=
+-\left(1-\frac{r^2}{L^2}\right)dt_s^2
++
+\frac{dr^2}{1-r^2/L^2},
+\qquad
+|r|<L
 $$
 
-Its boundaries $|r|=L$ are cosmological horizons. They limit what the central observer can both
-influence and receive signals from.
+The surfaces $|r|=L$ are cosmological horizons and form the boundary of the region that can be
+causally connected to the central observer.
 
 ## Local frames and geodesics
 
-At every selected point, the visualization constructs an orthonormal pair $(e_0,e_1)$ tangent
-to the quadric, with
+At each selected point, the visualization constructs an orthonormal frame $(e_0,e_1)$ tangent
+to the quadric. It satisfies
 
 $$
-e_0\mathbin{\cdot}e_0=-1,
+e_0\cdot e_0=-1,
 \qquad
-e_1\mathbin{\cdot}e_1=+1,
+e_1\cdot e_1=+1,
 \qquad
-e_0\mathbin{\cdot}e_1=0.
+e_0\cdot e_1=0
 $$
 
-A local Lorentz boost of rapidity $\chi$ acts as
+After a local Lorentz boost of rapidity $\chi$,
 
 $$
-e'_0=\cosh\chi\,e_0+\sinh\chi\,e_1,
+e'_0
+=
+\cosh\chi\,e_0+\sinh\chi\,e_1,
 \qquad
-e'_1=\sinh\chi\,e_0+\cosh\chi\,e_1.
+e'_1
+=
+\sinh\chi\,e_0+\cosh\chi\,e_1
 $$
 
-The null directions $e'_0\pm e'_1$ remain null. The three emphasized geodesics are intersections
-of the quadric with suitable two-planes through the ambient origin. Their timelike, null, and
-spacelike labels come from the induced Lorentzian metric, not their visual curvature on screen.
+The null directions $e'_0\pm e'_1$ remain null after the boost.
+
+The displayed timelike, null, and spacelike geodesics arise as intersections of the quadric with
+appropriate two-dimensional planes through the origin of the embedding space. Their causal
+classification is determined by the induced Lorentzian metric, not by how the curves appear on
+the screen.
 
 ## Conformal diagrams
 
-For AdS₂, define $\tan\sigma=\sinh\rho$. The global metric becomes
+In global AdS₂ coordinates, define
 
 $$
-ds^2=\frac{L^2}{\cos^2\sigma}
-\left(-d\tau^2+d\sigma^2\right),
+\tan\sigma=\sinh\rho
+$$
+
+Then
+
+$$
+ds^2
+=
+\frac{L^2}{\cos^2\sigma}
+\left(
+-d\tau^2+d\sigma^2
+\right),
 \qquad
--\frac{\pi}{2}<\sigma<\frac{\pi}{2}.
+-\frac{\pi}{2}<\sigma<\frac{\pi}{2}
 $$
 
-After omitting the conformal factor, the universal cover is a vertical strip. Its two boundaries
-are timelike, so signals can reach the boundary and return in finite global coordinate time.
+After removing the conformal factor $L^2/\cos^2\sigma$, the universal cover of AdS₂ is a
+vertical strip. Its left and right conformal boundaries are timelike, and null signals can reach
+the boundary in finite global coordinate time.
 
-For dS₂, define $\tan\eta=\sinh(\tau/L)$. Then
+For dS₂, define
 
 $$
-ds^2=\frac{L^2}{\cos^2\eta}
-\left(-d\eta^2+d\theta^2\right),
+\tan\eta=\sinh(\tau/L)
+$$
+
+Then
+
+$$
+ds^2
+=
+\frac{L^2}{\cos^2\eta}
+\left(
+-d\eta^2+d\theta^2
+\right),
 \qquad
--\frac{\pi}{2}<\eta<\frac{\pi}{2}.
+-\frac{\pi}{2}<\eta<\frac{\pi}{2}
 $$
 
-The past and future conformal boundaries are spacelike. The shaded diamond is one static patch;
-its diagonal edges are cosmological horizons.
+The past and future conformal boundaries of dS₂ are spacelike. The shaded diamond represents one
+static patch, and its null edges correspond to cosmological horizons.
 
 ## Suggested explorations
 
-1. Compare global and Poincaré coordinates on AdS₂. Follow the selected point and identify which
-   part of the quadric the Poincaré patch covers.
+1. Switch between global and Poincaré coordinates on AdS₂ and identify the part of the quadric
+   covered by the Poincaré patch.
 
-2. Compare the global, flat, and static charts on dS₂. Notice that changing charts changes the
-   coordinate grid, not the underlying hyperboloid.
+2. Compare global, flat, and static coordinates on dS₂. The coordinate grid changes with the
+   coordinate system, but each grid describes the same underlying dS₂ spacetime.
 
-3. Vary the rapidity $\chi$. Check that the orthonormal frame changes while its two null
-   directions retain the same causal character.
+3. Vary the rapidity $\chi$ to examine a Lorentz boost of the local frame. The frame changes,
+   while the causal character of the null directions does not.
 
-4. Compare the ambient plot with the conformal diagram. In particular, do not infer horizons or
-   the causal character of infinity from the Euclidean appearance of the 3D surface.
-
-## Conventions and limitations
-
-The ambient component order in the implementation is $(X_0,X_1,X_2)$. For readability, the
-Plotly axes display $(X_1,X_2,X_0)$. The AdS₂ ambient signature is $(-,+,-)$ and the dS₂ signature
-is $(-,+,+)$.
-
-The 3D plot necessarily draws an indefinite-metric geometry on a Euclidean screen. It shows the
-embedding constraint and coordinate placement, but it does not preserve Lorentzian lengths or
-angles. The AdS₂ surface overlaps itself when interpreted as the universal cover; only the
-conformal panel unwraps global time.
-
-In two dimensions the Einstein tensor vanishes identically. These spaces are treated here as
-constant-curvature Lorentzian manifolds; the usual higher-dimensional vacuum Einstein equation
-does not by itself determine their curvature radius.
-
-AdS geometry is central to holography and string theory, which is why this page is also linked
-from the String Theory section. The visualization does not model strings, branes, a boundary
-CFT, or an AdS/CFT dictionary.
-
-## References
-
-- S. M. Carroll, *Spacetime and Geometry*.
-- R. M. Wald, *General Relativity*.
-- M. Ammon and J. Erdmenger, *Gauge/Gravity Duality*.
+4. Compare the embedding diagram with the conformal diagram. In particular, distinguish the
+   Euclidean appearance on a three-dimensional screen from the causal character of spacetime
+   horizons and infinity.

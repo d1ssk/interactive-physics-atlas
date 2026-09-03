@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+import numpy as np
 import plotly.graph_objects as go
 
 
@@ -26,6 +27,41 @@ def test_coordinate_slider_payload_tracks_points_curves_and_frames(visualization
     assert len(controls["q2Curves"]) == len(controls["q1Values"])
     assert controls["frames"]["+0.0"].shape[-3:] == (4, 2, 3)
     assert controls["q2Values"][controls["defaultQ2"]] == 1.0
+
+
+def test_non_global_coordinate_curves_are_clipped_to_displayed_quadrics(visualization):
+    cases = (
+        ("ads", "poincare", 0, visualization.ADS_VISIBLE_X1_LIMIT),
+        ("ds", "flat", 2, visualization.DS_VISIBLE_X0_LIMIT),
+        ("ds", "static", 2, visualization.DS_VISIBLE_X0_LIMIT),
+    )
+
+    for kind, chart, displayed_axis, limit in cases:
+        traces = (
+            visualization._ads_chart_traces(chart)
+            if kind == "ads"
+            else visualization._ds_chart_traces(chart)
+        )
+        controls = visualization._coordinate_control_data(kind, chart, ("+0.0",))
+        traces.extend(controls["q1Curves"])
+        traces.extend(controls["q2Curves"])
+        for trace in traces:
+            coordinates = np.asarray((trace.x, trace.y, trace.z), dtype=float)[displayed_axis]
+            finite = coordinates[np.isfinite(coordinates)]
+            assert finite.size > 0
+            assert np.max(np.abs(finite)) <= limit + 1e-9
+
+
+def test_non_global_slider_points_stay_on_displayed_surface(visualization):
+    cases = (
+        ("ads", "poincare", 0, visualization.ADS_VISIBLE_X1_LIMIT),
+        ("ds", "flat", 2, visualization.DS_VISIBLE_X0_LIMIT),
+        ("ds", "static", 2, visualization.DS_VISIBLE_X0_LIMIT),
+    )
+
+    for kind, chart, displayed_axis, limit in cases:
+        controls = visualization._coordinate_control_data(kind, chart, ("+0.0",))
+        assert np.max(np.abs(controls["points"][..., displayed_axis])) <= limit + 1e-9
 
 
 def test_static_build_contract(tmp_path, monkeypatch, visualization):
@@ -54,18 +90,29 @@ def test_static_build_contract(tmp_path, monkeypatch, visualization):
     assert 'id="q1" type="range"' in html
     assert 'id="boost" type="range"' in html
     assert 'title: "AdS₂ and dS₂ Spacetime Geometry"' in html
-    assert 'title: "AdS₂とdS₂の時空幾何"' in html
+    assert 'title: "AdS₂ と dS₂ の時空幾何"' in html
     assert "Poincaré patch" in html
     assert "expanding flat patch" in html
     assert "static patch" in html
 
 
-def test_slider_render_preserves_existing_three_dimensional_camera(visualization):
+def test_embedding_disables_hover_spikes(visualization):
+    layout = visualization._embedding_layout("ads")
+
+    assert layout.hovermode is False
+    assert layout.scene.xaxis.showspikes is False
+    assert layout.scene.yaxis.showspikes is False
+    assert layout.scene.zaxis.showspikes is False
+
+
+def test_slider_render_preserves_user_selected_three_dimensional_camera(visualization):
     javascript = (visualization.SOURCE_DIR / "static" / "app.js").read_text(encoding="utf-8")
 
     assert "embeddingLayoutWithPreservedCamera" in javascript
-    assert 'byId("embedding-plot").layout?.scene?.camera' in javascript
-    assert "JSON.parse(JSON.stringify(previousCamera))" in javascript
+    assert "savedEmbeddingCameras" in javascript
+    assert 'plot.on("plotly_relayout"' in javascript
+    assert 'event["scene.camera"]' in javascript
+    assert "savedEmbeddingCameras.get(kind)" in javascript
     assert 'window.dispatchEvent(new Event("resize"))' not in javascript
 
 
@@ -114,7 +161,7 @@ def test_bilingual_articles_share_equations_and_both_field_indexes_link_page():
     japanese_math = re.findall(r"\$\$\s*(.*?)\s*\$\$", japanese, flags=re.DOTALL)
 
     assert english_math == japanese_math
-    assert len(english_math) == 16
+    assert len(english_math) == 21
     for source, locale in ((english, "en"), (japanese, "ja")):
         assert f"app/index.html?lang={locale}" in source
         assert "data-auto-height" in source
@@ -132,9 +179,9 @@ def test_bilingual_articles_share_equations_and_both_field_indexes_link_page():
         (root / "docs_ja/string-theory/index.md").read_text(encoding="utf-8"),
     ]
     assert "[AdS₂ and dS₂ Spacetime Geometry](ads2-ds2-spacetime-geometry/)" in indexes[0]
-    assert "[AdS₂とdS₂の時空幾何](ads2-ds2-spacetime-geometry/)" in indexes[1]
+    assert "[AdS₂ と dS₂ の時空幾何](ads2-ds2-spacetime-geometry/)" in indexes[1]
     assert (
         "[AdS₂ and dS₂ Spacetime Geometry](../relativity/ads2-ds2-spacetime-geometry/)"
         in indexes[2]
     )
-    assert "[AdS₂とdS₂の時空幾何](../relativity/ads2-ds2-spacetime-geometry/)" in indexes[3]
+    assert "[AdS₂ と dS₂ の時空幾何](../relativity/ads2-ds2-spacetime-geometry/)" in indexes[3]

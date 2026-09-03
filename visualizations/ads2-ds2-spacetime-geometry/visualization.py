@@ -30,12 +30,34 @@ PALETTE = {
     "paper": "rgba(0,0,0,0)",
 }
 
+ADS_RHO_LIMIT = 2.0
+DS_GLOBAL_TIME_LIMIT = 2.15
+ADS_VISIBLE_X1_LIMIT = float(np.sinh(ADS_RHO_LIMIT))
+DS_VISIBLE_X0_LIMIT = float(np.sinh(DS_GLOBAL_TIME_LIMIT))
+
 
 def _plot_coordinates(points: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Map ambient (X0,X1,X2) to displayed (X1,X2,X0)."""
 
     points = np.asarray(points)
     return points[..., 1], points[..., 2], points[..., 0]
+
+
+def _clip_to_displayed_surface(kind: str, points: np.ndarray) -> np.ndarray:
+    """Break curves where they leave the finite portion of the displayed quadric."""
+
+    clipped = np.asarray(points, dtype=float).copy()
+    if kind == "ads":
+        coordinate = clipped[..., 1]
+        limit = ADS_VISIBLE_X1_LIMIT
+    elif kind == "ds":
+        coordinate = clipped[..., 0]
+        limit = DS_VISIBLE_X0_LIMIT
+    else:
+        raise ValueError(f"Unknown spacetime kind: {kind}")
+    valid = np.all(np.isfinite(clipped), axis=-1) & (np.abs(coordinate) <= limit + 1e-10)
+    clipped[~valid] = np.nan
+    return clipped
 
 
 def _line(points: np.ndarray, *, name: str, color: str, width: float = 3, dash: str = "solid"):
@@ -56,7 +78,7 @@ def _surface_trace(kind: str) -> go.Surface:
     if kind == "ads":
         geometry = AntiDeSitter2()
         tau = np.linspace(-np.pi, np.pi, 96)
-        rho = np.linspace(-2.0, 2.0, 72)
+        rho = np.linspace(-ADS_RHO_LIMIT, ADS_RHO_LIMIT, 72)
         tt, rr = np.meshgrid(tau, rho)
         points = geometry.global_to_embedding(tt, rr)
         surface_color = rr
@@ -64,7 +86,7 @@ def _surface_trace(kind: str) -> go.Surface:
         name = "AdS2 quadric"
     elif kind == "ds":
         geometry = DeSitter2()
-        tau = np.linspace(-2.15, 2.15, 82)
+        tau = np.linspace(-DS_GLOBAL_TIME_LIMIT, DS_GLOBAL_TIME_LIMIT, 82)
         theta = np.linspace(-np.pi, np.pi, 96)
         tt, aa = np.meshgrid(tau, theta)
         points = geometry.global_to_embedding(tt, aa)
@@ -112,21 +134,28 @@ def _ads_chart_traces(chart: str) -> list[go.Scatter3d]:
                 )
             )
     elif chart == "poincare":
-        times = np.linspace(-2.2, 2.2, 320)
-        radii = np.geomspace(0.25, 4.0, 280)
-        for value in np.geomspace(0.32, 3.2, 7):
+        for value in np.geomspace(1.05 * np.exp(-ADS_RHO_LIMIT), 12.0, 9):
+            time_limit = np.sqrt(max(value**2 - 1.0 + 2.0 * value * ADS_VISIBLE_X1_LIMIT, 0.0))
+            times = np.linspace(-time_limit, time_limit, 640)
             traces.append(
                 _line(
-                    geometry.poincare_to_embedding(times, np.full_like(times, value)),
+                    _clip_to_displayed_surface(
+                        "ads",
+                        geometry.poincare_to_embedding(times, np.full_like(times, value)),
+                    ),
                     name="z constant",
                     color=PALETTE["chart_time"],
                     width=2,
                 )
             )
-        for value in np.linspace(-1.8, 1.8, 8):
+        radii = np.geomspace(0.08, 20.0, 900)
+        for value in (-12.0, -6.0, -3.0, -1.5, 0.0, 1.5, 3.0, 6.0, 12.0):
             traces.append(
                 _line(
-                    geometry.poincare_to_embedding(np.full_like(radii, value), radii),
+                    _clip_to_displayed_surface(
+                        "ads",
+                        geometry.poincare_to_embedding(np.full_like(radii, value), radii),
+                    ),
                     name="t constant",
                     color=PALETTE["chart_space"],
                     width=2,
@@ -162,42 +191,52 @@ def _ds_chart_traces(chart: str) -> list[go.Scatter3d]:
                 )
             )
     elif chart == "flat":
-        time = np.linspace(-1.5, 1.2, 260)
-        space = np.linspace(-2.2, 2.2, 320)
-        for value in np.linspace(-1.25, 1.0, 7):
+        for value in (-4.0, -2.8, -1.8, -0.9, 0.0, 0.8, 1.5, 2.05):
+            available = DS_VISIBLE_X0_LIMIT - np.sinh(value)
+            space_limit = np.sqrt(2.0 * available / np.exp(value))
+            space = np.linspace(-space_limit, space_limit, 640)
             traces.append(
                 _line(
-                    geometry.flat_to_embedding(np.full_like(space, value), space),
+                    _clip_to_displayed_surface(
+                        "ds", geometry.flat_to_embedding(np.full_like(space, value), space)
+                    ),
                     name="t constant",
                     color=PALETTE["chart_space"],
                     width=2,
                 )
             )
-        for value in np.linspace(-1.8, 1.8, 8):
+        time = np.linspace(-6.0, 2.2, 900)
+        for value in (-16.0, -8.0, -4.0, -2.0, -1.0, 0.0, 1.0, 2.0, 4.0, 8.0, 16.0):
             traces.append(
                 _line(
-                    geometry.flat_to_embedding(time, np.full_like(time, value)),
+                    _clip_to_displayed_surface(
+                        "ds", geometry.flat_to_embedding(time, np.full_like(time, value))
+                    ),
                     name="x constant",
                     color=PALETTE["chart_time"],
                     width=2,
                 )
             )
     elif chart == "static":
-        time = np.linspace(-2.2, 2.2, 260)
-        radius = np.linspace(-0.97, 0.97, 280)
-        for value in np.linspace(-1.8, 1.8, 7):
+        radius = np.linspace(-0.997, 0.997, 480)
+        for value in (-3.0, -2.0, -1.0, 0.0, 1.0, 2.0, 3.0):
             traces.append(
                 _line(
-                    geometry.static_to_embedding(np.full_like(radius, value), radius),
+                    _clip_to_displayed_surface(
+                        "ds", geometry.static_to_embedding(np.full_like(radius, value), radius)
+                    ),
                     name="ts constant",
                     color=PALETTE["chart_space"],
                     width=2,
                 )
             )
-        for value in np.linspace(-0.85, 0.85, 8):
+        time = np.linspace(-5.0, 5.0, 900)
+        for value in (-0.97, -0.85, -0.6, -0.3, 0.0, 0.3, 0.6, 0.85, 0.97):
             traces.append(
                 _line(
-                    geometry.static_to_embedding(time, np.full_like(time, value)),
+                    _clip_to_displayed_surface(
+                        "ds", geometry.static_to_embedding(time, np.full_like(time, value))
+                    ),
                     name="r constant",
                     color=PALETTE["chart_time"],
                     width=2,
@@ -229,19 +268,25 @@ def _geodesic_traces(kind: str, chart: str, rapidity: float) -> list[go.Scatter3
         }
     traces = [
         _line(
-            geometry.geodesic(point, time, parameters["timelike"]),
+            _clip_to_displayed_surface(
+                kind, geometry.geodesic(point, time, parameters["timelike"])
+            ),
             name="timelike geodesic",
             color=PALETTE["timelike"],
             width=7,
         ),
         _line(
-            geometry.geodesic(point, space, parameters["spacelike"]),
+            _clip_to_displayed_surface(
+                kind, geometry.geodesic(point, space, parameters["spacelike"])
+            ),
             name="spacelike geodesic",
             color=PALETTE["spacelike"],
             width=7,
         ),
         _line(
-            geometry.geodesic(point, null_plus, parameters["null"]),
+            _clip_to_displayed_surface(
+                kind, geometry.geodesic(point, null_plus, parameters["null"])
+            ),
             name="null geodesic",
             color=PALETTE["null"],
             width=6,
@@ -258,6 +303,7 @@ def _geodesic_traces(kind: str, chart: str, rapidity: float) -> list[go.Scatter3
             marker={"size": 5, "color": PALETTE["point"]},
             name="initial point",
             showlegend=False,
+            hoverinfo="skip",
         )
     )
     return traces
@@ -277,10 +323,12 @@ def _coordinate_control_data(kind: str, chart: str, boost_keys: tuple[str, ...])
             labels = ("global time τ", "radial coordinate ρ")
         else:
             coordinate_map = geometry.poincare_to_embedding
-            q1_values = np.linspace(-2.0, 2.0, 13)
-            q2_values = np.geomspace(0.25, 4.0, 13)
-            q1_dense = np.linspace(-2.2, 2.2, 320)
-            q2_dense = np.geomspace(0.22, 4.2, 280)
+            q1_values = np.linspace(-1.7, 1.7, 13)
+            q2_values = np.asarray(
+                [0.55, 0.65, 0.78, 0.9, 1.0, 1.2, 1.5, 2.0, 2.7, 3.5, 4.3, 5.0, 5.5]
+            )
+            q1_dense = np.linspace(-9.0, 9.0, 720)
+            q2_dense = np.geomspace(0.12, 16.0, 700)
             labels = ("Poincaré time t", "radial coordinate z")
     else:
         geometry = DeSitter2()
@@ -293,17 +341,17 @@ def _coordinate_control_data(kind: str, chart: str, boost_keys: tuple[str, ...])
             labels = ("global time τ", "periodic angle θ")
         elif chart == "flat":
             coordinate_map = geometry.flat_to_embedding
-            q1_values = np.linspace(-1.4, 1.1, 13)
-            q2_values = np.linspace(-1.8, 1.8, 13)
-            q1_dense = np.linspace(-1.5, 1.2, 280)
-            q2_dense = np.linspace(-2.0, 2.0, 320)
+            q1_values = np.linspace(-1.5, 1.0, 13)
+            q2_values = np.linspace(-1.4, 1.4, 13)
+            q1_dense = np.linspace(-6.0, 2.2, 900)
+            q2_dense = np.linspace(-10.0, 10.0, 900)
             labels = ("flat time t", "comoving position x")
         else:
             coordinate_map = geometry.static_to_embedding
-            q1_values = np.linspace(-1.8, 1.8, 13)
-            q2_values = np.linspace(-0.85, 0.85, 13)
-            q1_dense = np.linspace(-2.0, 2.0, 280)
-            q2_dense = np.linspace(-0.95, 0.95, 300)
+            q1_values = np.linspace(-2.0, 2.0, 13)
+            q2_values = np.linspace(-0.9, 0.9, 13)
+            q1_dense = np.linspace(-5.0, 5.0, 900)
+            q2_dense = np.linspace(-0.997, 0.997, 480)
             labels = ("static time tₛ", "static radius r")
 
     q1_grid, q2_grid = np.meshgrid(q1_values, q2_values, indexing="ij")
@@ -313,7 +361,9 @@ def _coordinate_control_data(kind: str, chart: str, boost_keys: tuple[str, ...])
 
     q1_curves = []
     for q2 in q2_values:
-        curve = coordinate_map(q1_dense, np.full_like(q1_dense, q2))
+        curve = _clip_to_displayed_surface(
+            kind, coordinate_map(q1_dense, np.full_like(q1_dense, q2))
+        )
         trace = _line(
             curve,
             name=f"vary {labels[0]}",
@@ -324,7 +374,9 @@ def _coordinate_control_data(kind: str, chart: str, boost_keys: tuple[str, ...])
         q1_curves.append(trace)
     q2_curves = []
     for q1 in q1_values:
-        curve = coordinate_map(np.full_like(q2_dense, q1), q2_dense)
+        curve = _clip_to_displayed_surface(
+            kind, coordinate_map(np.full_like(q2_dense, q1), q2_dense)
+        )
         trace = _line(
             curve,
             name=f"vary {labels[1]}",
@@ -365,18 +417,17 @@ def _coordinate_control_data(kind: str, chart: str, boost_keys: tuple[str, ...])
 
 
 def _embedding_layout(kind: str) -> go.Layout:
-    title = "AdS₂ ambient embedding" if kind == "ads" else "dS₂ ambient embedding"
     return go.Layout(
         template=None,
-        title={"text": title, "x": 0.01, "xanchor": "left"},
         paper_bgcolor=PALETTE["paper"],
         font={"family": "Arial, sans-serif", "color": PALETTE["ink"]},
-        margin={"l": 10, "r": 10, "b": 10, "t": 54},
+        margin={"l": 10, "r": 10, "b": 10, "t": 16},
         height=650,
+        hovermode=False,
         scene={
-            "xaxis": {"title": "X1", "showbackground": False},
-            "yaxis": {"title": "X2", "showbackground": False},
-            "zaxis": {"title": "X0", "showbackground": False},
+            "xaxis": {"title": "X1", "showbackground": False, "showspikes": False},
+            "yaxis": {"title": "X2", "showbackground": False, "showspikes": False},
+            "zaxis": {"title": "X0", "showbackground": False, "showspikes": False},
             "aspectmode": "data",
             "dragmode": "turntable",
             "camera": {"eye": {"x": 1.45, "y": 1.35, "z": 1.05}},

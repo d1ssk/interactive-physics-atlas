@@ -92,7 +92,7 @@ def test_build_stages_bilingual_math_and_shared_assets(tmp_path, monkeypatch, vi
     assert 'src="https://' not in html
     assert "const LOCALE = new URLSearchParams(window.location.search)" in html
     assert 'title: "Two-Dimensional Conformal Transformations"' in html
-    assert 'title: "2次元共形変換"' in html
+    assert 'title: "2 次元共形変換"' in html
     assert 'data-i18n="mixingLabel"' in html
     assert "MathJax.typesetClear(targets)" in html
     assert "MathJax.typesetPromise(targets)" in html
@@ -129,7 +129,7 @@ def test_bilingual_articles_and_string_theory_listing_are_aligned():
     japanese_math = re.findall(r"\$\$\s*(.*?)\s*\$\$", japanese, flags=re.DOTALL)
 
     assert english_math == japanese_math
-    assert len(english_math) == 10
+    assert len(english_math) == 13
     for source, locale in ((english, "en"), (japanese, "ja")):
         assert f"app/index.html?lang={locale}" in source
         assert "data-auto-height" in source
@@ -146,4 +146,4 @@ def test_bilingual_articles_and_string_theory_listing_are_aligned():
         "[Two-Dimensional Conformal Transformations](conformal-transformations-2d/)"
         in english_index
     )
-    assert "[2次元共形変換](conformal-transformations-2d/)" in japanese_index
+    assert "[2 次元共形変換](conformal-transformations-2d/)" in japanese_index

@@ -10,4 +10,4 @@ Spacetime geometry, motion, gravitation, and causal structure.
 ## Curved spacetime geometry
 
 - **[AdS₂ and dS₂ Spacetime Geometry](ads2-ds2-spacetime-geometry/)**<br>
-  Ambient embeddings, coordinate patches, geodesics, and causal conformal diagrams.
+  Embeddings, coordinate patches, geodesics, and causal conformal diagrams.

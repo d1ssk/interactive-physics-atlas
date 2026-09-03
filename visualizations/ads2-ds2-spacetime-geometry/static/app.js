@@ -10,31 +10,39 @@ const LOCALE = new URLSearchParams(window.location.search).get("lang") === "ja" 
 const MESSAGES = {
   en: {
     title: "AdS₂ and dS₂ Spacetime Geometry",
-    lede: "Compare two constant-curvature Lorentzian spacetimes without confusing an ambient embedding with a spacetime diagram.",
+    lede: "Compare two constant-curvature Lorentzian spacetimes using their embeddings and conformal diagrams.",
     controlsAria: "Visualization controls",
     spacetimeLabel: "Spacetime",
     chartLabel: "Coordinate chart",
     boostLabel: "Local-frame boost \\(\\chi\\)",
-    embeddingStep: "1 · Ambient embedding",
-    embeddingTitle: "The quadric is a geometric model, not a Euclidean surface",
+    embeddingTitle: "Embedding",
     legendAria: "Curve colors",
     timelike: "timelike geodesic",
     spacelike: "spacelike geodesic",
     null: "null geodesic",
-    embeddingCaption: "Move the coordinate sliders to follow the selected point, two coordinate lines, and its local orthonormal and null frame. Causal type is determined by the ambient indefinite metric, not Euclidean appearance.",
-    conformalStep: "2 · Conformal compactification",
-    conformalTitle: "Null rays and infinity become readable",
-    conformalCopy: "The conformal factor changes lengths but preserves null directions, so this view exposes boundaries, horizons, and causal contact.",
-    togetherTitle: "Read the two views together",
-    embeddingTakeaway: "<strong>Embedding:</strong> verifies the constant-curvature constraint and shows how coordinate patches sit on the quadric.",
-    conformalTakeaway: "<strong>Conformal diagram:</strong> suppresses the conformal factor so that null directions, infinity, and observer horizons are explicit.",
-    convention: "The displayed AdS₂ quadric has periodic global time; the conformal panel shows its universal cover. General-dimensional formulas and detailed chart descriptions appear in the surrounding atlas article.",
-    embeddingAria: "Ambient embedding of the selected constant-curvature spacetime with coordinates, local frame, and geodesics",
+    embeddingCaption: "Move the coordinate sliders to follow the selected point, two coordinate lines, and its local orthonormal frame and null directions. Causal type is determined by the indefinite metric of the embedding space, not by Euclidean appearance.",
+    conformalTitle: "Conformal Diagram",
+    conformalCopy: "A conformal diagram preserves null directions while suppressing the conformal factor, making boundaries, horizons, and causal structure easier to read.",
+    togetherTitle: "Reading the Diagrams",
+    embeddingTakeaway: "<strong>Embedding:</strong> shows the spacetime as a quadric and how each coordinate patch covers it.",
+    conformalTakeaway: "<strong>Conformal diagram:</strong> makes null directions, conformal infinity, and observer horizons explicit.",
+    convention: "The AdS₂ embedding shown here has periodic global time, while the conformal diagram shows its universal cover.",
+    embeddingAria: "Embedding of the selected constant-curvature spacetime with coordinate lines, local frame, and geodesics",
     penroseAria: "Conformal causal diagram of the selected spacetime",
-    kinds: {ads: "AdS₂ (negative curvature)", ds: "dS₂ (positive curvature)"},
+    kinds: {
+      ads: "AdS₂ (negative curvature)",
+      ds: "dS₂ (positive curvature)",
+    },
     charts: {
-      ads: {global: "global coordinates", poincare: "Poincaré patch"},
-      ds: {global: "global coordinates", flat: "expanding flat patch", static: "static patch"},
+      ads: {
+        global: "global coordinates",
+        poincare: "Poincaré patch",
+      },
+      ds: {
+        global: "global coordinates",
+        flat: "expanding flat patch",
+        static: "static patch",
+      },
     },
     coordinateLabels: {
       "ads|global": ["global time \\(\\tau\\)", "radial coordinate \\(\\rho\\)"],
@@ -44,66 +52,75 @@ const MESSAGES = {
       "ds|static": ["static time \\(t_s\\)", "static radius \\(r\\)"],
     },
     notes: {
-      "ads|global": "The global chart covers the displayed quadric. Its \\(\\tau\\) coordinate is periodic; the causal panel shows the unwrapped universal cover.",
-      "ads|poincare": "Poincaré coordinates cover only \\(z>0\\). Curves can extend far in embedding space near \\(z=0\\).",
-      "ds|global": "Global coordinates cover all of dS₂, and the spatial angle \\(\\theta\\) is periodic.",
-      "ds|flat": "The expanding flat slicing covers one planar patch with scale factor \\(e^{t/L}\\).",
-      "ds|static": "The static chart covers one observer patch bounded by cosmological horizons at \\(|r|=L\\).",
+      "ads|global": "Global coordinates cover the entire displayed quadric. The coordinate \\(\\tau\\) is periodic on the quadric, while the conformal diagram shows the unwrapped universal cover.",
+      "ads|poincare": "Poincaré coordinates cover only part of global AdS₂, with \\(z>0\\). The grid is clipped to the displayed \\(|\\rho|\\le2\\) region and extends toward the Poincaré horizon.",
+      "ds|global": "Global coordinates cover all of dS₂, with periodic spatial angle \\(\\theta\\).",
+      "ds|flat": "The expanding flat slicing covers one planar patch, with scale factor \\(e^{t/L}\\).",
+      "ds|static": "Static coordinates cover one observer's patch, bounded by cosmological horizons at \\(|r|=L\\).",
     },
     curvature: {
-      ads: "AdS₂ has scalar curvature \\(R=-2/L^2\\). Its conformal boundary is timelike, so boundary conditions enter time evolution.",
-      ds: "dS₂ has scalar curvature \\(R=+2/L^2\\). Past and future conformal infinity are spacelike.",
+      ads: "AdS₂ has scalar curvature \\(R=-2/L^2\\). Its conformal boundary is timelike, so boundary conditions are required to specify time evolution.",
+      ds: "dS₂ has scalar curvature \\(R=+2/L^2\\). Its past and future conformal boundaries are spacelike.",
     },
     metric: {
       ads: "\\(ds^2=L^2\\sec^2\\sigma\\,(-d\\tau^2+d\\sigma^2),\\qquad \\tan\\sigma=\\sinh\\rho\\)",
       ds: "\\(ds^2=L^2\\sec^2\\eta\\,(-d\\eta^2+d\\theta^2),\\qquad \\tan\\eta=\\sinh(\\tau/L)\\)",
     },
   },
+
   ja: {
-    title: "AdS₂とdS₂の時空幾何",
-    lede: "一定曲率をもつ二つのLorentz時空を、埋め込み図と時空図を混同せずに比較します。",
+    title: "AdS₂ と dS₂ の時空幾何",
+    lede: "一定曲率をもつ二つの Lorentz 時空を、埋め込み図と共形図を通して比較します。",
     controlsAria: "可視化の操作",
     spacetimeLabel: "時空",
-    chartLabel: "座標chart",
+    chartLabel: "座標系",
     boostLabel: "局所標構のブースト \\(\\chi\\)",
-    embeddingStep: "1 · 周囲空間への埋め込み",
-    embeddingTitle: "二次曲面は幾何学的模型でありユークリッド曲面ではない",
+    embeddingTitle: "埋め込み図",
     legendAria: "曲線の色",
     timelike: "時間的測地線",
     spacelike: "空間的測地線",
-    null: "null測地線",
-    embeddingCaption: "座標スライダーを動かすと、選択点、二本の座標線、その点の局所正規直交標構とnull標構が移動します。因果的な型は見かけのユークリッド幾何ではなく、周囲空間の不定値計量で決まります。",
-    conformalStep: "2 · 共形コンパクト化",
-    conformalTitle: "null光線と無限遠の因果的性質",
-    conformalCopy: "共形因子は長さを変えますがnull方向を保存するため、境界、地平面、因果的接触を読み取れます。",
-    togetherTitle: "二つの図を組み合わせて読む",
-    embeddingTakeaway: "<strong>埋め込み図：</strong>一定曲率の制約を確認し、座標パッチが二次曲面上のどこを覆うかを示します。",
-    conformalTakeaway: "<strong>共形図：</strong>共形因子を除き、null方向、無限遠、観測者の地平面を明示します。",
-    convention: "表示するAdS₂二次曲面の大域時間は周期的です。共形パネルではその普遍被覆を示します。一般次元の式と各chartの詳しい説明は、この可視化を囲む本文に記載しています。",
-    embeddingAria: "選択した一定曲率時空の周囲空間への埋め込み、座標線、局所標構、測地線",
-    penroseAria: "選択した時空の因果的共形図",
-    kinds: {ads: "AdS₂（負曲率）", ds: "dS₂（正曲率）"},
+    null: "ヌル測地線",
+    embeddingCaption: "座標スライダーを動かすと、選択点、2 本の座標線、その点での局所正規直交標構とヌル方向が移動します。因果的な型は画面上のユークリッド的な見かけではなく、埋め込み空間の不定値計量によって決まります。",
+    conformalTitle: "共形図",
+    conformalCopy: "共形図ではヌル方向を保ったまま共形因子を除くことで、境界、地平面、因果構造を読み取りやすくします。",
+    togetherTitle: "図の読み方",
+    embeddingTakeaway: "<strong>埋め込み図：</strong>時空を二次曲面として表し、それぞれの座標パッチがどの領域を覆うかを示します。",
+    conformalTakeaway: "<strong>共形図：</strong>ヌル方向、共形無限遠、観測者の地平面を明示します。",
+    convention: "AdS₂ の埋め込み図では大域時間が周期的な二次曲面を表示し、共形図ではその普遍被覆を示します。",
+    embeddingAria: "選択した一定曲率時空の埋め込み図、座標線、局所標構、測地線",
+    penroseAria: "選択した時空の因果構造を示す共形図",
+    kinds: {
+      ads: "AdS₂（負曲率）",
+      ds: "dS₂（正曲率）",
+    },
     charts: {
-      ads: {global: "大域座標", poincare: "Poincaré patch"},
-      ds: {global: "大域座標", flat: "膨張平坦patch", static: "静的patch"},
+      ads: {
+        global: "大域座標",
+        poincare: "Poincaré パッチ",
+      },
+      ds: {
+        global: "大域座標",
+        flat: "膨張平坦パッチ",
+        static: "静的パッチ",
+      },
     },
     coordinateLabels: {
       "ads|global": ["大域時間 \\(\\tau\\)", "動径座標 \\(\\rho\\)"],
-      "ads|poincare": ["Poincaré時間 \\(t\\)", "動径座標 \\(z\\)"],
+      "ads|poincare": ["Poincaré 時間 \\(t\\)", "動径座標 \\(z\\)"],
       "ds|global": ["大域時間 \\(\\tau\\)", "周期角 \\(\\theta\\)"],
-      "ds|flat": ["平坦時間 \\(t\\)", "共動位置 \\(x\\)"],
+      "ds|flat": ["平坦時間 \\(t\\)", "共動座標 \\(x\\)"],
       "ds|static": ["静的時間 \\(t_s\\)", "静的半径 \\(r\\)"],
     },
     notes: {
-      "ads|global": "大域chartは表示した二次曲面全体を覆います。\\(\\tau\\) は周期的ですが、因果パネルでは時間をほどいた普遍被覆を示します。",
-      "ads|poincare": "Poincaré座標が覆うのは \\(z>0\\) の領域だけです。\\(z=0\\) に近づくと曲線は埋め込み空間で遠方まで延びます。",
-      "ds|global": "大域座標はdS₂全体を覆い、空間角 \\(\\theta\\) は周期的です。",
-      "ds|flat": "膨張平坦slicingは、スケール因子 \\(e^{t/L}\\) をもつ一つのplanar patchを覆います。",
-      "ds|static": "静的chartは一観測者のpatchを覆い、その境界 \\(|r|=L\\) は宇宙論的地平面です。",
+      "ads|global": "大域座標は表示した二次曲面全体を覆います。二次曲面上では \\(\\tau\\) は周期的ですが、共形図では時間の周期性をほどいた普遍被覆を示します。",
+      "ads|poincare": "Poincaré 座標が覆うのは大域 AdS₂ の一部だけで、\\(z>0\\) です。格子線は表示範囲 \\(|\\rho|\\le2\\) で切り、Poincaré 地平面に近づく領域まで描いています。",
+      "ds|global": "大域座標は dS₂ 全体を覆い、空間角 \\(\\theta\\) は周期的です。",
+      "ds|flat": "膨張平坦スライスは、スケール因子 \\(e^{t/L}\\) をもつ一つの平坦パッチを覆います。",
+      "ds|static": "静的座標は一人の観測者を中心とするパッチを覆い、その境界 \\(|r|=L\\) が宇宙論的地平面に対応します。",
     },
     curvature: {
-      ads: "AdS₂のスカラー曲率は \\(R=-2/L^2\\) です。共形境界は時間的なので、時間発展には境界条件が必要です。",
-      ds: "dS₂のスカラー曲率は \\(R=+2/L^2\\) です。過去と未来の共形無限遠は空間的です。",
+      ads: "AdS₂ のスカラー曲率は \\(R=-2/L^2\\) です。共形境界は時間的であるため、時間発展を定めるには境界条件が必要です。",
+      ds: "dS₂ のスカラー曲率は \\(R=+2/L^2\\) です。過去と未来の共形境界は空間的です。",
     },
     metric: {
       ads: "\\(ds^2=L^2\\sec^2\\sigma\\,(-d\\tau^2+d\\sigma^2),\\qquad \\tan\\sigma=\\sinh\\rho\\)",
@@ -115,6 +132,8 @@ const MESSAGES = {
 const t = key => MESSAGES[LOCALE][key] ?? MESSAGES.en[key] ?? key;
 const pendingMathTargets = new Set();
 let mathFlushScheduled = false;
+const savedEmbeddingCameras = new Map();
+let renderedEmbeddingKind = null;
 
 function typeset(target) {
   pendingMathTargets.add(target);
@@ -210,7 +229,8 @@ function selectedCoordinateTraces(controls, boostKey) {
   ];
   const traces = [controls.q1Curves[q2Index], controls.q2Curves[q1Index], {
     type: "scatter3d", x: [point[0]], y: [point[1]], z: [point[2]], mode: "markers",
-    marker: {size: 6, color: "#d33f36"}, name: "selected coordinate point", showlegend: false,
+    marker: {size: 6, color: "#d33f36"}, name: "selected coordinate point",
+    showlegend: false, hoverinfo: "skip",
   }];
   frame.forEach((segment, index) => traces.push({
     type: "scatter3d",
@@ -223,10 +243,22 @@ function selectedCoordinateTraces(controls, boostKey) {
 
 function embeddingLayoutWithPreservedCamera(kind) {
   const source = DATA.layouts[kind];
-  const previousCamera = byId("embedding-plot").layout?.scene?.camera;
   const scene = {...source.scene};
-  if (previousCamera) scene.camera = JSON.parse(JSON.stringify(previousCamera));
+  const savedCamera = savedEmbeddingCameras.get(kind);
+  if (savedCamera) scene.camera = JSON.parse(JSON.stringify(savedCamera));
   return {...source, scene};
+}
+
+function attachEmbeddingCameraListener() {
+  const plot = byId("embedding-plot");
+  if (plot.__atlasCameraListenerAttached) return;
+  plot.__atlasCameraListenerAttached = true;
+  plot.on("plotly_relayout", event => {
+    const cameraChanged = Object.keys(event).some(key => key === "scene.camera" || key.startsWith("scene.camera."));
+    if (!cameraChanged || !renderedEmbeddingKind) return;
+    const camera = event["scene.camera"] ?? plot.layout?.scene?.camera;
+    if (camera) savedEmbeddingCameras.set(renderedEmbeddingKind, JSON.parse(JSON.stringify(camera)));
+  });
 }
 
 function formatNumber(value, digits) {
@@ -242,7 +274,11 @@ function render() {
   const boostKey = DATA.boostKeys[boostIndex];
   const controls = DATA.coordinateControls[`${kind}|${chart}`];
   const traces = [DATA.surfaces[kind], ...DATA.charts[`${kind}|${chart}`], ...DATA.geodesics[`${kind}|${chart}|${boostKey}`], ...selectedCoordinateTraces(controls, boostKey)];
-  Plotly.react("embedding-plot", traces, embeddingLayoutWithPreservedCamera(kind), PLOT_CONFIG);
+  const embeddingUpdate = Plotly.react(
+    "embedding-plot", traces, embeddingLayoutWithPreservedCamera(kind), PLOT_CONFIG,
+  );
+  renderedEmbeddingKind = kind;
+  Promise.resolve(embeddingUpdate).then(attachEmbeddingCameraListener);
   Plotly.react("penrose-plot", DATA.penrose[kind].data, DATA.penrose[kind].layout, PLOT_CONFIG);
   byId("chart-note").innerHTML = t("notes")[`${kind}|${chart}`];
   byId("q1-value").textContent = formatNumber(Number(controls.q1Values[Number(byId("q1").value)]), 2);
