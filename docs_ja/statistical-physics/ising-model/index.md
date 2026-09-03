@@ -220,7 +220,7 @@ $$
 
 ---
 
-## 可視化
+## Visualization
 
 <iframe src="app/index.html?lang=ja" title="1・2・3次元 Ising 模型のシミュレーション" data-auto-height scrolling="no" style="display: block; width: 100%; height: 2450px; min-height: 1500px; border: 0; overflow: hidden;" loading="eager"></iframe>
 
