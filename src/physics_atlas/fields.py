@@ -122,6 +122,7 @@ FIELDS = (
         "CFT, strings, branes, dualities, and higher-dimensional geometry.",
         "弦理論",
         "CFT、弦、ブレーン、双対性、高次元幾何",
+        "assets/images/string-theory.png",
     ),
     FieldDefinition(
         "mathematics-for-physics",

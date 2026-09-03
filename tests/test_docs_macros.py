@@ -35,8 +35,9 @@ def test_topic_cards_count_visualizations_from_metadata(tmp_path: Path) -> None:
     assert "background-image: url('assets/images/mathematics-for-physics.png')" in cards
     assert "background-image: url('assets/images/statistical-physics.png')" in cards
     assert "background-image: url('assets/images/relativity.png')" in cards
-    assert cards.count("background-image:") == 5
-    assert japanese_cards.count("background-image:") == 5
+    assert "background-image: url('assets/images/string-theory.png')" in cards
+    assert cards.count("background-image:") == 6
+    assert japanese_cards.count("background-image:") == 6
     assert "1 visualization" in cards
     assert "0 visualizations" in cards
     assert cards.count('class="topic-card"') == 14

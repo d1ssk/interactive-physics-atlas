@@ -1,0 +1,16 @@
+id: ads2-ds2-spacetime-geometry
+title: AdS2 and dS2 Spacetime Geometry
+title_ja: AdS₂ と dS₂ の時空幾何
+field: relativity
+topics:
+  - anti-de Sitter spacetime
+  - de Sitter spacetime
+  - geodesics
+  - conformal compactification
+level:
+  - advanced undergraduate
+  - graduate
+runtime: plotly-static
+page: relativity/ads2-ds2-spacetime-geometry
+summary: Compare AdS2 and dS2 through ambient embeddings, coordinate patches, geodesics, and causal conformal diagrams.
+summary_ja: 埋め込み、座標パッチ、測地線、因果的共形図を通してAdS₂とdS₂を比較します。
