@@ -27,6 +27,13 @@ def test_static_build_stages_localized_application_assets(tmp_path, visualizatio
     assert 'title: "Lorentz変換"' in application
     assert 'timeDilation: "Time dilation"' in application
     assert 'timeDilation: "時間の遅れ"' in application
+    assert r'frameBase: "frame \\(S\\)"' in application
+    assert r'frameBase: "座標系 \\(S\\)"' in application
+    assert 'lorentzFactor: "Lorentz factor"' in application
+    assert 'lorentzFactor: "Lorentz 因子"' in application
+    assert 'data-i18n="frameBase"' in html
+    assert 'data-i18n="framePrime"' in html
+    assert 'data-i18n="lorentzFactor"' in html
     assert 'DOMAIN_VERSION = "physics-atlas.lorentz-domain.v1"' in domain
 
 
