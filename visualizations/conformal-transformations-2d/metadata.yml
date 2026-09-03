@@ -1,0 +1,16 @@
+id: conformal-transformations-2d
+title: Two-Dimensional Conformal Transformations
+title_ja: 2次元共形変換
+field: string-theory
+topics:
+  - complex analysis
+  - conformal transformations
+  - Mobius transformations
+  - Witt algebra
+level:
+  - advanced undergraduate
+  - graduate
+runtime: plotly-static
+page: string-theory/conformal-transformations-2d
+summary: Connect local Wirtinger derivatives, global Mobius maps of the Riemann sphere, and holomorphic Witt flows.
+summary_ja: 局所的なWirtinger微分、Riemann球面上の大域的Möbius変換、正則Wittフローの関係。

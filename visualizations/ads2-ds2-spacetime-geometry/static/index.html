@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AdS2 and dS2 Spacetime Geometry</title>
+  <link rel="stylesheet" href="visualization-theme.css">
+  <style>__APPLICATION_CSS__</style>
+  <script src="visualization-theme.js"></script>
+  <script>
+    window.MathJax = {
+      tex: {inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]]},
+      startup: {
+        ready() {
+          MathJax.startup.defaultReady();
+          MathJax.startup.promise.then(() => {
+            window.dispatchEvent(new Event("physics-atlas:mathjax-ready"));
+          });
+        },
+      },
+    };
+  </script>
+  <script defer src="mathjax-tex-svg.js"></script>
+  <script>__PLOTLY_JS__</script>
+</head>
+<body>
+<main>
+  <header class="hero">
+    <h1 data-i18n="title">AdS₂ and dS₂ Spacetime Geometry</h1>
+    <p data-i18n="lede">Compare two constant-curvature Lorentzian spacetimes without
+      confusing an ambient embedding with a spacetime diagram.</p>
+  </header>
+
+  <section class="controls" id="controls" aria-label="Visualization controls">
+    <label><span data-i18n="spacetimeLabel">Spacetime</span>
+      <select id="spacetime"></select>
+    </label>
+    <label><span data-i18n="chartLabel">Coordinate chart</span>
+      <select id="chart"></select>
+    </label>
+    <label><span id="q1-label">coordinate 1</span>
+      <span class="range-row"><input id="q1" type="range"><output id="q1-value"></output></span>
+    </label>
+    <label><span id="q2-label">coordinate 2</span>
+      <span class="range-row"><input id="q2" type="range"><output id="q2-value"></output></span>
+    </label>
+    <label><span data-i18n="boostLabel">Local-frame boost \(\chi\)</span>
+      <span class="range-row"><input id="boost" type="range"><output id="boost-value"></output></span>
+    </label>
+  </section>
+
+  <p id="chart-note" class="note" role="status"></p>
+
+  <section class="panel">
+    <div class="section-heading">
+      <div>
+        <p class="step" data-i18n="embeddingStep">1 · Ambient embedding</p>
+        <h2 data-i18n="embeddingTitle">The quadric is a geometric model, not a Euclidean surface</h2>
+      </div>
+      <div class="legend" id="causal-legend" aria-label="Curve colors">
+        <span class="time" data-i18n="timelike">timelike geodesic</span>
+        <span class="space" data-i18n="spacelike">spacelike geodesic</span>
+        <span class="null" data-i18n="null">null geodesic</span>
+      </div>
+    </div>
+    <div id="embedding-plot" class="plot" role="img"></div>
+    <p class="caption" data-i18n="embeddingCaption">Move the coordinate sliders to follow
+      the selected point, two coordinate lines, and its local orthonormal and null frame.
+      Causal type is determined by the ambient indefinite metric, not Euclidean appearance.</p>
+  </section>
+
+  <section class="panel causal-grid">
+    <div>
+      <p class="step" data-i18n="conformalStep">2 · Conformal compactification</p>
+      <h2 data-i18n="conformalTitle">Null rays and infinity become readable</h2>
+      <p id="curvature-copy"></p>
+      <div class="equation" id="metric-copy"></div>
+      <p data-i18n="conformalCopy">The conformal factor changes lengths but preserves null
+        directions, so this view exposes boundaries, horizons, and causal contact.</p>
+    </div>
+    <div id="penrose-plot" class="plot" role="img"></div>
+  </section>
+
+  <section class="takeaway">
+    <h2 data-i18n="togetherTitle">Read the two views together</h2>
+    <p data-i18n="embeddingTakeaway"><strong>Embedding:</strong> verifies the
+      constant-curvature constraint and shows how coordinate patches sit on the quadric.</p>
+    <p data-i18n="conformalTakeaway"><strong>Conformal diagram:</strong> suppresses the
+      conformal factor so that null directions, infinity, and observer horizons are explicit.</p>
+    <p data-i18n="convention">The displayed AdS₂ quadric has periodic global time; the
+      conformal panel shows its universal cover. The long explanations and general-dimensional
+      formulas appear in the surrounding atlas article.</p>
+  </section>
+</main>
+<script>
+  (() => {
+    if (window.parent === window) return;
+    const PARENT_TARGET_ORIGIN = window.location.origin;
+    function report() {
+      const main = document.querySelector("main");
+      const contentBottom = main ? main.getBoundingClientRect().bottom : 0;
+      const contentHeight = Math.max(contentBottom, document.body.getBoundingClientRect().height);
+      const frameHeight = Math.ceil(contentHeight);
+      if (window.frameElement) {
+        window.frameElement.style.minHeight = "0";
+        window.frameElement.style.height = `${frameHeight}px`;
+        window.frameElement.setAttribute("scrolling", "no");
+        window.frameElement.style.overflow = "hidden";
+      }
+      window.parent.postMessage(
+        {type: "physics-atlas:frame-height", height: frameHeight},
+        PARENT_TARGET_ORIGIN,
+      );
+    }
+    window.addEventListener("load", report);
+    window.addEventListener("resize", report);
+    window.addEventListener("physics-atlas:mathjax-ready", report);
+    window.addEventListener("message", event => {
+      const expectedParent = event.source === window.parent;
+      const expectedOrigin = event.origin === PARENT_TARGET_ORIGIN;
+      if (expectedParent && expectedOrigin
+          && event.data?.type === "physics-atlas:request-frame-height") report();
+    });
+    if ("ResizeObserver" in window) {
+      const observer = new ResizeObserver(report);
+      observer.observe(document.body);
+      const main = document.querySelector("main");
+      if (main) observer.observe(main);
+      window.addEventListener("pagehide", () => observer.disconnect(), {once: true});
+    }
+    document.fonts?.ready.then(report);
+    report();
+  })();
+</script>
+<script>const DATA = __APPLICATION_DATA__;</script>
+<script>__APPLICATION_JS__</script>
+</body>
+</html>

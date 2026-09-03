@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Two-Dimensional Conformal Transformations</title>
+  <link rel="stylesheet" href="visualization-theme.css">
+  <style>__APPLICATION_CSS__</style>
+  <script src="visualization-theme.js"></script>
+  <script>
+    window.MathJax = {
+      tex: {inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]]},
+      startup: {
+        ready() {
+          MathJax.startup.defaultReady();
+          MathJax.startup.promise.then(() => {
+            window.dispatchEvent(new Event("physics-atlas:mathjax-ready"));
+          });
+        },
+      },
+    };
+  </script>
+  <script defer src="mathjax-tex-svg.js"></script>
+  <script>__PLOTLY_JS__</script>
+</head>
+<body>
+<main>
+  <header class="hero">
+    <h1 data-i18n="title">Two-Dimensional Conformal Transformations</h1>
+    <p data-i18n="lede">Follow conformality from a local differential to global Möbius maps
+      and the infinitesimal Witt algebra.</p>
+  </header>
+
+  <section class="panel" id="local-panel">
+    <div class="heading-row">
+      <div>
+        <p class="step" data-i18n="localStep">1 · Local differential</p>
+        <h2 data-i18n="localTitle">When does a small circle stay a circle?</h2>
+      </div>
+      <div class="control-cluster">
+        <label><span data-i18n="mapLabel">Map</span><select id="local-map"></select></label>
+        <label id="mixing-control"><span data-i18n="mixingLabel">Antiholomorphic mixing \(\lambda\)</span>
+          <span class="range-row"><input id="mixing" type="range"><output id="mixing-value"></output></span>
+        </label>
+      </div>
+    </div>
+    <div class="diagnostics" aria-live="polite">
+      <div><span>\(\partial_z f\)</span><strong id="partial-z"></strong></div>
+      <div><span>\(\partial_{\bar z} f\)</span><strong id="partial-zbar"></strong></div>
+      <div><span data-i18n="axisRatio">axis ratio \(K\)</span><strong id="distortion"></strong></div>
+      <div><span data-i18n="orientationLabel">orientation</span><strong id="orientation"></strong></div>
+    </div>
+    <p id="local-note" class="note"></p>
+    <div id="local-grid" class="plot" role="img"></div>
+    <p class="caption" data-i18n="localCaption">Purple is the exact image of a small circle;
+      dashed green is its first-order Wirtinger approximation. A conformal differential keeps
+      the two local singular values equal.</p>
+  </section>
+
+  <section class="panel" id="mobius-panel">
+    <div class="heading-row">
+      <div>
+        <p class="step" data-i18n="globalStep">2 · Global completion</p>
+        <h2 data-i18n="globalTitle">Möbius transformations act smoothly through infinity</h2>
+      </div>
+      <label><span data-i18n="mobiusLabel">\(\mathrm{PSL}(2,\mathbb C)\) preset</span>
+        <select id="mobius-preset"></select>
+      </label>
+    </div>
+    <div class="sphere-grid">
+      <div id="mobius-sphere" class="plot" role="img"></div>
+      <div class="explanation">
+        <p id="mobius-note"></p>
+        <div class="matrix" id="mobius-matrix"></div>
+        <p data-i18n="sphereLegend">Gray lines are the reference grid. Blue and gold are
+          transformed latitude and longitude families. Red points are fixed eigenlines.</p>
+        <p data-i18n="mobiusInvariant"><strong>Invariant:</strong> generalized circles map to
+          generalized circles, crossing angles are preserved, and the ordered cross ratio is unchanged.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="witt-panel">
+    <div class="heading-row">
+      <div>
+        <p class="step" data-i18n="algebraStep">3 · Infinitesimal conformal algebra</p>
+        <h2 data-i18n="algebraTitle">Global Möbius modes sit inside the Witt algebra</h2>
+      </div>
+      <div class="control-cluster">
+        <label><span data-i18n="modeLabel">Mode \(m\)</span><select id="witt-mode"></select></label>
+        <label><span data-i18n="flowLabel">Flow parameter \(\epsilon\)</span>
+          <span class="range-row"><input id="epsilon" type="range"><output id="epsilon-value"></output></span>
+        </label>
+      </div>
+    </div>
+    <div id="witt-plot" class="plot" role="img"></div>
+    <p id="witt-note" class="note"></p>
+    <div class="equation">\(\ell_m=-z^{m+1}\partial_z,\qquad
+      [\ell_m,\ell_n]=(m-n)\ell_{m+n}\)</div>
+    <p class="caption" data-i18n="wittCaption">Red arrows show the positive-parameter
+      generator. Only \(m=-1,0,1\) are everywhere-regular holomorphic vector fields on the
+      Riemann sphere; the other finite maps shown use a principal branch and are local.</p>
+  </section>
+
+  <section class="takeaway">
+    <h2 data-i18n="chainTitle">The conceptual chain</h2>
+    <p data-i18n="chainLocal"><strong>Local:</strong> \(\partial_{\bar z}f=0\) makes the real
+      Jacobian a rotation times a scale when \(\partial_zf\ne0\).</p>
+    <p data-i18n="chainGlobal"><strong>Global:</strong> bijective holomorphic maps of
+      \(\mathbb{CP}^1\) form \(\mathrm{PSL}(2,\mathbb C)\).</p>
+    <p data-i18n="chainAlgebra"><strong>Algebraic:</strong> \(\ell_{-1},\ell_0,\ell_1\)
+      generate the global subgroup; all integer modes form the centerless Witt algebra locally.</p>
+  </section>
+</main>
+<script>
+  (() => {
+    if (window.parent === window) return;
+    const PARENT_TARGET_ORIGIN = window.location.origin;
+    function report() {
+      const main = document.querySelector("main");
+      const contentBottom = main ? main.getBoundingClientRect().bottom : 0;
+      const contentHeight = Math.max(contentBottom, document.body.getBoundingClientRect().height);
+      const frameHeight = Math.ceil(contentHeight);
+      if (window.frameElement) {
+        window.frameElement.style.minHeight = "0";
+        window.frameElement.style.height = `${frameHeight}px`;
+        window.frameElement.setAttribute("scrolling", "no");
+        window.frameElement.style.overflow = "hidden";
+      }
+      window.parent.postMessage(
+        {type: "physics-atlas:frame-height", height: frameHeight},
+        PARENT_TARGET_ORIGIN,
+      );
+    }
+    window.addEventListener("load", report);
+    window.addEventListener("resize", report);
+    window.addEventListener("physics-atlas:mathjax-ready", report);
+    window.addEventListener("message", event => {
+      const expectedParent = event.source === window.parent;
+      const expectedOrigin = event.origin === PARENT_TARGET_ORIGIN;
+      if (expectedParent && expectedOrigin
+          && event.data?.type === "physics-atlas:request-frame-height") report();
+    });
+    if ("ResizeObserver" in window) {
+      const observer = new ResizeObserver(report);
+      observer.observe(document.body);
+      const main = document.querySelector("main");
+      if (main) observer.observe(main);
+      window.addEventListener("pagehide", () => observer.disconnect(), {once: true});
+    }
+    document.fonts?.ready.then(report);
+    report();
+  })();
+</script>
+<script>const DATA = __APPLICATION_DATA__;</script>
+<script>__APPLICATION_JS__</script>
+</body>
+</html>
