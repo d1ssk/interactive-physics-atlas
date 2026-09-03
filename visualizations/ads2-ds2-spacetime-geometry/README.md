@@ -17,9 +17,11 @@ former `workbench/ads` notebooks.
 - in-app general-dimensional formulas and detailed global/Poincare/flat/static
   coordinate guides
 
-The ambient-coordinate order is `(X0, X1, X2)`.  The Plotly axes are reordered
-to `(X1, X2, X0)` for readability.  The AdS ambient metric is `diag(-,+,-)`;
-the dS ambient metric is `diag(-,+,+)`.
+AdS arrays store ambient coordinates as $(X_{-1},X_1,X_0)$ and Plotly shows
+them as $(X_1,X_0,X_{-1})$; dS arrays store $(X_0,X_1,X_2)$ and Plotly shows
+$(X_1,X_2,X_0)$.  This places a spacelike direction on the horizontal axis in
+both cases.  The AdS ambient metric is $\operatorname{diag}(-,+,-)$ and the dS
+ambient metric is $\operatorname{diag}(-,+,+)$ in their respective stored orders.
 
 The AdS quadric itself has periodic global time and therefore closed timelike
 curves.  The causal panel explicitly displays the universal cover normally

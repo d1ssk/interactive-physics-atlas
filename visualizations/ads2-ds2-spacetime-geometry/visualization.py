@@ -37,7 +37,7 @@ DS_VISIBLE_X0_LIMIT = float(np.sinh(DS_GLOBAL_TIME_LIMIT))
 
 
 def _plot_coordinates(points: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Map ambient (X0,X1,X2) to displayed (X1,X2,X0)."""
+    """Move the stored spacelike component to the horizontal display axis."""
 
     points = np.asarray(points)
     return points[..., 1], points[..., 2], points[..., 0]
@@ -417,6 +417,7 @@ def _coordinate_control_data(kind: str, chart: str, boost_keys: tuple[str, ...])
 
 
 def _embedding_layout(kind: str) -> go.Layout:
+    axis_titles = ("X₁", "X₀", "X₋₁") if kind == "ads" else ("X₁", "X₂", "X₀")
     return go.Layout(
         template=None,
         paper_bgcolor=PALETTE["paper"],
@@ -425,9 +426,9 @@ def _embedding_layout(kind: str) -> go.Layout:
         height=650,
         hovermode=False,
         scene={
-            "xaxis": {"title": "X1", "showbackground": False, "showspikes": False},
-            "yaxis": {"title": "X2", "showbackground": False, "showspikes": False},
-            "zaxis": {"title": "X0", "showbackground": False, "showspikes": False},
+            "xaxis": {"title": axis_titles[0], "showbackground": False, "showspikes": False},
+            "yaxis": {"title": axis_titles[1], "showbackground": False, "showspikes": False},
+            "zaxis": {"title": axis_titles[2], "showbackground": False, "showspikes": False},
             "aspectmode": "data",
             "dragmode": "turntable",
             "camera": {"eye": {"x": 1.45, "y": 1.35, "z": 1.05}},

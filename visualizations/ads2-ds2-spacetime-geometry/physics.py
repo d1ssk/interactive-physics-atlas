@@ -2,10 +2,11 @@
 
 Conventions
 -----------
-AdS2 is the quadric ``-X0^2 + X1^2 - X2^2 = -L^2`` in R^(2,1).
-Its global time coordinate ``tau`` is dimensionless.  The displayed quadric
-has periodic time; the physical spacetime used in most applications is its
-universal cover, obtained by unwrapping ``tau``.
+AdS2 is the quadric ``-X_{-1}^2-X_0^2+X_1^2=-L^2`` in R^(2,1).
+AdS arrays store coordinates as ``(X_{-1}, X_1, X_0)``, giving the ambient
+metric ``diag(-,+,-)``.  Its global time coordinate ``tau`` is dimensionless.
+The displayed quadric has periodic time; the physical spacetime used in most
+applications is its universal cover, obtained by unwrapping ``tau``.
 
 dS2 is the quadric ``-X0^2 + X1^2 + X2^2 = L^2`` in R^(1,2).  Its global,
 flat-slicing, and static-patch time coordinates have dimensions of length.
@@ -79,9 +80,9 @@ class AntiDeSitter2:
             raise ValueError("Poincare radial coordinate z must be finite and positive")
         length = self.L
         return _stack(
-            length * t / z,
-            (length**2 - z**2 + t**2) / (2.0 * z),
             (length**2 + z**2 - t**2) / (2.0 * z),
+            (length**2 - z**2 + t**2) / (2.0 * z),
+            length * t / z,
         )
 
     def global_frame(
@@ -103,12 +104,12 @@ class AntiDeSitter2:
 
         point = self.poincare_to_embedding(t, z)
         length = self.L
-        timelike = np.asarray([1.0, t / length, -t / length])
+        timelike = np.asarray([-t / length, t / length, 1.0])
         spacelike = np.asarray(
             [
-                -t / z,
-                -(length**2 + z**2 + t**2) / (2.0 * length * z),
                 (-(length**2) + z**2 + t**2) / (2.0 * length * z),
+                -(length**2 + z**2 + t**2) / (2.0 * length * z),
+                -t / z,
             ]
         )
         return self._boosted_frame(point, timelike, spacelike, rapidity)

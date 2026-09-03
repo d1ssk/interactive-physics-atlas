@@ -19,6 +19,46 @@ def test_ads_coordinate_maps_stay_on_quadric(physics, radius):
     assert np.allclose(geometry.embedding_dot(poincare_points, poincare_points), -(radius**2))
 
 
+def test_ads_poincare_map_uses_the_documented_global_embedding_convention(physics):
+    geometry = physics.AntiDeSitter2(1.7)
+    poincare_origin = geometry.poincare_to_embedding(0.0, geometry.L)
+    global_origin = geometry.global_to_embedding(0.0, 0.0)
+
+    assert np.allclose(poincare_origin, global_origin)
+
+    times = np.asarray([-0.8, 0.0, 0.6]) * geometry.L
+    radii = np.asarray([0.7, 1.0, 1.9]) * geometry.L
+    poincare_points = geometry.poincare_to_embedding(times, radii)
+    global_times = np.arctan2(poincare_points[:, 2], poincare_points[:, 0])
+    global_radii = np.arcsinh(poincare_points[:, 1] / geometry.L)
+    assert np.allclose(
+        poincare_points,
+        geometry.global_to_embedding(global_times, global_radii),
+        rtol=1e-12,
+        atol=1e-12,
+    )
+
+
+def test_ads_poincare_frame_matches_coordinate_tangents(physics):
+    geometry = physics.AntiDeSitter2(1.4)
+    time = 0.3
+    radius = 0.8
+    _, timelike, spacelike, _, _ = geometry.poincare_frame(time, radius)
+    step = 1e-6
+
+    time_tangent = (
+        geometry.poincare_to_embedding(time + step, radius)
+        - geometry.poincare_to_embedding(time - step, radius)
+    ) / (2.0 * step)
+    radial_tangent = (
+        geometry.poincare_to_embedding(time, radius + step)
+        - geometry.poincare_to_embedding(time, radius - step)
+    ) / (2.0 * step)
+
+    assert np.allclose(timelike, radius / geometry.L * time_tangent, rtol=1e-9, atol=1e-9)
+    assert np.allclose(spacelike, radius / geometry.L * radial_tangent, rtol=1e-9, atol=1e-9)
+
+
 @pytest.mark.parametrize("chart,coordinates", [("global", (0.4, -0.7)), ("poincare", (0.3, 0.8))])
 def test_ads_frames_are_orthonormal_for_any_boost(physics, chart, coordinates):
     geometry = physics.AntiDeSitter2(1.4)
