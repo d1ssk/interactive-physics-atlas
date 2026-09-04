@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Torque-Free Rotation of an Asymmetric Rigid Body</title>
+  <link rel="stylesheet" href="visualization-theme.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="visualization-theme.js"></script>
+  <script>
+    window.MathJax = {
+      tex: {inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]]},
+      startup: {
+        ready() {
+          MathJax.startup.defaultReady();
+          MathJax.startup.promise.then(() => {
+            document.documentElement.classList.add("math-ready");
+            window.dispatchEvent(new Event("physics-atlas:mathjax-ready"));
+          });
+        },
+      },
+    };
+  </script>
+  <script defer src="mathjax-tex-svg.js"></script>
+</head>
+<body>
+  <main>
+    <header class="app-header">
+      <div>
+        <h1 data-i18n="title">Torque-free rotation of an asymmetric rigid body</h1>
+      </div>
+      <div class="header-copy">
+        <p data-i18n="intro">Rotation is stable near the smallest and largest principal axes, but unstable near the intermediate axis. Compare the body's flips with the geometry of its conserved quantities.</p>
+        <div class="inertia-order" data-i18n-aria-label="inertiaOrderLabel" aria-label="Ordering of the principal moments of inertia">
+          <span class="math-source">\(I_1=1.0\)</span><b>&lt;</b><span class="math-source">\(I_2=1.7\)</span><b>&lt;</b><span class="math-source">\(I_3=2.4\)</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="control-deck" data-i18n-aria-label="controlsLabel" aria-label="Initial condition and playback controls">
+      <div class="control-group axis-picker">
+        <span class="control-label" data-i18n="initialOmega">Initial angular velocity</span>
+        <div class="segmented" role="group" data-i18n-aria-label="axisGroupLabel" aria-label="Principal axis nearest the initial angular velocity">
+          <button type="button" data-axis="0" aria-pressed="false"><i>1</i><span><span data-i18n="axisOne">axis 1</span><small data-i18n="stable">stable</small></span></button>
+          <button type="button" data-axis="1" class="active" aria-pressed="true"><i>2</i><span><span data-i18n="axisTwo">axis 2</span><small data-i18n="unstable">unstable</small></span></button>
+          <button type="button" data-axis="2" aria-pressed="false"><i>3</i><span><span data-i18n="axisThree">axis 3</span><small data-i18n="stable">stable</small></span></button>
+        </div>
+      </div>
+      <label class="slider-control" for="tilt">
+        <span><b data-i18n="initialDisplacement">Initial displacement from axis</b><output id="tilt-output">6.0°</output></span>
+        <input id="tilt" type="range" min="0.5" max="16" step="0.5" value="6">
+      </label>
+      <label class="slider-control" for="speed">
+        <span><b data-i18n="timeScale">Time scale</b><output id="speed-output">1.0×</output></span>
+        <input id="speed" type="range" min="0.25" max="2.5" step="0.25" value="1">
+      </label>
+      <div class="transport">
+        <button type="button" id="play-pause" class="primary"><span aria-hidden="true">Ⅱ</span> <span data-role="play-label">Pause</span></button>
+        <button type="button" id="reset" data-i18n="reset">Reset</button>
+      </div>
+    </section>
+
+    <section class="status-strip" aria-live="polite">
+      <div><span data-i18n="selectedAxis">SELECTED AXIS</span><strong id="axis-name">Intermediate axis \(I_2\)</strong></div>
+      <div><span data-i18n="linearStability">LINEAR STABILITY</span><strong id="stability" class="unstable"><i></i> Unstable</strong></div>
+      <div><span data-i18n="time">TIME</span><strong class="math-source">\(t\) = <output id="time-output">0.00</output></strong></div>
+      <div><span data-i18n="axisDeparture">AXIS DEPARTURE</span><strong><output id="departure-output">6.0°</output></strong></div>
+    </section>
+
+    <section class="views">
+      <figure class="view-card body-view">
+        <figcaption><h2 data-i18n="bodyFlip">Body orientation</h2><p data-i18n="dragHint">Drag to rotate the view</p></figcaption>
+        <canvas id="body-canvas" width="760" height="650" tabindex="0" role="img" data-i18n-aria-label="bodyCanvasLabel" aria-label="Torque-free asymmetric rigid body viewed in inertial space"></canvas>
+        <div class="canvas-legend">
+          <span class="math-source"><i class="key momentum"></i><span data-i18n="fixedMomentum">space-fixed</span> \(\mathbf L\)</span>
+          <span class="math-source"><i class="key omega"></i>\(\omega\) <span data-i18n="spaceView">(space view)</span></span>
+          <span><i class="key trail"></i><span data-i18n="axisOneTrail">body-axis 1 trail</span></span>
+        </div>
+      </figure>
+
+      <figure class="view-card momentum-view">
+        <figcaption><h2 data-i18n="invariantIntersection">Intersection of invariants</h2><p data-i18n="dragHint">Drag to rotate the view</p></figcaption>
+        <canvas id="momentum-canvas" width="760" height="650" tabindex="0" role="img" data-i18n-aria-label="momentumCanvasLabel" aria-label="Angular-momentum sphere, energy ellipsoid, and their intersection in the body frame"></canvas>
+        <div class="canvas-legend">
+          <span><i class="key sphere"></i><span data-i18n="momentumSphere">angular momentum sphere</span></span>
+          <span><i class="key ellipsoid"></i><span data-i18n="energyEllipsoid">energy ellipsoid</span></span>
+          <span><i class="key orbit"></i><span data-i18n="eulerOrbit">intersection / Euler orbit</span></span>
+          <span class="math-source"><i class="key momentum"></i>\(\mathbf L\)</span>
+          <span class="math-source"><i class="key omega"></i>\(\omega\)</span>
+          <span class="math-source"><i class="key euler-vector"></i>\(\dot{\mathbf L}=\mathbf L\times\omega\) <span data-i18n="vectorGain">(length ×2)</span></span>
+        </div>
+      </figure>
+    </section>
+
+    <section class="equation-card">
+      <h2 data-i18n="twoSurfaces">Two conserved surfaces constrain the motion</h2>
+      <div class="equations" data-i18n-aria-label="equationsLabel" aria-label="Conserved angular momentum and energy">
+        <span class="math-source">\(L^2=\mathrm{const.}\)</span>
+        <span class="math-source">\(E=\dfrac{L_1^2}{2I_1}+\dfrac{L_2^2}{2I_2}+\dfrac{L_3^2}{2I_3}\)</span>
+      </div>
+      <p data-i18n="surfaceExplanation">In the body frame, the tip of angular momentum remains on both surfaces. Their yellow intersection is the Euler orbit, and the purple Euler vector is tangent to it.</p>
+    </section>
+  </main>
+  <noscript data-i18n="noscript">JavaScript is required for this visualization.</noscript>
+  <script>
+    (() => {
+      if (window.parent === window) return;
+      const PARENT_TARGET_ORIGIN = window.location.origin;
+      function report() {
+        const main = document.querySelector("main");
+        const contentBottom = main ? main.getBoundingClientRect().bottom : 0;
+        const contentHeight = Math.max(contentBottom, document.body.getBoundingClientRect().height);
+        const frameHeight = Math.ceil(contentHeight);
+        if (window.frameElement) {
+          window.frameElement.style.minHeight = "0";
+          window.frameElement.style.height = frameHeight + "px";
+          window.frameElement.setAttribute("scrolling", "no");
+          window.frameElement.style.overflow = "hidden";
+        }
+        window.parent.postMessage({type: "physics-atlas:frame-height", height: frameHeight}, PARENT_TARGET_ORIGIN);
+      }
+      window.addEventListener("load", report);
+      window.addEventListener("resize", report);
+      window.addEventListener("physics-atlas:mathjax-ready", report);
+      window.addEventListener("message", event => {
+        const expectedParent = event.source === window.parent;
+        const expectedOrigin = event.origin === PARENT_TARGET_ORIGIN;
+        if (expectedParent && expectedOrigin && event.data?.type === "physics-atlas:request-frame-height") report();
+      });
+      if ("ResizeObserver" in window) {
+        const observer = new ResizeObserver(report);
+        observer.observe(document.body);
+        const main = document.querySelector("main");
+        if (main) observer.observe(main);
+        window.addEventListener("pagehide", () => observer.disconnect(), {once:true});
+      }
+      document.fonts?.ready.then(report);
+      report();
+    })();
+  </script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
