@@ -16,20 +16,6 @@ In the inertial frame, the angular momentum vector $\mathbf L$ is constant. In t
 
 <iframe src="app/index.html?lang=en" title="Torque-free rotation and a grab-and-release asymmetric rigid-body challenge" style="display: block; width: 100%; height: 3000px; min-height: 1100px; border: 0; overflow: hidden;" loading="eager" scrolling="no" data-auto-height></iframe>
 
-### Grab, swing, and release
-
-The lower panel starts with the same body at rest. Its six grip points are the intersections of the surface with the positive and negative principal axes. While a point is held, the body's attitude follows the pointer about the fixed center. Releasing it carries the estimated instantaneous angular velocity of the drag into the torque-free motion:
-
-$$
-\mathbf{\omega}(t_{\mathrm{release}}^+)
-=
-\mathbf{\omega}_{\mathrm{drag}}(t_{\mathrm{release}}^-)
-$$
-
-The constraint supplies whatever external torque is needed while the point is held; that contact force is not modeled separately. The center of mass remains fixed, so translation is not displayed. After release, the external torque vanishes and the body follows the Euler equations. A quick flick therefore creates a much faster spin than a slow sweep. A drag that starts anywhere other than a grip point rotates the camera instead.
-
-The release velocity is estimated from the most recent $90$ ms of pointer motion; holding the point still for $120$ ms before release produces no spin. Its magnitude is capped at $|\mathbf{\omega}|=32$ in the visualization's dimensionless units. While holding, the readouts preview the nearest principal axis, angular error, and release speed. For a launch nearest to the intermediate axis, the timer records the first reversal for which the signed body-frame component satisfies $L_2/|\mathbf L|\leq -0.98$ relative to its launch direction. This operational threshold distinguishes a visually complete flip from merely crossing the plane $L_2=0$.
-
 ## Euler equations and conserved quantities
 
 Choose the principal axes as the body-frame coordinate axes. The inertia tensor is then
