@@ -1,6 +1,6 @@
 id: poynting-circuit
-title: Electromagnetic Energy Flow Around a Circuit
-title_ja: 回路周囲の電磁エネルギー流
+title: Electromagnetic Fields and Energy Flow in a Circuit
+title_ja: 回路の電磁場とエネルギー流
 field: electromagnetism
 topics:
   - Poynting vector
