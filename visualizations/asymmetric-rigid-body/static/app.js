@@ -216,6 +216,7 @@ class OrbitView {
 
   installInteraction() {
     this.canvas.addEventListener("pointerdown", (event) => {
+      if (this.drag) return;
       this.canvas.setPointerCapture(event.pointerId);
       const custom = this.interaction.pointerDown?.(event, this) === true;
       this.drag = {

@@ -53,6 +53,10 @@ def test_static_build_contract(tmp_path, visualization) -> None:
     assert "keyboard: 1–6 select, W/A/S/D move, Space releases" in app
     assert "keyDown(event, view)" in app
     assert 'event.code === "Space" || event.key === "Enter"' in app
+    assert (
+        'this.canvas.addEventListener("pointerdown", (event) => {\n      if (this.drag) return;'
+        in app
+    )
     assert "boldsymbol" not in html
     assert ".torque-view canvas" in style
     assert "--paper: var(--atlas-viz-background)" in style
