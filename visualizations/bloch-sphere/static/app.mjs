@@ -15,6 +15,7 @@ const TRANSLATIONS = {
     panel1Title: "State and Bloch vector", panel1Copy: "Choose a basis and amplitudes; the corresponding state appears as one point on the sphere.",
     panel2Title: "Superposition of states", panel2Copy: "Add two kets as complex vectors, then normalize. The relative phase changes the result.",
     panel3Title: "Single-qubit unitary operations", panel3Copy: "Choose a gate and play the rotation from input to output. The faint arrow is the input.",
+    stateInput: "State input", stateA: "State A", stateB: "State B", result: "Result", inputState: "Input state",
     inputBasis: "Input basis", amplitudeBalance: "Amplitude balance", relativePhase: "Relative phase",
     zBasis: "Z basis", xBasis: "X basis", yBasis: "Y basis", firstBasisState: "first basis state",
     secondBasisState: "second basis state", identity: "identity", halfTurnX: "180° about x-axis",
@@ -41,6 +42,7 @@ const TRANSLATIONS = {
     panel1Title: "状態とBloch vectorの関係", panel1Copy: "基底と振幅を選ぶと、対応する状態が球面上の1点として現れます。",
     panel2Title: "状態の重ね合わせ", panel2Copy: "2つのketを複素ベクトルとして足して正規化します。相対位相によって結果が変わります。",
     panel3Title: "1量子ビット・ユニタリ操作", panel3Copy: "ゲートを選び、入力から出力への回転を再生します。薄い矢印が入力です。",
+    stateInput: "状態の入力", stateA: "状態 A", stateB: "状態 B", result: "結果", inputState: "入力状態",
     inputBasis: "入力基底", amplitudeBalance: "振幅バランス", relativePhase: "相対位相",
     zBasis: "Z基底", xBasis: "X基底", yBasis: "Y基底", firstBasisState: "第1基底状態",
     secondBasisState: "第2基底状態", identity: "恒等操作", halfTurnX: "x軸まわりに180°",
@@ -197,7 +199,7 @@ class BlochSphere {
   constructor(canvas) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
-    this.model = {vector: null, color: "#e24a75", ghosts: [], axis: null, trajectory: []};
+    this.model = {vector: null, color: "#1f77b4", ghosts: [], axis: null, trajectory: []};
     this.drag = null;
     this.installInteraction();
     sphereViews.push(this);
@@ -294,15 +296,12 @@ class BlochSphere {
     }
   }
 
-  drawLabel(point, text, color) {
+  drawLabel(point, text) {
     const projected = this.project(point);
     const ctx = this.ctx;
     ctx.save();
-    ctx.font = `600 ${Math.max(11, this.canvas.width * 0.022)}px Georgia, serif`;
-    const width = ctx.measureText(text).width + 12;
-    ctx.fillStyle = "rgba(7, 22, 25, .76)";
-    ctx.fillRect(projected.x - width / 2, projected.y - 10, width, 20);
-    ctx.fillStyle = color;
+    ctx.font = `${Math.max(11, this.canvas.width * 0.022)}px Arial, sans-serif`;
+    ctx.fillStyle = "#333333";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(text, projected.x, projected.y);
@@ -322,13 +321,9 @@ class BlochSphere {
     ctx.strokeStyle = color;
     ctx.fillStyle = color;
     ctx.lineWidth = width;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
+    ctx.lineCap = "butt";
+    ctx.lineJoin = "miter";
     ctx.setLineDash(options.dashed ? [10, 9] : []);
-    if (options.glow) {
-      ctx.shadowColor = color;
-      ctx.shadowBlur = 16;
-    }
     ctx.beginPath();
     ctx.moveTo(start.x, start.y);
     ctx.lineTo(end.x, end.y);
@@ -340,10 +335,6 @@ class BlochSphere {
     ctx.lineTo(end.x - head * Math.cos(angle + 0.43), end.y - head * Math.sin(angle + 0.43));
     ctx.closePath();
     ctx.fill();
-    ctx.beginPath();
-    ctx.arc(end.x, end.y, width * 1.65, 0, Math.PI * 2);
-    ctx.fillStyle = "#f8ffff";
-    ctx.fill();
     ctx.restore();
   }
 
@@ -352,11 +343,7 @@ class BlochSphere {
     const {width, height, cx, cy, radius} = this.geometry();
     ctx.clearRect(0, 0, width, height);
 
-    const glow = ctx.createRadialGradient(cx - radius * .28, cy - radius * .34, radius * .04, cx, cy, radius * 1.08);
-    glow.addColorStop(0, "rgba(86, 150, 151, .31)");
-    glow.addColorStop(.55, "rgba(28, 65, 69, .36)");
-    glow.addColorStop(1, "rgba(3, 15, 18, .08)");
-    ctx.fillStyle = glow;
+    ctx.fillStyle = "#ffffff";
     ctx.beginPath();
     ctx.arc(cx, cy, radius, 0, Math.PI * 2);
     ctx.fill();
@@ -368,26 +355,26 @@ class BlochSphere {
         const angle = 2 * Math.PI * index / samples;
         return {x: latitudeRadius * Math.cos(angle), y: latitudeRadius * Math.sin(angle), z};
       });
-      this.drawPolyline(points, "#5e8588", z === 0 ? 1.35 : .8);
+      this.drawPolyline(points, "#b8b8b8", z === 0 ? 1.2 : .8);
     }
     for (const longitude of [0, Math.PI / 3, 2 * Math.PI / 3]) {
       const points = Array.from({length: samples + 1}, (_, index) => {
         const polar = 2 * Math.PI * index / samples;
         return {x: Math.sin(polar) * Math.cos(longitude), y: Math.sin(polar) * Math.sin(longitude), z: Math.cos(polar)};
       });
-      this.drawPolyline(points, "#5e8588", .8);
+      this.drawPolyline(points, "#b8b8b8", .8);
     }
 
     const axes = [
-      {key: "x", vector: {x: 1.18, y: 0, z: 0}, color: "#f19ab1", positive: "|+〉", negative: "|−〉"},
-      {key: "y", vector: {x: 0, y: 1.18, z: 0}, color: "#79d9d7", positive: "|+y〉", negative: "|−y〉"},
-      {key: "z", vector: {x: 0, y: 0, z: 1.18}, color: "#ecc76c", positive: "|0〉", negative: "|1〉"},
+      {key: "x", vector: {x: 1.18, y: 0, z: 0}, positive: "|+〉", negative: "|−〉"},
+      {key: "y", vector: {x: 0, y: 1.18, z: 0}, positive: "|+y〉", negative: "|−y〉"},
+      {key: "z", vector: {x: 0, y: 0, z: 1.18}, positive: "|0〉", negative: "|1〉"},
     ];
     for (const axis of axes) {
       const negative = {x: -axis.vector.x, y: -axis.vector.y, z: -axis.vector.z};
-      this.drawLine3d(negative, axis.vector, axis.color, 1.2, false, .52);
-      this.drawLabel(axis.vector, axis.positive, axis.color);
-      this.drawLabel(negative, axis.negative, axis.color);
+      this.drawLine3d(negative, axis.vector, "#555555", 1.2, false, .85);
+      this.drawLabel(axis.vector, axis.positive);
+      this.drawLabel(negative, axis.negative);
     }
 
     if (this.model.axis) {
@@ -395,7 +382,7 @@ class BlochSphere {
       this.drawLine3d(
         {x: -axis.x * 1.08, y: -axis.y * 1.08, z: -axis.z * 1.08},
         {x: axis.x * 1.08, y: axis.y * 1.08, z: axis.z * 1.08},
-        "#efbd51",
+        "#777777",
         2,
         true,
         .76,
@@ -403,15 +390,15 @@ class BlochSphere {
     }
 
     if (this.model.trajectory?.length > 1) {
-      this.drawPolyline(this.model.trajectory, "#f2bd54", Math.max(2, width * .004), false, true);
+      this.drawPolyline(this.model.trajectory, "#ff7f0e", Math.max(2, width * .004), false, true);
     }
     for (const ghost of this.model.ghosts ?? []) {
-      this.drawArrow(ghost.vector, ghost.color ?? "#829692", {width: width * .006, alpha: ghost.alpha ?? .48, dashed: true});
+      this.drawArrow(ghost.vector, ghost.color ?? "#777777", {width: width * .006, alpha: ghost.alpha ?? .55, dashed: true});
     }
-    this.drawArrow(this.model.vector, this.model.color ?? "#e24a75", {glow: true});
+    this.drawArrow(this.model.vector, this.model.color ?? "#1f77b4");
 
     ctx.save();
-    ctx.strokeStyle = "rgba(160, 210, 206, .58)";
+    ctx.strokeStyle = "#777777";
     ctx.lineWidth = 1.4;
     ctx.beginPath();
     ctx.arc(cx, cy, radius, 0, Math.PI * 2);
@@ -433,7 +420,7 @@ let editor3;
 
 function updatePanel1() {
   const vector = blochVector(editor1.state);
-  view1.setModel({vector, color: "#e84e78", ghosts: [], axis: null, trajectory: []});
+  view1.setModel({vector, color: "#1f77b4", ghosts: [], axis: null, trajectory: []});
   document.querySelectorAll("#p1-vector [data-coordinate]").forEach((element) => {
     element.textContent = cleanNumber(vector[element.dataset.coordinate]);
   });
@@ -453,17 +440,17 @@ function updatePanel2() {
   const vectorB = blochVector(stateB);
   const delta = Number(deltaInput.value);
   setMath(deltaOutput, `\\delta=${delta}^{\\circ}`);
-  view2a.setModel({vector: vectorA, color: "#6edbd8", ghosts: [], axis: null, trajectory: []});
-  view2b.setModel({vector: vectorB, color: "#f19ab1", ghosts: [], axis: null, trajectory: []});
+  view2a.setModel({vector: vectorA, color: "#1f77b4", ghosts: [], axis: null, trajectory: []});
+  view2b.setModel({vector: vectorB, color: "#ff7f0e", ghosts: [], axis: null, trajectory: []});
   try {
     const result = superposeStates(stateA, stateB, radians(delta));
     const resultVector = blochVector(result.state);
     view2result.setModel({
       vector: resultVector,
-      color: "#f05b83",
+      color: "#2ca02c",
       ghosts: [
-        {vector: vectorA, color: "#6edbd8", alpha: .2},
-        {vector: vectorB, color: "#f19ab1", alpha: .2},
+        {vector: vectorA, color: "#1f77b4", alpha: .25},
+        {vector: vectorB, color: "#ff7f0e", alpha: .25},
       ],
       axis: null,
       trajectory: [],
@@ -494,9 +481,9 @@ let renderedGateKetSignature = "";
 
 const GATE_DESCRIPTIONS = {
   en: {
-    I: "IDENTITY · NO ROTATION", X: "PAULI X · 180° ABOUT X-AXIS", Y: "PAULI Y · 180° ABOUT Y-AXIS",
-    Z: "PAULI Z · 180° ABOUT Z-AXIS", H: "HADAMARD ROTATION",
-    S: "PHASE S · 90° ABOUT Z-AXIS", T: "PHASE T · 45° ABOUT Z-AXIS",
+    I: "Identity · no rotation", X: "Pauli X · 180° about x-axis", Y: "Pauli Y · 180° about y-axis",
+    Z: "Pauli Z · 180° about z-axis", H: "Hadamard rotation",
+    S: "Phase S · 90° about z-axis", T: "Phase T · 45° about z-axis",
   },
   ja: {
     I: "恒等操作 · 回転なし", X: "PAULI X · X軸まわりに180°", Y: "PAULI Y · Y軸まわりに180°",
@@ -518,8 +505,8 @@ function updatePanel3() {
   ));
   view3.setModel({
     vector: current,
-    color: "#ef4e79",
-    ghosts: [{vector: before, color: "#95aaa5", alpha: .5}],
+    color: "#1f77b4",
+    ghosts: [{vector: before, color: "#777777", alpha: .55}],
     axis: gate.angle === 0 ? null : gate.axis,
     trajectory: gate.angle === 0 ? [] : trajectory,
   });

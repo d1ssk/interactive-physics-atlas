@@ -32,8 +32,6 @@ const TRANSLATIONS = {
     recalculating: "Recalculating", approximate: "approximate", converged: "converged",
     iterations: "iterations", solverError: "Solver error", workerError: "Solver worker error",
     httpRequired: "Open this page through an HTTP server",
-    electricKicker: "ELECTROSTATIC POTENTIAL SOLVER", magneticKicker: "MAGNETOSTATIC SCALAR-POTENTIAL SOLVER",
-    inducedComponent: "INDUCED COMPONENT", inducedProbe: "INDUCED", pointerProbe: "POINTER",
     object: "Object", conductor: "Conductor", circleBadge: "Circle / ellipse", rectangleBadge: "Rectangle", triangleBadge: "Triangle",
     conductorNote: "The conductor is equipotential and its total free charge is constrained to zero.",
     dielectricNote: "Treated as a linear, isotropic dielectric including polarization charge.",
@@ -72,9 +70,7 @@ const TRANSLATIONS = {
     placementShape: "配置と形", width: "幅", height: "高さ", rotation: "回転", equalize: "縦横を同じにする",
     noscript: "この可視化にはJavaScriptが必要です。", recalculating: "再計算中", approximate: "近似",
     converged: "収束", iterations: "回", solverError: "計算エラー", workerError: "計算ワーカーエラー",
-    httpRequired: "HTTPサーバーで開いてください", electricKicker: "静電ポテンシャルソルバー",
-    magneticKicker: "静磁場スカラーポテンシャルソルバー", inducedComponent: "誘導成分",
-    inducedProbe: "誘導", pointerProbe: "ポインター",
+    httpRequired: "HTTPサーバーで開いてください",
     object: "物体", conductor: "導体", circleBadge: "円 / 楕円", rectangleBadge: "四角形", triangleBadge: "三角形",
     conductorNote: "導体全体を等電位にし、総自由電荷が0となるよう電位を解きます。",
     dielectricNote: "分極電荷を含む線形・等方誘電体として扱います。",
@@ -825,7 +821,6 @@ function syncFieldPresentation() {
     ? electric ? t("inducedElectricField") : t("inducedMagneticField")
     : electric ? t("electricField") : t("magneticFluxDensity");
   byId("surface-layer-name").textContent = electric ? t("surfaceCharge") : t("surfacePole");
-  byId("field-kicker").textContent = `${electric ? t("electricKicker") : t("magneticKicker")}${induced ? ` · ${t("inducedComponent")}` : ""}`;
   byId("field-title").textContent = induced
     ? electric ? t("inducedElectricTitle") : t("inducedMagneticTitle")
     : electric ? t("electricTitle") : t("magneticTitle");
@@ -837,7 +832,7 @@ function syncFieldPresentation() {
   byId("potential-high").textContent = induced ? t("positiveInducedPotential") : electric ? t("highPotential") : t("highPsi");
   byId("surface-negative").textContent = t("negativeSurface");
   byId("surface-positive").textContent = t("positiveSurface");
-  byId("probe-label").textContent = `${induced ? t("inducedProbe") : t("pointerProbe")} ${electric ? "E" : "B"}`;
+  byId("probe-label").textContent = induced ? `Δ${electric ? "E" : "B"}` : electric ? "E" : "B";
   canvas.setAttribute(
     "aria-label",
     induced

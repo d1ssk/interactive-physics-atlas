@@ -96,6 +96,9 @@ def test_static_build_contract(tmp_path, visualization) -> None:
         in html
     )
     assert "gradient" not in style
+    assert "shadow" not in style
+    assert "createRadialGradient" not in app
+    assert "background: #fff" in style
     assert "--paper: var(--atlas-viz-background)" in style
 
 
