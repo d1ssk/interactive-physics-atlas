@@ -1,10 +1,24 @@
 from __future__ import annotations
 
+import re
 import shutil
 import subprocess
 from pathlib import Path
 
 import pytest
+
+
+def css_declarations(source: str, selector: str) -> dict[str, str]:
+    """Parse the declarations from one simple CSS selector."""
+
+    match = re.search(rf"(?m)^{re.escape(selector)}\s*\{{(?P<body>[^}}]*)\}}", source)
+    assert match is not None
+    return {
+        name.strip(): value.strip()
+        for declaration in match.group("body").split(";")
+        if ":" in declaration
+        for name, value in [declaration.split(":", 1)]
+    }
 
 
 def test_static_build_contract(tmp_path, visualization) -> None:
@@ -35,7 +49,14 @@ def test_static_build_contract(tmp_path, visualization) -> None:
     assert "#247a58" in app
     assert "#c76520" in app
     assert "--paper: var(--atlas-viz-background)" in style
+    page_header = css_declarations(style, ".page-header")
+    assert "grid-template-columns" not in page_header
+    assert "width" not in page_header
     assert "grid-template-columns: 280px 1fr" not in style
+    for selector in (".viewer-status", ".drag-hint", ".readout dt"):
+        assert css_declarations(style, selector)["color"] == "var(--muted)"
+    assert "state.history = [];" in app
+    assert "t: state.time - MAX_HISTORY_SECONDS" not in app
     assert "https://" not in html
     assert "http://" not in html
 

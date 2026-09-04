@@ -246,16 +246,7 @@ function clampToDomain(point, margin = 0.35) {
 }
 
 function resetHistory() {
-  const source = state.charge;
-  state.history = [{
-    t: state.time - MAX_HISTORY_SECONDS,
-    x: source.x,
-    y: source.y,
-    vx: 0,
-    vy: 0,
-    ax: 0,
-    ay: 0,
-  }];
+  state.history = [];
   state.lastHistorySample = -Infinity;
   recordHistory(true);
   state.lastFieldUpdate = -Infinity;

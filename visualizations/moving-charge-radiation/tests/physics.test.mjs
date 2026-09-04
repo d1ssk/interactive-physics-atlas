@@ -30,6 +30,18 @@ test("a stationary charge produces a Coulomb field and no magnetic field", () =>
   close(fieldMagnitude(field.radiationElectric), 0);
 });
 
+test("a stationary charge gives a radial field on the perpendicular plane", () => {
+  const field = lienardWiechertField({x: 0, y: 0, z: 2}, 0, staticHistory(), {
+    propagationSpeed: 4,
+    softening: 0,
+  });
+  close(field.electric.x, 0);
+  close(field.electric.y, 0);
+  close(field.electric.z, 0.25);
+  close(fieldMagnitude(field.magnetic), 0);
+  close(fieldMagnitude(field.radiationElectric), 0);
+});
+
 test("the retarded source lies on the observer's past light cone", () => {
   const history = [
     {t: -5, x: -0.5, y: 0, vx: 0.1, vy: 0, ax: 0, ay: 0},

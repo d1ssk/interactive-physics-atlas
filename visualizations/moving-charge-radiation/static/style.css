@@ -93,7 +93,7 @@ var {
   inset: 13px 15px auto;
   display: flex;
   justify-content: space-between;
-  color: #78817d;
+  color: var(--muted);
   font: 600 .65rem ui-monospace, SFMono-Regular, Menlo, monospace;
   pointer-events: none;
 }
@@ -140,7 +140,7 @@ var {
   left: 15px;
   bottom: 14px;
   margin: 0;
-  color: #727b77;
+  color: var(--muted);
   font-size: .68rem;
   pointer-events: none;
 }
@@ -284,7 +284,7 @@ input[type="range"] {
 }
 
 .readout dt {
-  color: #747d79;
+  color: var(--muted);
   font-size: .58rem;
 }
 
