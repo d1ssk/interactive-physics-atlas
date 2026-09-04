@@ -10,6 +10,7 @@
   --focus: var(--atlas-viz-focus-ring);
   --state-a: #1f77b4;
   --warning: #a33a50;
+
   font-family: Inter, "Helvetica Neue", Arial, "Hiragino Sans", "Yu Gothic UI", sans-serif;
   font-synthesis: none;
 }
