@@ -58,6 +58,12 @@ def test_static_build_contract(tmp_path, visualization):
     ).replace("linear-gradient(90deg, #155887, #f2eee2 50%, #c32f50)", "")
     assert ".integral-primary" in style
     assert "height: 54px" in style
+    assert "grid-template-columns: minmax(0, 840px) 340px" in style
+    assert "width: min(100%, 720px)" in style
+    assert ".diagnostics {\n    display: contents;" in style
+    assert ".probe-card {\n    order: 1;" in style
+    assert ".plot-card {\n    order: 2;" in style
+    assert ".integral-card {\n    order: 3;" in style
 
 
 def test_browser_physics_invariants():

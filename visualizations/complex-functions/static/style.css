@@ -66,7 +66,7 @@ a:focus-visible {
 }
 
 main {
-  width: min(1500px, calc(100% - 32px));
+  width: min(1280px, calc(100% - 32px));
   margin: 0 auto;
   padding: 0 0 36px;
 }
@@ -263,10 +263,11 @@ code {
 
 .workspace {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 340px;
+  grid-template-columns: minmax(0, 840px) 340px;
   gap: 12px;
   margin-top: 12px;
   align-items: start;
+  justify-content: center;
 }
 
 .plot-card {
@@ -336,6 +337,11 @@ code {
 
 .plot-grid.domain-view {
   grid-template-columns: minmax(0, 1fr);
+}
+
+.plot-grid.domain-view .plot-panel {
+  width: min(100%, 720px);
+  justify-self: center;
 }
 
 .plot-grid.domain-view #panel-b {
@@ -603,7 +609,7 @@ dd {
 
 @media (max-width: 1080px) {
   .workspace {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 840px);
   }
 
   .diagnostics {
@@ -613,7 +619,8 @@ dd {
 
 @media (max-width: 760px) {
   main {
-    width: min(100% - 20px, 1500px);
+    width: calc(100% - 20px);
+    max-width: 1280px;
   }
 
   .app-header {
@@ -623,6 +630,50 @@ dd {
   .function-form,
   .diagnostics {
     grid-template-columns: 1fr;
+  }
+
+  .control-heading {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .function-form > *,
+  .function-form input,
+  .function-form select,
+  .view-controls > label,
+  .plot-grid,
+  .plot-panel {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .primary-button {
+    width: 100%;
+  }
+
+  .workspace {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .diagnostics {
+    display: contents;
+  }
+
+  .probe-card {
+    order: 1;
+    width: 100%;
+  }
+
+  .plot-card {
+    order: 2;
+    width: 100%;
+  }
+
+  .integral-card {
+    order: 3;
+    width: 100%;
   }
 
   .plot-heading {
