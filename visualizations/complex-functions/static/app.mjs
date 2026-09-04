@@ -114,7 +114,7 @@ const STRINGS = {
     documentTitle: "複素関数エクスプローラ — Interactive Physics Atlas",
     siteNavLabel: "サイトナビゲーション",
     title: "複素関数エクスプローラ",
-    lede: "複素関数の値、branch cut を横切る解析接続、線積分を同じ入力平面上で調べます。",
+    lede: "複素関数の値、branch cut を横切る接続、線積分を同じ入力平面上で調べます。",
     functionHeading: "関数",
     loadingExpression: "式を読み込んでいます…",
     inputForm: "入力形式",
