@@ -80,9 +80,7 @@ def test_static_build_contract(tmp_path, visualization) -> None:
         "JavaScript is required for this visualization. / この可視化にはJavaScriptが必要です。"
         in html
     )
-    physics_source = (Path(__file__).resolve().parents[1] / "static/physics.mjs").read_text(
-        encoding="utf-8"
-    )
+    physics_source = (tmp_path / "physics.mjs").read_text(encoding="utf-8")
     assert "LOCAL_BOUNDARY_RING_CACHE" in physics_source
     assert "--paper: var(--atlas-viz-background)" in style
 
