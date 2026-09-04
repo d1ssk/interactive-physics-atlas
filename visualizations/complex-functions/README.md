@@ -1,4 +1,4 @@
-# Complex Function Lab
+# Complex Function Explorer
 
 A standalone bilingual browser application for complex-valued functions. It
 supports domain coloring, paired real/imaginary plots, expressions in `z`,

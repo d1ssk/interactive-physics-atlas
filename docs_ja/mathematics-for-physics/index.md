@@ -4,7 +4,7 @@
 
 ## 複素解析
 
-- **[複素関数ラボ](complex-functions/?lang=ja)**<br>
+- **[複素関数エクスプローラ](complex-functions/?lang=ja)**<br>
   振幅と位相または実部と虚部の表示、branch cut を横切る解析接続、ドラッグ操作による線積分
 
 ## Lie 代数とその表現

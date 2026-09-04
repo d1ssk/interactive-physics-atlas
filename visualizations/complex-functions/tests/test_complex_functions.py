@@ -49,8 +49,9 @@ def test_static_build_contract(tmp_path, visualization):
     assert 'src="app.mjs"' in html
     assert 'from "./physics.mjs"' in app
     assert "const STRINGS" in app
-    assert "Complex Function Lab" in app
-    assert "複素関数ラボ" in app
+    assert "Complex Function Explorer" in app
+    assert "複素関数エクスプローラ" in app
+    assert 'rel="icon" href="../../assets/images/favicon.svg"' in html
     assert "physics-atlas:frame-height" not in html
     assert "linear-gradient" not in style.replace(
         "linear-gradient(90deg, #d94343, #d3d83b, #3fc977, #3eb8d0, #5962d5, #bd43c8, #d94343)",

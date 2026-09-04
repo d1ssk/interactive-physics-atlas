@@ -19,9 +19,9 @@ const FIELD_SIZE = 400;
 
 const STRINGS = {
   en: {
-    documentTitle: "Complex Function Lab — Interactive Physics Atlas",
+    documentTitle: "Complex Function Explorer — Interactive Physics Atlas",
     siteNavLabel: "Site navigation",
-    title: "Complex Function Lab",
+    title: "Complex Function Explorer",
     lede: "Explore complex values, analytic continuation across branch cuts, and contour integrals on one input plane.",
     functionHeading: "Function",
     loadingExpression: "Loading expression…",
@@ -111,9 +111,9 @@ const STRINGS = {
     presetXYDescription: "A general complex-valued field built from independent x and y variables.",
   },
   ja: {
-    documentTitle: "複素関数ラボ — Interactive Physics Atlas",
+    documentTitle: "複素関数エクスプローラ — Interactive Physics Atlas",
     siteNavLabel: "サイトナビゲーション",
-    title: "複素関数ラボ",
+    title: "複素関数エクスプローラ",
     lede: "複素関数の値、branch cut を横切る解析接続、線積分を同じ入力平面上で調べます。",
     functionHeading: "関数",
     loadingExpression: "式を読み込んでいます…",

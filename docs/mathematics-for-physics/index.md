@@ -4,7 +4,7 @@ Mathematical methods and structures used in physics.
 
 ## Complex Analysis
 
-- **[Complex Function Lab](complex-functions/?lang=en)**<br>
+- **[Complex Function Explorer](complex-functions/?lang=en)**<br>
   Visualize amplitude and phase or real and imaginary parts, follow analytic continuation across branch cuts, and draw contour integrals.
 
 ## Lie Algebras and Their Representations
