@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Legendre Transform Explorer — Interactive Physics Atlas</title>
+  <link rel="icon" href="../../assets/images/favicon.svg">
+  <link rel="stylesheet" href="visualization-theme.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="visualization-theme.js"></script>
+  <script>
+    window.MathJax = {
+      tex: {inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]]},
+      svg: {fontCache: "global"},
+      startup: {
+        ready() {
+          MathJax.startup.defaultReady();
+          MathJax.startup.promise.then(() => {
+            window.dispatchEvent(new Event("physics-atlas:mathjax-ready"));
+          });
+        },
+      },
+    };
+  </script>
+  <script defer src="mathjax-tex-svg.js"></script>
+  <script>
+    window.physicsAtlasPlotlyReady = new Promise((resolve, reject) => {
+      const locale = new URLSearchParams(window.location.search).get("lang") === "ja" ? "ja" : "en";
+      const siteRoot = locale === "ja" ? "../../../" : "../../";
+      const script = document.createElement("script");
+      script.src = new URL(`${siteRoot}javascripts/__PLOTLY_ASSET__`, window.location.href);
+      script.addEventListener("load", resolve, {once: true});
+      script.addEventListener("error", () => reject(new Error("Plotly asset failed to load")), {once: true});
+      document.head.append(script);
+    });
+  </script>
+</head>
+<body class="mode-first">
+  <main>
+    <nav class="site-nav" aria-label="Site navigation" data-i18n-aria-label="siteNavLabel">
+      <a id="brand-home" class="brand" href="../../">Interactive Physics Atlas</a>
+      <a id="locale-link" class="locale-link" href="../../ja/mathematics-for-physics/legendre-transform/?lang=ja" lang="ja">日本語</a>
+    </nav>
+
+    <header class="app-header">
+      <h1 data-i18n="title">Legendre Transform Explorer</h1>
+      <p data-i18n="lede">Move a supporting line and watch its slope and negative intercept become the coordinates of a point on the convex conjugate.</p>
+    </header>
+
+    <section class="panel global-controls" aria-label="Display settings" data-i18n-aria-label="settingsLabel">
+      <label>
+        <span data-i18n="functionLabel">Function</span>
+        <select id="function-select"></select>
+      </label>
+      <fieldset class="mode-control">
+        <legend data-i18n="modeLabel">Transform step</legend>
+        <div class="mode-switch">
+          <button id="mode-first" class="mode-button active" type="button" aria-pressed="true" data-i18n="modeFirst">1 → 2</button>
+          <button id="mode-second" class="mode-button" type="button" aria-pressed="false" data-i18n="modeSecond">2 → 3</button>
+        </div>
+      </fieldset>
+    </section>
+
+    <section class="panel interaction-panel" aria-label="Supporting-line controls" data-i18n-aria-label="interactionLabel">
+      <div class="slider-row">
+        <div class="slider-stack">
+          <label id="first-slider-wrap" class="slider-wrap">
+            <span data-i18n="firstSliderLabel">Supporting line on \(f\)</span>
+            <input id="first-slider" type="range" min="0" max="320" value="160" step="1">
+          </label>
+          <label id="second-slider-wrap" class="slider-wrap" hidden>
+            <span data-i18n="secondSliderLabel">Supporting line on \(f^*\)</span>
+            <input id="second-slider" type="range" min="0" max="320" value="160" step="1">
+          </label>
+        </div>
+        <button id="play-button" class="play-button" type="button" data-i18n="play">▶ Sweep</button>
+      </div>
+      <div class="readout" aria-live="polite">
+        <div class="value"><small id="source-coordinate-label"></small><strong id="source-coordinate-value"></strong></div>
+        <div class="value"><small id="source-height-label"></small><strong id="source-height-value"></strong></div>
+        <div class="value slope"><small id="slope-label"></small><strong id="slope-value"></strong></div>
+        <div class="value intercept"><small id="target-label"></small><strong id="target-value"></strong></div>
+      </div>
+    </section>
+
+    <section class="plots" aria-label="Legendre-transform plots" data-i18n-aria-label="plotsLabel">
+      <article id="function-card" class="panel plot-card">
+        <button class="expand-button" type="button" data-plot="function" data-i18n="enlarge" aria-expanded="false">Enlarge</button>
+        <div id="function-plot" class="plot" role="img" aria-label="Original function and selected supporting line" data-i18n-aria-label="functionPlotLabel"></div>
+      </article>
+      <article id="dual-card" class="panel plot-card">
+        <button class="expand-button" type="button" data-plot="dual" data-i18n="enlarge" aria-expanded="false">Enlarge</button>
+        <div id="dual-plot" class="plot" role="img" aria-label="Convex conjugate" data-i18n-aria-label="dualPlotLabel"></div>
+      </article>
+      <article id="double-card" class="panel plot-card inactive">
+        <button class="expand-button" type="button" data-plot="double" data-i18n="enlarge" aria-expanded="false">Enlarge</button>
+        <div id="double-plot" class="plot" role="img" aria-label="Biconjugate" data-i18n-aria-label="doublePlotLabel"></div>
+      </article>
+    </section>
+
+    <p id="plot-error" class="error" role="alert" hidden></p>
+
+    <section class="panel explanation" aria-labelledby="definition-heading">
+      <div id="formula-line" class="current-formula"></div>
+      <div class="explanation-grid">
+        <article>
+          <h2 id="definition-heading" data-i18n="definitionHeading">Definition and geometric interpretation</h2>
+          <p data-i18n="definitionText">The Legendre transform can be defined as the map from a convex function \(f\) to its convex conjugate \(f^*(p)=\sup_{x\in\mathbb R}\{px-f(x)\}\). If the supremum is attained at \(x_0\), the line \(y=px-f^*(p)\) is a supporting line of \(f\) at \(x_0\). Its slope is \(p\), while the negative of its vertical intercept is \(f^*(p)\).</p>
+        </article>
+        <article>
+          <h2 data-i18n="conventionHeading">Conventions in physics</h2>
+          <p data-i18n="conventionText">In physics, sign conventions and choices of conjugate variables may differ, and an infimum is sometimes used instead of a supremum, especially for concave entropy functions and thermodynamic potentials. Check the definition being used when comparing formulas.</p>
+        </article>
+        <article>
+          <h2 data-i18n="thermoHeading">Thermodynamic singularities</h2>
+          <p data-i18n="thermoText">At phase coexistence, a thermodynamic potential can develop a nondifferentiable point, while its conjugate description can contain a linear segment. The last two examples illustrate this correspondence.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script id="application-data" type="application/json">__APPLICATION_DATA__</script>
+  <script src="app.js"></script>
+</body>
+</html>

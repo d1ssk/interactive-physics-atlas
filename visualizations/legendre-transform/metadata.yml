@@ -1,0 +1,17 @@
+id: legendre-transform
+title: Legendre Transform Explorer
+title_ja: Legendre変換エクスプローラ
+field: mathematics-for-physics
+topics:
+  - convex analysis
+  - Legendre transform
+  - thermodynamics
+  - convex conjugates
+level:
+  - undergraduate
+  - graduate
+runtime: plotly-static
+page: mathematics-for-physics/legendre-transform
+presentation: standalone
+summary: Move a supporting line and see how its slope and negative intercept determine the convex conjugate, and how the biconjugate reconstructs the original convex function.
+summary_ja: 支持線を動かし、その傾きと切片の符号を反転した量から凸共役が定まり、二重共役によって元の凸関数が再構成される過程を観察。

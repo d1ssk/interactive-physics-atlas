@@ -168,6 +168,7 @@ venv.bak/
 
 # Project build output
 /site/
+/docs/mathematics-for-physics/legendre-transform/
 
 # mypy
 .mypy_cache/

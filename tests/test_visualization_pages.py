@@ -145,6 +145,25 @@ def test_lie_algebra_category_orders_roots_before_builder() -> None:
     assert ")**<br>\n  階数2・3" in japanese
 
 
+def test_legendre_transform_is_linked_from_mathematics_and_thermodynamics() -> None:
+    pages = (
+        ROOT / "docs" / "mathematics-for-physics" / "index.md",
+        ROOT / "docs" / "thermodynamics" / "index.md",
+        ROOT / "docs_ja" / "mathematics-for-physics" / "index.md",
+        ROOT / "docs_ja" / "thermodynamics" / "index.md",
+    )
+
+    for page in pages:
+        source = page.read_text(encoding="utf-8")
+        assert "legendre-transform/" in source
+        assert ")**<br>\n  " in source
+
+    assert "?lang=en" in pages[0].read_text(encoding="utf-8")
+    assert "?lang=en" in pages[1].read_text(encoding="utf-8")
+    assert "?lang=ja" in pages[2].read_text(encoding="utf-8")
+    assert "?lang=ja" in pages[3].read_text(encoding="utf-8")
+
+
 def test_japanese_copy_and_typography_follow_site_style() -> None:
     japanese_pages = (ROOT / "docs_ja").rglob("index.md")
     combined = "\n".join(page.read_text(encoding="utf-8") for page in japanese_pages)
