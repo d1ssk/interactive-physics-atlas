@@ -65,7 +65,13 @@ def series_response(
         raise ValueError("voltage must be finite")
     impedances = tuple(item.impedance(frequency_hz, dc=dc) for item in components)
     total = sum(impedances, start=0j)
-    if abs(total) <= 1e-6:
+    reactive_scale = sum(abs(impedance.imag) for impedance in impedances)
+    undamped_resonance = total.real == 0.0 and math.isclose(
+        total.imag,
+        0.0,
+        abs_tol=1e-12 * reactive_scale,
+    )
+    if undamped_resonance:
         raise ValueError("ideal undamped series resonance has undefined current")
     source = complex(voltage_peak)
     current = source / total

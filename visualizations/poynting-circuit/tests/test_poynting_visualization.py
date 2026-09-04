@@ -27,6 +27,9 @@ def test_static_build_contract(tmp_path, visualization) -> None:
     assert 'defer src="mathjax-tex-svg.js"' in html
     assert 'id="show-particles" type="checkbox"' in html
     assert 'id="show-particles" type="checkbox" checked' not in html
+    assert 'id="ac-controls" class="ac-controls" aria-hidden="true" inert' in html
+    assert 'class="panel-section readout" aria-live=' not in html
+    assert "controls.inert = !alternating" in app
     assert 'class="solve-button"' in html
     assert "const TRANSLATIONS" in app
     assert 'get("lang") === "ja"' in app

@@ -1428,6 +1428,7 @@ function setMode(mode) {
   const alternating = mode === "ac";
   controls.classList.toggle("open", alternating);
   controls.setAttribute("aria-hidden", String(!alternating));
+  controls.inert = !alternating;
   byId("phase-row").classList.toggle("muted", !alternating);
   renderLoadEditor();
   markGeometryDirty();

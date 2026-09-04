@@ -350,7 +350,13 @@
       componentImpedance(component, parameters.frequency)
     ));
     const total = impedances.reduce(complexAdd, complex());
-    const valid = complexMagnitude(total) > 1e-6;
+    const reactiveScale = impedances.reduce(
+      (sum, value) => sum + Math.abs(value.imaginary),
+      0,
+    );
+    const undampedResonance = total.real === 0
+      && Math.abs(total.imaginary) <= 1e-12 * reactiveScale;
+    const valid = !undampedResonance;
     const current = valid ? complexDivide(sourceVoltage, total) : complex();
     const componentVoltages = impedances.map(value => complexMultiply(current, value));
     const nodeVoltages = [sourceVoltage];

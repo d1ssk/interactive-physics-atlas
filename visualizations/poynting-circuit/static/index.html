@@ -66,7 +66,7 @@
           </div>
           <div id="load-list" class="load-list"></div>
 
-          <div id="ac-controls" class="ac-controls" aria-hidden="true">
+          <div id="ac-controls" class="ac-controls" aria-hidden="true" inert>
             <label class="control-row" for="frequency">
               <span><span data-i18n="frequency">Frequency</span> <output id="frequency-output">60 Hz</output></span>
               <input id="frequency" type="range" min="10" max="200" step="5" value="60">
@@ -121,7 +121,7 @@
           </label>
         </section>
 
-        <section class="panel-section readout" aria-live="polite">
+        <section class="panel-section readout">
           <div class="section-heading"><h2 data-i18n="terminalValues">Terminal values</h2><span id="power-direction">Source → load</span></div>
           <dl>
             <div><dt><span data-i18n="voltage">Voltage</span> \(v\)</dt><dd id="voltage-readout">12.00 V</dd></div>

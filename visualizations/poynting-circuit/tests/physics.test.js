@@ -321,6 +321,18 @@ test("an ideal undamped LC series resonance is reported as undefined", () => {
   assert.ok(nearlyEqual(P.complexMagnitude(phasors.current), 0));
 });
 
+test("a small positive resistance is not misclassified as resonance", () => {
+  const phasors = P.circuitPhasors({
+    mode: "ac",
+    frequency: 60,
+    voltage: 12,
+    components: [{type: "r", resistance: 1e-7}],
+  });
+  assert.equal(phasors.valid, true);
+  assert.ok(Number.isFinite(P.complexMagnitude(phasors.current)));
+  assert.ok(nearlyEqual(phasors.current.real, 1.2e8, 1e-5));
+});
+
 test("the local field-flux audit keeps a resistor absorptive in mixed AC circuits", () => {
   const geometry = P.defaultGeometry();
   geometry.loadCount = 2;

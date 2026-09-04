@@ -62,3 +62,13 @@ def test_ideal_series_resonance_is_rejected(physics) -> None:
             frequency,
             12,
         )
+
+
+def test_small_positive_resistance_is_not_misclassified_as_resonance(physics) -> None:
+    response = physics.series_response(
+        [physics.Component("r", 1e-7)],
+        frequency_hz=60,
+        voltage_peak=12,
+    )
+    assert response.impedance == pytest.approx(1e-7 + 0j)
+    assert response.current == pytest.approx(1.2e8 + 0j)
