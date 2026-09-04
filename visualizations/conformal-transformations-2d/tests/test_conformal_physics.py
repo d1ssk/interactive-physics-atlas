@@ -98,6 +98,18 @@ def test_sphere_spinors_lie_on_unit_sphere_and_action_is_well_defined(physics):
     assert np.isclose(transformation.determinant, 1.0)
 
 
+@pytest.mark.parametrize(
+    "name", ["identity", "translation", "dilation", "rotation", "special", "loxodromic"]
+)
+def test_mobius_parameter_families_pass_through_identity_and_stay_nonsingular(physics, name):
+    points = np.asarray([-0.6 + 0.2j, 0.3 + 0.5j, 1.1 - 0.3j])
+    identity = physics.mobius_parameter_family(name, 0.0)
+    transformed = physics.mobius_parameter_family(name, 0.73)
+
+    assert np.allclose(identity(points), points)
+    assert abs(transformed.determinant) > 1e-12
+
+
 @pytest.mark.parametrize("mode", [-2, -1, 0, 1, 2])
 def test_witt_flow_has_correct_infinitesimal_generator(physics, mode):
     point = 0.7 + 0.4j

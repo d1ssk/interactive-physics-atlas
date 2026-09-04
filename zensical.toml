@@ -42,6 +42,10 @@ alternate_name = "日本語"
 alternate_lang = "ja"
 alternate_base_url = "https://d1ssk.github.io/interactive-physics-atlas/ja/"
 
+[project.extra.analytics]
+provider = "google"
+property = "G-P4BVZ9ZZ0E"
+
 [project.markdown_extensions]
 pymdownx.arithmatex.generic = true
 

@@ -46,6 +46,8 @@ def test_static_build_contract(tmp_path, visualization):
     assert 'rel="stylesheet" href="visualization-theme.css"' in html
     assert 'src="visualization-theme.js"' in html
     assert 'defer src="mathjax-tex-svg.js"' in html
+    assert "https://www.googletagmanager.com/gtag/js?id=G-P4BVZ9ZZ0E" in html
+    assert "gtag('config', 'G-P4BVZ9ZZ0E')" in html
     assert 'src="app.mjs"' in html
     assert 'from "./physics.mjs"' in app
     assert "const STRINGS" in app

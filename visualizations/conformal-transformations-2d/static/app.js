@@ -198,6 +198,23 @@ const MOBIUS_LABELS = {
   ja: {identity: "恒等変換", translation: "平行移動", dilation: "拡大縮小", rotation: "球面回転", special: "特殊共形変換", loxodromic: "loxodromic変換"},
 };
 
+const MOBIUS_PARAMETER_LABELS = {
+  en: {
+    translation: "Translation parameter \\(s\\)",
+    dilation: "Dilation parameter \\(\\rho\\)",
+    rotation: "Rotation angle \\(\\theta\\)",
+    special: "Special-conformal parameter \\(s\\)",
+    loxodromic: "Loxodromic parameter \\(s\\)",
+  },
+  ja: {
+    translation: "平行移動パラメータ \\(s\\)",
+    dilation: "拡大縮小パラメータ \\(\\rho\\)",
+    rotation: "回転角 \\(\\theta\\)",
+    special: "特殊共形パラメータ \\(s\\)",
+    loxodromic: "loxodromic パラメータ \\(s\\)",
+  },
+};
+
 const WITT_LABELS = {
   en: {"-2": "m = −2", "-1": "m = −1 · translation", "0": "m = 0 · dilation", "1": "m = 1 · special conformal", "2": "m = 2"},
   ja: {"-2": "m = −2", "-1": "m = −1 · 平行移動", "0": "m = 0 · 拡大縮小", "1": "m = 1 · 特殊共形", "2": "m = 2"},
@@ -223,13 +240,38 @@ function renderLocal() {
 
 function renderMobius() {
   const key = byId("mobius-preset").value;
-  const item = DATA.mobius[key];
-  Plotly.react("mobius-sphere", item.figure.data, item.figure.layout, PLOT_CONFIG);
+  const family = DATA.mobius[key];
+  const parameterized = family.values.length > 1;
+  byId("mobius-parameter-control").classList.toggle("is-hidden", !parameterized);
+  const parameterIndex = parameterized ? Number(byId("mobius-parameter").value) : 0;
+  const item = family.variants[family.keys[parameterIndex]];
+  const layout = {
+    ...DATA.mobiusBase.layout,
+    title: {...DATA.mobiusBase.layout.title, text: item.title},
+  };
+  Plotly.react("mobius-sphere", [...DATA.mobiusBase.data, ...item.traces], layout, PLOT_CONFIG);
   byId("mobius-note").innerHTML = t("mobiusNotes")[key];
   byId("mobius-matrix").textContent = `\\(M\\sim\\begin{pmatrix}${item.matrix[0][0]}&${item.matrix[0][1]}\\\\${item.matrix[1][0]}&${item.matrix[1][1]}\\end{pmatrix},\\quad\\det M=1\\)`;
+  if (parameterized) {
+    byId("mobius-parameter-value").textContent = Number(family.values[parameterIndex]).toFixed(2);
+  }
   typeset(byId("mobius-note"));
   typeset(byId("mobius-matrix"));
   schedulePlotResize();
+}
+
+function configureMobiusParameter() {
+  const key = byId("mobius-preset").value;
+  const family = DATA.mobius[key];
+  const slider = byId("mobius-parameter");
+  slider.min = 0;
+  slider.max = family.values.length - 1;
+  slider.step = 1;
+  slider.value = family.defaultIndex;
+  if (family.values.length > 1) {
+    byId("mobius-parameter-label").innerHTML = MOBIUS_PARAMETER_LABELS[LOCALE][key];
+    typeset(byId("mobius-parameter-control"));
+  }
 }
 
 function renderWitt() {
@@ -254,7 +296,11 @@ byId("mixing").step = 1;
 byId("mixing").value = DATA.mixingValues.findIndex(value => Math.abs(value - 0.4) < 1e-9);
 byId("mixing").addEventListener("input", renderLocal);
 byId("mobius-preset").replaceChildren(...Object.entries(MOBIUS_LABELS[LOCALE]).map(([key, label]) => new Option(label, key)));
-byId("mobius-preset").addEventListener("change", renderMobius);
+byId("mobius-preset").addEventListener("change", () => {
+  configureMobiusParameter();
+  renderMobius();
+});
+byId("mobius-parameter").addEventListener("input", renderMobius);
 byId("witt-mode").replaceChildren(...Object.entries(WITT_LABELS[LOCALE]).map(([key, label]) => new Option(label, key)));
 byId("witt-mode").value = "1";
 byId("witt-mode").addEventListener("change", renderWitt);
@@ -265,5 +311,6 @@ byId("epsilon").value = DATA.epsilonValues.findIndex(value => Math.abs(value - 0
 if (Number(byId("epsilon").value) < 0) byId("epsilon").value = Math.floor(DATA.epsilonValues.length / 2);
 byId("epsilon").addEventListener("input", renderWitt);
 renderLocal();
+configureMobiusParameter();
 renderMobius();
 renderWitt();

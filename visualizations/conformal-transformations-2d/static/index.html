@@ -57,9 +57,15 @@
   <section class="panel" id="mobius-panel">
     <div class="heading-row">
       <h2 data-i18n="globalTitle">Möbius Transformations</h2>
-      <label><span data-i18n="mobiusLabel">\(\mathrm{PSL}(2,\mathbb C)\) preset</span>
-        <select id="mobius-preset"></select>
-      </label>
+      <div class="control-cluster">
+        <label><span data-i18n="mobiusLabel">\(\mathrm{PSL}(2,\mathbb C)\) preset</span>
+          <select id="mobius-preset"></select>
+        </label>
+        <label id="mobius-parameter-control" class="is-hidden">
+          <span id="mobius-parameter-label"></span>
+          <span class="range-row"><input id="mobius-parameter" type="range"><output id="mobius-parameter-value"></output></span>
+        </label>
+      </div>
     </div>
     <div class="sphere-grid">
       <div id="mobius-sphere" class="plot" role="img"></div>
