@@ -1,6 +1,6 @@
 id: moving-charge-radiation
-title: Retarded Fields of a Moving Charge
-title_ja: 運動する電荷の遅延場
+title: Retarded Fields and Radiation from a Moving Charge
+title_ja: 運動する電荷の遅延場と電磁場放射
 field: electromagnetism
 topics:
   - Lienard-Wiechert fields

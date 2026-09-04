@@ -1,4 +1,4 @@
-# Retarded Fields of a Moving Charge
+# Retarded Fields and Radiation from a Moving Charge
 
 This static browser visualization shows the retarded electric and magnetic
 fields of a point charge constrained to a two-dimensional plane. The charge

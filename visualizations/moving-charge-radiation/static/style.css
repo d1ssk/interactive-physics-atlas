@@ -28,10 +28,6 @@ main {
 }
 
 .page-header {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  align-items: end;
-  gap: 24px;
   margin-bottom: 18px;
 }
 
@@ -351,7 +347,6 @@ math {
 
 @media (max-width: 940px) {
   main { width: min(100% - 22px, 760px); }
-  .page-header { grid-template-columns: 1fr; gap: 6px; }
   .app-shell { grid-template-columns: 1fr; }
   .viewer { min-height: 560px; }
   .controls {

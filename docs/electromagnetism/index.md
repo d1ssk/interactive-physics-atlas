@@ -4,7 +4,7 @@ Fields, currents, and electromagnetic waves.
 
 ## Radiation
 
-- **[Retarded Fields of a Moving Charge](moving-charge-radiation/)**<br>
+- **[Retarded Fields and Radiation from a Moving Charge](moving-charge-radiation/)**<br>
   Retarded electric and magnetic fields and radiation from a moving point charge.
 
 ## Energy and circuits

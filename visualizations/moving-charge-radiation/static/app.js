@@ -8,8 +8,8 @@ import {
 const LOCALE = new URLSearchParams(window.location.search).get("lang") === "ja" ? "ja" : "en";
 const TRANSLATIONS = {
   en: {
-    pageTitle: "Retarded Fields of a Moving Charge",
-    title: "Retarded fields of a moving charge",
+    pageTitle: "Retarded Fields and Radiation from a Moving Charge",
+    title: "Retarded fields and radiation from a moving charge",
     intro: "Move the point charge and observe changes propagating at a finite speed.",
     viewerLabel: "Electromagnetic field produced by a moving point charge",
     canvasLabel: "Electromagnetic field on an orthographically projected observation plane",
@@ -47,8 +47,8 @@ const TRANSLATIONS = {
     sampleStatus: "{count} samples · orthographic",
   },
   ja: {
-    pageTitle: "運動する電荷の遅延場",
-    title: "運動する電荷の遅延場",
+    pageTitle: "運動する電荷の遅延場と電磁場放射",
+    title: "運動する電荷の遅延場と電磁場放射",
     intro: "点電荷を動かし、場の変化が有限の速さで伝わる様子を観察します。",
     viewerLabel: "運動する点電荷が作る電磁場",
     canvasLabel: "正投影された観測面上の電磁場",

@@ -30,11 +30,12 @@ def test_static_build_contract(tmp_path, visualization) -> None:
     assert 'from "./physics.js"' in app
     assert "const TRANSLATIONS" in app
     assert 'get("lang") === "ja"' in app
-    assert "運動する電荷の遅延場" in app
-    assert "Retarded fields of a moving charge" in app
+    assert "運動する電荷の遅延場と電磁場放射" in app
+    assert "Retarded fields and radiation from a moving charge" in app
     assert "#247a58" in app
     assert "#c76520" in app
     assert "--paper: var(--atlas-viz-background)" in style
+    assert "grid-template-columns: 280px 1fr" not in style
     assert "https://" not in html
     assert "http://" not in html
 
