@@ -123,6 +123,13 @@ def quaternion_multiply(left: Quaternion, right: Quaternion) -> Quaternion:
     )
 
 
+def quaternion_conjugate(quaternion: Quaternion) -> Quaternion:
+    """Return the conjugate of a scalar-first quaternion."""
+
+    w, x, y, z = quaternion
+    return w, -x, -y, -z
+
+
 def _normalise(values: tuple[float, ...]) -> tuple[float, ...]:
     length = norm(values)
     if length <= EPSILON:
@@ -140,6 +147,50 @@ def rotate_vector(quaternion: Quaternion, vector: Vector3) -> Vector3:
         vx + w * tx + y * tz - z * ty,
         vy + w * ty + z * tx - x * tz,
         vz + w * tz + x * ty - y * tx,
+    )
+
+
+def inverse_rotate_vector(quaternion: Quaternion, vector: Vector3) -> Vector3:
+    """Rotate an inertial-space vector into body-frame coordinates."""
+
+    return rotate_vector(quaternion_conjugate(_normalise(quaternion)), vector)
+
+
+def _cross(left: Vector3, right: Vector3) -> Vector3:
+    return (
+        left[1] * right[2] - left[2] * right[1],
+        left[2] * right[0] - left[0] * right[2],
+        left[0] * right[1] - left[1] * right[0],
+    )
+
+
+def apply_impulse_at_body_point(
+    state: RigidBodyState,
+    application_point_body: Vector3,
+    impulse_space: Vector3,
+    inertia: Inertia = DEFAULT_INERTIA,
+) -> RigidBodyState:
+    """Apply the rotational part of an impulse at a body-fixed point.
+
+    The centre of mass is constrained, so translational momentum is omitted and
+    the space-frame angular momentum changes by ``r cross J`` only.
+    """
+
+    validate_inertia(inertia)
+    if not all(math.isfinite(value) for value in (*application_point_body, *impulse_space)):
+        raise ValueError("application point and impulse must be finite")
+    point_space = rotate_vector(state.quaternion, application_point_body)
+    momentum_space = rotate_vector(state.quaternion, angular_momentum(state.omega, inertia))
+    angular_impulse_space = _cross(point_space, impulse_space)
+    updated_momentum_space = tuple(
+        component + delta
+        for component, delta in zip(momentum_space, angular_impulse_space, strict=True)
+    )
+    updated_momentum_body = inverse_rotate_vector(state.quaternion, updated_momentum_space)
+    return RigidBodyState(
+        angular_velocity(updated_momentum_body, inertia),
+        _normalise(state.quaternion),
+        state.time,
     )
 
 

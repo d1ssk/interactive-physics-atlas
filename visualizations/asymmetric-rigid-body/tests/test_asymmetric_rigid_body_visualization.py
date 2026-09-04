@@ -35,6 +35,17 @@ def test_static_build_contract(tmp_path, visualization) -> None:
     assert 'momentumSphere: "角運動量球面"' in app
     assert 'data-i18n="axisOne"' in html
     assert 'data-i18n="momentumSphere"' in html
+    assert 'id="torque-canvas"' in html
+    assert 'id="torque-stop"' in html
+    assert 'id="torque-reset"' in html
+    assert 'data-i18n="handsOnTitle"' in html
+    assert "applyImpulseAtBodyPoint" in app
+    assert "const GRIP_POINTS" in app
+    assert "torqueModel.playing = false" in app
+    assert 'handsOnTitle: "Give the body a spin"' in app
+    assert 'handsOnTitle: "自分の手で剛体を回す"' in app
+    assert 'torqueDragHint: "点をつかむ：回転を与える · それ以外：視点移動"' in app
+    assert ".torque-view canvas" in style
     assert "--paper: var(--atlas-viz-background)" in style
     assert "Current components" not in html
     assert "現在の成分" not in app

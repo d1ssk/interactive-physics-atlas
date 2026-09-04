@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   DEFAULT_INERTIA,
+  applyImpulseAtBodyPoint,
   angularMomentum,
   angularVelocity,
   axisStability,
@@ -68,6 +69,23 @@ test("a small finite perturbation flips only the intermediate-axis rotation", ()
   assert.ok(maximumDeparture[2] < 10 * Math.PI / 180);
 });
 
+test("better intermediate-axis alignment delays the first complete flip", () => {
+  const firstFlipTime = (tilt) => {
+    let state = makeInitialState(1, tilt);
+    for (let index = 0; index < 15000; index += 1) {
+      state = rk4Step(state, DEFAULT_INERTIA, 0.003);
+      const momentum = angularMomentum(state.omega);
+      if (momentum[1] / norm(momentum) <= -0.98) return state.time;
+    }
+    return null;
+  };
+  const coarse = firstFlipTime(8);
+  const fine = firstFlipTime(2);
+  assert.notEqual(coarse, null);
+  assert.notEqual(fine, null);
+  assert.ok(fine > coarse + 4);
+});
+
 test("all initial presets lie on the same unit angular-momentum sphere", () => {
   for (const axis of [0, 1, 2]) {
     const state = makeInitialState(axis, 6);
@@ -91,6 +109,37 @@ test("space-frame angular momentum remains fixed while the body tumbles", () => 
   for (let index = 0; index < 12000; index += 1) state = rk4Step(state, DEFAULT_INERTIA, 0.003);
   const finalSpaceMomentum = rotateVector(state.quaternion, angularMomentum(state.omega));
   vectorClose(finalSpaceMomentum, initialSpaceMomentum, 2e-10);
+});
+
+test("an off-centre impulse changes angular momentum by r cross J without translation", () => {
+  const rest = {omega: [0, 0, 0], quaternion: [1, 0, 0, 0], time: 4.5};
+  const kicked = applyImpulseAtBodyPoint(rest, [1.78, 0, 0], [0, 0.6, 0]);
+  vectorClose(angularMomentum(kicked.omega), [0, 0, 1.068]);
+  close(kicked.time, rest.time);
+
+  const radial = applyImpulseAtBodyPoint(rest, [1.78, 0, 0], [0.6, 0, 0]);
+  vectorClose(radial.omega, [0, 0, 0]);
+});
+
+test("impulse update is frame-consistent for a rotated moving body", () => {
+  const angle = 0.73;
+  const state = {
+    omega: [0.24, -0.31, 0.52],
+    quaternion: [Math.cos(angle / 2), 0, Math.sin(angle / 2), 0],
+    time: 2,
+  };
+  const pointBody = [0, 1.29, 0];
+  const impulseSpace = [0.35, -0.12, 0.27];
+  const before = rotateVector(state.quaternion, angularMomentum(state.omega));
+  const pointSpace = rotateVector(state.quaternion, pointBody);
+  const expectedDelta = [
+    pointSpace[1] * impulseSpace[2] - pointSpace[2] * impulseSpace[1],
+    pointSpace[2] * impulseSpace[0] - pointSpace[0] * impulseSpace[2],
+    pointSpace[0] * impulseSpace[1] - pointSpace[1] * impulseSpace[0],
+  ];
+  const kicked = applyImpulseAtBodyPoint(state, pointBody, impulseSpace);
+  const after = rotateVector(kicked.quaternion, angularMomentum(kicked.omega));
+  vectorClose(after, before.map((value, index) => value + expectedDelta[index]), 2e-15);
 });
 
 test("sampled Euler trajectory lies on both invariant surfaces", () => {

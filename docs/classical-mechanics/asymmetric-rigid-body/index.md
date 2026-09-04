@@ -14,7 +14,19 @@ In the inertial frame, the angular momentum vector $\mathbf L$ is constant. In t
 
 ## Visualization
 
-<iframe src="app/index.html?lang=en" title="Torque-free rotation of an asymmetric rigid body with body-frame invariant surfaces" style="display: block; width: 100%; height: 2100px; min-height: 1100px; border: 0; overflow: hidden;" loading="eager" scrolling="no" data-auto-height></iframe>
+<iframe src="app/index.html?lang=en" title="Torque-free rotation and an impulse-driven asymmetric rigid-body challenge" style="display: block; width: 100%; height: 3000px; min-height: 1100px; border: 0; overflow: hidden;" loading="eager" scrolling="no" data-auto-height></iframe>
+
+### Apply an impulse yourself
+
+The lower panel starts with the same body at rest. Its six grip points are the intersections of the surface with the positive and negative principal axes. Starting a drag on one of these points specifies an impulse $mathbf J$ at the body-fixed position $mathbf r$. On release, the body's angular momentum changes by
+
+$$
+\Delta\mathbf L=\mathbf r\times\mathbf J
+$$
+
+The center of mass is constrained, so the visualization retains only this rotational impulse and does not display translation. After release, the external torque again vanishes and the body follows the torque-free Euler equations. A drag that starts anywhere other than a grip point rotates the camera instead.
+
+While aiming, the readouts show the nearest principal axis and the angular error. For a launch nearest to the intermediate axis, the timer records the first reversal for which the signed body-frame component satisfies $L_2/|\mathbf L|\leq -0.98$ relative to its launch direction. This operational threshold distinguishes a visually complete flip from merely crossing the plane $L_2=0$.
 
 ## Euler equations and conserved quantities
 
@@ -148,6 +160,9 @@ Around the smallest- and largest-moment principal axes, by contrast, the corresp
 3. Select **axis 2** and follow the purple $\dot{\mathbf L}$ vector drawn from the tip of $\mathbf L$. It shows the instantaneous direction of motion along the yellow intersection curve.
 4. Reduce the initial displacement. The instability remains, but the body spends longer near intermediate-axis rotation before it flips.
 5. Pause the animation, rotate the body-frame view, and verify that $\dot{\mathbf L}$ is tangent to both the angular-momentum sphere and the energy ellipsoid at the current point.
+6. In the lower panel, drag a grip point until the readout identifies **axis 2**, then release and time the first flip.
+7. Repeat with a smaller launch error. The body remains close to intermediate-axis rotation for longer before the error grows into a flip.
+8. Aim for **axis 1** or **axis 3** and compare the bounded wobble with the intermediate-axis launch. Use **Stop** to inspect the attitude and **Reset** to return the body to rest.
 
 Exact rotation about any principal axis is a solution of the Euler equations. Here, “unstable” does not mean that a state perfectly aligned with the intermediate axis spontaneously departs from it. It means that any arbitrarily small transverse perturbation grows with time.
 

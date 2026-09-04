@@ -84,6 +84,11 @@ export function quaternionMultiply(left, right) {
   ];
 }
 
+export function quaternionConjugate(quaternion) {
+  const [w, x, y, z] = quaternion;
+  return [w, -x, -y, -z];
+}
+
 export function normalizeQuaternion(quaternion) {
   return normalize(quaternion);
 }
@@ -104,6 +109,49 @@ export function rotateVector(quaternion, vector) {
     vy + w * ty + (z * tx - x * tz),
     vz + w * tz + (x * ty - y * tx),
   ];
+}
+
+export function inverseRotateVector(quaternion, vector) {
+  return rotateVector(quaternionConjugate(normalizeQuaternion(quaternion)), vector);
+}
+
+function validateVector(vector, name) {
+  if (!Array.isArray(vector) || vector.length !== 3 || !vector.every(Number.isFinite)) {
+    throw new TypeError(`${name} must contain three finite components`);
+  }
+}
+
+function cross(left, right) {
+  return [
+    left[1] * right[2] - left[2] * right[1],
+    left[2] * right[0] - left[0] * right[2],
+    left[0] * right[1] - left[1] * right[0],
+  ];
+}
+
+// Apply an impulse J at body-fixed point r. The centre of mass is constrained,
+// so only the angular impulse Delta L = r x J is retained.
+export function applyImpulseAtBodyPoint(
+  state,
+  applicationPointBody,
+  impulseSpace,
+  inertia = DEFAULT_INERTIA,
+) {
+  validateInertia(inertia);
+  validateVector(applicationPointBody, "applicationPointBody");
+  validateVector(impulseSpace, "impulseSpace");
+  const pointSpace = rotateVector(state.quaternion, applicationPointBody);
+  const momentumSpace = rotateVector(state.quaternion, angularMomentum(state.omega, inertia));
+  const angularImpulseSpace = cross(pointSpace, impulseSpace);
+  const updatedMomentumSpace = momentumSpace.map(
+    (component, index) => component + angularImpulseSpace[index],
+  );
+  const updatedMomentumBody = inverseRotateVector(state.quaternion, updatedMomentumSpace);
+  return {
+    omega: angularVelocity(updatedMomentumBody, inertia),
+    quaternion: normalizeQuaternion([...state.quaternion]),
+    time: state.time,
+  };
 }
 
 function stateDerivative(state, inertia) {
