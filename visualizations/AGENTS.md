@@ -11,6 +11,16 @@ Required files:
     visualization.py
     tests/
 
+Each `metadata.yml` may set `presentation: standalone`. The default is `article`.
+
+- `article` applications are built below their documentation page at `<page>/app/` and follow the
+  embedded-frame contract below.
+- `standalone` applications are built directly at `<page>/` and are linked from the appropriate
+  field index without a surrounding article. They must provide their own compact site-brand home
+  link and a locale switch pointing to the corresponding standalone path. Do not add filler prose
+  merely to imitate an article. Add the generated `docs/<page>/` path to `.gitignore`; source stays
+  under `visualizations/<id>/`.
+
 ## physics.py
 
 Must contain physical or mathematical computation only.
@@ -85,8 +95,9 @@ so that one scientifically identical figure payload can be shared.
 
 ## Embedded frame sizing contract
 
-New visualizations must follow the existing parent/child auto-height protocol. Do not introduce a
-second measurement formula without an explicit repository-wide change.
+Article-embedded visualizations must follow the existing parent/child auto-height protocol.
+Standalone applications do not need iframe height reporting. Do not introduce a second measurement
+formula without an explicit repository-wide change.
 
 1. Wrap the complete application content in `main`.
 2. Report height from the child with the `physics-atlas:frame-height` message and accept

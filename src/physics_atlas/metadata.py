@@ -13,6 +13,7 @@ import yaml
 from .fields import CANONICAL_FIELDS
 
 SUPPORTED_RUNTIMES = ("browser-static", "plotly-static")
+SUPPORTED_PRESENTATIONS = ("article", "standalone")
 REQUIRED_KEYS = (
     "id",
     "title",
@@ -47,6 +48,13 @@ class VisualizationMetadata:
     page: PurePosixPath
     summary: str
     summary_ja: str
+    presentation: str = "article"
+
+    @property
+    def application_path(self) -> PurePosixPath:
+        """Return the application output path below the documentation root."""
+
+        return self.page if self.presentation == "standalone" else self.page / "app"
 
     def localized_title(self, locale: str) -> str:
         """Return the title in a supported publication locale."""
@@ -121,6 +129,13 @@ def load_metadata(visualization_dir: Path) -> VisualizationMetadata:
     page = _validate_page(page_value, metadata_path)
     summary = _non_empty_string(raw, "summary", metadata_path)
     summary_ja = _non_empty_string(raw, "summary_ja", metadata_path)
+    presentation = raw.get("presentation", "article")
+    if not isinstance(presentation, str) or presentation not in SUPPORTED_PRESENTATIONS:
+        allowed = ", ".join(SUPPORTED_PRESENTATIONS)
+        raise _error(
+            metadata_path,
+            f"presentation {presentation!r} is unsupported; choose one of: {allowed}",
+        )
 
     return VisualizationMetadata(
         id=identifier,
@@ -133,6 +148,7 @@ def load_metadata(visualization_dir: Path) -> VisualizationMetadata:
         page=page,
         summary=summary,
         summary_ja=summary_ja,
+        presentation=presentation,
     )
 
 

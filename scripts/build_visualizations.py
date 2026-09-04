@@ -129,7 +129,7 @@ def build_all(directories: list[Path] | None = None, docs_dir: Path = DOCS_DIR) 
     outputs: list[Path] = []
     for directory in directories:
         metadata = load_metadata(directory)
-        output_dir = docs_dir.joinpath(*metadata.page.parts) / "app"
+        output_dir = docs_dir.joinpath(*metadata.application_path.parts)
         build, package_name = _load_build_function(directory)
         try:
             if output_dir.exists():

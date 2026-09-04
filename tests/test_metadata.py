@@ -1,4 +1,4 @@
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 import pytest
 import yaml
@@ -49,6 +49,31 @@ def test_browser_static_runtime_passes(tmp_path: Path) -> None:
     metadata = load_metadata(write_metadata(tmp_path, data))
 
     assert metadata.runtime == "browser-static"
+
+
+def test_article_is_the_default_presentation(tmp_path: Path) -> None:
+    metadata = load_metadata(write_metadata(tmp_path, valid_metadata()))
+
+    assert metadata.presentation == "article"
+    assert metadata.application_path == PurePosixPath("quantum-mechanics/test-visualization/app")
+
+
+def test_standalone_presentation_builds_at_the_page_path(tmp_path: Path) -> None:
+    data = valid_metadata()
+    data["presentation"] = "standalone"
+
+    metadata = load_metadata(write_metadata(tmp_path, data))
+
+    assert metadata.presentation == "standalone"
+    assert metadata.application_path == PurePosixPath("quantum-mechanics/test-visualization")
+
+
+def test_invalid_presentation_fails(tmp_path: Path) -> None:
+    data = valid_metadata()
+    data["presentation"] = "floating-window"
+
+    with pytest.raises(MetadataValidationError, match="presentation .* is unsupported"):
+        load_metadata(write_metadata(tmp_path, data))
 
 
 def test_missing_required_keys_fail(tmp_path: Path) -> None:

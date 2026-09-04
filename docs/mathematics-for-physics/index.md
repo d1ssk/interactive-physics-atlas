@@ -2,6 +2,11 @@
 
 Mathematical methods and structures used in physics.
 
+## Complex Analysis
+
+- **[Complex Function Explorer](complex-functions/?lang=en)**<br>
+  Values of complex functions, the branch structure of multivalued functions, and contour integrals.
+
 ## Lie Algebras and Their Representations
 
 - **[Lie Roots, Weights, and Tensor Products](lie-roots-weights-products/)**<br>

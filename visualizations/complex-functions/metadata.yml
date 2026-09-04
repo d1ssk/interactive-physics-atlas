@@ -1,0 +1,17 @@
+id: complex-functions
+title: Complex Function Explorer
+title_ja: 複素関数エクスプローラ
+field: mathematics-for-physics
+topics:
+  - complex analysis
+  - analytic continuation
+  - Riemann surfaces
+  - contour integration
+level:
+  - undergraduate
+  - graduate
+runtime: browser-static
+page: mathematics-for-physics/complex-functions
+presentation: standalone
+summary: Values of complex functions, the branch structure of multivalued functions, and contour integrals.
+summary_ja: 複素関数の値、多価関数の分枝構造、線積分。

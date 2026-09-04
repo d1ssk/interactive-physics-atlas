@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Complex Function Explorer — Interactive Physics Atlas</title>
+  <link rel="icon" href="../../assets/images/favicon.svg">
+  <link rel="stylesheet" href="visualization-theme.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="visualization-theme.js"></script>
+  <script>
+    window.MathJax = {
+      tex: {inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]]},
+      startup: {
+        ready() {
+          MathJax.startup.defaultReady();
+          MathJax.startup.promise.then(() => {
+            document.documentElement.classList.add("math-ready");
+          });
+        },
+      },
+    };
+  </script>
+  <script defer src="mathjax-tex-svg.js"></script>
+</head>
+<body>
+  <main>
+    <nav class="site-nav" aria-label="Site navigation" data-i18n-aria-label="siteNavLabel">
+      <a id="brand-home" class="brand" href="../../">Interactive Physics Atlas</a>
+      <a id="locale-link" class="locale-link" href="../../ja/mathematics-for-physics/complex-functions/?lang=ja" lang="ja">日本語</a>
+    </nav>
+
+    <header class="app-header">
+      <h1 data-i18n="title">Complex Function Explorer</h1>
+      <p data-i18n="lede">Explore complex values, analytic continuation across branch cuts, and contour integrals on one input plane.</p>
+    </header>
+
+    <section class="control-panel" aria-labelledby="function-heading">
+      <div class="control-heading">
+        <h2 id="function-heading" data-i18n="functionHeading">Function</h2>
+        <p id="parse-status" class="parse-status" role="status" data-i18n="loadingExpression">Loading expression…</p>
+      </div>
+
+      <form id="function-form" class="function-form">
+        <label class="mode-control">
+          <span data-i18n="inputForm">Input form</span>
+          <select id="expression-mode">
+            <option value="holomorphic" data-i18n="modeHolomorphic">Expression in z (locally holomorphic)</option>
+            <option value="xy" data-i18n="modeXY">General f(x, y)</option>
+            <option value="zbar" data-i18n="modeZbar">General f(z, z̄)</option>
+          </select>
+        </label>
+        <label class="expression-control">
+          <span id="expression-label">f(z) =</span>
+          <input id="expression" type="text" value="sqrt((1-z)*(1+z))" spellcheck="false" autocomplete="off">
+        </label>
+        <button class="primary-button" type="submit" data-i18n="updatePlot">Update plot</button>
+      </form>
+
+      <div class="syntax-row">
+        <span data-i18n="availableSyntax">Available:</span>
+        <code>+ − * / ^</code>
+        <code>sqrt log exp</code>
+        <code>sin cos tan sinh cosh</code>
+        <code>conj abs arg re im</code>
+        <code>pi e i</code>
+        <span data-i18n="implicitMultiplication">(implicit multiplication such as 2z is accepted)</span>
+      </div>
+
+      <div class="preset-row" role="group" aria-label="Function presets" data-i18n-aria-label="presetLabel">
+        <button type="button" data-preset="two-branch" data-i18n="presetTwoBranch">Branch points at ±1</button>
+        <button type="button" data-preset="log" data-i18n="presetLog">Logarithmic sheets</button>
+        <button type="button" data-preset="three-branch" data-i18n="presetThreeBranch">Three branch points</button>
+        <button type="button" data-preset="residue" data-i18n="presetResidue">Residue test</button>
+        <button type="button" data-preset="essential" data-i18n="presetEssential">Essential singularity</button>
+        <button type="button" data-preset="zbar" data-i18n="presetZbar">Non-holomorphic z̄</button>
+        <button type="button" data-preset="xy" data-i18n="presetXY">General f(x,y)</button>
+      </div>
+
+      <div class="view-controls">
+        <label>
+          <span data-i18n="display">Display</span>
+          <select id="display-mode">
+            <option value="domain" data-i18n="displayDomain">Hue = phase, brightness = amplitude</option>
+            <option value="components" data-i18n="displayComponents">Two panels: real / imaginary</option>
+          </select>
+        </label>
+        <label>
+          <span><span data-i18n="plotRange">Plot range</span> ±<output id="range-output">2.5</output></span>
+          <input id="plot-range" type="range" min="1" max="6" value="2.5" step="0.25">
+        </label>
+        <label>
+          <span><span data-i18n="initialBranch">Initial branch</span> k = <output id="branch-output">0</output></span>
+          <input id="branch-index" type="range" min="-2" max="2" value="0" step="1">
+        </label>
+        <label class="check-control">
+          <input id="follow-sheet" type="checkbox" checked>
+          <span data-i18n="followSheet">Move the background to the path's sheet</span>
+        </label>
+        <label class="check-control">
+          <input id="show-cuts" type="checkbox" checked>
+          <span data-i18n="showCuts">Principal-value discontinuity candidates</span>
+        </label>
+        <label class="check-control">
+          <input id="show-contours" type="checkbox" checked>
+          <span data-i18n="showContours">Contours</span>
+        </label>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <article class="probe-card">
+        <h2 data-i18n="currentValue">Value at the current point</h2>
+        <dl class="readout-grid">
+          <div><dt>z</dt><dd id="probe-z">—</dd></div>
+          <div><dt data-i18n="backgroundValue">Background-sheet f(z)</dt><dd id="probe-principal">—</dd></div>
+          <div><dt data-i18n="continuedValue">Pathwise f(z)</dt><dd id="probe-continued">—</dd></div>
+          <div><dt>|f|</dt><dd id="probe-magnitude">—</dd></div>
+          <div><dt>arg f</dt><dd id="probe-phase">—</dd></div>
+        </dl>
+      </article>
+
+      <article class="plot-card">
+        <div class="plot-heading">
+          <h2 id="plot-heading" data-i18n="amplitudePhase">Amplitude and phase</h2>
+          <div class="plot-toolbar">
+            <div id="sheet-indicator" class="sheet-indicator" role="status" aria-live="polite">
+              <span data-i18n="backgroundDisplay">Background</span>
+              <strong id="displayed-sheet">initial branch k=0</strong>
+            </div>
+            <div class="plot-actions">
+              <button id="demo-circle" type="button" data-i18n="tryCircle">Try a circular path</button>
+              <button id="reset-path" type="button" data-i18n="clearPath">Clear path</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="plot-grid" class="plot-grid domain-view" aria-busy="true">
+          <section class="plot-panel" aria-labelledby="panel-a-title">
+            <h3 id="panel-a-title" data-i18n="panelDomain">domain coloring: f(z)</h3>
+            <div class="canvas-stage">
+              <canvas id="field-a" width="520" height="520" aria-hidden="true"></canvas>
+              <canvas id="overlay-a" width="520" height="520"
+                aria-label="Complex input plane. Drag to draw an integration path."
+                data-i18n-aria-label="canvasLabel"></canvas>
+              <div class="rendering-indicator" aria-hidden="true" data-i18n="rendering">Rendering…</div>
+            </div>
+          </section>
+          <section id="panel-b" class="plot-panel" aria-labelledby="panel-b-title">
+            <h3 id="panel-b-title">Im f(z)</h3>
+            <div class="canvas-stage">
+              <canvas id="field-b" width="520" height="520" aria-hidden="true"></canvas>
+              <canvas id="overlay-b" width="520" height="520"
+                aria-label="Imaginary-part view of the complex input plane. Drag to draw an integration path."
+                data-i18n-aria-label="canvasImaginaryLabel"></canvas>
+              <div class="rendering-indicator" aria-hidden="true" data-i18n="rendering">Rendering…</div>
+            </div>
+          </section>
+        </div>
+
+        <div class="color-legend" aria-label="Color legend" data-i18n-aria-label="colorLegendLabel">
+          <div id="domain-legend" class="domain-legend-strip"></div>
+          <div id="component-legend" class="component-legend-strip" hidden></div>
+          <p id="legend-text" data-i18n="domainLegend">Hue shows arg f and brightness shows |f|/(1+|f|). Dashed marks indicate detected branch-cut candidates.</p>
+        </div>
+        <p id="interaction-status" class="interaction-status" role="status" data-i18n="dragInstruction">Drag on the plane to begin a contour integral. Return to the starting ring to close it.</p>
+      </article>
+
+      <aside class="diagnostics">
+        <article class="integral-card">
+          <div class="card-heading-row">
+            <h2 data-i18n="contourIntegral">Contour integral</h2>
+            <span id="path-badge" class="path-badge idle" data-i18n="idle">Idle</span>
+          </div>
+
+          <div class="integral-primary">
+            <p id="integral-value" class="integral-value">0 + 0i</p>
+          </div>
+          <p class="integral-formula"><span data-i18n="trapezoidRule">Incremental trapezoidal rule:</span> \(I_n=I_{n-1}+\tfrac{f_{n-1}+f_n}{2}(z_n-z_{n-1})\)</p>
+
+          <div class="bar-readout">
+            <div>
+              <span>Re ∫</span>
+              <div class="signed-bar"><i></i><b id="real-bar"></b></div>
+              <output id="real-value">0</output>
+            </div>
+            <div>
+              <span>Im ∫</span>
+              <div class="signed-bar"><i></i><b id="imag-bar"></b></div>
+              <output id="imag-value">0</output>
+            </div>
+          </div>
+
+          <div class="integral-plane-wrap">
+            <canvas id="integral-plane" width="300" height="230" aria-label="Path of the integral value in the complex plane" data-i18n-aria-label="integralPlaneLabel"></canvas>
+            <span data-i18n="integralPlane">Integral-value plane</span>
+          </div>
+
+          <dl class="path-readout">
+            <div><dt data-i18n="path">Path</dt><dd id="path-length">0 points / length 0</dd></div>
+            <div><dt data-i18n="pathSheet">Sheet along path</dt><dd id="branch-turns">—</dd></div>
+            <div><dt data-i18n="endStart">End value / start value</dt><dd id="monodromy">—</dd></div>
+            <div><dt data-i18n="liftedPath">Lifted path</dt><dd id="lift-status">—</dd></div>
+          </dl>
+        </article>
+      </aside>
+    </section>
+
+    <section class="method-note" aria-labelledby="method-heading">
+      <h2 id="method-heading" data-i18n="methodHeading">How branch following works</h2>
+      <p data-i18n="methodText">The background evaluates one branch point by point. During a drag, each multivalued operation unwraps its argument continuously. When the path crosses a displayed cut, the background is redrawn on the branch selected by that crossing direction.</p>
+      <p data-i18n="riemannText">A branch cut is a convention for drawing a single-valued chart. The precise operation here is analytic continuation, or lifting the path to the Riemann surface. A path closed in the base plane need not close after this lift.</p>
+    </section>
+  </main>
+  <noscript>JavaScript is required for this application. / このアプリケーションには JavaScript が必要です。</noscript>
+  <script type="module" src="app.mjs"></script>
+</body>
+</html>

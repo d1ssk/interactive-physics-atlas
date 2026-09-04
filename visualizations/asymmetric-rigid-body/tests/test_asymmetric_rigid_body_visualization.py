@@ -38,6 +38,7 @@ def test_static_build_contract(tmp_path, visualization) -> None:
     assert "--paper: var(--atlas-viz-background)" in style
     assert "Current components" not in html
     assert "現在の成分" not in app
+    assert "border-radius: 5px" in style
     assert "gradient" not in style
     assert "https://" not in html
     assert "http://" not in html
