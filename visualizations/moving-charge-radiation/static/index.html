@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Retarded Fields of a Moving Charge</title>
+  <link rel="stylesheet" href="visualization-theme.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="visualization-theme.js"></script>
+  <script>
+    window.MathJax = {
+      tex: {inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]]},
+      startup: {
+        ready() {
+          MathJax.startup.defaultReady();
+          MathJax.startup.promise.then(() => {
+            window.dispatchEvent(new Event("physics-atlas:mathjax-ready"));
+          });
+        },
+      },
+    };
+  </script>
+  <script defer src="mathjax-tex-svg.js"></script>
+</head>
+<body>
+  <main>
+    <header class="page-header">
+      <div>
+        <h1 data-i18n="title">Retarded fields of a moving charge</h1>
+        <p data-i18n="intro">Move the point charge and observe changes propagating at a finite speed.</p>
+      </div>
+    </header>
+
+    <section class="app-shell">
+      <section class="viewer" data-i18n-aria-label="viewerLabel" aria-label="Electromagnetic field produced by a moving point charge">
+        <canvas id="field-canvas" data-i18n-aria-label="canvasLabel" aria-label="Electromagnetic field on an orthographically projected observation plane"></canvas>
+        <div class="viewer-status">
+          <span id="state-chip" data-i18n="retardedField">Retarded field</span>
+          <span id="history-status" data-i18n="preparingHistory">Preparing history…</span>
+        </div>
+        <div class="legend" data-i18n-aria-label="legendLabel" aria-label="Display legend">
+          <span><i class="electric-key"></i><span data-i18n="electricField">Electric field</span> \(\mathbf E\)</span>
+          <span><i class="magnetic-key"></i><span data-i18n="magneticField">Magnetic field</span> \(\mathbf B\)</span>
+          <span><i class="radiation-key"></i><span data-i18n="radiationStrength">Radiation strength</span></span>
+        </div>
+        <p class="drag-hint" data-i18n="dragHint">Drag the charge to move it</p>
+      </section>
+
+      <aside class="controls" data-i18n-aria-label="settingsLabel" aria-label="Display and simulation settings">
+        <section>
+          <h2 data-i18n="observationPlane">Observation plane</h2>
+          <div class="segmented" role="group" data-i18n-aria-label="planeGroupLabel" aria-label="Field observation plane">
+            <button class="plane-button active" type="button" data-plane="xy" aria-pressed="true" data-i18n="motionPlane">Motion plane \(xy\)</button>
+            <button class="plane-button" type="button" data-plane="xz" aria-pressed="false" data-i18n="perpendicularPlane">Perpendicular \(xz\)</button>
+          </div>
+          <p id="plane-note" class="control-note" data-i18n="planeNoteXY">Observe the field on the charge's \(xy\) motion plane.</p>
+        </section>
+
+        <section>
+          <div class="section-heading">
+            <h2 data-i18n="charge">Charge</h2>
+            <button id="clear-waves" class="text-button" type="button" data-i18n="clearHistory">Clear history</button>
+          </div>
+          <div class="segmented" role="group" data-i18n-aria-label="chargeSignLabel" aria-label="Charge sign">
+            <button class="charge-button active" type="button" data-charge="1" aria-pressed="true" data-i18n="positiveCharge">Positive</button>
+            <button class="charge-button" type="button" data-charge="-1" aria-pressed="false" data-i18n="negativeCharge">Negative</button>
+          </div>
+          <button id="auto-motion" class="secondary-button" type="button" aria-pressed="false" data-i18n="automaticMotion">Automatic motion</button>
+        </section>
+
+        <section>
+          <h2 data-i18n="fieldDisplay">Field display</h2>
+          <div class="segmented" role="group" data-i18n-aria-label="componentGroupLabel" aria-label="Displayed field component">
+            <button class="component-button active" type="button" data-component="total" aria-pressed="true" data-i18n="totalField">Total field</button>
+            <button class="component-button" type="button" data-component="radiation" aria-pressed="false" data-i18n="radiationOnly">Radiation only</button>
+          </div>
+          <label class="switch-row" for="show-electric">
+            <span><span data-i18n="electricField">Electric field</span> \(\mathbf E\)</span>
+            <input id="show-electric" type="checkbox" checked>
+          </label>
+          <label class="switch-row" for="show-magnetic">
+            <span><span data-i18n="magneticField">Magnetic field</span> \(\mathbf B\)</span>
+            <input id="show-magnetic" type="checkbox" checked>
+          </label>
+          <label class="switch-row" for="show-trail">
+            <span data-i18n="chargeTrail">Charge trail</span>
+            <input id="show-trail" type="checkbox" checked>
+          </label>
+        </section>
+
+        <section class="sliders">
+          <label for="wave-speed">
+            <span><span><span data-i18n="propagationSpeed">Propagation speed</span> \(c\)</span><output id="wave-speed-output">3.0</output></span>
+            <input id="wave-speed" type="range" min="2" max="5" step="0.1" value="3">
+          </label>
+          <label for="field-gain">
+            <span><span data-i18n="arrowSensitivity">Arrow sensitivity</span><output id="field-gain-output">1.0×</output></span>
+            <input id="field-gain" type="range" min="0.4" max="2.5" step="0.1" value="1">
+          </label>
+        </section>
+
+        <section class="readout" aria-live="polite">
+          <h2 data-i18n="currentCharge">Charge now</h2>
+          <dl>
+            <div><dt data-i18n="speed">Speed</dt><dd id="speed-readout">0.00 c</dd></div>
+            <div><dt data-i18n="acceleration">Acceleration</dt><dd id="acceleration-readout">0.00</dd></div>
+            <div><dt data-i18n="radiationIndex">Radiation index</dt><dd id="power-readout">0.00</dd></div>
+          </dl>
+          <div class="speed-meter" aria-hidden="true"><i id="speed-fill"></i><span></span></div>
+        </section>
+      </aside>
+    </section>
+  </main>
+  <script>
+    (() => {
+      if (window.parent === window) return;
+      const PARENT_TARGET_ORIGIN = window.location.origin;
+      function report() {
+        const main = document.querySelector("main");
+        const contentBottom = main ? main.getBoundingClientRect().bottom : 0;
+        const contentHeight = Math.max(contentBottom, document.body.getBoundingClientRect().height);
+        const frameHeight = Math.ceil(contentHeight);
+        if (window.frameElement) {
+          window.frameElement.style.minHeight = "0";
+          window.frameElement.style.height = frameHeight + "px";
+          window.frameElement.setAttribute("scrolling", "no");
+          window.frameElement.style.overflow = "hidden";
+        }
+        window.parent.postMessage(
+          {type: "physics-atlas:frame-height", height: frameHeight},
+          PARENT_TARGET_ORIGIN,
+        );
+      }
+      window.addEventListener("load", report);
+      window.addEventListener("resize", report);
+      window.addEventListener("physics-atlas:mathjax-ready", report);
+      window.addEventListener("message", event => {
+        const expectedParent = event.source === window.parent;
+        const expectedOrigin = event.origin === PARENT_TARGET_ORIGIN;
+        if (expectedParent && expectedOrigin && event.data?.type === "physics-atlas:request-frame-height") report();
+      });
+      if ("ResizeObserver" in window) {
+        const observer = new ResizeObserver(report);
+        observer.observe(document.body);
+        const main = document.querySelector("main");
+        if (main) observer.observe(main);
+        window.addEventListener("pagehide", () => observer.disconnect(), {once:true});
+      }
+      document.fonts?.ready.then(report);
+      report();
+    })();
+  </script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
