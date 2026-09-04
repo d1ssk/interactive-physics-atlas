@@ -1,0 +1,14 @@
+id: asymmetric-rigid-body
+title: Torque-Free Rotation of an Asymmetric Rigid Body
+title_ja: 非対称剛体の自由回転
+field: classical-mechanics
+topics:
+  - Euler equations
+  - rigid-body rotation
+  - intermediate-axis theorem
+level:
+  - advanced undergraduate
+runtime: browser-static
+page: classical-mechanics/asymmetric-rigid-body
+summary: Explore stable and unstable principal-axis rotation through the angular-momentum sphere and energy ellipsoid.
+summary_ja: 角運動量球面とエネルギー楕円体から、慣性主軸まわりの安定・不安定な自由回転を理解する可視化。
