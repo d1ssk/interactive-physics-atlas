@@ -47,6 +47,9 @@ def test_static_build_contract(tmp_path, visualization) -> None:
     assert 'handsOnTitle: "自分の手で剛体を回す"' in app
     assert 'torqueDragHint: "点をつかむ：振って離す · それ以外：視点移動"' in app
     assert 'releaseRule: "離した瞬間の角速度を引き継ぎます。重心は固定されています。"' in app
+    assert "離した瞬間の角速度を保って自由回転へ移ります。" in app
+    assert "不安定方向の回転でも、回転軸をaxis 2 に近くできれば、長時間定常を保てます。" in app
+    assert "把持点" not in app
     assert "boldsymbol" not in html
     assert ".torque-view canvas" in style
     assert "--paper: var(--atlas-viz-background)" in style
