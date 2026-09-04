@@ -1,0 +1,17 @@
+id: material-fields
+title: Electric and Magnetic Response of Materials
+title_ja: 物質の電場・磁場応答
+field: electromagnetism
+topics:
+  - conductors
+  - dielectrics
+  - magnetic materials
+  - electrostatic shielding
+  - magnetic shielding
+level:
+  - undergraduate
+  - advanced undergraduate
+runtime: browser-static
+page: electromagnetism/material-fields
+summary: Place conductors, dielectrics, and magnetic materials in an applied field and inspect polarization, induced surface response, and shielding.
+summary_ja: 導体・誘電体・磁性体を外部場に置き、分極、誘起された表面応答、遮蔽を観察します。

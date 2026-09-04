@@ -1,0 +1,15 @@
+id: bloch-sphere
+title: Bloch Sphere
+title_ja: Bloch球
+field: quantum-mechanics
+topics:
+  - qubits
+  - Bloch sphere
+  - superposition
+  - quantum gates
+level:
+  - undergraduate
+runtime: browser-static
+page: quantum-mechanics/bloch-sphere
+summary: Construct pure qubit states, add state vectors coherently, and view single-qubit gates as rotations of the Bloch sphere.
+summary_ja: 純粋な量子ビット状態の作成、ketのコヒーレントな加算、1量子ビットゲートによるBloch球上の回転。

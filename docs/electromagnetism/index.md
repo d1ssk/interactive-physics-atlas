@@ -2,6 +2,11 @@
 
 Fields, currents, and electromagnetic waves.
 
+## Matter in fields
+
+- **[Electric and Magnetic Response of Materials](material-fields/)**<br>
+  Conductors, dielectrics, magnetic materials, induced surface response, and shielding in applied fields.
+
 ## Radiation
 
 - **[Retarded Fields and Radiation from a Moving Charge](moving-charge-radiation/)**<br>

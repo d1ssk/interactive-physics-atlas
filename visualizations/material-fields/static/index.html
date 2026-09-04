@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Electric and Magnetic Response of Materials</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="visualization-theme.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="visualization-theme.js"></script>
+  <script>
+    window.MathJax = {
+      tex: {inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]]},
+      svg: {fontCache: "global"},
+      startup: {
+        ready() {
+          MathJax.startup.defaultReady();
+          MathJax.startup.promise.then(() => {
+            window.dispatchEvent(new CustomEvent("physics-atlas:mathjax-ready"));
+          });
+        },
+      },
+    };
+  </script>
+  <script defer src="mathjax-tex-svg.js"></script>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="title-block">
+        <p>FIELD RESPONSE LAB</p>
+        <h1 data-i18n="title">Material response to applied fields</h1>
+      </div>
+      <div class="mode-switch" role="group" data-i18n-aria-label="fieldTypeLabel" aria-label="Field type">
+        <button type="button" class="active" data-mode="electric" aria-pressed="true">
+          <span class="mode-icon electric-icon math-source" aria-hidden="true">\(E\)</span>
+          <span><b data-i18n="electricField">Electric field</b><small>Electrostatic</small></span>
+        </button>
+        <button type="button" data-mode="magnetic" aria-pressed="false">
+          <span class="mode-icon magnetic-icon math-source" aria-hidden="true">\(B\)</span>
+          <span><b data-i18n="magneticField">Magnetic field</b><small>Magnetostatic</small></span>
+        </button>
+      </div>
+      <label class="ambient-control" for="applied-strength">
+        <span><b data-i18n="appliedField">Applied field</b><output id="applied-output">1.00 ×</output></span>
+        <input id="applied-strength" type="range" min="0.25" max="2" step="0.05" value="1">
+      </label>
+    </header>
+
+    <section class="studio">
+      <aside class="tool-panel" data-i18n-aria-label="toolsLabel" aria-label="Shape and display controls">
+        <section>
+          <p class="section-label">ADD MATERIAL</p>
+          <h2 data-i18n="addObject">Add object</h2>
+          <div class="shape-list">
+            <button type="button" class="shape-button" data-add-shape="circle">
+              <span class="shape-preview circle-preview" aria-hidden="true"></span>
+              <span><b data-i18n="circle">Circle</b><small>Circle / ellipse</small></span><i>＋</i>
+            </button>
+            <button type="button" class="shape-button" data-add-shape="rounded-rectangle">
+              <span class="shape-preview rectangle-preview" aria-hidden="true"></span>
+              <span><b data-i18n="rectangle">Rectangle</b><small>Rounded rectangle</small></span><i>＋</i>
+            </button>
+            <button type="button" class="shape-button" data-add-shape="rounded-triangle">
+              <svg class="shape-preview triangle-preview" viewBox="0 0 40 36" aria-hidden="true"><path d="M20 3 Q22 3 24 7 L36 28 Q38 33 32 33 H8 Q2 33 4 28 L16 7 Q18 3 20 3Z"></path></svg>
+              <span><b data-i18n="triangle">Triangle</b><small>Rounded triangle</small></span><i>＋</i>
+            </button>
+          </div>
+        </section>
+        <section>
+          <p class="section-label">LAYERS</p>
+          <h2 data-i18n="display">Display</h2>
+          <div class="layer-list">
+            <label><span class="layer-swatch potential-swatch"></span><span><b id="potential-layer-name">Potential</b><small data-i18n="backgroundColor">Background color</small></span><input id="show-potential" type="checkbox" checked></label>
+            <label><span class="layer-swatch field-swatch"></span><span><b id="field-layer-name">Electric field</b><small data-i18n="arrows">Arrows</small></span><input id="show-field" type="checkbox" checked></label>
+            <div class="density-control">
+              <span data-i18n="arrowDensity">Arrow density</span>
+              <div role="group" data-i18n-aria-label="arrowDensityLabel" aria-label="Field arrow density">
+                <button type="button" data-field-density="low" aria-pressed="false" data-i18n="low">Low</button>
+                <button type="button" class="active" data-field-density="medium" aria-pressed="true" data-i18n="medium">Medium</button>
+                <button type="button" data-field-density="high" aria-pressed="false" data-i18n="high">High</button>
+              </div>
+            </div>
+            <label><span class="layer-swatch induced-swatch"></span><span><b data-i18n="inducedOnly">Induced field only</b><small data-i18n="subtractApplied">Subtract uniform applied field</small></span><input id="show-induced-only" type="checkbox"></label>
+            <label><span class="layer-swatch charge-swatch"></span><span><b id="surface-layer-name">Surface charge density</b><small data-i18n="boundaryColor">Boundary color</small></span><input id="show-surface" type="checkbox" checked></label>
+          </div>
+        </section>
+        <section class="scene-actions">
+          <p class="section-label">SCENE</p>
+          <button type="button" id="reset-scene" data-i18n="resetShielding">Reset shielding example</button>
+          <button type="button" id="clear-scene" data-i18n="removeAll">Remove all</button>
+        </section>
+        <div class="shortcut-note"><kbd>drag</kbd> <span data-i18n="move">move</span>　<kbd>handles</kbd> <span data-i18n="resizeRotate">resize / rotate</span><br><kbd>⌫</kbd> <span data-i18n="delete">delete</span>　<kbd>⌘/Ctrl + D</kbd> <span data-i18n="duplicate">duplicate</span></div>
+      </aside>
+
+      <section class="field-panel" data-i18n-aria-label="visualizationLabel" aria-label="Field visualization">
+        <div class="field-heading">
+          <div><p class="section-label" id="field-kicker">ELECTROSTATIC POTENTIAL SOLVER</p><h2 id="field-title">Uniform electric field from left to right</h2></div>
+          <div class="solver-state" id="solver-state" data-state="working" aria-live="polite"><i></i><span>Solving</span></div>
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="field-canvas" width="1000" height="640" tabindex="0" role="img" data-i18n-aria-label="canvasLabel" aria-label="Two-dimensional field distorted by material objects"></canvas>
+          <div class="edge-label left-edge" id="left-edge-label"><b>＋</b><span>High potential</span></div>
+          <div class="edge-label right-edge" id="right-edge-label"><b>−</b><span>Low potential</span></div>
+          <div class="canvas-help" id="canvas-help" data-i18n="canvasHelp">Select and drag an object</div>
+        </div>
+        <div class="legend-row">
+          <div class="potential-legend"><span id="potential-low">Low potential</span><i></i><span id="potential-high">High potential</span></div>
+          <div class="surface-legend"><span id="surface-negative">Negative surface density</span><i></i><span id="surface-positive">Positive surface density</span></div>
+          <div class="live-probe"><span id="probe-label">POINTER E</span><output id="probe-output">—</output></div>
+        </div>
+      </section>
+
+      <aside class="inspector" data-i18n-aria-label="inspectorLabel" aria-label="Selected object settings">
+        <div class="inspector-empty" id="inspector-empty"><span aria-hidden="true">◇</span><h2 data-i18n="selectObject">Select an object</h2><p data-i18n="selectObjectHelp">Click an object on the canvas to edit its material and shape.</p></div>
+        <div class="inspector-content" id="inspector-content" hidden>
+          <div class="inspector-heading"><div><p class="section-label">SELECTED OBJECT</p><h2 id="object-name">Object 1</h2></div><span id="shape-badge">Rectangle</span></div>
+          <section id="electric-material-controls">
+            <label class="field-label" for="electric-kind" data-i18n="electricalProperty">Electrical property</label>
+            <select id="electric-kind"><option value="conductor" data-i18n="perfectConductor">Perfect conductor (neutral, isolated)</option><option value="dielectric" data-i18n="linearDielectric">Linear dielectric</option></select>
+            <label class="slider-row" id="epsilon-row" for="epsilon"><span><b class="math-source">\(\varepsilon_r\)</b><output id="epsilon-output">4.0</output></span><input id="epsilon" type="range" min="1" max="20" step="0.1" value="4"></label>
+            <p class="material-note" id="electric-material-note">The conductor is equipotential and its total free charge is constrained to zero.</p>
+          </section>
+          <section id="magnetic-material-controls" hidden>
+            <label class="slider-row" for="mu-log"><span><b class="math-source">\(\mu_r\)</b><output id="mu-output">50.0</output></span><input id="mu-log" type="range" min="-1" max="3.69897" step="0.01" value="1.699"></label>
+            <div class="quick-values" data-i18n-aria-label="permeabilityExamples" aria-label="Relative permeability examples"><button type="button" data-mu="0.2">0.2</button><button type="button" data-mu="1">1</button><button type="button" data-mu="100">100</button><button type="button" data-mu="1000">1,000</button><button type="button" data-mu="5000">5,000</button></div>
+            <p class="material-note" data-i18n="magneticMaterialNote">Linear, isotropic magnetic material. Values above one concentrate magnetic flux; real iron depends on field strength and history.</p>
+          </section>
+          <section>
+            <label class="toggle-row" for="hollow"><span><b data-i18n="makeHollow">Make hollow</b><small data-i18n="vacuumCavity">Vacuum cavity inside</small></span><input id="hollow" type="checkbox"></label>
+            <label class="slider-row" id="wall-row" for="wall"><span><b data-i18n="wallThickness">Wall thickness</b><output id="wall-output">24%</output></span><input id="wall" type="range" min="0.1" max="0.55" step="0.01" value="0.24"></label>
+          </section>
+          <section>
+            <p class="field-label" data-i18n="placementShape">Placement and shape</p>
+            <div class="number-grid">
+              <label for="object-width"><span data-i18n="width">Width</span><input id="object-width" type="number" min="0.6" max="5" step="0.1"></label>
+              <label for="object-height"><span data-i18n="height">Height</span><input id="object-height" type="number" min="0.6" max="5" step="0.1"></label>
+              <label for="object-rotation"><span data-i18n="rotation">Rotation</span><span class="unit-input"><input id="object-rotation" type="number" min="-180" max="180" step="1"><i>°</i></span></label>
+            </div>
+            <button type="button" class="aspect-button" id="equalize-size" data-i18n="equalize">Make width and height equal</button>
+          </section>
+          <div class="object-actions"><button type="button" id="duplicate-object" data-i18n="duplicate">Duplicate</button><button type="button" class="danger" id="delete-object" data-i18n="delete">Delete</button></div>
+        </div>
+      </aside>
+    </section>
+    <footer class="model-strip">
+      <div><span>MODEL</span><b id="model-equation" class="math-source">\(\nabla\cdot(\varepsilon\nabla\phi)=0\)</b></div>
+      <p id="model-description">Two-dimensional cross-section · linear isotropic media · insulating top and bottom boundaries</p>
+      <div><span>GRID</span><b id="grid-readout">—</b></div>
+    </footer>
+  </main>
+  <noscript data-i18n="noscript">JavaScript is required for this visualization.</noscript>
+  <script>
+    (() => {
+      if (window.parent === window) return;
+      const PARENT_TARGET_ORIGIN = window.location.origin;
+      function report() {
+        const main = document.querySelector("main");
+        const contentBottom = main ? main.getBoundingClientRect().bottom : 0;
+        const contentHeight = Math.max(contentBottom, document.body.getBoundingClientRect().height);
+        const frameHeight = Math.ceil(contentHeight);
+        if (window.frameElement) {
+          window.frameElement.style.minHeight = "0";
+          window.frameElement.style.height = frameHeight + "px";
+          window.frameElement.setAttribute("scrolling", "no");
+          window.frameElement.style.overflow = "hidden";
+        }
+        window.parent.postMessage({type: "physics-atlas:frame-height", height: frameHeight}, PARENT_TARGET_ORIGIN);
+      }
+      window.addEventListener("load", report);
+      window.addEventListener("resize", report);
+      window.addEventListener("physics-atlas:mathjax-ready", report);
+      window.addEventListener("message", event => {
+        const expectedParent = event.source === window.parent;
+        const expectedOrigin = event.origin === PARENT_TARGET_ORIGIN;
+        if (expectedParent && expectedOrigin && event.data?.type === "physics-atlas:request-frame-height") report();
+      });
+      if ("ResizeObserver" in window) {
+        const observer = new ResizeObserver(report);
+        observer.observe(document.body);
+        const main = document.querySelector("main");
+        if (main) observer.observe(main);
+        window.addEventListener("pagehide", () => observer.disconnect(), {once: true});
+      }
+      document.fonts?.ready.then(report);
+      report();
+    })();
+  </script>
+  <script type="module" src="app.mjs"></script>
+</body>
+</html>
