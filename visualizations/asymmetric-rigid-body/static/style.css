@@ -173,14 +173,14 @@ h2 { margin: 0; font-size: 1.1rem; line-height: 1.25; }
   border: 1px solid var(--line);
   background: var(--panel-subtle);
 }
-.lab-controls > p { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin: 0; color: var(--muted); font-size: .7rem; }
+.lab-controls > p { min-width: 0; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin: 0; color: var(--muted); font-size: .7rem; }
 .lab-controls .math-source { color: var(--gold-soft); font-size: .86rem; }
 .lab-controls .transport button { min-height: 40px; }
-.torque-status { margin-bottom: 10px; }
+.torque-status { grid-template-columns: repeat(5, minmax(0, 1fr)); margin-bottom: 10px; }
 .torque-view { width: 100%; }
 .torque-view canvas { aspect-ratio: 1240 / 700; }
 .key.grip { width: 9px; height: 9px; border: 2px solid var(--axis-2); border-radius: 50%; background: var(--axis-1); }
-.key.impulse { height: 3px; color: #8d73c9; }
+.key.grab-motion { height: 3px; color: #8d73c9; }
 .lab-tip { margin: 14px 2px 0; color: var(--muted); font-size: .72rem; line-height: 1.6; }
 
 @media (max-width: 1040px) {
@@ -208,6 +208,10 @@ h2 { margin: 0; font-size: 1.1rem; line-height: 1.25; }
   .status-strip { grid-template-columns: 1fr 1fr; }
   .status-strip > div:nth-child(2) { border-right: 0; }
   .status-strip > div:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+  .torque-status { grid-template-columns: 1fr 1fr; }
+  .torque-status > div:nth-child(-n+4) { border-bottom: 1px solid var(--line); }
+  .torque-status > div:nth-child(4) { border-right: 0; }
+  .torque-status > div:nth-child(5) { grid-column: 1 / -1; border-right: 0; }
   .view-card figcaption { min-height: 58px; padding: 12px 14px; }
   .view-card figcaption > p { display: none; }
   .canvas-legend { padding-inline: 14px; }
@@ -215,6 +219,7 @@ h2 { margin: 0; font-size: 1.1rem; line-height: 1.25; }
   .equations { align-items: start; flex-direction: column; gap: 12px; }
   .torque-lab { padding: 16px 12px; }
   .lab-controls { align-items: stretch; flex-direction: column; }
+  .lab-controls .math-source { font-size: .76rem; }
   .lab-controls .transport { width: 100%; }
   .torque-view canvas { aspect-ratio: 4 / 3; }
 }

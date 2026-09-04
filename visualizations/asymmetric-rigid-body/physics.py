@@ -164,34 +164,41 @@ def _cross(left: Vector3, right: Vector3) -> Vector3:
     )
 
 
-def apply_impulse_at_body_point(
-    state: RigidBodyState,
-    application_point_body: Vector3,
-    impulse_space: Vector3,
-    inertia: Inertia = DEFAULT_INERTIA,
-) -> RigidBodyState:
-    """Apply the rotational part of an impulse at a body-fixed point.
+def rotation_vector_between(start: Vector3, end: Vector3) -> Vector3:
+    """Return the shortest space rotation vector taking ``start`` to ``end``."""
 
-    The centre of mass is constrained, so translational momentum is omitted and
-    the space-frame angular momentum changes by ``r cross J`` only.
-    """
+    if not all(math.isfinite(value) for value in (*start, *end)):
+        raise ValueError("start and end must be finite")
+    start_unit = _normalise(start)
+    end_unit = _normalise(end)
+    axis_times_sine = _cross(start_unit, end_unit)
+    sine = norm(axis_times_sine)
+    cosine = max(-1.0, min(1.0, sum(a * b for a, b in zip(start_unit, end_unit, strict=True))))
+    if sine > EPSILON:
+        angle = math.atan2(sine, cosine)
+        return tuple(component * angle / sine for component in axis_times_sine)
+    if cosine > 0:
+        return 0.0, 0.0, 0.0
+    reference = (1.0, 0.0, 0.0) if abs(start_unit[0]) < 0.8 else (0.0, 1.0, 0.0)
+    axis = _normalise(_cross(start_unit, reference))
+    return tuple(component * math.pi for component in axis)
 
-    validate_inertia(inertia)
-    if not all(math.isfinite(value) for value in (*application_point_body, *impulse_space)):
-        raise ValueError("application point and impulse must be finite")
-    point_space = rotate_vector(state.quaternion, application_point_body)
-    momentum_space = rotate_vector(state.quaternion, angular_momentum(state.omega, inertia))
-    angular_impulse_space = _cross(point_space, impulse_space)
-    updated_momentum_space = tuple(
-        component + delta
-        for component, delta in zip(momentum_space, angular_impulse_space, strict=True)
+
+def apply_space_rotation(quaternion: Quaternion, rotation_vector: Vector3) -> Quaternion:
+    """Premultiply an attitude by a rotation expressed in inertial space."""
+
+    if not all(math.isfinite(value) for value in rotation_vector):
+        raise ValueError("rotation vector must be finite")
+    angle = norm(rotation_vector)
+    if angle <= EPSILON:
+        return _normalise(quaternion)
+    half_angle = angle / 2
+    factor = math.sin(half_angle) / angle
+    delta: Quaternion = (
+        math.cos(half_angle),
+        *(component * factor for component in rotation_vector),
     )
-    updated_momentum_body = inverse_rotate_vector(state.quaternion, updated_momentum_space)
-    return RigidBodyState(
-        angular_velocity(updated_momentum_body, inertia),
-        _normalise(state.quaternion),
-        state.time,
-    )
+    return _normalise(quaternion_multiply(delta, quaternion))
 
 
 def _derivative(state: RigidBodyState, inertia: Inertia) -> tuple[Vector3, Quaternion]:

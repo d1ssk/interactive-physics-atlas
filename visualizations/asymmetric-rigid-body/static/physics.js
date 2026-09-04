@@ -129,29 +129,38 @@ function cross(left, right) {
   ];
 }
 
-// Apply an impulse J at body-fixed point r. The centre of mass is constrained,
-// so only the angular impulse Delta L = r x J is retained.
-export function applyImpulseAtBodyPoint(
-  state,
-  applicationPointBody,
-  impulseSpace,
-  inertia = DEFAULT_INERTIA,
-) {
-  validateInertia(inertia);
-  validateVector(applicationPointBody, "applicationPointBody");
-  validateVector(impulseSpace, "impulseSpace");
-  const pointSpace = rotateVector(state.quaternion, applicationPointBody);
-  const momentumSpace = rotateVector(state.quaternion, angularMomentum(state.omega, inertia));
-  const angularImpulseSpace = cross(pointSpace, impulseSpace);
-  const updatedMomentumSpace = momentumSpace.map(
-    (component, index) => component + angularImpulseSpace[index],
-  );
-  const updatedMomentumBody = inverseRotateVector(state.quaternion, updatedMomentumSpace);
-  return {
-    omega: angularVelocity(updatedMomentumBody, inertia),
-    quaternion: normalizeQuaternion([...state.quaternion]),
-    time: state.time,
-  };
+export function rotationVectorBetween(start, end) {
+  validateVector(start, "start");
+  validateVector(end, "end");
+  const from = normalize(start);
+  const to = normalize(end);
+  const axisTimesSine = cross(from, to);
+  const sine = norm(axisTimesSine);
+  const cosine = Math.min(1, Math.max(-1, from.reduce(
+    (sum, component, index) => sum + component * to[index],
+    0,
+  )));
+  if (sine > EPSILON) {
+    const angle = Math.atan2(sine, cosine);
+    return axisTimesSine.map((component) => component * angle / sine);
+  }
+  if (cosine > 0) return [0, 0, 0];
+  const reference = Math.abs(from[0]) < 0.8 ? [1, 0, 0] : [0, 1, 0];
+  const axis = normalize(cross(from, reference));
+  return axis.map((component) => component * Math.PI);
+}
+
+export function applySpaceRotation(quaternion, rotationVector) {
+  validateVector(rotationVector, "rotationVector");
+  const angle = norm(rotationVector);
+  if (angle <= EPSILON) return normalizeQuaternion([...quaternion]);
+  const halfAngle = angle / 2;
+  const factor = Math.sin(halfAngle) / angle;
+  const delta = [
+    Math.cos(halfAngle),
+    ...rotationVector.map((component) => component * factor),
+  ];
+  return normalizeQuaternion(quaternionMultiply(delta, quaternion));
 }
 
 function stateDerivative(state, inertia) {

@@ -1,14 +1,16 @@
 import {
   DEFAULT_INERTIA,
-  applyImpulseAtBodyPoint,
+  applySpaceRotation,
   angularMomentum,
   axisStability,
   invariantGeometry,
+  inverseRotateVector,
   makeInitialState,
   momentumDerivative,
   norm,
   rk4Step,
   rotateVector,
+  rotationVectorBetween,
   sampleMomentumTrajectory,
 } from "./physics.js";
 
@@ -57,24 +59,25 @@ const TRANSLATIONS = {
     unstableStatus: "Unstable",
     handsOnLabel: "HANDS-ON CHALLENGE",
     handsOnTitle: "Give the body a spin",
-    handsOnIntro: "The body starts at rest. Grab any of the six colored points, drag to set an impulse, and release. Try to align the resulting angular momentum with the unstable intermediate axis: the closer you get, the longer the first flip takes.",
+    handsOnIntro: "The body starts at rest. Grab any of the six colored points and swing it: the body follows your pointer, then keeps the angular velocity it has when you release. A quick flick can launch a very fast spin.",
     handsOnControlsLabel: "Hands-on rotation controls",
-    impulseExplanation: "Only rotation about the fixed center is simulated.",
+    releaseRule: "Release preserves the instantaneous angular velocity. The center remains fixed.",
     stop: "Stop",
     resetBody: "Reset",
     motion: "MOTION",
     nearestAxis: "NEAREST AXIS",
     alignmentError: "ALIGNMENT ERROR",
+    angularSpeed: "ANGULAR SPEED",
     flipTimer: "FLIP TIMER",
     torqueBodyTitle: "Torque playground",
-    torqueDragHint: "Grip point: throw · elsewhere: rotate view",
-    torqueCanvasLabel: "Stationary asymmetric rigid body with six draggable impulse points. Drag a point to apply an impulse; drag elsewhere to rotate the view.",
+    torqueDragHint: "Grip point: swing and release · elsewhere: rotate view",
+    torqueCanvasLabel: "Stationary asymmetric rigid body with six draggable grip points. The body follows a grabbed point and spins at its release velocity; dragging elsewhere rotates the view.",
     gripPoints: "six grip points",
-    draggedImpulse: "dragged impulse",
+    grabbedMotion: "body follows pointer",
     handsOnTrail: "body-axis 1 trail",
-    handsOnTip: "Tip: while aiming, watch the nearest-axis and alignment-error readouts. A nearly perfect axis 2 launch can remain apparently steady for a long time; exact alignment is an ideal non-flipping solution.",
+    handsOnTip: "Tip: curve the grabbed point around the center, then release without slowing down. The readouts preview the release axis and speed. A nearly perfect axis 2 launch can remain apparently steady for a long time.",
     atRest: "At rest",
-    aiming: "Aiming…",
+    holding: "Holding · release to spin",
     spinning: "Spinning",
     stopped: "Stopped",
     waitingForFlip: "t = {time} · waiting",
@@ -126,24 +129,25 @@ const TRANSLATIONS = {
     unstableStatus: "不安定",
     handsOnLabel: "操作チャレンジ",
     handsOnTitle: "自分の手で剛体を回す",
-    handsOnIntro: "剛体は静止状態から始まります。6 個の色付き点のどれかをつかみ、力積の向きと強さをドラッグで決めて離してください。不安定な中間軸に角運動量を近づけるほど、最初の反転までの時間が長くなります。",
+    handsOnIntro: "剛体は静止状態から始まります。6 個の色付き点のどれかをつかんで振り回すと、剛体がポインターに追随します。離した瞬間の角速度を保って自由回転へ移るため、素早く振れば非常に速く回せます。",
     handsOnControlsLabel: "手動回転の操作",
-    impulseExplanation: "固定された重心まわりの回転だけを計算します。",
+    releaseRule: "離した瞬間の角速度を引き継ぎます。重心は固定されています。",
     stop: "停止",
     resetBody: "リセット",
     motion: "運動状態",
     nearestAxis: "最も近い主軸",
     alignmentError: "軸からのずれ",
+    angularSpeed: "角速度の大きさ",
     flipTimer: "反転タイマー",
     torqueBodyTitle: "トルク・プレイグラウンド",
-    torqueDragHint: "点をつかむ：回転を与える · それ以外：視点移動",
-    torqueCanvasLabel: "ドラッグ可能な6個の力積点をもつ静止した非対称剛体。点のドラッグで力積を加え、それ以外のドラッグで視点を回転できます。",
+    torqueDragHint: "点をつかむ：振って離す · それ以外：視点移動",
+    torqueCanvasLabel: "ドラッグ可能な6個の把持点をもつ静止した非対称剛体。点をつかむと剛体が追随し、離した瞬間の角速度で回転します。それ以外のドラッグでは視点を回転できます。",
     gripPoints: "6 個の把持点",
-    draggedImpulse: "ドラッグした力積",
+    grabbedMotion: "剛体がポインターに追随",
     handsOnTrail: "body axis 1 の軌跡",
-    handsOnTip: "狙っている間は「最も近い主軸」と「軸からのずれ」を確認してください。axis 2 に非常に近ければ長時間ほぼ定常に見え、厳密に一致した理想状態では反転しません。",
+    handsOnTip: "把持点を重心のまわりで弧を描くように動かし、減速せずに離してみてください。表示から離した場合の回転軸と速さを確認できます。axis 2 に非常に近ければ、長時間ほぼ定常に見えます。",
     atRest: "静止中",
-    aiming: "狙いを調整中…",
+    holding: "把持中 · 離すと回転",
     spinning: "回転中",
     stopped: "停止中",
     waitingForFlip: "t = {time} · 反転待ち",
@@ -179,7 +183,9 @@ const MAGENTA = "#ef6d91";
 const VIOLET = "#b69cff";
 const EULER_VECTOR_GAIN = 2;
 const BODY_RADII = [1.78, 1.29, 0.55];
-const IMPULSE_GAIN = 0.85;
+const RELEASE_SAMPLE_WINDOW_MS = 90;
+const RELEASE_IDLE_CUTOFF_MS = 120;
+const MAX_RELEASE_SPEED = 32;
 const clamp = (value, minimum, maximum) => Math.min(maximum, Math.max(minimum, value));
 const dot = (left, right) => left.reduce((sum, value, index) => sum + value * right[index], 0);
 const cross = (left, right) => [
@@ -536,6 +542,7 @@ const dom = {
   torqueMotion: document.querySelector("#torque-motion"),
   torqueAxis: document.querySelector("#torque-axis"),
   torqueAlignment: document.querySelector("#torque-alignment"),
+  torqueSpeed: document.querySelector("#torque-speed"),
   torqueTimer: document.querySelector("#torque-timer"),
 };
 
@@ -606,17 +613,16 @@ function renderBody(view) {
 }
 
 function torqueAlignment(state) {
-  const momentum = angularMomentum(state.omega, DEFAULT_INERTIA);
-  const length = norm(momentum);
+  const length = norm(state.omega);
   if (length < 1e-8) return null;
   let axis = 0;
   for (let index = 1; index < 3; index += 1) {
-    if (Math.abs(momentum[index]) > Math.abs(momentum[axis])) axis = index;
+    if (Math.abs(state.omega[index]) > Math.abs(state.omega[axis])) axis = index;
   }
   return {
     axis,
-    sign: Math.sign(momentum[axis]) || 1,
-    deviation: Math.acos(clamp(Math.abs(momentum[axis]) / length, -1, 1)) * 180 / Math.PI,
+    sign: Math.sign(state.omega[axis]) || 1,
+    deviation: Math.acos(clamp(Math.abs(state.omega[axis]) / length, -1, 1)) * 180 / Math.PI,
   };
 }
 
@@ -636,28 +642,72 @@ function gripPointAtEvent(event, view) {
   return candidates[0] ?? null;
 }
 
-function impulseFromDrag(view, drag = torqueModel.drag) {
-  if (!drag) return [0, 0, 0];
+function pointerTargetForGrip(pointer, view, radius, depthSign) {
   const pixels = Math.min(view.width, view.height) * 0.405 / view.fitRadius;
-  const dx = drag.currentX - drag.startX;
-  const dy = drag.currentY - drag.startY;
-  const {right, up} = view.cameraBasis();
-  let impulse = right.map((value, index) => (
-    IMPULSE_GAIN * (value * dx / pixels - up[index] * dy / pixels)
+  let screenRight = (pointer.x - view.width / 2) / pixels;
+  let screenUp = (view.height / 2 - pointer.y) / pixels;
+  const screenRadius = Math.hypot(screenRight, screenUp);
+  if (screenRadius > radius * 0.999) {
+    const contraction = radius * 0.999 / screenRadius;
+    screenRight *= contraction;
+    screenUp *= contraction;
+  }
+  const depth = depthSign * Math.sqrt(Math.max(
+    0,
+    radius * radius - screenRight * screenRight - screenUp * screenUp,
   ));
-  const length = norm(impulse);
-  if (length > 1.35) impulse = scale(impulse, 1.35 / length);
-  return impulse;
+  const {forward, right, up} = view.cameraBasis();
+  return right.map((value, index) => (
+    value * screenRight + up[index] * screenUp + forward[index] * depth
+  ));
 }
 
-function torqueCandidate(view) {
-  if (!torqueModel.drag) return torqueModel.state;
-  const handle = GRIP_POINTS[torqueModel.drag.handleIndex];
-  return applyImpulseAtBodyPoint(
-    torqueModel.drag.baseState,
-    handle.point,
-    impulseFromDrag(view),
-    DEFAULT_INERTIA,
+function limitedVector(vector, maximum) {
+  const length = norm(vector);
+  return length > maximum ? scale(vector, maximum / length) : vector;
+}
+
+function estimatedReleaseOmega(drag, timestamp) {
+  const recent = drag.velocitySamples.filter(
+    (sample) => timestamp - sample.timestamp <= RELEASE_SAMPLE_WINDOW_MS,
+  );
+  if (!recent.length || timestamp - drag.lastMotionTimestamp > RELEASE_IDLE_CUTOFF_MS) {
+    return [0, 0, 0];
+  }
+  const weighted = recent.reduce((sum, sample, index) => {
+    const weight = index + 1;
+    return sum.map((component, axis) => component + weight * sample.omegaSpace[axis]);
+  }, [0, 0, 0]);
+  const totalWeight = recent.length * (recent.length + 1) / 2;
+  return limitedVector(weighted.map((component) => component / totalWeight), MAX_RELEASE_SPEED);
+}
+
+function updateGrabFromPointer(event, view) {
+  const drag = torqueModel.drag;
+  const pointer = eventCanvasPoint(event, view);
+  const handle = GRIP_POINTS[drag.handleIndex];
+  const currentPoint = rotateVector(torqueModel.state.quaternion, handle.point);
+  const targetPoint = pointerTargetForGrip(pointer, view, norm(handle.point), drag.depthSign);
+  const rotation = rotationVectorBetween(currentPoint, targetPoint);
+  const angle = norm(rotation);
+  const timestamp = event.timeStamp;
+  const dt = Math.max(0, (timestamp - drag.lastTimestamp) / 1000);
+  torqueModel.state.quaternion = applySpaceRotation(torqueModel.state.quaternion, rotation);
+  drag.currentX = pointer.x;
+  drag.currentY = pointer.y;
+  drag.lastTimestamp = timestamp;
+  if (angle > 1e-5 && dt > 1e-4 && dt < 0.2) {
+    const omegaSpace = limitedVector(rotation.map((component) => component / dt), MAX_RELEASE_SPEED);
+    drag.velocitySamples.push({timestamp, omegaSpace});
+    drag.velocitySamples = drag.velocitySamples.filter(
+      (sample) => timestamp - sample.timestamp <= RELEASE_SAMPLE_WINDOW_MS,
+    );
+    drag.lastMotionTimestamp = timestamp;
+  }
+  const releaseOmegaSpace = estimatedReleaseOmega(drag, timestamp);
+  torqueModel.state.omega = inverseRotateVector(
+    torqueModel.state.quaternion,
+    releaseOmegaSpace,
   );
 }
 
@@ -699,14 +749,6 @@ function renderTorqueBody(view) {
     });
   }
 
-  if (torqueModel.drag) {
-    const handle = GRIP_POINTS[torqueModel.drag.handleIndex];
-    const pointSpace = rotateVector(state.quaternion, handle.point);
-    const displayVector = scale(impulseFromDrag(view), 1 / IMPULSE_GAIN);
-    const endpoint = pointSpace.map((value, index) => value + displayVector[index]);
-    arrowBetween3d(view, pointSpace, endpoint, VIOLET, "J", {width: 3});
-  }
-
   drawGripPoints(view, state.quaternion, torqueModel.drag?.handleIndex ?? torqueModel.hoveredHandle);
   const marker = view.project(bodyAxisOne);
   view.ctx.save();
@@ -717,10 +759,9 @@ function renderTorqueBody(view) {
   view.ctx.restore();
 }
 
-function updateTorqueReadout(candidateState = null) {
-  const aiming = Boolean(candidateState);
-  const alignment = torqueAlignment(candidateState ?? torqueModel.state);
-  if (aiming) dom.torqueMotion.textContent = t("aiming");
+function updateTorqueReadout(holding = false) {
+  const alignment = torqueAlignment(torqueModel.state);
+  if (holding) dom.torqueMotion.textContent = t("holding");
   else if (torqueModel.playing) dom.torqueMotion.textContent = t("spinning");
   else if (torqueModel.launch || torqueModel.stoppedAfterLaunch) dom.torqueMotion.textContent = t("stopped");
   else dom.torqueMotion.textContent = t("atRest");
@@ -729,15 +770,18 @@ function updateTorqueReadout(candidateState = null) {
     dom.torqueAxis.textContent = "—";
     dom.torqueAlignment.textContent = "—";
   } else {
-    const launchAlignment = !aiming && torqueModel.launch ? torqueModel.launch : alignment;
+    const launchAlignment = !holding && torqueModel.launch ? torqueModel.launch : alignment;
     dom.torqueAxis.textContent = t("torqueAxisNames")[launchAlignment.axis];
     dom.torqueAlignment.textContent = launchAlignment.deviation < 0.05
       ? t("exactAlignment")
       : `${launchAlignment.deviation.toFixed(2)}°`;
   }
 
+  const angularSpeed = norm(torqueModel.state.omega);
+  dom.torqueSpeed.textContent = angularSpeed < 1e-3 ? "—" : angularSpeed.toFixed(2);
+
   const launch = torqueModel.launch;
-  if (!launch || aiming) dom.torqueTimer.textContent = "—";
+  if (!launch || holding) dom.torqueTimer.textContent = "—";
   else if (launch.axis !== 1) dom.torqueTimer.textContent = t("stableAxisSpin");
   else if (launch.flipTime !== null) {
     dom.torqueTimer.textContent = t("flippedAt", {time: launch.flipTime.toFixed(2)});
@@ -752,57 +796,65 @@ const torqueInteraction = {
     const handle = gripPointAtEvent(event, view);
     if (!handle) return false;
     const pointer = eventCanvasPoint(event, view);
+    const handleWorld = rotateVector(torqueModel.state.quaternion, handle.point);
+    const depth = dot(handleWorld, view.cameraBasis().forward);
+    torqueModel.state.omega = [0, 0, 0];
     torqueModel.drag = {
       handleIndex: handle.index,
-      startX: pointer.x,
-      startY: pointer.y,
       currentX: pointer.x,
       currentY: pointer.y,
-      baseState: {
-        omega: [...torqueModel.state.omega],
-        quaternion: [...torqueModel.state.quaternion],
-        time: torqueModel.state.time,
-      },
-      wasPlaying: torqueModel.playing,
+      depthSign: depth < 0 ? -1 : 1,
+      lastTimestamp: event.timeStamp,
+      lastMotionTimestamp: Number.NEGATIVE_INFINITY,
+      velocitySamples: [],
     };
     torqueModel.playing = false;
+    torqueModel.stoppedAfterLaunch = false;
+    torqueModel.launch = null;
+    torqueModel.markerTrail = [];
+    torqueModel.trailClock = 0;
     torqueModel.hoveredHandle = handle.index;
     view.canvas.style.cursor = "grabbing";
-    updateTorqueReadout(torqueCandidate(view));
+    updateTorqueReadout(true);
     view.draw();
     return true;
   },
   pointerMove(event, view) {
-    const pointer = eventCanvasPoint(event, view);
-    torqueModel.drag.currentX = pointer.x;
-    torqueModel.drag.currentY = pointer.y;
-    updateTorqueReadout(torqueCandidate(view));
+    const coalesced = event.getCoalescedEvents?.() ?? [];
+    for (const sample of [...coalesced, event]) {
+      const pointer = eventCanvasPoint(sample, view);
+      const repeated = sample.timeStamp === torqueModel.drag.lastTimestamp
+        && pointer.x === torqueModel.drag.currentX
+        && pointer.y === torqueModel.drag.currentY;
+      if (!repeated) updateGrabFromPointer(sample, view);
+    }
+    updateTorqueReadout(true);
     view.draw();
   },
   pointerUp(event, view) {
     const drag = torqueModel.drag;
     const pointer = eventCanvasPoint(event, view);
-    drag.currentX = pointer.x;
-    drag.currentY = pointer.y;
-    const moved = Math.hypot(drag.currentX - drag.startX, drag.currentY - drag.startY);
-    if (moved >= 6) {
-      const candidate = torqueCandidate(view);
-      const alignment = torqueAlignment(candidate);
-      torqueModel.state = candidate;
-      torqueModel.playing = Boolean(alignment);
-      torqueModel.stoppedAfterLaunch = false;
-      torqueModel.launch = alignment ? {
-        time: candidate.time,
-        axis: alignment.axis,
-        sign: alignment.sign,
-        deviation: alignment.deviation,
-        flipTime: null,
-      } : null;
-      torqueModel.markerTrail = [];
-      torqueModel.trailClock = 0;
-    } else {
-      torqueModel.playing = drag.wasPlaying;
+    if (Math.hypot(pointer.x - drag.currentX, pointer.y - drag.currentY) > 0.25) {
+      updateGrabFromPointer(event, view);
     }
+    const releaseOmegaSpace = event.type === "pointercancel"
+      ? [0, 0, 0]
+      : estimatedReleaseOmega(drag, event.timeStamp);
+    torqueModel.state.omega = inverseRotateVector(
+      torqueModel.state.quaternion,
+      releaseOmegaSpace,
+    );
+    const alignment = torqueAlignment(torqueModel.state);
+    torqueModel.playing = norm(torqueModel.state.omega) >= 0.03;
+    if (!torqueModel.playing) torqueModel.state.omega = [0, 0, 0];
+    torqueModel.stoppedAfterLaunch = false;
+    torqueModel.launch = torqueModel.playing && alignment ? {
+      time: torqueModel.state.time,
+      axis: alignment.axis,
+      sign: alignment.sign,
+      deviation: alignment.deviation,
+      flipTime: null,
+    } : null;
     torqueModel.drag = null;
     torqueModel.hoveredHandle = null;
     view.canvas.style.cursor = "grab";
@@ -997,9 +1049,10 @@ function animate(timestamp) {
     momentumView.draw();
   }
   if (torqueModel.playing) {
-    let remaining = realDt * 2.2;
+    let remaining = realDt;
     while (remaining > 1e-12) {
-      const step = Math.min(remaining, 0.006);
+      const angularSpeed = Math.max(1, norm(torqueModel.state.omega));
+      const step = Math.min(remaining, 0.004, 0.025 / angularSpeed);
       torqueModel.state = rk4Step(torqueModel.state, DEFAULT_INERTIA, step);
       remaining -= step;
     }

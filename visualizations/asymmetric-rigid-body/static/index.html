@@ -108,11 +108,11 @@
           <p class="eyebrow" data-i18n="handsOnLabel">HANDS-ON CHALLENGE</p>
           <h2 id="torque-lab-title" data-i18n="handsOnTitle">Give the body a spin</h2>
         </div>
-        <p data-i18n="handsOnIntro">The body starts at rest. Grab any of the six colored points, drag to set an impulse, and release. Try to align the resulting angular momentum with the unstable intermediate axis: the closer you get, the longer the first flip takes.</p>
+        <p data-i18n="handsOnIntro">The body starts at rest. Grab any of the six colored points and swing it: the body follows your pointer, then keeps the angular velocity it has when you release. A quick flick can launch a very fast spin.</p>
       </div>
 
       <div class="lab-controls" data-i18n-aria-label="handsOnControlsLabel" aria-label="Hands-on rotation controls">
-        <p><span class="math-source">\(\Delta\mathbf L=\mathbf r\times\mathbf J\)</span><span data-i18n="impulseExplanation">Only rotation about the fixed center is simulated.</span></p>
+        <p><span class="math-source">\(\mathbf{\omega}_0=\mathbf{\omega}_{\rm rel}\)</span><span data-i18n="releaseRule">Release preserves the instantaneous angular velocity. The center remains fixed.</span></p>
         <div class="transport">
           <button type="button" id="torque-stop" class="primary"><span aria-hidden="true">■</span> <span data-i18n="stop">Stop</span></button>
           <button type="button" id="torque-reset" data-i18n="resetBody">Reset</button>
@@ -123,23 +123,24 @@
         <div><span data-i18n="motion">MOTION</span><strong id="torque-motion">At rest</strong></div>
         <div><span data-i18n="nearestAxis">NEAREST AXIS</span><strong id="torque-axis">—</strong></div>
         <div><span data-i18n="alignmentError">ALIGNMENT ERROR</span><strong id="torque-alignment">—</strong></div>
+        <div><span data-i18n="angularSpeed">ANGULAR SPEED</span><strong id="torque-speed">—</strong></div>
         <div><span data-i18n="flipTimer">FLIP TIMER</span><strong id="torque-timer">—</strong></div>
       </div>
 
       <figure class="view-card torque-view">
         <figcaption>
           <h2 data-i18n="torqueBodyTitle">Torque playground</h2>
-          <p data-i18n="torqueDragHint">Grip point: throw · elsewhere: rotate view</p>
+          <p data-i18n="torqueDragHint">Grip point: swing and release · elsewhere: rotate view</p>
         </figcaption>
-        <canvas id="torque-canvas" width="1240" height="700" tabindex="0" role="application" data-i18n-aria-label="torqueCanvasLabel" aria-label="Stationary asymmetric rigid body with six draggable impulse points"></canvas>
+        <canvas id="torque-canvas" width="1240" height="700" tabindex="0" role="application" data-i18n-aria-label="torqueCanvasLabel" aria-label="Stationary asymmetric rigid body with six draggable grip points"></canvas>
         <div class="canvas-legend">
           <span><i class="key grip"></i><span data-i18n="gripPoints">six grip points</span></span>
-          <span class="math-source"><i class="key impulse"></i>\(\mathbf J\) <span data-i18n="draggedImpulse">dragged impulse</span></span>
+          <span><i class="key grab-motion"></i><span data-i18n="grabbedMotion">body follows pointer</span></span>
           <span class="math-source"><i class="key momentum"></i>\(\mathbf L\)</span>
           <span><i class="key trail"></i><span data-i18n="handsOnTrail">body-axis 1 trail</span></span>
         </div>
       </figure>
-      <p class="lab-tip" data-i18n="handsOnTip">Tip: while aiming, watch the nearest-axis and alignment-error readouts. A nearly perfect axis 2 launch can remain apparently steady for a long time; exact alignment is an ideal non-flipping solution.</p>
+      <p class="lab-tip" data-i18n="handsOnTip">Tip: curve the grabbed point around the center, then release without slowing down. The readouts preview the release axis and speed. A nearly perfect axis 2 launch can remain apparently steady for a long time.</p>
     </section>
   </main>
   <noscript data-i18n="noscript">JavaScript is required for this visualization.</noscript>

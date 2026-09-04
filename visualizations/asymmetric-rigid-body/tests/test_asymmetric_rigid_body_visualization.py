@@ -39,12 +39,15 @@ def test_static_build_contract(tmp_path, visualization) -> None:
     assert 'id="torque-stop"' in html
     assert 'id="torque-reset"' in html
     assert 'data-i18n="handsOnTitle"' in html
-    assert "applyImpulseAtBodyPoint" in app
+    assert "applySpaceRotation" in app
+    assert "rotationVectorBetween" in app
     assert "const GRIP_POINTS" in app
     assert "torqueModel.playing = false" in app
     assert 'handsOnTitle: "Give the body a spin"' in app
     assert 'handsOnTitle: "自分の手で剛体を回す"' in app
-    assert 'torqueDragHint: "点をつかむ：回転を与える · それ以外：視点移動"' in app
+    assert 'torqueDragHint: "点をつかむ：振って離す · それ以外：視点移動"' in app
+    assert 'releaseRule: "離した瞬間の角速度を引き継ぎます。重心は固定されています。"' in app
+    assert "boldsymbol" not in html
     assert ".torque-view canvas" in style
     assert "--paper: var(--atlas-viz-background)" in style
     assert "Current components" not in html

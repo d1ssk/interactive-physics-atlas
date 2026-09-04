@@ -44,35 +44,25 @@ def test_rk4_conserves_energy_and_space_angular_momentum(physics) -> None:
     ) == pytest.approx(initial_space_momentum, abs=2e-10)
 
 
-def test_off_centre_impulse_changes_only_angular_momentum(physics) -> None:
-    rest = physics.RigidBodyState((0.0, 0.0, 0.0), time=4.5)
-    kicked = physics.apply_impulse_at_body_point(rest, (1.78, 0.0, 0.0), (0.0, 0.6, 0.0))
-    assert physics.angular_momentum(kicked.omega) == pytest.approx((0.0, 0.0, 1.068))
-    assert kicked.time == rest.time
-
-    radial = physics.apply_impulse_at_body_point(rest, (1.78, 0.0, 0.0), (0.6, 0.0, 0.0))
-    assert radial.omega == pytest.approx((0.0, 0.0, 0.0))
-
-
-def test_impulse_update_is_frame_consistent(physics) -> None:
-    angle = 0.73
-    state = physics.RigidBodyState(
-        (0.24, -0.31, 0.52),
-        (math.cos(angle / 2), 0.0, math.sin(angle / 2), 0.0),
-        2.0,
+def test_space_rotation_maps_grabbed_direction_to_pointer_target(physics) -> None:
+    start = (1.2, -0.4, 0.7)
+    end = (-0.3, 0.9, 1.1)
+    rotation = physics.rotation_vector_between(start, end)
+    quaternion = physics.apply_space_rotation((1.0, 0.0, 0.0, 0.0), rotation)
+    rotated = physics.rotate_vector(quaternion, start)
+    assert tuple(value / physics.norm(rotated) for value in rotated) == pytest.approx(
+        tuple(value / physics.norm(end) for value in end), abs=2e-15
     )
-    point_body = (0.0, 1.29, 0.0)
-    impulse_space = (0.35, -0.12, 0.27)
-    before = physics.rotate_vector(state.quaternion, physics.angular_momentum(state.omega))
-    point_space = physics.rotate_vector(state.quaternion, point_body)
-    expected_delta = (
-        point_space[1] * impulse_space[2] - point_space[2] * impulse_space[1],
-        point_space[2] * impulse_space[0] - point_space[0] * impulse_space[2],
-        point_space[0] * impulse_space[1] - point_space[1] * impulse_space[0],
-    )
-    kicked = physics.apply_impulse_at_body_point(state, point_body, impulse_space)
-    after = physics.rotate_vector(kicked.quaternion, physics.angular_momentum(kicked.omega))
-    assert after == pytest.approx(tuple(a + b for a, b in zip(before, expected_delta, strict=True)))
+
+
+def test_space_rotation_premultiplies_existing_attitude(physics) -> None:
+    attitude = (math.cos(0.31), 0.0, math.sin(0.31), 0.0)
+    before = physics.rotate_vector(attitude, (1.0, 0.0, 0.0))
+    rotation = (0.17, -0.23, 0.31)
+    delta = physics.apply_space_rotation((1.0, 0.0, 0.0, 0.0), rotation)
+    expected = physics.rotate_vector(delta, before)
+    updated = physics.apply_space_rotation(attitude, rotation)
+    assert physics.rotate_vector(updated, (1.0, 0.0, 0.0)) == pytest.approx(expected, abs=2e-15)
 
 
 def test_small_perturbation_flips_only_intermediate_axis(physics) -> None:

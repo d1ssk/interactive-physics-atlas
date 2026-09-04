@@ -3,7 +3,7 @@ import test from "node:test";
 
 import {
   DEFAULT_INERTIA,
-  applyImpulseAtBodyPoint,
+  applySpaceRotation,
   angularMomentum,
   angularVelocity,
   axisStability,
@@ -13,6 +13,7 @@ import {
   momentumSquaredFromOmega,
   norm,
   rk4Step,
+  rotationVectorBetween,
   rotateVector,
   rotationalEnergyFromMomentum,
   rotationalEnergyFromOmega,
@@ -111,35 +112,26 @@ test("space-frame angular momentum remains fixed while the body tumbles", () => 
   vectorClose(finalSpaceMomentum, initialSpaceMomentum, 2e-10);
 });
 
-test("an off-centre impulse changes angular momentum by r cross J without translation", () => {
-  const rest = {omega: [0, 0, 0], quaternion: [1, 0, 0, 0], time: 4.5};
-  const kicked = applyImpulseAtBodyPoint(rest, [1.78, 0, 0], [0, 0.6, 0]);
-  vectorClose(angularMomentum(kicked.omega), [0, 0, 1.068]);
-  close(kicked.time, rest.time);
-
-  const radial = applyImpulseAtBodyPoint(rest, [1.78, 0, 0], [0.6, 0, 0]);
-  vectorClose(radial.omega, [0, 0, 0]);
+test("space rotation maps a grabbed direction onto its pointer target", () => {
+  const start = [1.2, -0.4, 0.7];
+  const end = [-0.3, 0.9, 1.1];
+  const rotation = rotationVectorBetween(start, end);
+  const quaternion = applySpaceRotation([1, 0, 0, 0], rotation);
+  vectorClose(
+    rotateVector(quaternion, start).map((value) => value / norm(start)),
+    end.map((value) => value / norm(end)),
+    2e-15,
+  );
 });
 
-test("impulse update is frame-consistent for a rotated moving body", () => {
-  const angle = 0.73;
-  const state = {
-    omega: [0.24, -0.31, 0.52],
-    quaternion: [Math.cos(angle / 2), 0, Math.sin(angle / 2), 0],
-    time: 2,
-  };
-  const pointBody = [0, 1.29, 0];
-  const impulseSpace = [0.35, -0.12, 0.27];
-  const before = rotateVector(state.quaternion, angularMomentum(state.omega));
-  const pointSpace = rotateVector(state.quaternion, pointBody);
-  const expectedDelta = [
-    pointSpace[1] * impulseSpace[2] - pointSpace[2] * impulseSpace[1],
-    pointSpace[2] * impulseSpace[0] - pointSpace[0] * impulseSpace[2],
-    pointSpace[0] * impulseSpace[1] - pointSpace[1] * impulseSpace[0],
-  ];
-  const kicked = applyImpulseAtBodyPoint(state, pointBody, impulseSpace);
-  const after = rotateVector(kicked.quaternion, angularMomentum(kicked.omega));
-  vectorClose(after, before.map((value, index) => value + expectedDelta[index]), 2e-15);
+test("space rotation premultiplies an existing body attitude", () => {
+  const attitude = [Math.cos(0.31), 0, Math.sin(0.31), 0];
+  const before = rotateVector(attitude, [1, 0, 0]);
+  const rotation = [0.17, -0.23, 0.31];
+  const delta = applySpaceRotation([1, 0, 0, 0], rotation);
+  const expected = rotateVector(delta, before);
+  const updated = applySpaceRotation(attitude, rotation);
+  vectorClose(rotateVector(updated, [1, 0, 0]), expected, 2e-15);
 });
 
 test("sampled Euler trajectory lies on both invariant surfaces", () => {
