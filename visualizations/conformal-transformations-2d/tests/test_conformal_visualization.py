@@ -53,6 +53,7 @@ def test_static_build_contract(tmp_path, monkeypatch, visualization):
         "localVariants": {},
         "mixingKeys": [],
         "mixingValues": [],
+        "mobiusBase": {},
         "mobius": {},
         "witt": {},
         "epsilonKeys": [],
@@ -70,6 +71,8 @@ def test_static_build_contract(tmp_path, monkeypatch, visualization):
     assert "Two-Dimensional Conformal Transformations" in html
     assert "physics-atlas:frame-height" in html
     assert 'id="mixing" type="range"' in html
+    assert 'id="mobius-parameter" type="range"' in html
+    assert 'id="mobius-parameter-control" class="is-hidden"' in html
     assert 'id="epsilon" type="range"' in html
     assert 'id="quotient-plot"' not in html
     assert "Directional difference quotient" not in html
@@ -94,6 +97,11 @@ def test_build_stages_bilingual_math_and_shared_assets(tmp_path, monkeypatch, vi
     assert 'title: "Two-Dimensional Conformal Transformations"' in html
     assert 'title: "2 次元共形変換"' in html
     assert 'data-i18n="mixingLabel"' in html
+    assert 'translation: "Translation parameter \\\\(s\\\\)"' in html
+    assert 'translation: "平行移動パラメータ \\\\(s\\\\)"' in html
+    assert 'translation: "translation"' in html
+    assert 'translation: "\\\\(z\\\\mapsto z+s b_0,\\\\quad s={parameter}\\\\)"' in html
+    assert 'id="mobius-expression"' in html
     assert "MathJax.typesetClear(targets)" in html
     assert "MathJax.typesetPromise(targets)" in html
 

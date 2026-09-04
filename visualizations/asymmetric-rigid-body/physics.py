@@ -123,6 +123,13 @@ def quaternion_multiply(left: Quaternion, right: Quaternion) -> Quaternion:
     )
 
 
+def quaternion_conjugate(quaternion: Quaternion) -> Quaternion:
+    """Return the conjugate of a scalar-first quaternion."""
+
+    w, x, y, z = quaternion
+    return w, -x, -y, -z
+
+
 def _normalise(values: tuple[float, ...]) -> tuple[float, ...]:
     length = norm(values)
     if length <= EPSILON:
@@ -141,6 +148,57 @@ def rotate_vector(quaternion: Quaternion, vector: Vector3) -> Vector3:
         vy + w * ty + z * tx - x * tz,
         vz + w * tz + x * ty - y * tx,
     )
+
+
+def inverse_rotate_vector(quaternion: Quaternion, vector: Vector3) -> Vector3:
+    """Rotate an inertial-space vector into body-frame coordinates."""
+
+    return rotate_vector(quaternion_conjugate(_normalise(quaternion)), vector)
+
+
+def _cross(left: Vector3, right: Vector3) -> Vector3:
+    return (
+        left[1] * right[2] - left[2] * right[1],
+        left[2] * right[0] - left[0] * right[2],
+        left[0] * right[1] - left[1] * right[0],
+    )
+
+
+def rotation_vector_between(start: Vector3, end: Vector3) -> Vector3:
+    """Return the shortest space rotation vector taking ``start`` to ``end``."""
+
+    if not all(math.isfinite(value) for value in (*start, *end)):
+        raise ValueError("start and end must be finite")
+    start_unit = _normalise(start)
+    end_unit = _normalise(end)
+    axis_times_sine = _cross(start_unit, end_unit)
+    sine = norm(axis_times_sine)
+    cosine = max(-1.0, min(1.0, sum(a * b for a, b in zip(start_unit, end_unit, strict=True))))
+    if sine > EPSILON:
+        angle = math.atan2(sine, cosine)
+        return tuple(component * angle / sine for component in axis_times_sine)
+    if cosine > 0:
+        return 0.0, 0.0, 0.0
+    reference = (1.0, 0.0, 0.0) if abs(start_unit[0]) < 0.8 else (0.0, 1.0, 0.0)
+    axis = _normalise(_cross(start_unit, reference))
+    return tuple(component * math.pi for component in axis)
+
+
+def apply_space_rotation(quaternion: Quaternion, rotation_vector: Vector3) -> Quaternion:
+    """Premultiply an attitude by a rotation expressed in inertial space."""
+
+    if not all(math.isfinite(value) for value in rotation_vector):
+        raise ValueError("rotation vector must be finite")
+    angle = norm(rotation_vector)
+    if angle <= EPSILON:
+        return _normalise(quaternion)
+    half_angle = angle / 2
+    factor = math.sin(half_angle) / angle
+    delta: Quaternion = (
+        math.cos(half_angle),
+        *(component * factor for component in rotation_vector),
+    )
+    return _normalise(quaternion_multiply(delta, quaternion))
 
 
 def _derivative(state: RigidBodyState, inertia: Inertia) -> tuple[Vector3, Quaternion]:

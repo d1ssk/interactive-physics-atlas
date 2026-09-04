@@ -33,6 +33,11 @@ def test_configs_define_distinct_canonical_languages_and_mathjax() -> None:
     assert "javascripts/mathjax-tex-svg.js" in english["extra_javascript"]
     assert "javascripts/mathjax-tex-svg.js" in japanese["extra_javascript"]
     assert not any(source.startswith("http") for source in english["extra_javascript"])
+    for config in (english, japanese):
+        assert config["extra"]["analytics"] == {
+            "provider": "google",
+            "property": "G-P4BVZ9ZZ0E",
+        }
 
 
 def test_header_uses_linked_brand_without_default_logo() -> None:

@@ -14,7 +14,7 @@ In the inertial frame, the angular momentum vector $\mathbf L$ is constant. In t
 
 ## Visualization
 
-<iframe src="app/index.html?lang=en" title="Torque-free rotation of an asymmetric rigid body with body-frame invariant surfaces" style="display: block; width: 100%; height: 2100px; min-height: 1100px; border: 0; overflow: hidden;" loading="eager" scrolling="no" data-auto-height></iframe>
+<iframe src="app/index.html?lang=en" title="Torque-free rotation and a grab-and-release asymmetric rigid-body challenge" style="display: block; width: 100%; height: 3000px; min-height: 1100px; border: 0; overflow: hidden;" loading="eager" scrolling="no" data-auto-height></iframe>
 
 ## Euler equations and conserved quantities
 
@@ -148,6 +148,9 @@ Around the smallest- and largest-moment principal axes, by contrast, the corresp
 3. Select **axis 2** and follow the purple $\dot{\mathbf L}$ vector drawn from the tip of $\mathbf L$. It shows the instantaneous direction of motion along the yellow intersection curve.
 4. Reduce the initial displacement. The instability remains, but the body spends longer near intermediate-axis rotation before it flips.
 5. Pause the animation, rotate the body-frame view, and verify that $\dot{\mathbf L}$ is tangent to both the angular-momentum sphere and the energy ellipsoid at the current point.
+6. In the lower panel, swing a grip point around the center until the readout identifies **axis 2**, then release without slowing down and time the first flip.
+7. Repeat with a smaller release-axis error. The body remains close to intermediate-axis rotation for longer before the error grows into a flip.
+8. Compare a slow sweep with a quick flick, then aim for **axis 1** or **axis 3** and observe the bounded wobble. Use **Stop** to inspect the attitude and **Reset** to return the body to rest.
 
 Exact rotation about any principal axis is a solution of the Euler equations. Here, “unstable” does not mean that a state perfectly aligned with the intermediate axis spontaneously departs from it. It means that any arbitrarily small transverse perturbation grows with time.
 

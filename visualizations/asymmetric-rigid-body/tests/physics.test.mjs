@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   DEFAULT_INERTIA,
+  applySpaceRotation,
   angularMomentum,
   angularVelocity,
   axisStability,
@@ -12,6 +13,7 @@ import {
   momentumSquaredFromOmega,
   norm,
   rk4Step,
+  rotationVectorBetween,
   rotateVector,
   rotationalEnergyFromMomentum,
   rotationalEnergyFromOmega,
@@ -68,6 +70,23 @@ test("a small finite perturbation flips only the intermediate-axis rotation", ()
   assert.ok(maximumDeparture[2] < 10 * Math.PI / 180);
 });
 
+test("better intermediate-axis alignment delays the first complete flip", () => {
+  const firstFlipTime = (tilt) => {
+    let state = makeInitialState(1, tilt);
+    for (let index = 0; index < 15000; index += 1) {
+      state = rk4Step(state, DEFAULT_INERTIA, 0.003);
+      const momentum = angularMomentum(state.omega);
+      if (momentum[1] / norm(momentum) <= -0.98) return state.time;
+    }
+    return null;
+  };
+  const coarse = firstFlipTime(8);
+  const fine = firstFlipTime(2);
+  assert.notEqual(coarse, null);
+  assert.notEqual(fine, null);
+  assert.ok(fine > coarse + 4);
+});
+
 test("all initial presets lie on the same unit angular-momentum sphere", () => {
   for (const axis of [0, 1, 2]) {
     const state = makeInitialState(axis, 6);
@@ -91,6 +110,28 @@ test("space-frame angular momentum remains fixed while the body tumbles", () => 
   for (let index = 0; index < 12000; index += 1) state = rk4Step(state, DEFAULT_INERTIA, 0.003);
   const finalSpaceMomentum = rotateVector(state.quaternion, angularMomentum(state.omega));
   vectorClose(finalSpaceMomentum, initialSpaceMomentum, 2e-10);
+});
+
+test("space rotation maps a grabbed direction onto its pointer target", () => {
+  const start = [1.2, -0.4, 0.7];
+  const end = [-0.3, 0.9, 1.1];
+  const rotation = rotationVectorBetween(start, end);
+  const quaternion = applySpaceRotation([1, 0, 0, 0], rotation);
+  vectorClose(
+    rotateVector(quaternion, start).map((value) => value / norm(start)),
+    end.map((value) => value / norm(end)),
+    2e-15,
+  );
+});
+
+test("space rotation premultiplies an existing body attitude", () => {
+  const attitude = [Math.cos(0.31), 0, Math.sin(0.31), 0];
+  const before = rotateVector(attitude, [1, 0, 0]);
+  const rotation = [0.17, -0.23, 0.31];
+  const delta = applySpaceRotation([1, 0, 0, 0], rotation);
+  const expected = rotateVector(delta, before);
+  const updated = applySpaceRotation(attitude, rotation);
+  vectorClose(rotateVector(updated, [1, 0, 0]), expected, 2e-15);
 });
 
 test("sampled Euler trajectory lies on both invariant surfaces", () => {

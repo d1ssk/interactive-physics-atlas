@@ -1,13 +1,16 @@
 import {
   DEFAULT_INERTIA,
+  applySpaceRotation,
   angularMomentum,
   axisStability,
   invariantGeometry,
+  inverseRotateVector,
   makeInitialState,
   momentumDerivative,
   norm,
   rk4Step,
   rotateVector,
+  rotationVectorBetween,
   sampleMomentumTrajectory,
 } from "./physics.js";
 
@@ -54,6 +57,34 @@ const TRANSLATIONS = {
     axisNames: ["Minimum-moment axis · axis 1", "Intermediate axis · axis 2", "Maximum-moment axis · axis 3"],
     stableStatus: "Stable",
     unstableStatus: "Unstable",
+    handsOnLabel: "HANDS-ON CHALLENGE",
+    handsOnTitle: "Give the body a spin",
+    handsOnIntro: "The body starts at rest. Grab any of the six colored points and swing it: the body follows your pointer, then keeps the angular velocity it has when you release. A quick flick can launch a very fast spin.",
+    handsOnControlsLabel: "Hands-on rotation controls",
+    releaseRule: "Release preserves the instantaneous angular velocity. The center remains fixed.",
+    stop: "Stop",
+    resetBody: "Reset",
+    motion: "MOTION",
+    nearestAxis: "NEAREST AXIS",
+    alignmentError: "ALIGNMENT ERROR",
+    angularSpeed: "ANGULAR SPEED",
+    flipTimer: "FLIP TIMER",
+    torqueBodyTitle: "Torque playground",
+    torqueDragHint: "Point: drag and release · keyboard: 1–6 select, W/A/S/D move, Space releases · elsewhere: rotate view",
+    torqueCanvasLabel: "Stationary asymmetric rigid body with six draggable points. Drag and release a point, or use keys 1 through 6, W A S D, and Space, to spin the body. Dragging elsewhere or pressing an arrow key rotates the view.",
+    gripPoints: "six grip points",
+    grabbedMotion: "body follows pointer",
+    handsOnTrail: "body-axis 1 trail",
+    handsOnTip: "Tip: curve the grabbed point around the center, then release without slowing down. The readouts preview the release axis and speed. A nearly perfect axis 2 launch can remain apparently steady for a long time.",
+    atRest: "At rest",
+    holding: "Holding · release to spin",
+    spinning: "Spinning",
+    stopped: "Stopped",
+    waitingForFlip: "t = {time} · waiting",
+    flippedAt: "Flip at t = {time}",
+    stableAxisSpin: "Stable-axis spin",
+    exactAlignment: "exact",
+    torqueAxisNames: ["axis 1 · stable", "axis 2 · unstable", "axis 3 · stable"],
   },
   ja: {
     pageTitle: "非対称剛体の自由回転",
@@ -96,6 +127,34 @@ const TRANSLATIONS = {
     axisNames: ["最小慣性主軸 · axis 1", "中間慣性主軸 · axis 2", "最大慣性主軸 · axis 3"],
     stableStatus: "安定",
     unstableStatus: "不安定",
+    handsOnLabel: "操作チャレンジ",
+    handsOnTitle: "自分の手で剛体を回す",
+    handsOnIntro: "剛体は静止状態から始まります。6 個の色付き点のどれかをつかんで振り回すと、剛体がポインターに追随します。離した瞬間の角速度を保って自由回転へ移ります。",
+    handsOnControlsLabel: "手動回転の操作",
+    releaseRule: "離した瞬間の角速度を引き継ぎます。重心は固定されています。",
+    stop: "停止",
+    resetBody: "リセット",
+    motion: "運動状態",
+    nearestAxis: "最も近い主軸",
+    alignmentError: "軸からのずれ",
+    angularSpeed: "角速度の大きさ",
+    flipTimer: "反転タイマー",
+    torqueBodyTitle: "トルク・プレイグラウンド",
+    torqueDragHint: "点：ドラッグして離す · キーボード：1–6で選択、W/A/S/Dで移動、Spaceで解放 · それ以外：視点移動",
+    torqueCanvasLabel: "ドラッグ可能な6個の点をもつ静止した非対称剛体。点をドラッグして離すか、1から6、W、A、S、D、Spaceキーを使うと剛体を回転させられます。それ以外のドラッグまたは矢印キーで視点を回転できます。",
+    gripPoints: "6 個の点",
+    grabbedMotion: "剛体がポインターに追随",
+    handsOnTrail: "body axis 1 の軌跡",
+    handsOnTip: "点を重心のまわりで弧を描くように動かし、減速せずに離してみてください。表示から離した場合の回転軸と速さを確認できます。不安定方向の回転でも、回転軸をaxis 2 に近くできれば、長時間定常を保てます。",
+    atRest: "静止中",
+    holding: "把持中 · 離すと回転",
+    spinning: "回転中",
+    stopped: "停止中",
+    waitingForFlip: "t = {time} · 反転待ち",
+    flippedAt: "t = {time} で反転",
+    stableAxisSpin: "安定軸回転",
+    exactAlignment: "厳密",
+    torqueAxisNames: ["axis 1 · 安定", "axis 2 · 不安定", "axis 3 · 安定"],
   },
 };
 
@@ -123,6 +182,10 @@ const GOLD = "#f0b84c";
 const MAGENTA = "#ef6d91";
 const VIOLET = "#b69cff";
 const EULER_VECTOR_GAIN = 2;
+const BODY_RADII = [1.78, 1.29, 0.55];
+const RELEASE_SAMPLE_WINDOW_MS = 90;
+const RELEASE_IDLE_CUTOFF_MS = 120;
+const MAX_RELEASE_SPEED = 32;
 const clamp = (value, minimum, maximum) => Math.min(maximum, Math.max(minimum, value));
 const dot = (left, right) => left.reduce((sum, value, index) => sum + value * right[index], 0);
 const cross = (left, right) => [
@@ -136,12 +199,13 @@ const unit = (vector) => {
 };
 const scale = (vector, factor) => vector.map((value) => value * factor);
 class OrbitView {
-  constructor(canvas, camera, render) {
+  constructor(canvas, camera, render, interaction = {}) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
     this.camera = {...camera};
     this.initialCamera = {...camera};
     this.render = render;
+    this.interaction = interaction;
     this.width = 0;
     this.height = 0;
     this.drag = null;
@@ -152,11 +216,26 @@ class OrbitView {
 
   installInteraction() {
     this.canvas.addEventListener("pointerdown", (event) => {
+      if (this.drag) return;
       this.canvas.setPointerCapture(event.pointerId);
-      this.drag = {id: event.pointerId, x: event.clientX, y: event.clientY};
+      const custom = this.interaction.pointerDown?.(event, this) === true;
+      this.drag = {
+        id: event.pointerId,
+        kind: custom ? "custom" : "camera",
+        x: event.clientX,
+        y: event.clientY,
+      };
     });
     this.canvas.addEventListener("pointermove", (event) => {
-      if (!this.drag || event.pointerId !== this.drag.id) return;
+      if (!this.drag) {
+        this.interaction.pointerHover?.(event, this);
+        return;
+      }
+      if (event.pointerId !== this.drag.id) return;
+      if (this.drag.kind === "custom") {
+        this.interaction.pointerMove?.(event, this);
+        return;
+      }
       this.camera.azimuth -= (event.clientX - this.drag.x) * 0.008;
       this.camera.elevation = clamp(
         this.camera.elevation + (event.clientY - this.drag.y) * 0.008,
@@ -167,15 +246,24 @@ class OrbitView {
       this.draw();
     });
     const endDrag = (event) => {
-      if (event.pointerId === this.drag?.id) this.drag = null;
+      if (event.pointerId !== this.drag?.id) return;
+      if (this.drag.kind === "custom") this.interaction.pointerUp?.(event, this);
+      this.drag = null;
     };
     this.canvas.addEventListener("pointerup", endDrag);
     this.canvas.addEventListener("pointercancel", endDrag);
+    this.canvas.addEventListener("pointerleave", () => {
+      if (!this.drag) this.interaction.pointerLeave?.(this);
+    });
     this.canvas.addEventListener("dblclick", () => {
       this.camera = {...this.initialCamera};
       this.draw();
     });
     this.canvas.addEventListener("keydown", (event) => {
+      if (this.interaction.keyDown?.(event, this) === true) {
+        event.preventDefault();
+        return;
+      }
       const amount = event.shiftKey ? 0.18 : 0.08;
       if (event.key === "ArrowLeft") this.camera.azimuth += amount;
       else if (event.key === "ArrowRight") this.camera.azimuth -= amount;
@@ -307,7 +395,7 @@ function pointOnEllipsoid(latitude, longitude, radii) {
 }
 
 function drawBodyEllipsoid(view, quaternion) {
-  const radii = [1.78, 1.29, 0.55];
+  const radii = BODY_RADII;
   const faces = [];
   const latitudes = 12;
   const longitudes = 28;
@@ -410,6 +498,37 @@ function drawAxes(view, extent, rotatedQuaternion = null) {
   }
 }
 
+const GRIP_POINTS = BODY_RADII.flatMap((radius, axis) => [-1, 1].map((sign) => {
+  const point = [0, 0, 0];
+  point[axis] = sign * radius;
+  return {axis, sign, point};
+}));
+
+function drawGripPoints(view, quaternion, hoveredIndex) {
+  const projected = GRIP_POINTS.map((handle, index) => ({
+    ...handle,
+    index,
+    world: rotateVector(quaternion, handle.point),
+  })).map((handle) => ({...handle, projected: view.project(handle.world)}));
+  projected.sort((left, right) => left.projected.depth - right.projected.depth);
+  for (const handle of projected) {
+    const hovered = handle.index === hoveredIndex;
+    const ctx = view.ctx;
+    ctx.save();
+    ctx.globalAlpha = handle.projected.depth < 0 ? 0.7 : 1;
+    ctx.fillStyle = AXIS_COLORS[handle.axis];
+    ctx.strokeStyle = hovered ? "#fff7dd" : "rgba(11, 20, 17, .82)";
+    ctx.lineWidth = hovered ? 3 : 2;
+    ctx.shadowColor = hovered ? AXIS_COLORS[handle.axis] : "transparent";
+    ctx.shadowBlur = hovered ? 15 : 0;
+    ctx.beginPath();
+    ctx.arc(handle.projected.x, handle.projected.y, hovered ? 8.5 : 7, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
 const dom = {
   axisButtons: [...document.querySelectorAll("[data-axis]")],
   tilt: document.querySelector("#tilt"),
@@ -422,6 +541,14 @@ const dom = {
   stability: document.querySelector("#stability"),
   time: document.querySelector("#time-output"),
   departure: document.querySelector("#departure-output"),
+  torqueCanvas: document.querySelector("#torque-canvas"),
+  torqueStop: document.querySelector("#torque-stop"),
+  torqueReset: document.querySelector("#torque-reset"),
+  torqueMotion: document.querySelector("#torque-motion"),
+  torqueAxis: document.querySelector("#torque-axis"),
+  torqueAlignment: document.querySelector("#torque-alignment"),
+  torqueSpeed: document.querySelector("#torque-speed"),
+  torqueTimer: document.querySelector("#torque-timer"),
 };
 
 const model = {
@@ -436,8 +563,20 @@ const model = {
   trailClock: 0,
 };
 
+const torqueModel = {
+  state: {omega: [0, 0, 0], quaternion: [1, 0, 0, 0], time: 0},
+  playing: false,
+  stoppedAfterLaunch: false,
+  hoveredHandle: null,
+  drag: null,
+  launch: null,
+  markerTrail: [],
+  trailClock: 0,
+};
+
 let bodyView;
 let momentumView;
+let torqueView;
 
 function renderBody(view) {
   if (!model.state) return;
@@ -477,6 +616,331 @@ function renderBody(view) {
   view.ctx.fill();
   view.ctx.restore();
 }
+
+function torqueAlignment(state) {
+  const length = norm(state.omega);
+  if (length < 1e-8) return null;
+  let axis = 0;
+  for (let index = 1; index < 3; index += 1) {
+    if (Math.abs(state.omega[index]) > Math.abs(state.omega[axis])) axis = index;
+  }
+  return {
+    axis,
+    sign: Math.sign(state.omega[axis]) || 1,
+    deviation: Math.acos(clamp(Math.abs(state.omega[axis]) / length, -1, 1)) * 180 / Math.PI,
+  };
+}
+
+function eventCanvasPoint(event, view) {
+  const rect = view.canvas.getBoundingClientRect();
+  return {x: event.clientX - rect.left, y: event.clientY - rect.top};
+}
+
+function gripPointAtEvent(event, view) {
+  const pointer = eventCanvasPoint(event, view);
+  const candidates = GRIP_POINTS.map((handle, index) => {
+    const world = rotateVector(torqueModel.state.quaternion, handle.point);
+    const projected = view.project(world);
+    return {...handle, index, projected, distance: Math.hypot(pointer.x - projected.x, pointer.y - projected.y)};
+  }).filter((handle) => handle.distance <= 15);
+  candidates.sort((left, right) => left.distance - right.distance || right.projected.depth - left.projected.depth);
+  return candidates[0] ?? null;
+}
+
+function pointerTargetForGrip(pointer, view, radius, depthSign) {
+  const pixels = Math.min(view.width, view.height) * 0.405 / view.fitRadius;
+  let screenRight = (pointer.x - view.width / 2) / pixels;
+  let screenUp = (view.height / 2 - pointer.y) / pixels;
+  const screenRadius = Math.hypot(screenRight, screenUp);
+  if (screenRadius > radius * 0.999) {
+    const contraction = radius * 0.999 / screenRadius;
+    screenRight *= contraction;
+    screenUp *= contraction;
+  }
+  const depth = depthSign * Math.sqrt(Math.max(
+    0,
+    radius * radius - screenRight * screenRight - screenUp * screenUp,
+  ));
+  const {forward, right, up} = view.cameraBasis();
+  return right.map((value, index) => (
+    value * screenRight + up[index] * screenUp + forward[index] * depth
+  ));
+}
+
+function limitedVector(vector, maximum) {
+  const length = norm(vector);
+  return length > maximum ? scale(vector, maximum / length) : vector;
+}
+
+function estimatedReleaseOmega(drag, timestamp) {
+  const recent = drag.velocitySamples.filter(
+    (sample) => timestamp - sample.timestamp <= RELEASE_SAMPLE_WINDOW_MS,
+  );
+  if (!recent.length || timestamp - drag.lastMotionTimestamp > RELEASE_IDLE_CUTOFF_MS) {
+    return [0, 0, 0];
+  }
+  const weighted = recent.reduce((sum, sample, index) => {
+    const weight = index + 1;
+    return sum.map((component, axis) => component + weight * sample.omegaSpace[axis]);
+  }, [0, 0, 0]);
+  const totalWeight = recent.length * (recent.length + 1) / 2;
+  return limitedVector(weighted.map((component) => component / totalWeight), MAX_RELEASE_SPEED);
+}
+
+function updateGrabFromPointer(event, view) {
+  const drag = torqueModel.drag;
+  const pointer = eventCanvasPoint(event, view);
+  const handle = GRIP_POINTS[drag.handleIndex];
+  const currentPoint = rotateVector(torqueModel.state.quaternion, handle.point);
+  const targetPoint = pointerTargetForGrip(pointer, view, norm(handle.point), drag.depthSign);
+  const rotation = rotationVectorBetween(currentPoint, targetPoint);
+  const angle = norm(rotation);
+  const timestamp = event.timeStamp;
+  const dt = Math.max(0, (timestamp - drag.lastTimestamp) / 1000);
+  torqueModel.state.quaternion = applySpaceRotation(torqueModel.state.quaternion, rotation);
+  drag.currentX = pointer.x;
+  drag.currentY = pointer.y;
+  drag.lastTimestamp = timestamp;
+  if (angle > 1e-5 && dt > 1e-4 && dt < 0.2) {
+    const omegaSpace = limitedVector(rotation.map((component) => component / dt), MAX_RELEASE_SPEED);
+    drag.velocitySamples.push({timestamp, omegaSpace});
+    drag.velocitySamples = drag.velocitySamples.filter(
+      (sample) => timestamp - sample.timestamp <= RELEASE_SAMPLE_WINDOW_MS,
+    );
+    drag.lastMotionTimestamp = timestamp;
+  }
+  const releaseOmegaSpace = estimatedReleaseOmega(drag, timestamp);
+  torqueModel.state.omega = inverseRotateVector(
+    torqueModel.state.quaternion,
+    releaseOmegaSpace,
+  );
+}
+
+function beginTorqueDrag(handleIndex, timestamp, view, pointer = null) {
+  const handle = GRIP_POINTS[handleIndex];
+  const handleWorld = rotateVector(torqueModel.state.quaternion, handle.point);
+  const projected = view.project(handleWorld);
+  const depth = dot(handleWorld, view.cameraBasis().forward);
+  torqueModel.state.omega = [0, 0, 0];
+  torqueModel.drag = {
+    handleIndex,
+    currentX: pointer?.x ?? projected.x,
+    currentY: pointer?.y ?? projected.y,
+    depthSign: depth < 0 ? -1 : 1,
+    lastTimestamp: timestamp,
+    lastMotionTimestamp: Number.NEGATIVE_INFINITY,
+    velocitySamples: [],
+  };
+  torqueModel.playing = false;
+  torqueModel.stoppedAfterLaunch = false;
+  torqueModel.launch = null;
+  torqueModel.markerTrail = [];
+  torqueModel.trailClock = 0;
+  torqueModel.hoveredHandle = handleIndex;
+  view.canvas.style.cursor = "grabbing";
+  updateTorqueReadout(true);
+  view.draw();
+}
+
+function finishTorqueDrag(timestamp, cancelled, view) {
+  const drag = torqueModel.drag;
+  const releaseOmegaSpace = cancelled
+    ? [0, 0, 0]
+    : estimatedReleaseOmega(drag, timestamp);
+  torqueModel.state.omega = inverseRotateVector(
+    torqueModel.state.quaternion,
+    releaseOmegaSpace,
+  );
+  const alignment = torqueAlignment(torqueModel.state);
+  torqueModel.playing = norm(torqueModel.state.omega) >= 0.03;
+  if (!torqueModel.playing) torqueModel.state.omega = [0, 0, 0];
+  torqueModel.stoppedAfterLaunch = false;
+  torqueModel.launch = torqueModel.playing && alignment ? {
+    time: torqueModel.state.time,
+    axis: alignment.axis,
+    sign: alignment.sign,
+    deviation: alignment.deviation,
+    flipTime: null,
+  } : null;
+  torqueModel.drag = null;
+  torqueModel.hoveredHandle = null;
+  view.canvas.style.cursor = "grab";
+  updateTorqueReadout();
+  view.draw();
+}
+
+function moveTorqueDragFromKeyboard(key, timestamp, fast, view) {
+  const drag = torqueModel.drag;
+  const {right, up} = view.cameraBasis();
+  const direction = {
+    a: up,
+    d: scale(up, -1),
+    w: right,
+    s: scale(right, -1),
+  }[key];
+  const rotation = scale(direction, fast ? 0.13 : 0.06);
+  const elapsed = Math.max(1 / 120, Math.min((timestamp - drag.lastTimestamp) / 1000, 0.08));
+  const omegaSpace = limitedVector(
+    rotation.map((component) => component / elapsed),
+    MAX_RELEASE_SPEED,
+  );
+  torqueModel.state.quaternion = applySpaceRotation(torqueModel.state.quaternion, rotation);
+  torqueModel.state.omega = inverseRotateVector(torqueModel.state.quaternion, omegaSpace);
+  drag.lastTimestamp = timestamp;
+  drag.lastMotionTimestamp = timestamp;
+  drag.velocitySamples.push({timestamp, omegaSpace});
+  drag.velocitySamples = drag.velocitySamples.filter(
+    (sample) => timestamp - sample.timestamp <= RELEASE_SAMPLE_WINDOW_MS,
+  );
+  updateTorqueReadout(true);
+  view.draw();
+}
+
+function renderTorqueBody(view) {
+  const state = torqueModel.state;
+  view.fitRadius = 2.55;
+  const bodyAxisOne = rotateVector(state.quaternion, [BODY_RADII[0], 0, 0]);
+  const momentumSpace = rotateVector(state.quaternion, angularMomentum(state.omega, DEFAULT_INERTIA));
+  const momentumLength = norm(momentumSpace);
+
+  if (momentumLength > 1e-8) {
+    path3d(view, planeCircle(momentumSpace, 2.0), {
+      color: "#728078",
+      width: 0.8,
+      dash: [4, 7],
+      alpha: 0.22,
+    });
+  }
+  if (torqueModel.markerTrail.length > 1) {
+    for (let index = 1; index < torqueModel.markerTrail.length; index += 1) {
+      path3d(view, [torqueModel.markerTrail[index - 1], torqueModel.markerTrail[index]], {
+        color: GOLD,
+        width: 1.2,
+        alpha: 0.05 + 0.32 * index / torqueModel.markerTrail.length,
+      });
+    }
+  }
+
+  drawBodyEllipsoid(view, state.quaternion);
+  drawAxes(view, 2.05, state.quaternion);
+
+  if (momentumLength > 1e-8) {
+    arrow3d(view, scale(unit(momentumSpace), 2.28), GOLD, "L", {width: 3.2});
+    const omegaSpace = rotateVector(state.quaternion, state.omega);
+    arrow3d(view, scale(unit(omegaSpace), 1.92), MAGENTA, "ω", {
+      width: 2.5,
+      alpha: 0.95,
+      labelOffset: [0, 11],
+    });
+  }
+
+  drawGripPoints(view, state.quaternion, torqueModel.drag?.handleIndex ?? torqueModel.hoveredHandle);
+  const marker = view.project(bodyAxisOne);
+  view.ctx.save();
+  view.ctx.fillStyle = AXIS_COLORS[0];
+  view.ctx.beginPath();
+  view.ctx.arc(marker.x, marker.y, 3.6, 0, 2 * Math.PI);
+  view.ctx.fill();
+  view.ctx.restore();
+}
+
+function updateTorqueReadout(holding = false) {
+  const alignment = torqueAlignment(torqueModel.state);
+  if (holding) dom.torqueMotion.textContent = t("holding");
+  else if (torqueModel.playing) dom.torqueMotion.textContent = t("spinning");
+  else if (torqueModel.launch || torqueModel.stoppedAfterLaunch) dom.torqueMotion.textContent = t("stopped");
+  else dom.torqueMotion.textContent = t("atRest");
+
+  if (!alignment) {
+    dom.torqueAxis.textContent = "—";
+    dom.torqueAlignment.textContent = "—";
+  } else {
+    const launchAlignment = !holding && torqueModel.launch ? torqueModel.launch : alignment;
+    dom.torqueAxis.textContent = t("torqueAxisNames")[launchAlignment.axis];
+    dom.torqueAlignment.textContent = launchAlignment.deviation < 0.05
+      ? t("exactAlignment")
+      : `${launchAlignment.deviation.toFixed(2)}°`;
+  }
+
+  const angularSpeed = norm(torqueModel.state.omega);
+  dom.torqueSpeed.textContent = angularSpeed < 1e-3 ? "—" : angularSpeed.toFixed(2);
+
+  const launch = torqueModel.launch;
+  if (!launch || holding) dom.torqueTimer.textContent = "—";
+  else if (launch.axis !== 1) dom.torqueTimer.textContent = t("stableAxisSpin");
+  else if (launch.flipTime !== null) {
+    dom.torqueTimer.textContent = t("flippedAt", {time: launch.flipTime.toFixed(2)});
+  } else {
+    const elapsed = Math.max(0, torqueModel.state.time - launch.time);
+    dom.torqueTimer.textContent = t("waitingForFlip", {time: elapsed.toFixed(2)});
+  }
+}
+
+const torqueInteraction = {
+  pointerDown(event, view) {
+    const handle = gripPointAtEvent(event, view);
+    if (!handle) return false;
+    const pointer = eventCanvasPoint(event, view);
+    beginTorqueDrag(handle.index, event.timeStamp, view, pointer);
+    return true;
+  },
+  pointerMove(event, view) {
+    const coalesced = event.getCoalescedEvents?.() ?? [];
+    for (const sample of [...coalesced, event]) {
+      const pointer = eventCanvasPoint(sample, view);
+      const repeated = sample.timeStamp === torqueModel.drag.lastTimestamp
+        && pointer.x === torqueModel.drag.currentX
+        && pointer.y === torqueModel.drag.currentY;
+      if (!repeated) updateGrabFromPointer(sample, view);
+    }
+    updateTorqueReadout(true);
+    view.draw();
+  },
+  pointerUp(event, view) {
+    const drag = torqueModel.drag;
+    const pointer = eventCanvasPoint(event, view);
+    if (Math.hypot(pointer.x - drag.currentX, pointer.y - drag.currentY) > 0.25) {
+      updateGrabFromPointer(event, view);
+    }
+    finishTorqueDrag(event.timeStamp, event.type === "pointercancel", view);
+  },
+  pointerHover(event, view) {
+    const handle = gripPointAtEvent(event, view);
+    const next = handle?.index ?? null;
+    if (next === torqueModel.hoveredHandle) return;
+    torqueModel.hoveredHandle = next;
+    view.canvas.style.cursor = next === null ? "grab" : "pointer";
+    view.draw();
+  },
+  pointerLeave(view) {
+    if (torqueModel.hoveredHandle === null) return;
+    torqueModel.hoveredHandle = null;
+    view.canvas.style.cursor = "grab";
+    view.draw();
+  },
+  keyDown(event, view) {
+    const digit = /^(?:Digit|Numpad)([1-6])$/.exec(event.code);
+    if (digit) {
+      beginTorqueDrag(Number(digit[1]) - 1, event.timeStamp, view);
+      return true;
+    }
+    if (!torqueModel.drag) return false;
+    const key = event.key.toLowerCase();
+    if (["w", "a", "s", "d"].includes(key)) {
+      moveTorqueDragFromKeyboard(key, event.timeStamp, event.shiftKey, view);
+      return true;
+    }
+    if (event.code === "Space" || event.key === "Enter") {
+      finishTorqueDrag(event.timeStamp, false, view);
+      return true;
+    }
+    if (event.key === "Escape") {
+      finishTorqueDrag(event.timeStamp, true, view);
+      return true;
+    }
+    return false;
+  },
+};
 
 function renderMomentum(view) {
   if (!model.state || !model.geometry) return;
@@ -545,6 +1009,22 @@ function resetSimulation() {
   momentumView?.draw();
 }
 
+function resetTorqueSimulation() {
+  torqueModel.state = {omega: [0, 0, 0], quaternion: [1, 0, 0, 0], time: 0};
+  torqueModel.playing = false;
+  torqueModel.stoppedAfterLaunch = false;
+  torqueModel.hoveredHandle = null;
+  torqueModel.drag = null;
+  torqueModel.launch = null;
+  torqueModel.markerTrail = [];
+  torqueModel.trailClock = 0;
+  if (torqueView) {
+    torqueView.canvas.style.cursor = "grab";
+    torqueView.draw();
+  }
+  updateTorqueReadout();
+}
+
 function updateReadout() {
   if (!model.state) return;
   const momentum = angularMomentum(model.state.omega, DEFAULT_INERTIA);
@@ -582,6 +1062,13 @@ dom.playPause.addEventListener("click", () => {
   setPlaybackLabel();
 });
 dom.reset.addEventListener("click", resetSimulation);
+dom.torqueStop.addEventListener("click", () => {
+  torqueModel.playing = false;
+  torqueModel.stoppedAfterLaunch = Boolean(torqueModel.launch);
+  updateTorqueReadout();
+  torqueView.draw();
+});
+dom.torqueReset.addEventListener("click", resetTorqueSimulation);
 
 bodyView = new OrbitView(
   document.querySelector("#body-canvas"),
@@ -593,10 +1080,17 @@ momentumView = new OrbitView(
   {azimuth: -0.8, elevation: 0.42},
   renderMomentum,
 );
+torqueView = new OrbitView(
+  dom.torqueCanvas,
+  {azimuth: -0.78, elevation: 0.35},
+  renderTorqueBody,
+  torqueInteraction,
+);
 
 applyLocale();
 setPlaybackLabel();
 resetSimulation();
+resetTorqueSimulation();
 
 let previousTimestamp = performance.now();
 function animate(timestamp) {
@@ -618,6 +1112,32 @@ function animate(timestamp) {
     updateReadout();
     bodyView.draw();
     momentumView.draw();
+  }
+  if (torqueModel.playing) {
+    let remaining = realDt;
+    while (remaining > 1e-12) {
+      const angularSpeed = Math.max(1, norm(torqueModel.state.omega));
+      const step = Math.min(remaining, 0.004, 0.025 / angularSpeed);
+      torqueModel.state = rk4Step(torqueModel.state, DEFAULT_INERTIA, step);
+      remaining -= step;
+    }
+    torqueModel.trailClock += realDt;
+    if (torqueModel.trailClock >= 0.035) {
+      torqueModel.trailClock = 0;
+      torqueModel.markerTrail.push(rotateVector(
+        torqueModel.state.quaternion,
+        [BODY_RADII[0], 0, 0],
+      ));
+      if (torqueModel.markerTrail.length > 220) torqueModel.markerTrail.shift();
+    }
+    const launch = torqueModel.launch;
+    if (launch?.axis === 1 && launch.flipTime === null) {
+      const momentum = angularMomentum(torqueModel.state.omega, DEFAULT_INERTIA);
+      const projection = launch.sign * momentum[launch.axis] / norm(momentum);
+      if (projection <= -0.98) launch.flipTime = torqueModel.state.time - launch.time;
+    }
+    updateTorqueReadout();
+    torqueView.draw();
   }
   requestAnimationFrame(animate);
 }

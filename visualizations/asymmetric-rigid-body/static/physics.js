@@ -84,6 +84,11 @@ export function quaternionMultiply(left, right) {
   ];
 }
 
+export function quaternionConjugate(quaternion) {
+  const [w, x, y, z] = quaternion;
+  return [w, -x, -y, -z];
+}
+
 export function normalizeQuaternion(quaternion) {
   return normalize(quaternion);
 }
@@ -104,6 +109,58 @@ export function rotateVector(quaternion, vector) {
     vy + w * ty + (z * tx - x * tz),
     vz + w * tz + (x * ty - y * tx),
   ];
+}
+
+export function inverseRotateVector(quaternion, vector) {
+  return rotateVector(quaternionConjugate(normalizeQuaternion(quaternion)), vector);
+}
+
+function validateVector(vector, name) {
+  if (!Array.isArray(vector) || vector.length !== 3 || !vector.every(Number.isFinite)) {
+    throw new TypeError(`${name} must contain three finite components`);
+  }
+}
+
+function cross(left, right) {
+  return [
+    left[1] * right[2] - left[2] * right[1],
+    left[2] * right[0] - left[0] * right[2],
+    left[0] * right[1] - left[1] * right[0],
+  ];
+}
+
+export function rotationVectorBetween(start, end) {
+  validateVector(start, "start");
+  validateVector(end, "end");
+  const from = normalize(start);
+  const to = normalize(end);
+  const axisTimesSine = cross(from, to);
+  const sine = norm(axisTimesSine);
+  const cosine = Math.min(1, Math.max(-1, from.reduce(
+    (sum, component, index) => sum + component * to[index],
+    0,
+  )));
+  if (sine > EPSILON) {
+    const angle = Math.atan2(sine, cosine);
+    return axisTimesSine.map((component) => component * angle / sine);
+  }
+  if (cosine > 0) return [0, 0, 0];
+  const reference = Math.abs(from[0]) < 0.8 ? [1, 0, 0] : [0, 1, 0];
+  const axis = normalize(cross(from, reference));
+  return axis.map((component) => component * Math.PI);
+}
+
+export function applySpaceRotation(quaternion, rotationVector) {
+  validateVector(rotationVector, "rotationVector");
+  const angle = norm(rotationVector);
+  if (angle <= EPSILON) return normalizeQuaternion([...quaternion]);
+  const halfAngle = angle / 2;
+  const factor = Math.sin(halfAngle) / angle;
+  const delta = [
+    Math.cos(halfAngle),
+    ...rotationVector.map((component) => component * factor),
+  ];
+  return normalizeQuaternion(quaternionMultiply(delta, quaternion));
 }
 
 function stateDerivative(state, inertia) {

@@ -19,7 +19,7 @@ from .physics import (
     complex_map,
     conformal_diagnostics,
     differential_circle,
-    mobius_iwasawa,
+    mobius_parameter_family,
     sphere_spinor,
     spinor_to_sphere,
     witt_flow,
@@ -219,10 +219,14 @@ def _sphere_curve(spinors: np.ndarray, transformation: MobiusTransformation) -> 
 def mobius_sphere_figure(transformation: MobiusTransformation, title: str) -> go.Figure:
     """Show fixed and transformed orthogonal grids on the Riemann sphere."""
 
-    figure = go.Figure([_sphere_surface()])
+    figure = _mobius_reference_figure(title)
+    figure.add_traces(_mobius_transformed_traces(transformation))
+    return figure
+
+
+def _sphere_grid_spinors() -> tuple[list[np.ndarray], list[np.ndarray]]:
     theta_arc = np.linspace(0.0, np.pi, 260)
     phi_arc = np.linspace(-np.pi, np.pi, 320)
-    original = MobiusTransformation()
     latitude_spinors = [
         sphere_spinor(np.full_like(phi_arc, theta), phi_arc)
         for theta in np.linspace(0.2, np.pi - 0.2, 9)
@@ -231,6 +235,13 @@ def mobius_sphere_figure(transformation: MobiusTransformation, title: str) -> go
         sphere_spinor(theta_arc, np.full_like(theta_arc, phi))
         for phi in np.linspace(-np.pi, np.pi, 12, endpoint=False)
     ]
+    return latitude_spinors, longitude_spinors
+
+
+def _mobius_reference_figure(title: str = "Möbius transformation") -> go.Figure:
+    figure = go.Figure([_sphere_surface()])
+    latitude_spinors, longitude_spinors = _sphere_grid_spinors()
+    original = MobiusTransformation()
     for spinors in latitude_spinors + longitude_spinors:
         xyz = _sphere_curve(spinors, original)
         figure.add_trace(
@@ -242,37 +253,6 @@ def mobius_sphere_figure(transformation: MobiusTransformation, title: str) -> go
                 line={"color": "rgba(95,105,115,.34)", "width": 2},
                 hoverinfo="skip",
                 showlegend=False,
-            )
-        )
-    for color, spinor_family in (
-        (PALETTE["blue"], latitude_spinors),
-        (PALETTE["gold"], longitude_spinors),
-    ):
-        for spinors in spinor_family:
-            xyz = _sphere_curve(spinors, transformation)
-            figure.add_trace(
-                go.Scatter3d(
-                    x=xyz[0],
-                    y=xyz[1],
-                    z=xyz[2],
-                    mode="lines",
-                    line={"color": color, "width": 5},
-                    hoverinfo="skip",
-                    showlegend=False,
-                )
-            )
-    fixed_spinors = transformation.fixed_point_spinors()
-    if fixed_spinors.shape[1]:
-        fixed = spinor_to_sphere(fixed_spinors)
-        figure.add_trace(
-            go.Scatter3d(
-                x=fixed[0],
-                y=fixed[1],
-                z=fixed[2],
-                mode="markers",
-                marker={"size": 6, "color": PALETTE["red"]},
-                name="fixed points",
-                hovertemplate="fixed point<extra></extra>",
             )
         )
     figure.update_layout(
@@ -296,29 +276,64 @@ def mobius_sphere_figure(transformation: MobiusTransformation, title: str) -> go
     return figure
 
 
-def _mobius_presets() -> dict[str, tuple[str, MobiusTransformation]]:
+def _mobius_transformed_traces(transformation: MobiusTransformation) -> list[go.BaseTraceType]:
+    latitude_spinors, longitude_spinors = _sphere_grid_spinors()
+    traces: list[go.BaseTraceType] = []
+    for color, spinor_family in (
+        (PALETTE["blue"], latitude_spinors),
+        (PALETTE["gold"], longitude_spinors),
+    ):
+        for spinors in spinor_family:
+            xyz = _sphere_curve(spinors, transformation)
+            traces.append(
+                go.Scatter3d(
+                    x=xyz[0],
+                    y=xyz[1],
+                    z=xyz[2],
+                    mode="lines",
+                    line={"color": color, "width": 5},
+                    hoverinfo="skip",
+                    showlegend=False,
+                )
+            )
+    fixed_spinors = transformation.fixed_point_spinors()
+    if fixed_spinors.shape[1]:
+        fixed = spinor_to_sphere(fixed_spinors)
+        traces.append(
+            go.Scatter3d(
+                x=fixed[0],
+                y=fixed[1],
+                z=fixed[2],
+                mode="markers",
+                marker={"size": 6, "color": PALETTE["red"]},
+                name="fixed points",
+                hovertemplate="fixed point<extra></extra>",
+            )
+        )
+    return traces
+
+
+def _mobius_parameter_specs() -> dict[str, dict[str, object]]:
     return {
-        "identity": ("identity", MobiusTransformation()),
-        "translation": (
-            "translation z ↦ z + b",
-            mobius_iwasawa(translation=0.65 + 0.25j),
-        ),
-        "dilation": (
-            "dilation z ↦ exp(ρ)z",
-            mobius_iwasawa(rho=0.9),
-        ),
-        "rotation": (
-            "PSU(2) sphere rotation",
-            mobius_iwasawa(alpha=0.8, beta=0.9, gamma=-0.25),
-        ),
-        "special": (
-            "special conformal z ↦ z/(1+cz)",
-            MobiusTransformation(1.0, 0.0, 0.55 + 0.15j, 1.0),
-        ),
-        "loxodromic": (
-            "generic loxodromic transformation",
-            mobius_iwasawa(alpha=0.55, beta=0.32, gamma=0.18, rho=0.75, translation=0.4 + 0.18j),
-        ),
+        "identity": {"values": (0.0,), "default": 0.0},
+        "translation": {"values": tuple(np.linspace(-1.0, 1.5, 11)), "default": 1.0},
+        "dilation": {"values": tuple(np.linspace(-1.0, 1.0, 11)), "default": 0.8},
+        "rotation": {"values": tuple(np.linspace(-np.pi, np.pi, 13)), "default": np.pi / 3},
+        "special": {"values": tuple(np.linspace(-1.0, 1.5, 11)), "default": 1.0},
+        "loxodromic": {"values": tuple(np.linspace(-1.0, 1.5, 11)), "default": 1.0},
+    }
+
+
+def _mobius_application_item(name: str, parameter: float) -> dict[str, object]:
+    transformation = mobius_parameter_family(name, parameter)
+    return {
+        "family": name,
+        "parameter": parameter,
+        "traces": _mobius_transformed_traces(transformation),
+        "matrix": [
+            [_format_complex(complex(value)) for value in row]
+            for row in transformation.normalized_matrix()
+        ],
     }
 
 
@@ -483,13 +498,19 @@ def _build_application_data() -> dict[str, object]:
         for key, value in zip(mixing_keys, mixing_values, strict=True)
     }
     mobius_data = {}
-    for key, (label, transformation) in _mobius_presets().items():
-        mobius_data[key] = {
-            "figure": mobius_sphere_figure(transformation, label),
-            "matrix": [
-                [_format_complex(complex(value)) for value in row]
-                for row in transformation.normalized_matrix()
-            ],
+    for name, spec in _mobius_parameter_specs().items():
+        values = tuple(float(value) for value in spec["values"])
+        keys = tuple(f"{value:+.6f}" for value in values)
+        default = float(spec["default"])
+        default_index = int(np.argmin(np.abs(np.asarray(values) - default)))
+        mobius_data[name] = {
+            "values": values,
+            "keys": keys,
+            "defaultIndex": default_index,
+            "variants": {
+                key: _mobius_application_item(name, value)
+                for key, value in zip(keys, values, strict=True)
+            },
         }
     epsilon_values = tuple(np.linspace(-0.3, 0.3, 7))
     epsilon_keys = tuple(f"{value:+.3f}" for value in epsilon_values)
@@ -498,6 +519,7 @@ def _build_application_data() -> dict[str, object]:
         "localVariants": local_variants,
         "mixingKeys": mixing_keys,
         "mixingValues": mixing_values,
+        "mobiusBase": _mobius_reference_figure(),
         "mobius": mobius_data,
         "witt": {
             str(mode): {

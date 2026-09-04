@@ -234,6 +234,32 @@ def mobius_iwasawa(
     return MobiusTransformation(*matrix.ravel())
 
 
+def mobius_parameter_family(name: str, parameter: float) -> MobiusTransformation:
+    """Return a one-real-parameter family used by the Möbius explorer.
+
+    Every family passes through the identity at ``parameter=0``.  The
+    translation and special-conformal directions are fixed complex numbers;
+    the loxodromic family combines dilation and rotation about the same pair
+    of fixed points.
+    """
+
+    parameter = float(parameter)
+    if name == "identity":
+        return MobiusTransformation()
+    if name == "translation":
+        return mobius_iwasawa(translation=parameter * (0.65 + 0.25j))
+    if name == "dilation":
+        return mobius_iwasawa(rho=parameter)
+    if name == "rotation":
+        return mobius_iwasawa(beta=parameter)
+    if name == "special":
+        return MobiusTransformation(1.0, 0.0, parameter * (0.55 + 0.15j), 1.0)
+    if name == "loxodromic":
+        exponent = 0.5 * parameter * (0.75 + 0.55j)
+        return MobiusTransformation(np.exp(exponent), 0.0, 0.0, np.exp(-exponent))
+    raise ValueError(f"Unknown Mobius family: {name!r}")
+
+
 def sphere_spinor(theta: Array | float, phi: Array | float) -> Array:
     """Map spherical coordinates to normalized homogeneous CP1 coordinates."""
 

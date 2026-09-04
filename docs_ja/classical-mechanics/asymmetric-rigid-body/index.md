@@ -14,7 +14,7 @@ $$
 
 ## Visualization
 
-<iframe src="app/index.html?lang=ja" title="非対称剛体の自由回転と body frame における保存量曲面" style="display: block; width: 100%; height: 2100px; min-height: 1100px; border: 0; overflow: hidden;" loading="eager" scrolling="no" data-auto-height></iframe>
+<iframe src="app/index.html?lang=ja" title="非対称剛体の自由回転と把持・解放による回転チャレンジ" style="display: block; width: 100%; height: 3000px; min-height: 1100px; border: 0; overflow: hidden;" loading="eager" scrolling="no" data-auto-height></iframe>
 
 ## Euler 方程式と保存量
 
@@ -154,6 +154,9 @@ $I_1<I_2<I_3$ なので、二つの係数は互いに反対の符号をもちま
 3. **axis 2** を選び、$\mathbf L$ の先端に表示される紫色の $\dot{\mathbf L}$ を追います。これは黄色の交線に沿った、その瞬間の進行方向を表しています。
 4. 初期ずれを小さくします。不安定性そのものは変わりませんが、剛体は反転する前に中間軸回転に近い状態により長く留まるようになります。
 5. アニメーションを一時停止して物体系の図を回転させ、現在位置で $\dot{\mathbf L}$ が角運動量球面とエネルギー楕円体の両方に接していることを確認します。
+6. 下側のパネルで、表示が **axis 2** になるように点を重心のまわりで振り、減速せずに離して最初の反転までの時間を測ります。
+7. 解放時の軸からのずれをさらに小さくして繰り返します。ずれが反転へ成長するまで、剛体は中間軸回転の近くにより長く留まります。
+8. ゆっくり動かした場合と素早く振った場合を比較し、さらに **axis 1** または **axis 3** を狙って有界な揺動を観察します。姿勢を調べるときは **停止**、静止状態へ戻すときは **リセット** を使います。
 
 どの慣性主軸についても、厳密な主軸回転は Euler 方程式の解です。ここで「不安定」とは、完全に中間軸と一致した状態そのものが自発的に崩れるという意味ではなく、そこに加えた任意に小さな横方向の摂動が時間とともに成長するという意味です。
 

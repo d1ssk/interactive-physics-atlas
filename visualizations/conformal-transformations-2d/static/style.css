@@ -45,6 +45,7 @@ output { color: var(--ink); text-align: right; font: 600 12px/1.2 ui-monospace, 
 .sphere-grid > * { min-width: 0; }
 .explanation { padding: 0 0 0 20px; border-left: 1px solid var(--border); }
 .matrix { margin: 15px 0; padding: 12px 0; overflow-x: auto; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); font: 15px/1.6 var(--serif); }
+.mobius-expression { min-height: 30px; overflow-x: auto; font: 17px/1.6 var(--serif); }
 .note { min-height: 24px; color: var(--muted); }
 .caption { color: var(--muted); font-size: 13px; }
 .equation { margin: 12px 0; padding: 13px 0; overflow-x: auto; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); font: 18px/1.6 var(--serif); }

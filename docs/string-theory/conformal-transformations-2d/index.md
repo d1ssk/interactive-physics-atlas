@@ -148,8 +148,9 @@ must be interpreted as local representations.
 2. As $\lambda$ approaches $1$, observe how the smaller singular value approaches zero and the
    differential degenerates to rank one.
 
-3. Switch among the Möbius presets and rotate the Riemann sphere to inspect the fixed points and
-   coordinate curves. Their crossing angles remain unchanged by the transformation.
+3. Switch among the Möbius presets. For every nonidentity family, move the parameter slider and
+   rotate the Riemann sphere to inspect the fixed points and coordinate curves. Their crossing
+   angles remain unchanged by the transformation.
 
 4. Compare the Witt modes $m=-1,0,1$ with $m=\pm2$. Reversing the sign of $\epsilon$ lets you
    distinguish the direction of the finite flow from that of the positive-parameter vector

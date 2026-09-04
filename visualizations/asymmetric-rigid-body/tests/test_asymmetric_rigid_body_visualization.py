@@ -35,6 +35,30 @@ def test_static_build_contract(tmp_path, visualization) -> None:
     assert 'momentumSphere: "角運動量球面"' in app
     assert 'data-i18n="axisOne"' in html
     assert 'data-i18n="momentumSphere"' in html
+    assert 'id="torque-canvas"' in html
+    assert 'id="torque-stop"' in html
+    assert 'id="torque-reset"' in html
+    assert 'data-i18n="handsOnTitle"' in html
+    assert "applySpaceRotation" in app
+    assert "rotationVectorBetween" in app
+    assert "const GRIP_POINTS" in app
+    assert "torqueModel.playing = false" in app
+    assert 'handsOnTitle: "Give the body a spin"' in app
+    assert 'handsOnTitle: "自分の手で剛体を回す"' in app
+    assert "キーボード：1–6で選択、W/A/S/Dで移動、Spaceで解放" in app
+    assert 'releaseRule: "離した瞬間の角速度を引き継ぎます。重心は固定されています。"' in app
+    assert "離した瞬間の角速度を保って自由回転へ移ります。" in app
+    assert "不安定方向の回転でも、回転軸をaxis 2 に近くできれば、長時間定常を保てます。" in app
+    assert "把持点" not in app
+    assert "keyboard: 1–6 select, W/A/S/D move, Space releases" in app
+    assert "keyDown(event, view)" in app
+    assert 'event.code === "Space" || event.key === "Enter"' in app
+    assert (
+        'this.canvas.addEventListener("pointerdown", (event) => {\n      if (this.drag) return;'
+        in app
+    )
+    assert "boldsymbol" not in html
+    assert ".torque-view canvas" in style
     assert "--paper: var(--atlas-viz-background)" in style
     assert "Current components" not in html
     assert "現在の成分" not in app
