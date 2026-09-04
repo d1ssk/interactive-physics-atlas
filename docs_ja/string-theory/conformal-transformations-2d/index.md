@@ -2,7 +2,7 @@
 
 2 次元の共形幾何は、複素解析、2 次元共形場理論、弦理論の世界面幾何を結びつけます。局所的には正則写像による角度の保存、大域的には Riemann 球面上の Möbius 変換、無限小変換では Witt 代数として、同じ共形対称性が異なる形で現れます。
 
-## 可視化
+## Visualization
 
 <iframe src="app/index.html?lang=ja" title="局所・大域・無限小の2次元共形変換" data-auto-height scrolling="no" style="display: block; width: 100%; height: 2550px; min-height: 1500px; border: 0; overflow: hidden;" loading="eager"></iframe>
 
