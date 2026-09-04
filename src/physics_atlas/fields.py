@@ -34,6 +34,7 @@ FIELDS = (
         "Motion, rigid bodies, and variational principles.",
         "古典力学",
         "運動、剛体、変分原理",
+        "assets/images/classical-mechanics.png",
     ),
     FieldDefinition(
         "electromagnetism",
