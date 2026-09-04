@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import re
 import shutil
 import subprocess
@@ -8,17 +9,20 @@ from pathlib import Path
 import pytest
 
 
-def css_declarations(source: str, selector: str) -> dict[str, str]:
-    """Parse the declarations from one simple CSS selector."""
+def css_declaration_blocks(source: str, selector: str) -> list[dict[str, str]]:
+    """Parse every declaration block for one simple CSS selector."""
 
-    match = re.search(rf"(?m)^{re.escape(selector)}\s*\{{(?P<body>[^}}]*)\}}", source)
-    assert match is not None
-    return {
-        name.strip(): value.strip()
-        for declaration in match.group("body").split(";")
-        if ":" in declaration
-        for name, value in [declaration.split(":", 1)]
-    }
+    bodies = re.findall(rf"(?m)^[ \t]*{re.escape(selector)}\s*\{{(?P<body>[^}}]*)\}}", source)
+    assert bodies
+    return [
+        {
+            name.strip(): value.strip()
+            for declaration in body.split(";")
+            if ":" in declaration
+            for name, value in [declaration.split(":", 1)]
+        }
+        for body in bodies
+    ]
 
 
 def test_static_build_contract(tmp_path, visualization) -> None:
@@ -49,12 +53,16 @@ def test_static_build_contract(tmp_path, visualization) -> None:
     assert "#247a58" in app
     assert "#c76520" in app
     assert "--paper: var(--atlas-viz-background)" in style
-    page_header = css_declarations(style, ".page-header")
-    assert "grid-template-columns" not in page_header
-    assert "width" not in page_header
+    page_header_blocks = css_declaration_blocks(style, ".page-header")
+    assert all("grid-template-columns" not in block for block in page_header_blocks)
+    assert all("width" not in block for block in page_header_blocks)
     assert "grid-template-columns: 280px 1fr" not in style
     for selector in (".viewer-status", ".drag-hint", ".readout dt"):
-        assert css_declarations(style, selector)["color"] == "var(--muted)"
+        color_values = [
+            block["color"] for block in css_declaration_blocks(style, selector) if "color" in block
+        ]
+        assert color_values
+        assert all(value == "var(--muted)" for value in color_values)
     assert "state.history = [];" in app
     assert "t: state.time - MAX_HISTORY_SECONDS" not in app
     assert "https://" not in html
@@ -80,6 +88,8 @@ def test_frame_height_contract_is_same_origin_and_content_based(tmp_path, visual
 def test_browser_physics_invariants() -> None:
     node = shutil.which("node")
     if node is None:
+        if os.environ.get("CI"):
+            pytest.fail("Node.js is required for browser physics tests in CI")
         pytest.skip("Node.js is not installed")
     test_file = Path(__file__).with_name("physics.test.mjs")
     subprocess.run(
