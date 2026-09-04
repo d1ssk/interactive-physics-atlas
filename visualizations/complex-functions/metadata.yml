@@ -1,0 +1,17 @@
+id: complex-functions
+title: Complex Function Lab
+title_ja: 複素関数ラボ
+field: mathematics-for-physics
+topics:
+  - complex analysis
+  - analytic continuation
+  - Riemann surfaces
+  - contour integration
+level:
+  - undergraduate
+  - graduate
+runtime: browser-static
+page: mathematics-for-physics/complex-functions
+presentation: standalone
+summary: Visualize amplitude and phase or real and imaginary parts, follow analytic continuation across branch cuts, and draw contour integrals.
+summary_ja: 振幅と位相または実部と虚部の表示、branch cut を横切る解析接続、ドラッグ操作による線積分。

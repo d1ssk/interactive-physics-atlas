@@ -221,6 +221,7 @@ __marimo__/
 
 # Generated visualization applications
 docs/**/app/
+/docs/mathematics-for-physics/complex-functions/
 
 # Local exploratory work
 /workbench/**

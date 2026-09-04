@@ -58,6 +58,14 @@ following:
 `documentElement.scrollHeight` alone is not a sufficient QA signal because it can inherit the
 iframe viewport height and conceal trailing blank space.
 
+## Standalone visualization links
+
+A visualization may instead declare `presentation: standalone` and open as its own application
+page. Link it directly from the appropriate bilingual field indexes and give the title and concise
+capability summary distinct aligned lines. Do not create empty English and Japanese article shells
+around it. The standalone application itself owns its bilingual UI, site-brand home link, and
+counterpart locale link.
+
 Do not add a public `Checks performed` section or another developer-oriented test checklist.
 Keep verification in tests and developer documentation. A scientifically meaningful invariant
 may still be explained where it helps the reader understand the subject.

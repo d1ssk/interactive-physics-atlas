@@ -2,6 +2,11 @@
 
 物理学で用いられる数学的手法、構造
 
+## 複素解析
+
+- **[複素関数ラボ](complex-functions/?lang=ja)**<br>
+  振幅と位相または実部と虚部の表示、branch cut を横切る解析接続、ドラッグ操作による線積分
+
 ## Lie 代数とその表現
 
 - **[Lie 代数のルート・ウェイト・テンソル積](lie-roots-weights-products/)**<br>

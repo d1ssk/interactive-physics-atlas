@@ -15,6 +15,8 @@ Visual appeal is important, but must never override correctness.
   - unrestricted
   - not publication quality
   - normally ignored by git
+  - exploratory work here does not require or justify creating a branch; create a feature branch
+    only when promoting selected work into tracked publication source
 
 - `visualizations/`
   - publication-quality visualization source code
@@ -54,6 +56,9 @@ Visual appeal is important, but must never override correctness.
 14. Published applications are supported over HTTP/HTTPS. Use a loopback HTTP server for local
     browser QA; direct `file://` viewing is unsupported and must not drive alternate loaders,
     wildcard messaging, or browser-specific fallback paths.
+15. A published visualization may either be embedded in an explanatory article or be a standalone
+    application linked directly from a field index. Standalone applications do not require a
+    duplicate article, but their listing summary must state what readers can do.
 
 ## Bilingual content policy
 
@@ -126,4 +131,6 @@ If a convention is ambiguous, document the convention explicitly.
 
 - `main` must remain publishable.
 - Nontrivial work should be done on a feature branch.
+- Do not create or switch branches merely for exploratory work confined to the ignored
+  `workbench/` tree.
 - Do not commit generated site output.
