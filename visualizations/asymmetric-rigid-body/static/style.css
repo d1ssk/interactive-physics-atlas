@@ -121,7 +121,7 @@ input[type="range"] { width: 100%; accent-color: var(--atlas-viz-accent); }
 .status-strip strong { color: var(--ink); font: 700 .75rem/1.2 monospace; }
 .status-strip strong.unstable { color: #b54832; }
 .status-strip strong.stable { color: #267d73; }
-#stability > i { width: 6px; height: 6px; display: inline-block; margin-right: 5px; border-radius: 50%; background: currentColor; }
+#stability > i { width: 6px; height: 6px; display: inline-block; margin-right: 5px; border-radius: 50%; background: currentcolor; }
 
 .views { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .view-card { min-width: 0; margin: 0; overflow: hidden; border: 1px solid var(--line); background: var(--panel); }
@@ -132,12 +132,12 @@ h2 { margin: 0; font-size: 1.1rem; line-height: 1.25; }
 .view-card canvas:active { cursor: grabbing; }
 .canvas-legend { min-height: 50px; display: flex; flex-wrap: wrap; gap: 9px 16px; align-items: center; padding: 11px 17px; color: var(--muted); border-top: 1px solid var(--line); font-size: .62rem; }
 .canvas-legend span { display: flex; gap: 6px; align-items: center; white-space: nowrap; }
-.key { width: 16px; height: 2px; display: inline-block; background: currentColor; }
+.key { width: 16px; height: 2px; display: inline-block; background: currentcolor; }
 .key.momentum { color: var(--gold); }
 .key.omega { color: var(--magenta); }
-.key.trail { color: rgba(240,184,76,.55); border-top: 1px dashed currentColor; background: transparent; }
+.key.trail { color: rgba(240,184,76,.55); border-top: 1px dashed currentcolor; background: transparent; }
 .key.sphere { color: #58736b; }
-.key.ellipsoid { color: var(--magenta); border-top: 1px dashed currentColor; background: transparent; }
+.key.ellipsoid { color: var(--magenta); border-top: 1px dashed currentcolor; background: transparent; }
 .key.orbit { height: 3px; color: var(--gold); }
 .key.euler-vector { height: 3px; color: #8d73c9; }
 

@@ -42,9 +42,9 @@
       <div class="control-group axis-picker">
         <span class="control-label" data-i18n="initialOmega">Initial angular velocity</span>
         <div class="segmented" role="group" data-i18n-aria-label="axisGroupLabel" aria-label="Principal axis nearest the initial angular velocity">
-          <button type="button" data-axis="0" aria-pressed="false"><i>1</i><span>axis 1<small data-i18n="stable">stable</small></span></button>
-          <button type="button" data-axis="1" class="active" aria-pressed="true"><i>2</i><span>axis 2<small data-i18n="unstable">unstable</small></span></button>
-          <button type="button" data-axis="2" aria-pressed="false"><i>3</i><span>axis 3<small data-i18n="stable">stable</small></span></button>
+          <button type="button" data-axis="0" aria-pressed="false"><i>1</i><span><span data-i18n="axisOne">axis 1</span><small data-i18n="stable">stable</small></span></button>
+          <button type="button" data-axis="1" class="active" aria-pressed="true"><i>2</i><span><span data-i18n="axisTwo">axis 2</span><small data-i18n="unstable">unstable</small></span></button>
+          <button type="button" data-axis="2" aria-pressed="false"><i>3</i><span><span data-i18n="axisThree">axis 3</span><small data-i18n="stable">stable</small></span></button>
         </div>
       </div>
       <label class="slider-control" for="tilt">
@@ -83,9 +83,9 @@
         <figcaption><h2 data-i18n="invariantIntersection">Intersection of invariants</h2><p data-i18n="dragHint">Drag to rotate the view</p></figcaption>
         <canvas id="momentum-canvas" width="760" height="650" tabindex="0" role="img" data-i18n-aria-label="momentumCanvasLabel" aria-label="Angular-momentum sphere, energy ellipsoid, and their intersection in the body frame"></canvas>
         <div class="canvas-legend">
-          <span><i class="key sphere"></i>angular momentum sphere</span>
-          <span><i class="key ellipsoid"></i>energy ellipsoid</span>
-          <span><i class="key orbit"></i>intersection / Euler orbit</span>
+          <span><i class="key sphere"></i><span data-i18n="momentumSphere">angular momentum sphere</span></span>
+          <span><i class="key ellipsoid"></i><span data-i18n="energyEllipsoid">energy ellipsoid</span></span>
+          <span><i class="key orbit"></i><span data-i18n="eulerOrbit">intersection / Euler orbit</span></span>
           <span class="math-source"><i class="key momentum"></i>\(\mathbf L\)</span>
           <span class="math-source"><i class="key omega"></i>\(\omega\)</span>
           <span class="math-source"><i class="key euler-vector"></i>\(\dot{\mathbf L}=\mathbf L\times\omega\) <span data-i18n="vectorGain">(length ×2)</span></span>

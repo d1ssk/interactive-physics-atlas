@@ -1,4 +1,5 @@
 const EPSILON = 1e-12;
+const MAX_TRAJECTORY_STEPS = 250_000;
 
 export const DEFAULT_INERTIA = Object.freeze([1, 1.7, 2.4]);
 
@@ -196,8 +197,16 @@ export function sampleMomentumTrajectory(
   inertia = DEFAULT_INERTIA,
   {duration = 100, dt = 0.01, stride = 5} = {},
 ) {
-  if (!(duration > 0) || !(dt > 0) || !Number.isInteger(stride) || stride < 1) {
-    throw new RangeError("trajectory sampling parameters must be positive");
+  if (
+    !Number.isFinite(duration) || duration <= 0
+    || !Number.isFinite(dt) || dt <= 0
+    || !Number.isInteger(stride) || stride < 1
+  ) {
+    throw new RangeError("duration and dt must be finite and positive; stride must be a positive integer");
+  }
+  const steps = Math.ceil(duration / dt);
+  if (!Number.isSafeInteger(steps) || steps > MAX_TRAJECTORY_STEPS) {
+    throw new RangeError("trajectory sampling exceeds the step limit");
   }
   const sampleDirection = (sign) => {
     const points = [];
@@ -206,7 +215,6 @@ export function sampleMomentumTrajectory(
       quaternion: [...initialState.quaternion],
       time: initialState.time,
     };
-    const steps = Math.ceil(duration / dt);
     for (let step = 0; step <= steps; step += 1) {
       if (step % stride === 0) points.push(angularMomentum(state.omega, inertia));
       state = rk4Step(state, inertia, sign * dt);

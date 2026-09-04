@@ -32,6 +32,9 @@ def test_static_build_contract(tmp_path, visualization) -> None:
     assert 'get("lang") === "ja"' in app
     assert "Torque-free rotation of an asymmetric rigid body" in app
     assert "非対称剛体の自由回転" in app
+    assert 'momentumSphere: "角運動量球面"' in app
+    assert 'data-i18n="axisOne"' in html
+    assert 'data-i18n="momentumSphere"' in html
     assert "--paper: var(--atlas-viz-background)" in style
     assert "Current components" not in html
     assert "現在の成分" not in app

@@ -102,3 +102,18 @@ test("sampled Euler trajectory lies on both invariant surfaces", () => {
     close(rotationalEnergyFromMomentum(momentum), geometry.energy, 2e-10);
   }
 });
+
+test("trajectory sampling rejects non-finite and excessive step counts", () => {
+  const state = makeInitialState(1, 8);
+  for (const options of [
+    {duration: Infinity, dt: 0.01},
+    {duration: 1, dt: Infinity},
+    {duration: 1, dt: Number.MIN_VALUE},
+    {duration: 1, dt: 1e-6},
+  ]) {
+    assert.throws(
+      () => sampleMomentumTrajectory(state, DEFAULT_INERTIA, options),
+      RangeError,
+    );
+  }
+});
