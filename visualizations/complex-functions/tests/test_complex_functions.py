@@ -66,6 +66,7 @@ def test_static_build_contract(tmp_path, visualization):
     ).replace("linear-gradient(90deg, #155887, #f2eee2 50%, #c32f50)", "")
     assert ".integral-primary" in style
     assert "height: 54px" in style
+    assert "border-radius: 5px" in style
     assert "grid-template-columns: minmax(0, 840px) 340px" in style
     assert "width: min(100%, 720px)" in style
     assert '"plot probe"\n    "plot integral"' in style
