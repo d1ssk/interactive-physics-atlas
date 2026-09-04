@@ -324,22 +324,11 @@ def _mobius_parameter_specs() -> dict[str, dict[str, object]]:
     }
 
 
-def _mobius_title(name: str, parameter: float) -> str:
-    titles = {
-        "identity": "identity",
-        "translation": f"translation z ↦ z + s b₀; s = {parameter:.2f}",
-        "dilation": f"dilation z ↦ exp(ρ)z; ρ = {parameter:.2f}",
-        "rotation": f"PSU(2) sphere rotation; θ = {parameter:.2f}",
-        "special": f"special conformal z ↦ z/(1+s c₀z); s = {parameter:.2f}",
-        "loxodromic": f"loxodromic dilation-rotation; s = {parameter:.2f}",
-    }
-    return titles[name]
-
-
 def _mobius_application_item(name: str, parameter: float) -> dict[str, object]:
     transformation = mobius_parameter_family(name, parameter)
     return {
-        "title": _mobius_title(name, parameter),
+        "family": name,
+        "parameter": parameter,
         "traces": _mobius_transformed_traces(transformation),
         "matrix": [
             [_format_complex(complex(value)) for value in row]

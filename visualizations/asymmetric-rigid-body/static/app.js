@@ -70,8 +70,8 @@ const TRANSLATIONS = {
     angularSpeed: "ANGULAR SPEED",
     flipTimer: "FLIP TIMER",
     torqueBodyTitle: "Torque playground",
-    torqueDragHint: "Grip point: swing and release · elsewhere: rotate view",
-    torqueCanvasLabel: "Stationary asymmetric rigid body with six draggable grip points. The body follows a grabbed point and spins at its release velocity; dragging elsewhere rotates the view.",
+    torqueDragHint: "Point: drag and release · keyboard: 1–6 select, W/A/S/D move, Space releases · elsewhere: rotate view",
+    torqueCanvasLabel: "Stationary asymmetric rigid body with six draggable points. Drag and release a point, or use keys 1 through 6, W A S D, and Space, to spin the body. Dragging elsewhere or pressing an arrow key rotates the view.",
     gripPoints: "six grip points",
     grabbedMotion: "body follows pointer",
     handsOnTrail: "body-axis 1 trail",
@@ -140,8 +140,8 @@ const TRANSLATIONS = {
     angularSpeed: "角速度の大きさ",
     flipTimer: "反転タイマー",
     torqueBodyTitle: "トルク・プレイグラウンド",
-    torqueDragHint: "点をつかむ：振って離す · それ以外：視点移動",
-    torqueCanvasLabel: "ドラッグ可能な6個の点をもつ静止した非対称剛体。点をつかむと剛体が追随し、離した瞬間の角速度で回転します。それ以外のドラッグでは視点を回転できます。",
+    torqueDragHint: "点：ドラッグして離す · キーボード：1–6で選択、W/A/S/Dで移動、Spaceで解放 · それ以外：視点移動",
+    torqueCanvasLabel: "ドラッグ可能な6個の点をもつ静止した非対称剛体。点をドラッグして離すか、1から6、W、A、S、D、Spaceキーを使うと剛体を回転させられます。それ以外のドラッグまたは矢印キーで視点を回転できます。",
     gripPoints: "6 個の点",
     grabbedMotion: "剛体がポインターに追随",
     handsOnTrail: "body axis 1 の軌跡",
@@ -259,6 +259,10 @@ class OrbitView {
       this.draw();
     });
     this.canvas.addEventListener("keydown", (event) => {
+      if (this.interaction.keyDown?.(event, this) === true) {
+        event.preventDefault();
+        return;
+      }
       const amount = event.shiftKey ? 0.18 : 0.08;
       if (event.key === "ArrowLeft") this.camera.azimuth += amount;
       else if (event.key === "ArrowRight") this.camera.azimuth -= amount;
@@ -711,6 +715,86 @@ function updateGrabFromPointer(event, view) {
   );
 }
 
+function beginTorqueDrag(handleIndex, timestamp, view, pointer = null) {
+  const handle = GRIP_POINTS[handleIndex];
+  const handleWorld = rotateVector(torqueModel.state.quaternion, handle.point);
+  const projected = view.project(handleWorld);
+  const depth = dot(handleWorld, view.cameraBasis().forward);
+  torqueModel.state.omega = [0, 0, 0];
+  torqueModel.drag = {
+    handleIndex,
+    currentX: pointer?.x ?? projected.x,
+    currentY: pointer?.y ?? projected.y,
+    depthSign: depth < 0 ? -1 : 1,
+    lastTimestamp: timestamp,
+    lastMotionTimestamp: Number.NEGATIVE_INFINITY,
+    velocitySamples: [],
+  };
+  torqueModel.playing = false;
+  torqueModel.stoppedAfterLaunch = false;
+  torqueModel.launch = null;
+  torqueModel.markerTrail = [];
+  torqueModel.trailClock = 0;
+  torqueModel.hoveredHandle = handleIndex;
+  view.canvas.style.cursor = "grabbing";
+  updateTorqueReadout(true);
+  view.draw();
+}
+
+function finishTorqueDrag(timestamp, cancelled, view) {
+  const drag = torqueModel.drag;
+  const releaseOmegaSpace = cancelled
+    ? [0, 0, 0]
+    : estimatedReleaseOmega(drag, timestamp);
+  torqueModel.state.omega = inverseRotateVector(
+    torqueModel.state.quaternion,
+    releaseOmegaSpace,
+  );
+  const alignment = torqueAlignment(torqueModel.state);
+  torqueModel.playing = norm(torqueModel.state.omega) >= 0.03;
+  if (!torqueModel.playing) torqueModel.state.omega = [0, 0, 0];
+  torqueModel.stoppedAfterLaunch = false;
+  torqueModel.launch = torqueModel.playing && alignment ? {
+    time: torqueModel.state.time,
+    axis: alignment.axis,
+    sign: alignment.sign,
+    deviation: alignment.deviation,
+    flipTime: null,
+  } : null;
+  torqueModel.drag = null;
+  torqueModel.hoveredHandle = null;
+  view.canvas.style.cursor = "grab";
+  updateTorqueReadout();
+  view.draw();
+}
+
+function moveTorqueDragFromKeyboard(key, timestamp, fast, view) {
+  const drag = torqueModel.drag;
+  const {right, up} = view.cameraBasis();
+  const direction = {
+    a: up,
+    d: scale(up, -1),
+    w: right,
+    s: scale(right, -1),
+  }[key];
+  const rotation = scale(direction, fast ? 0.13 : 0.06);
+  const elapsed = Math.max(1 / 120, Math.min((timestamp - drag.lastTimestamp) / 1000, 0.08));
+  const omegaSpace = limitedVector(
+    rotation.map((component) => component / elapsed),
+    MAX_RELEASE_SPEED,
+  );
+  torqueModel.state.quaternion = applySpaceRotation(torqueModel.state.quaternion, rotation);
+  torqueModel.state.omega = inverseRotateVector(torqueModel.state.quaternion, omegaSpace);
+  drag.lastTimestamp = timestamp;
+  drag.lastMotionTimestamp = timestamp;
+  drag.velocitySamples.push({timestamp, omegaSpace});
+  drag.velocitySamples = drag.velocitySamples.filter(
+    (sample) => timestamp - sample.timestamp <= RELEASE_SAMPLE_WINDOW_MS,
+  );
+  updateTorqueReadout(true);
+  view.draw();
+}
+
 function renderTorqueBody(view) {
   const state = torqueModel.state;
   view.fitRadius = 2.55;
@@ -796,27 +880,7 @@ const torqueInteraction = {
     const handle = gripPointAtEvent(event, view);
     if (!handle) return false;
     const pointer = eventCanvasPoint(event, view);
-    const handleWorld = rotateVector(torqueModel.state.quaternion, handle.point);
-    const depth = dot(handleWorld, view.cameraBasis().forward);
-    torqueModel.state.omega = [0, 0, 0];
-    torqueModel.drag = {
-      handleIndex: handle.index,
-      currentX: pointer.x,
-      currentY: pointer.y,
-      depthSign: depth < 0 ? -1 : 1,
-      lastTimestamp: event.timeStamp,
-      lastMotionTimestamp: Number.NEGATIVE_INFINITY,
-      velocitySamples: [],
-    };
-    torqueModel.playing = false;
-    torqueModel.stoppedAfterLaunch = false;
-    torqueModel.launch = null;
-    torqueModel.markerTrail = [];
-    torqueModel.trailClock = 0;
-    torqueModel.hoveredHandle = handle.index;
-    view.canvas.style.cursor = "grabbing";
-    updateTorqueReadout(true);
-    view.draw();
+    beginTorqueDrag(handle.index, event.timeStamp, view, pointer);
     return true;
   },
   pointerMove(event, view) {
@@ -837,29 +901,7 @@ const torqueInteraction = {
     if (Math.hypot(pointer.x - drag.currentX, pointer.y - drag.currentY) > 0.25) {
       updateGrabFromPointer(event, view);
     }
-    const releaseOmegaSpace = event.type === "pointercancel"
-      ? [0, 0, 0]
-      : estimatedReleaseOmega(drag, event.timeStamp);
-    torqueModel.state.omega = inverseRotateVector(
-      torqueModel.state.quaternion,
-      releaseOmegaSpace,
-    );
-    const alignment = torqueAlignment(torqueModel.state);
-    torqueModel.playing = norm(torqueModel.state.omega) >= 0.03;
-    if (!torqueModel.playing) torqueModel.state.omega = [0, 0, 0];
-    torqueModel.stoppedAfterLaunch = false;
-    torqueModel.launch = torqueModel.playing && alignment ? {
-      time: torqueModel.state.time,
-      axis: alignment.axis,
-      sign: alignment.sign,
-      deviation: alignment.deviation,
-      flipTime: null,
-    } : null;
-    torqueModel.drag = null;
-    torqueModel.hoveredHandle = null;
-    view.canvas.style.cursor = "grab";
-    updateTorqueReadout();
-    view.draw();
+    finishTorqueDrag(event.timeStamp, event.type === "pointercancel", view);
   },
   pointerHover(event, view) {
     const handle = gripPointAtEvent(event, view);
@@ -874,6 +916,28 @@ const torqueInteraction = {
     torqueModel.hoveredHandle = null;
     view.canvas.style.cursor = "grab";
     view.draw();
+  },
+  keyDown(event, view) {
+    const digit = /^(?:Digit|Numpad)([1-6])$/.exec(event.code);
+    if (digit) {
+      beginTorqueDrag(Number(digit[1]) - 1, event.timeStamp, view);
+      return true;
+    }
+    if (!torqueModel.drag) return false;
+    const key = event.key.toLowerCase();
+    if (["w", "a", "s", "d"].includes(key)) {
+      moveTorqueDragFromKeyboard(key, event.timeStamp, event.shiftKey, view);
+      return true;
+    }
+    if (event.code === "Space" || event.key === "Enter") {
+      finishTorqueDrag(event.timeStamp, false, view);
+      return true;
+    }
+    if (event.key === "Escape") {
+      finishTorqueDrag(event.timeStamp, true, view);
+      return true;
+    }
+    return false;
   },
 };
 

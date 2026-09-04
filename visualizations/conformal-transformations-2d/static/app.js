@@ -50,6 +50,14 @@ const MESSAGES = {
       special: "This is a finite \\(\\ell_1\\) flow. Its apparent pole in the complex plane is simply a regular point mapped to infinity on \\(\\mathbb{CP}^1\\).",
       loxodromic: "A loxodromic transformation has two fixed points and combines rotation with contraction and expansion along the sphere.",
     },
+    mobiusExpressions: {
+      identity: "\\(z\\mapsto z\\)",
+      translation: "\\(z\\mapsto z+s b_0,\\quad s={parameter}\\)",
+      dilation: "\\(z\\mapsto \\exp(\\rho)z,\\quad \\rho={parameter}\\)",
+      rotation: "\\(M=R_y(\\theta),\\quad \\theta={parameter}\\)",
+      special: "\\(z\\mapsto \\dfrac{z}{1+s c_0z},\\quad s={parameter}\\)",
+      loxodromic: "\\(z\\mapsto \\exp\\!\\left[s(0.75+0.55i)\\right]z,\\quad s={parameter}\\)",
+    },
     wittNotes: {
       "-2": "\\(\\ell_{-2}\\) has a pole at \\(z=0\\), so its principal-branch finite flow is only a local visualization.",
       "-1": "\\(\\ell_{-1}\\) generates translations and extends to a global Möbius transformation of the Riemann sphere.",
@@ -103,6 +111,14 @@ const MESSAGES = {
       rotation: "部分群 \\(\\mathrm{PSU}(2)\\) は丸い球面の計量も保存します。",
       special: "これは有限 \\(\\ell_1\\) フローです。複素平面上で見かけ上現れる極は、\\(\\mathbb{CP}^1\\) 上では単に無限遠点へ写る通常の点です。",
       loxodromic: "loxodromic 変換は二つの固定点をもち、球面上での回転と収縮・膨張を組み合わせます。",
+    },
+    mobiusExpressions: {
+      identity: "\\(z\\mapsto z\\)",
+      translation: "\\(z\\mapsto z+s b_0,\\quad s={parameter}\\)",
+      dilation: "\\(z\\mapsto \\exp(\\rho)z,\\quad \\rho={parameter}\\)",
+      rotation: "\\(M=R_y(\\theta),\\quad \\theta={parameter}\\)",
+      special: "\\(z\\mapsto \\dfrac{z}{1+s c_0z},\\quad s={parameter}\\)",
+      loxodromic: "\\(z\\mapsto \\exp\\!\\left[s(0.75+0.55i)\\right]z,\\quad s={parameter}\\)",
     },
     wittNotes: {
       "-2": "\\(\\ell_{-2}\\) は \\(z=0\\) に極をもつため、主値分枝による有限フローは局所的な表示に限られます。",
@@ -215,6 +231,16 @@ const MOBIUS_PARAMETER_LABELS = {
   },
 };
 
+// Plot-internal text remains English in both locales so the figure vocabulary is shared.
+const MOBIUS_TITLES = {
+  identity: "identity",
+  translation: "translation",
+  dilation: "dilation",
+  rotation: "PSU(2) sphere rotation",
+  special: "special conformal",
+  loxodromic: "loxodromic dilation–rotation",
+};
+
 const WITT_LABELS = {
   en: {"-2": "m = −2", "-1": "m = −1 · translation", "0": "m = 0 · dilation", "1": "m = 1 · special conformal", "2": "m = 2"},
   ja: {"-2": "m = −2", "-1": "m = −1 · 平行移動", "0": "m = 0 · 拡大縮小", "1": "m = 1 · 特殊共形", "2": "m = 2"},
@@ -245,17 +271,20 @@ function renderMobius() {
   byId("mobius-parameter-control").classList.toggle("is-hidden", !parameterized);
   const parameterIndex = parameterized ? Number(byId("mobius-parameter").value) : 0;
   const item = family.variants[family.keys[parameterIndex]];
+  const parameter = Number(item.parameter).toFixed(2);
   const layout = {
     ...DATA.mobiusBase.layout,
-    title: {...DATA.mobiusBase.layout.title, text: item.title},
+    title: {...DATA.mobiusBase.layout.title, text: MOBIUS_TITLES[item.family]},
   };
   Plotly.react("mobius-sphere", [...DATA.mobiusBase.data, ...item.traces], layout, PLOT_CONFIG);
   byId("mobius-note").innerHTML = t("mobiusNotes")[key];
+  byId("mobius-expression").innerHTML = t("mobiusExpressions")[key].replace("{parameter}", parameter);
   byId("mobius-matrix").textContent = `\\(M\\sim\\begin{pmatrix}${item.matrix[0][0]}&${item.matrix[0][1]}\\\\${item.matrix[1][0]}&${item.matrix[1][1]}\\end{pmatrix},\\quad\\det M=1\\)`;
   if (parameterized) {
     byId("mobius-parameter-value").textContent = Number(family.values[parameterIndex]).toFixed(2);
   }
   typeset(byId("mobius-note"));
+  typeset(byId("mobius-expression"));
   typeset(byId("mobius-matrix"));
   schedulePlotResize();
 }

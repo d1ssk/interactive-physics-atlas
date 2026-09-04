@@ -45,11 +45,14 @@ def test_static_build_contract(tmp_path, visualization) -> None:
     assert "torqueModel.playing = false" in app
     assert 'handsOnTitle: "Give the body a spin"' in app
     assert 'handsOnTitle: "自分の手で剛体を回す"' in app
-    assert 'torqueDragHint: "点をつかむ：振って離す · それ以外：視点移動"' in app
+    assert "キーボード：1–6で選択、W/A/S/Dで移動、Spaceで解放" in app
     assert 'releaseRule: "離した瞬間の角速度を引き継ぎます。重心は固定されています。"' in app
     assert "離した瞬間の角速度を保って自由回転へ移ります。" in app
     assert "不安定方向の回転でも、回転軸をaxis 2 に近くできれば、長時間定常を保てます。" in app
     assert "把持点" not in app
+    assert "keyboard: 1–6 select, W/A/S/D move, Space releases" in app
+    assert "keyDown(event, view)" in app
+    assert 'event.code === "Space" || event.key === "Enter"' in app
     assert "boldsymbol" not in html
     assert ".torque-view canvas" in style
     assert "--paper: var(--atlas-viz-background)" in style

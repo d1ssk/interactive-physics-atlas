@@ -97,7 +97,11 @@ def test_build_stages_bilingual_math_and_shared_assets(tmp_path, monkeypatch, vi
     assert 'title: "Two-Dimensional Conformal Transformations"' in html
     assert 'title: "2 次元共形変換"' in html
     assert 'data-i18n="mixingLabel"' in html
+    assert 'translation: "Translation parameter \\\\(s\\\\)"' in html
     assert 'translation: "平行移動パラメータ \\\\(s\\\\)"' in html
+    assert 'translation: "translation"' in html
+    assert 'translation: "\\\\(z\\\\mapsto z+s b_0,\\\\quad s={parameter}\\\\)"' in html
+    assert 'id="mobius-expression"' in html
     assert "MathJax.typesetClear(targets)" in html
     assert "MathJax.typesetPromise(targets)" in html
 
