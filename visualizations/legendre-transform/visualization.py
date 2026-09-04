@@ -26,24 +26,28 @@ def application_data() -> dict[str, object]:
     for key, function in FUNCTIONS.items():
         sampled = sample_transform(function)
         contact_f = function.value(sampled["contact_x"])
-        first_selectable = abs(sampled["contact_x"]) <= AXIS_LIMIT
-        second_selectable = abs(sampled["p"]) <= AXIS_LIMIT
+        selectable = (
+            (abs(sampled["contact_x"]) <= AXIS_LIMIT)
+            & (abs(contact_f) <= AXIS_LIMIT)
+            & (abs(sampled["p"]) <= AXIS_LIMIT)
+            & (abs(sampled["f_star"]) <= AXIS_LIMIT)
+        )
         functions[key] = {
             "names": {"en": function.name, "ja": function.name_ja},
             "formula": function.formula_latex,
             "x": sampled["x"].tolist(),
             "f": sampled["f"].tolist(),
             "firstContacts": {
-                "x": sampled["contact_x"][first_selectable].tolist(),
-                "f": contact_f[first_selectable].tolist(),
-                "p": sampled["p"][first_selectable].tolist(),
-                "fStar": sampled["f_star"][first_selectable].tolist(),
+                "x": sampled["contact_x"][selectable].tolist(),
+                "f": contact_f[selectable].tolist(),
+                "p": sampled["p"][selectable].tolist(),
+                "fStar": sampled["f_star"][selectable].tolist(),
             },
             "secondContacts": {
-                "x": sampled["contact_x"][second_selectable].tolist(),
-                "f": contact_f[second_selectable].tolist(),
-                "p": sampled["p"][second_selectable].tolist(),
-                "fStar": sampled["f_star"][second_selectable].tolist(),
+                "x": sampled["contact_x"][selectable].tolist(),
+                "f": contact_f[selectable].tolist(),
+                "p": sampled["p"][selectable].tolist(),
+                "fStar": sampled["f_star"][selectable].tolist(),
             },
             "p": sampled["p"].tolist(),
             "fStar": sampled["f_star"].tolist(),

@@ -153,15 +153,10 @@ def test_legendre_transform_is_linked_from_mathematics_and_thermodynamics() -> N
         ROOT / "docs_ja" / "thermodynamics" / "index.md",
     )
 
-    for page in pages:
+    for page, locale in zip(pages, ("en", "en", "ja", "ja"), strict=True):
         source = page.read_text(encoding="utf-8")
-        assert "legendre-transform/" in source
+        assert f"legendre-transform/?lang={locale}" in source
         assert ")**<br>\n  " in source
-
-    assert "?lang=en" in pages[0].read_text(encoding="utf-8")
-    assert "?lang=en" in pages[1].read_text(encoding="utf-8")
-    assert "?lang=ja" in pages[2].read_text(encoding="utf-8")
-    assert "?lang=ja" in pages[3].read_text(encoding="utf-8")
 
 
 def test_japanese_copy_and_typography_follow_site_style() -> None:

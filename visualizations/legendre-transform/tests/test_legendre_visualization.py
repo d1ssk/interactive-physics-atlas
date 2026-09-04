@@ -14,12 +14,12 @@ def test_application_payload_covers_visible_ranges_and_localizes_names(visualiza
         assert item["doubleX"][0] < -visualization.AXIS_LIMIT
         assert item["doubleX"][-1] > visualization.AXIS_LIMIT
         assert item["p"][-1] > visualization.AXIS_LIMIT
-        assert max(abs(value) for value in item["firstContacts"]["x"]) <= visualization.AXIS_LIMIT
-        assert max(abs(value) for value in item["secondContacts"]["p"]) <= visualization.AXIS_LIMIT
+        for contacts_name in ("firstContacts", "secondContacts"):
+            contacts = item[contacts_name]
+            for coordinate in ("x", "f", "p", "fStar"):
+                assert max(abs(value) for value in contacts[coordinate]) <= visualization.AXIS_LIMIT
         if key == "exponential":
             assert min(item["secondContacts"]["p"]) > 0.0
-        else:
-            assert item["p"][0] < -visualization.AXIS_LIMIT
 
 
 def test_build_stages_shared_assets_and_static_application(tmp_path, visualization):

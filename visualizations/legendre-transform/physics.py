@@ -152,8 +152,8 @@ def sample_transform(
     contact_f = np.asarray(function.value(contact_x), dtype=float)
     f_star = p * contact_x - contact_f
 
-    double_x, first_indices = np.unique(contact_x, return_index=True)
-    f_double = (contact_x * p - f_star)[first_indices]
+    double_x = np.unique(contact_x)
+    f_double = np.max(double_x[:, None] * p[None, :] - f_star[None, :], axis=1)
 
     return {
         "x": x,
