@@ -1,0 +1,15 @@
+id: poynting-circuit
+title: Electromagnetic Energy Flow Around a Circuit
+title_ja: 回路周囲の電磁エネルギー流
+field: electromagnetism
+topics:
+  - Poynting vector
+  - electromagnetic energy
+  - circuit fields
+  - quasistatic approximation
+level:
+  - advanced undergraduate
+runtime: browser-static
+page: electromagnetism/poynting-circuit
+summary: Explore how electric and magnetic fields carry energy from a source to resistive and reactive circuit elements in a two-dimensional quasistatic model.
+summary_ja: 2次元準静的モデルで、電場と磁場が電源から抵抗性・リアクティブ素子へ運ぶエネルギーの可視化。

@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Electromagnetic Energy Flow Around a Circuit</title>
+  <link rel="stylesheet" href="visualization-theme.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="visualization-theme.js"></script>
+  <script>
+    window.MathJax = {
+      tex: {inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]]},
+      startup: {
+        ready() {
+          MathJax.startup.defaultReady();
+          MathJax.startup.promise.then(() => {
+            window.dispatchEvent(new Event("physics-atlas:mathjax-ready"));
+          });
+        },
+      },
+    };
+  </script>
+  <script defer src="mathjax-tex-svg.js"></script>
+</head>
+<body>
+  <main>
+    <header class="app-header">
+      <h1 data-i18n="title">Electromagnetic energy flow</h1>
+      <p data-i18n="intro">Adjust the circuit and inspect the local fields around it.</p>
+    </header>
+
+    <section class="app-shell">
+      <section class="viewer-card" data-i18n-aria-label="fieldViewerLabel" aria-label="Electromagnetic field around the circuit">
+        <canvas id="field-canvas"></canvas>
+        <div class="canvas-heading">
+          <span id="mode-chip" class="mode-chip">DC · steady</span>
+          <span id="solver-status">Computing field basis…</span>
+        </div>
+        <div id="field-stale" class="field-stale" role="status">
+          <strong id="field-stale-title">Fields need to be recomputed</strong>
+          <span id="field-stale-note">Finish adjusting the geometry, then use Recompute fields.</span>
+        </div>
+        <div class="field-legend" aria-hidden="true">
+          <span data-i18n="weak">Weak</span><i></i><span data-i18n="strong">Strong</span>
+        </div>
+        <p id="drag-hint" class="drag-hint" data-i18n="dragHint">Drag the white handles, source, and loads to reshape the circuit</p>
+        <div id="canvas-tooltip" class="canvas-tooltip" role="status" hidden></div>
+      </section>
+
+      <aside class="control-panel" data-i18n-aria-label="settingsLabel" aria-label="Simulation settings">
+        <section class="panel-section primary-controls">
+          <div class="segmented" role="group" data-i18n-aria-label="sourceModeLabel" aria-label="Source mode">
+            <button class="mode-button active" type="button" data-mode="dc" aria-pressed="true" data-i18n="dc">DC</button>
+            <button class="mode-button" type="button" data-mode="ac" aria-pressed="false" data-i18n="ac">AC</button>
+          </div>
+
+          <label class="control-row" for="voltage">
+            <span><span data-i18n="voltage">Voltage</span> <output id="voltage-output">12 V</output></span>
+            <input id="voltage" type="range" min="2" max="24" step="1" value="12">
+          </label>
+
+          <div class="load-editor-heading">
+            <span data-i18n="seriesLoads">Series loads</span>
+            <button id="add-load" class="add-load-button" type="button" data-i18n="addLoad">+ Add load</button>
+          </div>
+          <div id="load-list" class="load-list"></div>
+
+          <div id="ac-controls" class="ac-controls" aria-hidden="true">
+            <label class="control-row" for="frequency">
+              <span><span data-i18n="frequency">Frequency</span> <output id="frequency-output">60 Hz</output></span>
+              <input id="frequency" type="range" min="10" max="200" step="5" value="60">
+            </label>
+            <div class="transport-controls">
+              <button id="play-toggle" type="button" aria-pressed="true"><span>Ⅱ</span> Pause</button>
+              <label for="phase"><span data-i18n="phase">Phase</span><output id="phase-output">0°</output></label>
+              <input id="phase" type="range" min="0" max="360" step="1" value="0">
+            </div>
+            <div class="phasor-card">
+              <div><strong data-i18n="rotatingVectors">Rotating vectors</strong><small data-i18n="vectorScale">Lengths of V and I are normalized separately</small></div>
+              <canvas id="phasor-canvas" data-i18n-aria-label="phasorLabel" aria-label="Rotating voltage and current vectors"></canvas>
+              <div class="phasor-legend"><span class="voltage-vector" data-i18n="voltageVector">Voltage V</span><span class="current-vector" data-i18n="currentVector">Current I</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel-section display-controls">
+          <div class="section-heading">
+            <h2 data-i18n="fieldDisplay">Field display</h2>
+          </div>
+          <div class="field-actions">
+            <button id="reset-geometry" class="quiet-button" type="button" data-i18n="resetGeometry">Reset shape</button>
+            <button id="recompute-fields" class="solve-button" type="button" data-i18n="recompute">Recompute fields</button>
+          </div>
+          <label for="vector-layer"><span data-i18n="symbolsArrows">Symbols and arrows</span>
+            <select id="vector-layer">
+              <option value="poynting" data-i18n="poyntingVector">Poynting vector</option>
+              <option value="electric" data-i18n="electricField">Electric field</option>
+              <option value="magnetic" data-i18n="magneticField">Magnetic field (out of plane)</option>
+            </select>
+          </label>
+          <label for="background-layer"><span data-i18n="background">Background</span>
+            <select id="background-layer">
+              <option value="flow" data-i18n="poyntingMagnitude">Poynting-vector magnitude</option>
+              <option value="potential" data-i18n="potential">Potential</option>
+              <option value="energy" data-i18n="energyDensity">Electromagnetic energy density</option>
+              <option value="none" data-i18n="none">None</option>
+            </select>
+          </label>
+          <label class="switch-row" for="show-current">
+            <span><strong data-i18n="currentArrows">Current arrows in wires</strong><small data-i18n="currentArrowsNote">Instantaneous direction of positive current</small></span>
+            <input id="show-current" type="checkbox" checked>
+          </label>
+          <label class="switch-row" for="show-particles">
+            <span><strong data-i18n="flowingParticles">Flowing particles</strong><small data-i18n="flowingParticlesNote">Markers that make streamlines easier to follow</small></span>
+            <input id="show-particles" type="checkbox">
+          </label>
+          <label class="switch-row" for="show-charge">
+            <span><strong data-i18n="wirePolarity">Wire-potential polarity</strong><small data-i18n="wirePolarityNote">A guide, not surface-charge density</small></span>
+            <input id="show-charge" type="checkbox">
+          </label>
+        </section>
+
+        <section class="panel-section readout" aria-live="polite">
+          <div class="section-heading"><h2 data-i18n="terminalValues">Terminal values</h2><span id="power-direction">Source → load</span></div>
+          <dl>
+            <div><dt><span data-i18n="voltage">Voltage</span> \(v\)</dt><dd id="voltage-readout">12.00 V</dd></div>
+            <div><dt><span data-i18n="current">Current</span> \(i\)</dt><dd id="current-readout">1.50 A</dd></div>
+            <div class="power-row"><dt><span data-i18n="instantaneousPower">Instantaneous power</span> \(p=vi\)</dt><dd id="power-readout">18.00 W</dd></div>
+            <div><dt><span data-i18n="cycleAverage">Cycle average</span> \(\langle p\rangle\)</dt><dd id="average-power-readout">18.00 W</dd></div>
+            <div id="phase-row" class="muted"><dt data-i18n="currentPhaseOffset">Current phase offset</dt><dd id="phase-readout">0.0°</dd></div>
+          </dl>
+          <div class="power-meter"><i id="power-meter-fill"></i><span></span></div>
+          <p id="power-note">Even in steady state, the product of the electric and magnetic fields carries energy to the load.</p>
+          <div class="field-audit">
+            <span data-i18n="fieldAudit">Local direction of field flux and element power</span>
+            <strong id="field-audit-status">Awaiting calculation</strong>
+            <small data-i18n="fieldAuditNote">Checked from the sign of two-dimensional flux around each load; this is not an absolute power measurement.</small>
+          </div>
+        </section>
+      </aside>
+    </section>
+  </main>
+  <script>
+    (() => {
+      if (window.parent === window) return;
+      const PARENT_TARGET_ORIGIN = window.location.origin;
+      function report() {
+        const main = document.querySelector("main");
+        const contentBottom = main ? main.getBoundingClientRect().bottom : 0;
+        const contentHeight = Math.max(contentBottom, document.body.getBoundingClientRect().height);
+        const frameHeight = Math.ceil(contentHeight);
+        if (window.frameElement) {
+          window.frameElement.style.minHeight = "0";
+          window.frameElement.style.height = `${frameHeight}px`;
+          window.frameElement.setAttribute("scrolling", "no");
+          window.frameElement.style.overflow = "hidden";
+        }
+        window.parent.postMessage(
+          {type: "physics-atlas:frame-height", height: frameHeight},
+          PARENT_TARGET_ORIGIN,
+        );
+      }
+      window.addEventListener("load", report);
+      window.addEventListener("resize", report);
+      window.addEventListener("physics-atlas:mathjax-ready", report);
+      window.addEventListener("message", event => {
+        const expectedParent = event.source === window.parent;
+        const expectedOrigin = event.origin === PARENT_TARGET_ORIGIN;
+        if (expectedParent && expectedOrigin && event.data?.type === "physics-atlas:request-frame-height") report();
+      });
+      if ("ResizeObserver" in window) {
+        const observer = new ResizeObserver(report);
+        observer.observe(document.body);
+        const main = document.querySelector("main");
+        if (main) observer.observe(main);
+        window.addEventListener("pagehide", () => observer.disconnect(), {once:true});
+      }
+      document.fonts?.ready.then(report);
+      report();
+    })();
+  </script>
+  <script src="physics.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
