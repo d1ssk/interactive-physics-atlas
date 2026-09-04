@@ -1,4 +1,4 @@
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 import pytest
 import yaml
@@ -55,7 +55,7 @@ def test_article_is_the_default_presentation(tmp_path: Path) -> None:
     metadata = load_metadata(write_metadata(tmp_path, valid_metadata()))
 
     assert metadata.presentation == "article"
-    assert metadata.application_path == Path("quantum-mechanics/test-visualization/app")
+    assert metadata.application_path == PurePosixPath("quantum-mechanics/test-visualization/app")
 
 
 def test_standalone_presentation_builds_at_the_page_path(tmp_path: Path) -> None:
@@ -65,7 +65,7 @@ def test_standalone_presentation_builds_at_the_page_path(tmp_path: Path) -> None
     metadata = load_metadata(write_metadata(tmp_path, data))
 
     assert metadata.presentation == "standalone"
-    assert metadata.application_path == Path("quantum-mechanics/test-visualization")
+    assert metadata.application_path == PurePosixPath("quantum-mechanics/test-visualization")
 
 
 def test_invalid_presentation_fails(tmp_path: Path) -> None:

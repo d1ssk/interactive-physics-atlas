@@ -46,6 +46,17 @@ test("holomorphic input mode rejects conjugate variables", () => {
   );
 });
 
+test("holomorphic input mode rejects non-holomorphic operations", () => {
+  for (const source of ["conj(z)", "bar(z)", "re(z)", "im(z)", "abs(z)", "arg(z)"]) {
+    assert.throws(
+      () => compileExpression(source, "holomorphic"),
+      (error) => error.code === "invalid-functions" && error.details.functions.length === 1,
+      source,
+    );
+  }
+  assert.doesNotThrow(() => compileExpression("sqrt(z) + log(z) + sin(z)", "holomorphic"));
+});
+
 test("a continued square root changes sign after one circuit", () => {
   const squareRoot = compileExpression("sqrt(z)");
   const continuationState = createContinuationState();

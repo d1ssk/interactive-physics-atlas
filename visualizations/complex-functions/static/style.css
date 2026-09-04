@@ -264,6 +264,9 @@ code {
 .workspace {
   display: grid;
   grid-template-columns: minmax(0, 840px) 340px;
+  grid-template-areas:
+    "plot probe"
+    "plot integral";
   gap: 12px;
   margin-top: 12px;
   align-items: start;
@@ -271,6 +274,7 @@ code {
 }
 
 .plot-card {
+  grid-area: plot;
   min-width: 0;
   padding: 16px;
 }
@@ -432,8 +436,13 @@ code {
 }
 
 .diagnostics {
-  display: grid;
-  gap: 12px;
+  grid-area: integral;
+  min-width: 0;
+}
+
+.probe-card {
+  grid-area: probe;
+  min-width: 0;
 }
 
 .probe-card,
@@ -609,11 +618,10 @@ dd {
 
 @media (max-width: 1080px) {
   .workspace {
-    grid-template-columns: minmax(0, 840px);
-  }
-
-  .diagnostics {
     grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
+    grid-template-areas:
+      "plot plot"
+      "probe integral";
   }
 }
 
@@ -627,8 +635,7 @@ dd {
     padding-top: 22px;
   }
 
-  .function-form,
-  .diagnostics {
+  .function-form {
     grid-template-columns: 1fr;
   }
 
@@ -652,27 +659,18 @@ dd {
   }
 
   .workspace {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "probe"
+      "plot"
+      "integral";
+    align-items: start;
   }
 
-  .diagnostics {
-    display: contents;
-  }
-
-  .probe-card {
-    order: 1;
-    width: 100%;
-  }
-
-  .plot-card {
-    order: 2;
-    width: 100%;
-  }
-
+  .probe-card,
+  .plot-card,
+  .diagnostics,
   .integral-card {
-    order: 3;
     width: 100%;
   }
 

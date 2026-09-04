@@ -52,6 +52,13 @@ def test_static_build_contract(tmp_path, visualization):
     assert "Complex Function Explorer" in app
     assert "複素関数エクスプローラ" in app
     assert 'rel="icon" href="../../assets/images/favicon.svg"' in html
+    assert 'id="panel-a-title" data-i18n="panelDomain"' in html
+    assert 'id="overlay-a" width="520" height="520" tabindex=' not in html
+    assert 'id="overlay-b" width="520" height="520" tabindex=' not in html
+    assert 'role="application"' not in html
+    assert html.index('class="probe-card"') < html.index('class="plot-card"')
+    assert html.index('class="plot-card"') < html.index('class="diagnostics"')
+    assert "function updateLegendText()" in app
     assert "physics-atlas:frame-height" not in html
     assert "linear-gradient" not in style.replace(
         "linear-gradient(90deg, #d94343, #d3d83b, #3fc977, #3eb8d0, #5962d5, #bd43c8, #d94343)",
@@ -61,10 +68,9 @@ def test_static_build_contract(tmp_path, visualization):
     assert "height: 54px" in style
     assert "grid-template-columns: minmax(0, 840px) 340px" in style
     assert "width: min(100%, 720px)" in style
-    assert ".diagnostics {\n    display: contents;" in style
-    assert ".probe-card {\n    order: 1;" in style
-    assert ".plot-card {\n    order: 2;" in style
-    assert ".integral-card {\n    order: 3;" in style
+    assert '"plot probe"\n    "plot integral"' in style
+    assert '"probe"\n      "plot"\n      "integral"' in style
+    assert "display: contents" not in style
 
 
 def test_browser_physics_invariants():

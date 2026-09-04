@@ -203,6 +203,7 @@ const FUNCTION_NAMES = new Set([
 
 const CONSTANT_NAMES = new Set(["i", "pi", "e"]);
 const VARIABLE_NAMES = new Set(["z", "zbar", "x", "y"]);
+const NON_HOLOMORPHIC_FUNCTIONS = new Set(["conj", "abs", "arg", "re", "im"]);
 
 function canonicalizeSource(source) {
   return source
@@ -287,6 +288,7 @@ class Parser {
     this.index = 0;
     this.nextNodeId = 1;
     this.variables = new Set();
+    this.calls = new Set();
   }
 
   peek() {
@@ -373,6 +375,7 @@ class Parser {
         if (!FUNCTION_NAMES.has(name)) {
           throw expressionError("unknown-function", `Unknown function “${name}”.`, {name});
         }
+        this.calls.add(name);
         this.index += 1;
         const args = [];
         if (this.peek().type !== ")") {
@@ -492,6 +495,17 @@ export function compileExpression(source, mode = "holomorphic") {
       "invalid-variables",
       `${invalidVariables.join(", ")} cannot be used in this input mode. Choose another input form.`,
       {variables: invalidVariables},
+    );
+  }
+  const invalidFunctions =
+    mode === "holomorphic"
+      ? [...parser.calls].filter((name) => NON_HOLOMORPHIC_FUNCTIONS.has(name))
+      : [];
+  if (invalidFunctions.length) {
+    throw expressionError(
+      "invalid-functions",
+      `${invalidFunctions.join(", ")} cannot be used in holomorphic input mode. Choose another input form.`,
+      {functions: invalidFunctions},
     );
   }
 

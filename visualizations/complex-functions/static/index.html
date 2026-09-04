@@ -110,6 +110,17 @@
     </section>
 
     <section class="workspace">
+      <article class="probe-card">
+        <h2 data-i18n="currentValue">Value at the current point</h2>
+        <dl class="readout-grid">
+          <div><dt>z</dt><dd id="probe-z">—</dd></div>
+          <div><dt data-i18n="backgroundValue">Background-sheet f(z)</dt><dd id="probe-principal">—</dd></div>
+          <div><dt data-i18n="continuedValue">Pathwise f(z)</dt><dd id="probe-continued">—</dd></div>
+          <div><dt>|f|</dt><dd id="probe-magnitude">—</dd></div>
+          <div><dt>arg f</dt><dd id="probe-phase">—</dd></div>
+        </dl>
+      </article>
+
       <article class="plot-card">
         <div class="plot-heading">
           <h2 id="plot-heading" data-i18n="amplitudePhase">Amplitude and phase</h2>
@@ -127,10 +138,10 @@
 
         <div id="plot-grid" class="plot-grid domain-view" aria-busy="true">
           <section class="plot-panel" aria-labelledby="panel-a-title">
-            <h3 id="panel-a-title">domain coloring: f(z)</h3>
+            <h3 id="panel-a-title" data-i18n="panelDomain">domain coloring: f(z)</h3>
             <div class="canvas-stage">
               <canvas id="field-a" width="520" height="520" aria-hidden="true"></canvas>
-              <canvas id="overlay-a" width="520" height="520" tabindex="0" role="application"
+              <canvas id="overlay-a" width="520" height="520"
                 aria-label="Complex input plane. Drag to draw an integration path."
                 data-i18n-aria-label="canvasLabel"></canvas>
               <div class="rendering-indicator" aria-hidden="true" data-i18n="rendering">Rendering…</div>
@@ -140,7 +151,7 @@
             <h3 id="panel-b-title">Im f(z)</h3>
             <div class="canvas-stage">
               <canvas id="field-b" width="520" height="520" aria-hidden="true"></canvas>
-              <canvas id="overlay-b" width="520" height="520" tabindex="0" role="application"
+              <canvas id="overlay-b" width="520" height="520"
                 aria-label="Imaginary-part view of the complex input plane. Drag to draw an integration path."
                 data-i18n-aria-label="canvasImaginaryLabel"></canvas>
               <div class="rendering-indicator" aria-hidden="true" data-i18n="rendering">Rendering…</div>
@@ -157,17 +168,6 @@
       </article>
 
       <aside class="diagnostics">
-        <article class="probe-card">
-          <h2 data-i18n="currentValue">Value at the current point</h2>
-          <dl class="readout-grid">
-            <div><dt>z</dt><dd id="probe-z">—</dd></div>
-            <div><dt data-i18n="backgroundValue">Background-sheet f(z)</dt><dd id="probe-principal">—</dd></div>
-            <div><dt data-i18n="continuedValue">Pathwise f(z)</dt><dd id="probe-continued">—</dd></div>
-            <div><dt>|f|</dt><dd id="probe-magnitude">—</dd></div>
-            <div><dt>arg f</dt><dd id="probe-phase">—</dd></div>
-          </dl>
-        </article>
-
         <article class="integral-card">
           <div class="card-heading-row">
             <h2 data-i18n="contourIntegral">Contour integral</h2>

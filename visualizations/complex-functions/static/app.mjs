@@ -16,6 +16,8 @@ import {
 } from "./physics.mjs";
 
 const FIELD_SIZE = 400;
+const PREVIEW_FIELD_SIZE = 180;
+const RENDER_SETTLE_DELAY = 140;
 
 const STRINGS = {
   en: {
@@ -49,6 +51,7 @@ const STRINGS = {
     showCuts: "Principal-value discontinuity candidates",
     showContours: "Contours",
     amplitudePhase: "Amplitude and phase",
+    panelDomain: "domain coloring: f(z)",
     backgroundDisplay: "Background",
     tryCircle: "Try a circular path",
     clearPath: "Clear path",
@@ -141,6 +144,7 @@ const STRINGS = {
     showCuts: "主値の不連続候補",
     showContours: "等高線",
     amplitudePhase: "振幅と位相",
+    panelDomain: "domain coloring: f(z)",
     backgroundDisplay: "背景",
     tryCircle: "円経路を試す",
     clearPath: "経路を消去",
@@ -259,6 +263,9 @@ function localizeExpressionError(error) {
   if (error.code === "empty-expression") return "式を入力してください。";
   if (error.code === "invalid-variables") {
     return `この入力モードでは ${details.variables.join(", ")} は使えません。入力形式を切り替えてください。`;
+  }
+  if (error.code === "invalid-functions") {
+    return `正則関数モードでは ${details.functions.join(", ")} は使えません。入力形式を切り替えてください。`;
   }
   return error.message;
 }
@@ -386,6 +393,7 @@ const state = {
   drawing: false,
   activePointer: null,
   renderRevision: 0,
+  refinementTimer: null,
   componentScale: 1,
   displayedBranchOffsets: null,
 };
@@ -585,19 +593,19 @@ function componentColor(value, scaleValue) {
   );
 }
 
-function sampleField() {
-  const length = FIELD_SIZE * FIELD_SIZE;
+function sampleField(size = FIELD_SIZE) {
+  const length = size * size;
   const real = new Float64Array(length);
   const imaginary = new Float64Array(length);
   const finite = new Uint8Array(length);
   const scaleSamples = [];
   const extent = plotRange();
 
-  for (let row = 0; row < FIELD_SIZE; row += 1) {
-    const y = extent * (1 - (2 * (row + 0.5)) / FIELD_SIZE);
-    for (let column = 0; column < FIELD_SIZE; column += 1) {
-      const x = extent * ((2 * (column + 0.5)) / FIELD_SIZE - 1);
-      const index = row * FIELD_SIZE + column;
+  for (let row = 0; row < size; row += 1) {
+    const y = extent * (1 - (2 * (row + 0.5)) / size);
+    for (let column = 0; column < size; column += 1) {
+      const x = extent * ((2 * (column + 0.5)) / size - 1);
+      const index = row * size + column;
       const value = state.compiled.evaluateAt(complex(x, y), backgroundEvaluationOptions());
       real[index] = value.re;
       imaginary[index] = value.im;
@@ -613,7 +621,7 @@ function sampleField() {
   scaleSamples.sort((a, b) => a - b);
   const percentile = scaleSamples[Math.floor(scaleSamples.length * 0.82)] ?? 1;
   state.componentScale = Math.max(percentile, 0.05);
-  return {real, imaginary, finite};
+  return {real, imaginary, finite, size};
 }
 
 function isJumpCandidate(field, index, row, column) {
@@ -623,7 +631,7 @@ function isJumpCandidate(field, index, row, column) {
   const currentMagnitude = Math.hypot(currentReal, currentImaginary);
   const neighbors = [];
   if (column > 0) neighbors.push(index - 1);
-  if (row > 0) neighbors.push(index - FIELD_SIZE);
+  if (row > 0) neighbors.push(index - field.size);
 
   return neighbors.some((neighbor) => {
     if (!field.finite[neighbor]) return false;
@@ -639,14 +647,14 @@ function isJumpCandidate(field, index, row, column) {
 
 function drawRaster(canvas, field, channel) {
   const scratch = document.createElement("canvas");
-  scratch.width = FIELD_SIZE;
-  scratch.height = FIELD_SIZE;
+  scratch.width = field.size;
+  scratch.height = field.size;
   const scratchContext = scratch.getContext("2d", {alpha: false});
-  const image = scratchContext.createImageData(FIELD_SIZE, FIELD_SIZE);
+  const image = scratchContext.createImageData(field.size, field.size);
 
-  for (let row = 0; row < FIELD_SIZE; row += 1) {
-    for (let column = 0; column < FIELD_SIZE; column += 1) {
-      const index = row * FIELD_SIZE + column;
+  for (let row = 0; row < field.size; row += 1) {
+    for (let column = 0; column < field.size; column += 1) {
+      const index = row * field.size + column;
       const offset = index * 4;
       let color;
       if (!field.finite[index]) {
@@ -678,15 +686,21 @@ function drawRaster(canvas, field, channel) {
   context.drawImage(scratch, 0, 0, canvas.width, canvas.height);
 }
 
-function scheduleRender() {
+function scheduleRender({preview = false} = {}) {
+  window.clearTimeout(state.refinementTimer);
+  state.refinementTimer = null;
+  if (preview) {
+    state.refinementTimer = window.setTimeout(() => scheduleRender(), RENDER_SETTLE_DELAY);
+  }
   const revision = state.renderRevision + 1;
   state.renderRevision = revision;
   elements.plotGrid.setAttribute("aria-busy", "true");
   window.requestAnimationFrame(() => {
     if (revision !== state.renderRevision || !state.compiled) return;
     try {
-      const field = sampleField();
+      const field = sampleField(preview ? PREVIEW_FIELD_SIZE : FIELD_SIZE);
       if (revision !== state.renderRevision) return;
+      updateLegendText();
       if (elements.displayMode.value === "domain") {
         drawRaster(elements.fieldA, field, "domain");
       } else {
@@ -720,6 +734,20 @@ function pointerToComplex(event, canvas) {
 
 function drawGrid(context, canvas) {
   const extent = plotRange();
+  const componentView = elements.displayMode.value === "components";
+  const colors = componentView
+    ? {
+        axis: "rgba(18,25,31,0.46)",
+        grid: "rgba(18,25,31,0.13)",
+        tick: "rgba(18,25,31,0.68)",
+        label: "rgba(18,25,31,0.78)",
+      }
+    : {
+        axis: "rgba(255,255,255,0.43)",
+        grid: "rgba(255,255,255,0.105)",
+        tick: "rgba(255,255,255,0.56)",
+        label: "rgba(255,255,255,0.72)",
+      };
   context.clearRect(0, 0, canvas.width, canvas.height);
   context.save();
   context.lineWidth = 1;
@@ -732,7 +760,7 @@ function drawGrid(context, canvas) {
     const vertical = complexToCanvas(complex(tick, 0), canvas).x;
     const horizontal = complexToCanvas(complex(0, tick), canvas).y;
     const isAxis = tick === 0;
-    context.strokeStyle = isAxis ? "rgba(255,255,255,0.43)" : "rgba(255,255,255,0.105)";
+    context.strokeStyle = isAxis ? colors.axis : colors.grid;
     context.beginPath();
     context.moveTo(vertical, 0);
     context.lineTo(vertical, canvas.height);
@@ -740,12 +768,12 @@ function drawGrid(context, canvas) {
     context.lineTo(canvas.width, horizontal);
     context.stroke();
     if (tick !== 0) {
-      context.fillStyle = "rgba(255,255,255,0.56)";
+      context.fillStyle = colors.tick;
       context.fillText(String(tick), vertical + 4, canvas.height / 2 + 4);
       context.fillText(`${tick}i`, canvas.width / 2 + 4, horizontal + 4);
     }
   }
-  context.fillStyle = "rgba(255,255,255,0.72)";
+  context.fillStyle = colors.label;
   context.fillText("Re z", canvas.width - 34, canvas.height / 2 + 5);
   context.fillText("Im z", canvas.width / 2 + 6, 8);
   context.restore();
@@ -1144,14 +1172,19 @@ function updateViewMode() {
   const components = elements.displayMode.value === "components";
   elements.plotGrid.classList.toggle("domain-view", !components);
   elements.plotHeading.textContent = components ? t("realImaginary") : t("amplitudePhase");
-  elements.panelATitle.textContent = components ? "Re f(z)" : "domain coloring: f(z)";
+  elements.panelATitle.textContent = components ? "Re f(z)" : t("panelDomain");
   elements.panelBTitle.textContent = "Im f(z)";
   elements.domainLegend.hidden = components;
   elements.componentLegend.hidden = !components;
+  updateLegendText();
+  scheduleRender();
+}
+
+function updateLegendText() {
+  const components = elements.displayMode.value === "components";
   elements.legendText.textContent = components
     ? t("componentLegend", {scale: formatNumber(state.componentScale, 3)})
     : t("domainLegend");
-  scheduleRender();
 }
 
 function updateModeLabel() {
@@ -1219,7 +1252,7 @@ elements.expressionMode.addEventListener("change", updateModeLabel);
 elements.displayMode.addEventListener("change", updateViewMode);
 elements.plotRange.addEventListener("input", () => {
   elements.rangeOutput.value = Number(elements.plotRange.value).toFixed(2).replace(/0+$/u, "").replace(/\.$/u, "");
-  scheduleRender();
+  scheduleRender({preview: true});
   drawAllOverlays();
 });
 elements.branchIndex.addEventListener("input", () => {
@@ -1228,7 +1261,7 @@ elements.branchIndex.addEventListener("input", () => {
     rebuildPath();
   } else {
     setDisplayedBranchOffsets(null, {render: false});
-    scheduleRender();
+    scheduleRender({preview: true});
   }
 });
 elements.followSheet.addEventListener("change", () => {
