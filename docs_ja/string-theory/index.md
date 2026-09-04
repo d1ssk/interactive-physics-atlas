@@ -2,7 +2,7 @@
 
 CFT、弦、ブレーン、双対性、高次元幾何
 
-## ワールドシートと共形対称性
+## 世界面と共形対称性
 
 - **[2 次元共形変換](conformal-transformations-2d/)**<br>
   局所 Wirtinger 微分、Riemann 球面上の Möbius 変換、正則 Witt フロー

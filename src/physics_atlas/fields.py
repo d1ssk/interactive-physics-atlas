@@ -41,6 +41,7 @@ FIELDS = (
         "Fields, potentials, and electromagnetic waves.",
         "電磁気学",
         "場、ポテンシャル、電磁波",
+        "assets/images/electromagnetism.png",
     ),
     FieldDefinition(
         "quantum-mechanics",

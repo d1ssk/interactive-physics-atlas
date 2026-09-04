@@ -1,0 +1,14 @@
+id: moving-charge-radiation
+title: Retarded Fields and Radiation from a Moving Charge
+title_ja: 運動する電荷の遅延場と電磁場放射
+field: electromagnetism
+topics:
+  - Lienard-Wiechert fields
+  - electromagnetic radiation
+  - retarded fields
+level:
+  - advanced undergraduate
+runtime: browser-static
+page: electromagnetism/moving-charge-radiation
+summary: Visualize the retarded electric and magnetic fields and radiation produced by a moving point charge.
+summary_ja: 運動する点電荷が作る遅延電場・遅延磁場と電磁場放射の可視化。
