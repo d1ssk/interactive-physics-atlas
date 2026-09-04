@@ -64,7 +64,7 @@ const TRANSLATIONS = {
 const locale = new URLSearchParams(window.location.search).get("lang") === "ja" ? "ja" : "en";
 const t = key => TRANSLATIONS[locale][key] ?? TRANSLATIONS.en[key] ?? key;
 document.documentElement.lang = locale;
-document.title = `${locale === "ja" ? "Bloch球" : "Bloch Sphere"} — Interactive Physics Atlas`;
+document.title = `${t("title")} — Interactive Physics Atlas`;
 document.querySelectorAll("[data-i18n]").forEach(element => { element.textContent = t(element.dataset.i18n); });
 document.querySelectorAll("[data-i18n-aria-label]").forEach(element => {
   element.setAttribute("aria-label", t(element.dataset.i18nAriaLabel));
@@ -490,6 +490,7 @@ const beforeVectorOutput = document.querySelector("#p3-before-vector");
 const afterVectorOutput = document.querySelector("#p3-after-vector");
 let selectedGate = "H";
 let animationFrame = null;
+let renderedGateKetSignature = "";
 
 const GATE_DESCRIPTIONS = {
   en: {
@@ -526,7 +527,11 @@ function updatePanel3() {
   gateOperation.textContent = GATE_DESCRIPTIONS[locale][selectedGate];
   beforeVectorOutput.textContent = vectorText(before);
   afterVectorOutput.textContent = vectorText(after);
-  setMath(gateKet, `${selectedGate}|\\psi\\rangle \\sim ${stateToTex(outputState, "\\psi'").replace(/^\|\\psi'\\rangle \\sim /, "")}`);
+  const gateKetSignature = `${selectedGate}:${inputState.map(value => `${value.re},${value.im}`).join(":")}`;
+  if (gateKetSignature !== renderedGateKetSignature) {
+    renderedGateKetSignature = gateKetSignature;
+    setMath(gateKet, `${selectedGate}|\\psi\\rangle \\sim ${stateToTex(outputState, "\\psi'").replace(/^\|\\psi'\\rangle \\sim /, "")}`);
+  }
   view3.canvas.setAttribute("aria-label", `${selectedGate} ${t("gateDynamicLabel")} ${Math.round(progress * 100)}%. ${vectorText(current)}`);
 }
 

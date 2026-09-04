@@ -412,6 +412,21 @@ function transformBoundaryPoint(object, local, scale, normalSign) {
   };
 }
 
+const LOCAL_BOUNDARY_RING_CACHE = new Map();
+
+function localBoundaryRing(shape, count) {
+  const key = `${shape}:${count}`;
+  if (!LOCAL_BOUNDARY_RING_CACHE.has(key)) {
+    LOCAL_BOUNDARY_RING_CACHE.set(
+      key,
+      Array.from({length: count}, (_, index) => (
+        localBoundaryPoint(shape, 2 * Math.PI * index / count)
+      )),
+    );
+  }
+  return LOCAL_BOUNDARY_RING_CACHE.get(key);
+}
+
 export function objectSurfaceSamples(solution, object, count = 144) {
   const samples = [];
   const boundaries = [{scale: 1, normalSign: 1, boundary: "outer"}];
@@ -423,9 +438,9 @@ export function objectSurfaceSamples(solution, object, count = 144) {
     });
   }
   const offset = 1.45 * Math.max(solution.dx, solution.dy);
+  const localRing = localBoundaryRing(object.shape, count);
   for (const boundary of boundaries) {
-    for (let index = 0; index < count; index += 1) {
-      const local = localBoundaryPoint(object.shape, 2 * Math.PI * index / count);
+    for (const local of localRing) {
       const point = transformBoundaryPoint(object, local, boundary.scale, boundary.normalSign);
       const insideField = sampleIntensity(
         solution,

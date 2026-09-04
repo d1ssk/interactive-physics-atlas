@@ -22,6 +22,20 @@ def test_basis_states_and_global_phase(physics) -> None:
     assert physics.bloch_vector((1j, 0)) == pytest.approx((0, 0, 1))
 
 
+def test_normalization_handles_large_finite_amplitudes(physics) -> None:
+    state = physics.normalize((1e308 + 0j, 1e308 + 0j))
+    assert state == pytest.approx((1 / math.sqrt(2), 1 / math.sqrt(2)))
+
+
+def test_nonfinite_states_and_angles_are_rejected(physics) -> None:
+    for state in ((complex(math.nan, 0), 1), (complex(math.inf, 0), 1)):
+        with pytest.raises(ValueError, match="finite"):
+            physics.normalize(state)
+    for theta, phi in ((math.nan, 0), (0, math.inf)):
+        with pytest.raises(ValueError, match="finite"):
+            physics.state_from_angles(theta, phi)
+
+
 def test_pauli_gates_rotate_expected_axes(physics) -> None:
     zero = (1, 0)
     plus = physics.normalize((1, 1))
@@ -75,6 +89,12 @@ def test_static_build_contract(tmp_path, visualization) -> None:
     assert 'get("lang") === "ja"' in app
     assert "State and Bloch vector" in app
     assert "状態とBloch vector" in app
+    assert "renderedGateKetSignature" in app
+    assert "gateKetSignature !== renderedGateKetSignature" in app
+    assert (
+        "JavaScript is required for this visualization. / この可視化にはJavaScriptが必要です。"
+        in html
+    )
     assert "gradient" not in style
     assert "--paper: var(--atlas-viz-background)" in style
 

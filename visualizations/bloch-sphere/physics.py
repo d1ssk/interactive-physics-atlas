@@ -13,15 +13,25 @@ Matrix2 = tuple[tuple[complex, complex], tuple[complex, complex]]
 def normalize(state: Qubit) -> Qubit:
     """Normalize a nonzero two-component complex state."""
 
-    length = math.sqrt(sum(abs(amplitude) ** 2 for amplitude in state))
-    if length <= 1e-14:
+    components = tuple(
+        component for amplitude in state for component in (amplitude.real, amplitude.imag)
+    )
+    if not all(math.isfinite(component) for component in components):
+        raise ValueError("state amplitudes must be finite")
+    scale = max(abs(component) for component in components)
+    if scale == 0:
         raise ValueError("a zero vector cannot be normalized")
-    return state[0] / length, state[1] / length
+    scaled_length = math.hypot(*(component / scale for component in components))
+    if scale <= 1e-14 / scaled_length:
+        raise ValueError("a zero vector cannot be normalized")
+    return state[0] / scale / scaled_length, state[1] / scale / scaled_length
 
 
 def state_from_angles(theta: float, phi: float) -> Qubit:
     """Return ``cos(theta/2)|0> + exp(i phi) sin(theta/2)|1>``."""
 
+    if not math.isfinite(theta) or not math.isfinite(phi):
+        raise ValueError("state angles must be finite")
     return math.cos(theta / 2.0), cmath.exp(1j * phi) * math.sin(theta / 2.0)
 
 
