@@ -74,6 +74,8 @@ def test_static_build_contract(tmp_path, visualization) -> None:
     assert 'get("lang") === "ja"' in app
     assert "Electric field" in app
     assert "電場" in app
+    assert 'title: "場と物質の応答"' in app
+    assert 'magneticMaterialNote: "線形・等方な磁性体として扱います。"' in app
     assert 'iterations: "回"' in app
     assert 'workerError: "計算ワーカーエラー"' in app
     assert (
@@ -87,7 +89,10 @@ def test_static_build_contract(tmp_path, visualization) -> None:
     assert ".inspector { grid-column: 1; grid-row: 2" in style
     assert ".display-panel" in style
     assert "grid-column: 1 / -1" in style
+    assert "grid-template-rows: auto 380px auto" in style
     assert "--accent: var(--atlas-viz-accent)" in style
+    assert "grid-readout" not in html
+    assert html.index('id="surface-layer-name"') < html.index('class="density-control"')
 
 
 def test_frame_height_contract(tmp_path, visualization) -> None:

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Electric and Magnetic Response of Materials</title>
+  <title>Fields and Material Response</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="visualization-theme.css">
   <link rel="stylesheet" href="style.css">
@@ -28,7 +28,7 @@
   <main class="app-shell">
     <header class="topbar">
       <div class="title-block">
-        <h1 data-i18n="title">Material response to applied fields</h1>
+        <h1 data-i18n="title">Fields and material response</h1>
       </div>
       <div class="mode-switch" role="group" data-i18n-aria-label="fieldTypeLabel" aria-label="Field type">
         <button type="button" class="active" data-mode="electric" aria-pressed="true">
@@ -70,6 +70,8 @@
           <div class="layer-list">
             <label><span class="layer-swatch potential-swatch"></span><span><b id="potential-layer-name">Potential</b><small data-i18n="backgroundColor">Background color</small></span><input id="show-potential" type="checkbox" checked></label>
             <label><span class="layer-swatch field-swatch"></span><span><b id="field-layer-name">Electric field</b><small data-i18n="arrows">Arrows</small></span><input id="show-field" type="checkbox" checked></label>
+            <label><span class="layer-swatch induced-swatch"></span><span><b data-i18n="inducedOnly">Induced field only</b><small data-i18n="subtractApplied">Subtract uniform applied field</small></span><input id="show-induced-only" type="checkbox"></label>
+            <label><span class="layer-swatch charge-swatch"></span><span><b id="surface-layer-name">Surface charge density</b><small data-i18n="boundaryColor">Boundary color</small></span><input id="show-surface" type="checkbox" checked></label>
             <div class="density-control">
               <span data-i18n="arrowDensity">Arrow density</span>
               <div role="group" data-i18n-aria-label="arrowDensityLabel" aria-label="Field arrow density">
@@ -78,12 +80,10 @@
                 <button type="button" data-field-density="high" aria-pressed="false" data-i18n="high">High</button>
               </div>
             </div>
-            <label><span class="layer-swatch induced-swatch"></span><span><b data-i18n="inducedOnly">Induced field only</b><small data-i18n="subtractApplied">Subtract uniform applied field</small></span><input id="show-induced-only" type="checkbox"></label>
-            <label><span class="layer-swatch charge-swatch"></span><span><b id="surface-layer-name">Surface charge density</b><small data-i18n="boundaryColor">Boundary color</small></span><input id="show-surface" type="checkbox" checked></label>
           </div>
           <div class="scene-actions">
-          <button type="button" id="reset-scene" data-i18n="resetShielding">Reset shielding example</button>
-          <button type="button" id="clear-scene" data-i18n="removeAll">Remove all</button>
+            <button type="button" id="reset-scene" data-i18n="resetShielding">Reset shielding example</button>
+            <button type="button" id="clear-scene" data-i18n="removeAll">Remove all</button>
           </div>
           <div class="shortcut-note"><kbd>drag</kbd> <span data-i18n="move">move</span>　<kbd>handles</kbd> <span data-i18n="resizeRotate">resize / rotate</span>　<kbd>⌫</kbd> <span data-i18n="delete">delete</span>　<kbd>⌘/Ctrl + D</kbd> <span data-i18n="duplicate">duplicate</span></div>
         </section>
@@ -120,7 +120,7 @@
           <section id="magnetic-material-controls" hidden>
             <label class="slider-row" for="mu-log"><span><b class="math-source">\(\mu_r\)</b><output id="mu-output">50.0</output></span><input id="mu-log" type="range" min="-1" max="3.69897" step="0.01" value="1.699"></label>
             <div class="quick-values" data-i18n-aria-label="permeabilityExamples" aria-label="Relative permeability examples"><button type="button" data-mu="0.2">0.2</button><button type="button" data-mu="1">1</button><button type="button" data-mu="100">100</button><button type="button" data-mu="1000">1,000</button><button type="button" data-mu="5000">5,000</button></div>
-            <p class="material-note" data-i18n="magneticMaterialNote">Linear, isotropic magnetic material. Values above one concentrate magnetic flux; real iron depends on field strength and history.</p>
+            <p class="material-note" data-i18n="magneticMaterialNote">Treated as a linear, isotropic magnetic material.</p>
           </section>
           <section>
             <label class="toggle-row" for="hollow"><span><b data-i18n="makeHollow">Make hollow</b><small data-i18n="vacuumCavity">Vacuum cavity inside</small></span><input id="hollow" type="checkbox"></label>
@@ -142,7 +142,6 @@
     <footer class="model-strip">
       <b id="model-equation" class="math-source">\(\nabla\cdot(\varepsilon\nabla\phi)=0\)</b>
       <p id="model-description">Two-dimensional cross-section · linear isotropic media · insulating top and bottom boundaries</p>
-      <b id="grid-readout">—</b>
     </footer>
   </main>
   <noscript>JavaScript is required for this visualization. / この可視化にはJavaScriptが必要です。</noscript>

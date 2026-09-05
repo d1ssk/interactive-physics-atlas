@@ -20,18 +20,17 @@ const TRANSLATIONS = {
     zBasis: "Z basis", xBasis: "X basis", yBasis: "Y basis", firstBasisState: "first basis state",
     secondBasisState: "second basis state", identity: "identity", halfTurnX: "180° about x-axis",
     halfTurnY: "180° about y-axis", halfTurnZ: "180° about z-axis", quarterTurnZ: "90° about z-axis",
-    eighthTurnZ: "45° about z-axis", normalizationFactor: "normalization factor",
+    eighthTurnZ: "45° about z-axis",
     presetLabel: "Representative states", computationalState: "State in the computational basis",
     dragHint: "drag to rotate", sphere1Label: "Bloch sphere for state A", basis: "Basis", amplitude: "Amplitude",
     phase: "Phase", sphere2aLabel: "State A before superposition", sphere2bLabel: "State B before superposition",
     sphereResultLabel: "State after superposition", phaseOfB: "Phase of B relative to A",
-    afterNormalization: "After normalization", normalizing: "Computing normalization…",
+    afterNormalization: "After normalization",
     cancellationWarning: "Complete cancellation: the zero vector cannot be normalized as a quantum state.",
     additionNote: "The Bloch vectors are not added. The complex kets are added first, and the new Bloch vector is calculated from the result.",
     chooseGate: "Choose a gate", actionOnKet: "Action on the ket", sphere3Label: "Bloch vectors before and after a unitary operation",
     playAction: "Play operation", rotationProgress: "Rotation progress", input: "Input", output: "Output",
-    noscript: "JavaScript is required for this visualization.", normBefore: "Norm before normalization",
-    cannotNormalize: "Cannot normalize", undefinedState: "is undefined",
+    noscript: "JavaScript is required for this visualization.", undefinedState: "is undefined",
     panel1DynamicLabel: "State Bloch vector", resultDynamicLabel: "Bloch vector after superposition",
     cancellationDynamicLabel: "The result is undefined because the states cancel completely",
     gateDynamicLabel: "gate in progress; current Bloch vector",
@@ -47,17 +46,17 @@ const TRANSLATIONS = {
     zBasis: "Z基底", xBasis: "X基底", yBasis: "Y基底", firstBasisState: "第1基底状態",
     secondBasisState: "第2基底状態", identity: "恒等操作", halfTurnX: "x軸まわりに180°",
     halfTurnY: "y軸まわりに180°", halfTurnZ: "z軸まわりに180°", quarterTurnZ: "z軸まわりに90°",
-    eighthTurnZ: "z軸まわりに45°", normalizationFactor: "規格化係数",
+    eighthTurnZ: "z軸まわりに45°",
     presetLabel: "代表的な状態", computationalState: "計算基底での状態", dragHint: "ドラッグで視点を回転",
     sphere1Label: "状態AのBloch球", basis: "基底", amplitude: "振幅", phase: "位相",
     sphere2aLabel: "重ね合わせ前の状態A", sphere2bLabel: "重ね合わせ前の状態B",
     sphereResultLabel: "重ね合わせ後の状態", phaseOfB: "Aに対するBの位相", afterNormalization: "正規化後",
-    normalizing: "正規化係数を計算中…", cancellationWarning: "完全な打ち消し合いです。零ベクトルは量子状態として正規化できません。",
+    cancellationWarning: "完全な打ち消し合いです。零ベクトルは量子状態として正規化できません。",
     additionNote: "Bloch vector同士を足しているのではありません。複素ketを足した後、その結果から新しいBloch vectorを計算しています。",
     chooseGate: "ゲートを選択", actionOnKet: "ketへの作用", sphere3Label: "ユニタリ操作前後のBloch vector",
     playAction: "作用を再生", rotationProgress: "回転の進行", input: "入力", output: "出力",
-    noscript: "この可視化にはJavaScriptが必要です。", normBefore: "加算前のノルム", cannotNormalize: "正規化できません",
-    undefinedState: "は未定義", panel1DynamicLabel: "状態のBloch vector", resultDynamicLabel: "重ね合わせ後のBloch vector",
+    noscript: "この可視化にはJavaScriptが必要です。", undefinedState: "は未定義",
+    panel1DynamicLabel: "状態のBloch vector", resultDynamicLabel: "重ね合わせ後のBloch vector",
     cancellationDynamicLabel: "完全な打ち消し合いのため、重ね合わせ後の状態は未定義です",
     gateDynamicLabel: "ゲート作用中。現在のBloch vector",
   },
@@ -436,7 +435,6 @@ function updatePanel1() {
 const deltaInput = document.querySelector("#delta");
 const deltaOutput = document.querySelector("#delta-output");
 const resultKet = document.querySelector("#p2-result-ket");
-const normalizationOutput = document.querySelector("#p2-normalization");
 const interferenceWarning = document.querySelector("#p2-warning");
 
 function updatePanel2() {
@@ -462,13 +460,11 @@ function updatePanel2() {
       trajectory: [],
     });
     setMath(resultKet, stateToTex(result.state, "\\Psi"));
-    normalizationOutput.textContent = `${t("normBefore")} ${cleanNumber(result.unnormalizedNorm)} · ${t("normalizationFactor")} ${cleanNumber(1 / result.unnormalizedNorm)}`;
     interferenceWarning.hidden = true;
     view2result.canvas.setAttribute("aria-label", `${t("resultDynamicLabel")} ${vectorText(resultVector)}`);
   } catch (error) {
     view2result.setModel({vector: null, ghosts: [], axis: null, trajectory: []});
     setMath(resultKet, `|\\Psi\\rangle\\;\\text{${t("undefinedState")}}`);
-    normalizationOutput.textContent = t("cannotNormalize");
     interferenceWarning.hidden = false;
     view2result.canvas.setAttribute("aria-label", t("cancellationDynamicLabel"));
   }

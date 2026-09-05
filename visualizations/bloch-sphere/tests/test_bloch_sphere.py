@@ -91,6 +91,7 @@ def test_static_build_contract(tmp_path, visualization) -> None:
     assert "状態とBloch vector" in app
     assert "renderedGateKetSignature" in app
     assert "gateKetSignature !== renderedGateKetSignature" in app
+    assert 'id="p2-normalization"' not in html
     assert (
         "JavaScript is required for this visualization. / この可視化にはJavaScriptが必要です。"
         in html
@@ -101,6 +102,7 @@ def test_static_build_contract(tmp_path, visualization) -> None:
     assert "ctx.lineTo(shaftEnd.x, shaftEnd.y)" in app
     assert "const positiveLabel" in app
     assert "background: #fff" in style
+    assert "margin: 0 auto" in style
     assert "--paper: var(--atlas-viz-background)" in style
 
 

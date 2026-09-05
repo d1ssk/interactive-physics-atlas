@@ -11,7 +11,7 @@ import {
 
 const TRANSLATIONS = {
   en: {
-    title: "Material response to applied fields", fieldTypeLabel: "Field type",
+    title: "Fields and material response", fieldTypeLabel: "Field type",
     electricField: "Electric field", magneticField: "Magnetic field", appliedField: "Applied field",
     toolsLabel: "Shape and display controls", addObject: "Add object", circle: "Circle",
     rectangle: "Rectangle", triangle: "Triangle", display: "Display",
@@ -25,7 +25,7 @@ const TRANSLATIONS = {
     selectObject: "Select an object", selectObjectHelp: "Click an object on the canvas to edit its material and shape.",
     electricalProperty: "Electrical property", perfectConductor: "Perfect conductor (neutral, isolated)",
     linearDielectric: "Linear dielectric", permeabilityExamples: "Relative permeability examples",
-    magneticMaterialNote: "Linear, isotropic magnetic material. Values above one concentrate magnetic flux; real iron depends on field strength and history.",
+    magneticMaterialNote: "Treated as a linear, isotropic magnetic material.",
     makeHollow: "Make hollow", vacuumCavity: "Vacuum cavity inside", wallThickness: "Wall thickness",
     placementShape: "Placement and shape", width: "Width", height: "Height", rotation: "Rotation",
     equalize: "Make width and height equal", noscript: "JavaScript is required for this visualization.",
@@ -53,7 +53,7 @@ const TRANSLATIONS = {
     magneticModel: "Two-dimensional cross-section · linear isotropic magnetic material · no free current",
   },
   ja: {
-    title: "物質を置いて見る場", fieldTypeLabel: "場の種類", electricField: "電場", magneticField: "磁場",
+    title: "場と物質の応答", fieldTypeLabel: "場の種類", electricField: "電場", magneticField: "磁場",
     appliedField: "外部場", toolsLabel: "図形と表示の操作", addObject: "物体を追加", circle: "円",
     rectangle: "四角形", triangle: "三角形", display: "表示", backgroundColor: "背景の色", arrows: "矢印",
     arrowDensity: "矢印密度", arrowDensityLabel: "場の矢印密度", low: "少", medium: "中", high: "多",
@@ -65,7 +65,7 @@ const TRANSLATIONS = {
     selectObjectHelp: "キャンバス上の物体をクリックすると、材質と形を編集できます。",
     electricalProperty: "電気的性質", perfectConductor: "完全導体（中性・孤立）", linearDielectric: "線形誘電体",
     permeabilityExamples: "比透磁率の例",
-    magneticMaterialNote: "線形・等方な磁性体として扱います。1より大きいと磁束が物質へ集まります。鉄の値は磁場強度や履歴でも変わります。",
+    magneticMaterialNote: "線形・等方な磁性体として扱います。",
     makeHollow: "中空にする", vacuumCavity: "内部を真空の空洞にする", wallThickness: "殻の厚さ",
     placementShape: "配置と形", width: "幅", height: "高さ", rotation: "回転", equalize: "縦横を同じにする",
     noscript: "この可視化にはJavaScriptが必要です。", recalculating: "再計算中", approximate: "近似",
@@ -277,7 +277,6 @@ function initializeWorker() {
       state.potentialImageSerial = -1;
       const approximation = solution.residual > solution.tolerance;
       setSolverStatus("ready", `${approximation ? t("approximate") : t("converged")} · ${solution.iterations} ${t("iterations")}`);
-      byId("grid-readout").textContent = `${solution.nx} × ${solution.ny}`;
       updateProbe();
       render();
     });

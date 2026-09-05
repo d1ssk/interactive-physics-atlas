@@ -72,7 +72,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
 .sphere-card { min-width: 0; margin: 0; overflow: hidden; }
 .sphere-topline { margin: 0; padding: 12px 16px 0; color: var(--muted); font-size: .7rem; text-align: right; }
 .sphere-header { display: flex; justify-content: space-between; gap: 16px; padding: 12px 16px 0; color: var(--muted); font-size: .7rem; }
-.sphere-card canvas { display: block; width: min(100%, 560px); height: auto; margin: -4px auto -8px; cursor: grab; touch-action: none; background: #fff; }
+.sphere-card canvas { display: block; width: min(100%, 560px); height: auto; margin: 0 auto; cursor: grab; touch-action: none; background: #fff; }
 .sphere-card canvas:active, .mini-state-card canvas:active, .result-card canvas:active { cursor: grabbing; }
 .sphere-card figcaption { display: flex; justify-content: space-between; gap: 18px; align-items: center; padding: 10px 16px 14px; border-top: 1px solid var(--line); }
 .sphere-card figcaption p { margin: 0; color: var(--muted); font-size: .72rem; }
@@ -91,7 +91,6 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
 .mini-ket { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); font-size: .79rem; }
 .result-phase { margin-top: 8px; }
 .result-readout { border-color: var(--line); }
-.normalization-note { margin: 7px 0 0; color: var(--muted); font-size: .66rem; }
 .interference-warning { margin: 10px 0 0; padding: 9px; color: var(--warning); border: 1px solid var(--warning); border-radius: 3px; font-size: .7rem; line-height: 1.45; }
 .panel-note { margin: 10px 0 0; padding: 10px 12px; color: var(--muted); border-left: 2px solid var(--line); background: var(--panel-subtle); font-size: .72rem; line-height: 1.5; }
 
