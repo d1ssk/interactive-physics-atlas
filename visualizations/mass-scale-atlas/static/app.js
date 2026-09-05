@@ -19,8 +19,8 @@
       readingGuideLabel: "この図の読み方", atlasLabel: "物理世界の質量・エネルギースケール",
       cosmologyLabel: "宇宙熱史のベンチマーク", filter: "表示項目", filterKicker: "LAYERS", filterTitle: "表示するレイヤー",
       filterNote: "各線は軸上の正確な値から、対応するカード1枚だけへつながります。",
-      eyebrow: "THE ENERGY SCALE OF THE PHYSICAL WORLD", title: '<span class="title-line">エネルギースケールを、</span><span class="title-line">歩く。</span>',
-      lede: "現在の宇宙膨張から Planck スケールまで。",
+      eyebrow: "THE ENERGY SCALE OF THE PHYSICAL WORLD", title: '<span class="title-line">エネルギーの階層を、辿る。</span>',
+      lede: "現在の宇宙膨張から Planck スケールまで",
       factDecades: "倍を越える隔たり", factUnit: "全区間で共通の単位", factDirection: "下ほど高エネルギー",
       start: "スクロールを始める", offAxis: "OFF THE LOG AXIS", masslessTitle: "質量ゼロ",
       photon: "光子", photonNote: "標準模型では m = 0。実験上限は軸上に別表示。", gluon: "グルーオン",
@@ -28,8 +28,8 @@
       here: "現在位置", lengthScale: "長さ ℏc/E", timeScale: "時間 ℏ/E", temperatureScale: "温度 E/kB",
       energyAxis: "エネルギー / 質量", thermalHistory: "標準宇宙論の熱史",
       endpointKicker: "END OF THE CURRENT MAP", endpointTitle: "ここから先は、量子重力の地図が要る",
-      endpointText: "Planck スケールは、「最大エネルギー」を示す壁ではありません。既知の理論をそのまま外挿することが信頼できなくなり、量子重力が必要になると考えられる境界です。",
-      backTop: "最初のスケールへ戻る ↑", sourcesKicker: "SOURCES & CONVENTIONS", sourcesTitle: "出典と、このアトラスの約束",
+      endpointText: "Planck スケールは、「最大エネルギー」を示す壁ではありません。場の量子論と一般相対論のパッチワークが信頼できなくなり、量子重力が必要になると考えられる境界です。",
+      backTop: "最初のスケールへ戻る ↑", sourcesKicker: "SOURCES & CONVENTIONS", sourcesTitle: "出典と規約",
       sourceNote1: "粒子質量は PDG 2025 update を中心に採用。軽いクォークは MS̄、μ = 2 GeV、c・b は μ = m̄q の値です。",
       sourceNote2: "右の宇宙年齢は独立した熱史ベンチマークです。現在位置の長さ・時間・温度は ℓ = ℏc/E、τ = ℏ/E、T = E/kB による換算で、個々の現象の実寸・寿命・実温度を表すものではありません。",
       sourceNote3: "電磁波・化学・核・QCD・仮説スケールの帯は、厳密な誤差棒ではなく慣習的な区分、対象依存性、または模型依存性を可視化したものです。",
@@ -47,8 +47,8 @@
       readingGuideLabel: "How to read this atlas", atlasLabel: "Mass and energy scales of the physical world",
       cosmologyLabel: "Cosmic thermal-history benchmarks", filter: "Layers", filterKicker: "LAYERS", filterTitle: "Visible layers",
       filterNote: "Each line joins one exact axis value to one corresponding card.",
-      eyebrow: "THE ENERGY SCALE OF THE PHYSICAL WORLD", title: '<span class="title-line">Walk the</span><span class="title-line">energy scale.</span>',
-      lede: "From the expansion of today’s Universe to the Planck scale.",
+      eyebrow: "THE ENERGY SCALE OF THE PHYSICAL WORLD", title: '<span class="title-line">Trace the energy hierarchy.</span>',
+      lede: "From the expansion of today’s Universe to the Planck scale",
       factDecades: "fold span", factUnit: "one unit throughout", factDirection: "higher energy below",
       start: "Begin scrolling", offAxis: "OFF THE LOG AXIS", masslessTitle: "Zero mass",
       photon: "Photon", photonNote: "m = 0 in the Standard Model; its upper limit appears on-axis.", gluon: "Gluon",
@@ -56,8 +56,8 @@
       here: "At the cursor", lengthScale: "length ℏc/E", timeScale: "time ℏ/E", temperatureScale: "temperature E/kB",
       energyAxis: "ENERGY / MASS", thermalHistory: "STANDARD COSMIC THERMAL HISTORY",
       endpointKicker: "END OF THE CURRENT MAP", endpointTitle: "Beyond here, we need a map of quantum gravity",
-      endpointText: "The Planck scale is not a wall marking a “maximum energy.” It is a boundary where extrapolating established theories without modification ceases to be reliable and quantum gravity is expected to become necessary.",
-      backTop: "Return to the first scale ↑", sourcesKicker: "SOURCES & CONVENTIONS", sourcesTitle: "Sources and atlas conventions",
+      endpointText: "The Planck scale is not a wall marking a “maximum energy.” It is a boundary where the patchwork of quantum field theory and general relativity ceases to be reliable and quantum gravity is expected to become necessary.",
+      backTop: "Return to the first scale ↑", sourcesKicker: "SOURCES & CONVENTIONS", sourcesTitle: "Sources and conventions",
       sourceNote1: "Particle masses mainly follow the PDG 2025 update. Light-quark values are MS̄ at μ = 2 GeV; c and b use μ = m̄q.",
       sourceNote2: "Cosmic ages on the right are independent thermal-history benchmarks. Cursor length, time, and temperature use ℓ = ℏc/E, τ = ℏ/E, and T = E/kB; they are not claims about an individual phenomenon’s physical size, lifetime, or actual temperature.",
       sourceNote3: "Bands for the electromagnetic spectrum, chemistry, nuclei, QCD, and hypothetical physics visualize conventional divisions or object/model dependence, not literal statistical error bars.",
@@ -280,7 +280,7 @@
 
   function localizeStatic() {
     document.documentElement.lang = locale;
-    document.title = locale === "ja" ? "エネルギースケール・アトラス — Interactive Physics Atlas" : "Energy Scale Atlas — Interactive Physics Atlas";
+    document.title = locale === "ja" ? "エネルギー階層マップ — Interactive Physics Atlas" : "Energy Scale Atlas — Interactive Physics Atlas";
     document.querySelectorAll("[data-i18n]").forEach(element => {
       const value = t(element.dataset.i18n);
       if (element.dataset.i18n === "title") element.innerHTML = value;

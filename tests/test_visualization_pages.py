@@ -174,6 +174,12 @@ def test_mass_scale_atlas_is_primary_in_particle_physics_and_cross_linked_from_c
 
     assert "../particle-physics/mass-scale-atlas/" in pages[2].read_text(encoding="utf-8")
     assert "../particle-physics/mass-scale-atlas/" in pages[3].read_text(encoding="utf-8")
+    japanese_particle = pages[1].read_text(encoding="utf-8")
+    japanese_cosmology = pages[3].read_text(encoding="utf-8")
+    assert "## 標準模型" in japanese_particle
+    assert "エネルギー階層マップ" in japanese_particle
+    assert "エネルギー階層マップ" in japanese_cosmology
+    assert "現在のHubbleスケールからPlanck質量まで、粒子質量" not in japanese_particle
 
 
 def test_japanese_copy_and_typography_follow_site_style() -> None:

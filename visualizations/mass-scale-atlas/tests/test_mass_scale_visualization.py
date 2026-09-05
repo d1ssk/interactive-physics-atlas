@@ -42,6 +42,10 @@ def test_build_stages_standalone_application_and_shared_theme(tmp_path: Path) ->
     assert "../../../particle-physics/mass-scale-atlas/" in app
     assert "この試作" not in html + app + data
     assert "prototype" not in html + app + data
+    assert "エネルギーの階層を、辿る。" in html
+    assert "現在の宇宙膨張から Planck スケールまで</p>" in html
+    assert "場の量子論と一般相対論のパッチワークが" in html
+    assert "出典と規約" in html
     assert "日常世界の多様さが、ここから立ち上がる。" in data
 
 

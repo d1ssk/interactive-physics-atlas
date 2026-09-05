@@ -227,6 +227,7 @@ select:focus-visible {
   color: #b5c4ca;
   font-size: clamp(1rem, 2.1vw, 1.3rem);
   line-height: 1.9;
+  white-space: nowrap;
 }
 
 .hero-facts {
@@ -1180,6 +1181,11 @@ noscript {
 
   .hero h1 {
     font-size: clamp(2rem, 8vw, 2.5rem);
+  }
+
+  .title-line,
+  .hero-lede {
+    white-space: normal;
   }
 
   .hero-lede {
