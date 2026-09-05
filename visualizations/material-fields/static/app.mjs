@@ -54,7 +54,7 @@ const TRANSLATIONS = {
   },
   ja: {
     title: "場と物質の応答", fieldTypeLabel: "場の種類", electricField: "電場", magneticField: "磁場",
-    appliedField: "外部場", toolsLabel: "図形と表示の操作", addObject: "物体を追加", circle: "円",
+    appliedField: "外場", toolsLabel: "図形と表示の操作", addObject: "物体を追加", circle: "円",
     rectangle: "四角形", triangle: "三角形", display: "表示", backgroundColor: "背景の色", arrows: "矢印",
     arrowDensity: "矢印密度", arrowDensityLabel: "場の矢印密度", low: "少", medium: "中", high: "多",
     inducedOnly: "誘導された場のみ", subtractApplied: "外部一様場を差し引く", boundaryColor: "境界の色",
