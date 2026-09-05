@@ -159,6 +159,44 @@ def test_legendre_transform_is_linked_from_mathematics_and_thermodynamics() -> N
         assert ")**<br>\n  " in source
 
 
+def test_mass_scale_atlas_is_primary_in_particle_physics_and_cross_linked_from_cosmology() -> None:
+    pages = (
+        ROOT / "docs" / "particle-physics" / "index.md",
+        ROOT / "docs_ja" / "particle-physics" / "index.md",
+        ROOT / "docs" / "cosmology" / "index.md",
+        ROOT / "docs_ja" / "cosmology" / "index.md",
+    )
+
+    titles = ("Energy Scale Atlas", "エネルギースケール・アトラス") * 2
+    for page, locale, title in zip(pages, ("en", "ja", "en", "ja"), titles, strict=True):
+        source = page.read_text(encoding="utf-8")
+        link_prefix = "../particle-physics/" if "cosmology" in page.parts else ""
+        card = f"- **[{title}]({link_prefix}mass-scale-atlas/?lang={locale})**<br>\n  "
+        assert card in source
+
+    assert "../particle-physics/mass-scale-atlas/" in pages[2].read_text(encoding="utf-8")
+    assert "../particle-physics/mass-scale-atlas/" in pages[3].read_text(encoding="utf-8")
+    japanese_particle = pages[1].read_text(encoding="utf-8")
+    japanese_cosmology = pages[3].read_text(encoding="utf-8")
+    english_particle = pages[0].read_text(encoding="utf-8")
+    assert "## 標準模型" in japanese_particle
+    assert "## Standard Model" in english_particle
+    assert (
+        english_particle.split("## Standard Model", 1)[1]
+        .lstrip()
+        .startswith("- **[Energy Scale Atlas]")
+    )
+    assert (
+        japanese_particle.split("## 標準模型", 1)[1]
+        .lstrip()
+        .startswith("- **[エネルギースケール・アトラス]")
+    )
+    assert "エネルギースケール・アトラス" in japanese_particle
+    assert "エネルギースケール・アトラス" in japanese_cosmology
+    assert "present Hubble scale to the Planck mass" not in english_particle
+    assert "現在のHubbleスケールからPlanck質量まで、粒子質量" not in japanese_particle
+
+
 def test_japanese_copy_and_typography_follow_site_style() -> None:
     japanese_pages = (ROOT / "docs_ja").rglob("index.md")
     combined = "\n".join(page.read_text(encoding="utf-8") for page in japanese_pages)

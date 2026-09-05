@@ -102,6 +102,7 @@ FIELDS = (
         "Elementary particles, gauge fields, the Standard Model, and BSM physics.",
         "素粒子物理学",
         "素粒子、ゲージ場、標準模型、BSM",
+        "assets/images/particle-physics.png",
     ),
     FieldDefinition(
         "cosmology",

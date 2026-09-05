@@ -223,6 +223,7 @@ __marimo__/
 # Generated visualization applications
 docs/**/app/
 /docs/mathematics-for-physics/complex-functions/
+/docs/particle-physics/mass-scale-atlas/
 
 # Local exploratory work
 /workbench/**
