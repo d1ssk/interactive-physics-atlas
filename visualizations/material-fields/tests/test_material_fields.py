@@ -83,8 +83,10 @@ def test_static_build_contract(tmp_path, visualization) -> None:
     physics_source = (tmp_path / "physics.mjs").read_text(encoding="utf-8")
     assert "LOCAL_BOUNDARY_RING_CACHE" in physics_source
     assert "--paper: var(--atlas-viz-background)" in style
-    assert "grid-template-columns: 210px minmax(0, 1fr)" in style
-    assert ".inspector { grid-column: 1 / -1" in style
+    assert "grid-template-columns: 240px minmax(0, 1fr)" in style
+    assert ".inspector { grid-column: 1; grid-row: 2" in style
+    assert ".display-panel" in style
+    assert "grid-column: 1 / -1" in style
     assert "--accent: var(--atlas-viz-accent)" in style
 
 

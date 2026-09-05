@@ -324,9 +324,13 @@ class BlochSphere {
     ctx.lineCap = "butt";
     ctx.lineJoin = "miter";
     ctx.setLineDash(options.dashed ? [10, 9] : []);
+    const shaftEnd = {
+      x: end.x - head * .9 * Math.cos(angle),
+      y: end.y - head * .9 * Math.sin(angle),
+    };
     ctx.beginPath();
     ctx.moveTo(start.x, start.y);
-    ctx.lineTo(end.x, end.y);
+    ctx.lineTo(shaftEnd.x, shaftEnd.y);
     ctx.stroke();
     ctx.setLineDash([]);
     ctx.beginPath();
@@ -366,15 +370,17 @@ class BlochSphere {
     }
 
     const axes = [
-      {key: "x", vector: {x: 1.18, y: 0, z: 0}, positive: "|+〉", negative: "|−〉"},
-      {key: "y", vector: {x: 0, y: 1.18, z: 0}, positive: "|+y〉", negative: "|−y〉"},
-      {key: "z", vector: {x: 0, y: 0, z: 1.18}, positive: "|0〉", negative: "|1〉"},
+      {key: "x", vector: {x: 1.12, y: 0, z: 0}, positive: "|+⟩", negative: "|−⟩"},
+      {key: "y", vector: {x: 0, y: 1.12, z: 0}, positive: "|+y⟩", negative: "|−y⟩"},
+      {key: "z", vector: {x: 0, y: 0, z: 1.12}, positive: "|0⟩", negative: "|1⟩"},
     ];
     for (const axis of axes) {
       const negative = {x: -axis.vector.x, y: -axis.vector.y, z: -axis.vector.z};
+      const positiveLabel = {x: axis.vector.x * 1.16, y: axis.vector.y * 1.16, z: axis.vector.z * 1.16};
+      const negativeLabel = {x: -positiveLabel.x, y: -positiveLabel.y, z: -positiveLabel.z};
       this.drawLine3d(negative, axis.vector, "#555555", 1.2, false, .85);
-      this.drawLabel(axis.vector, axis.positive);
-      this.drawLabel(negative, axis.negative);
+      this.drawLabel(positiveLabel, axis.positive);
+      this.drawLabel(negativeLabel, axis.negative);
     }
 
     if (this.model.axis) {

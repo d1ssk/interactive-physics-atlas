@@ -65,7 +65,7 @@
             </button>
           </div>
         </section>
-        <section>
+        <section class="display-panel">
           <h2 data-i18n="display">Display</h2>
           <div class="layer-list">
             <label><span class="layer-swatch potential-swatch"></span><span><b id="potential-layer-name">Potential</b><small data-i18n="backgroundColor">Background color</small></span><input id="show-potential" type="checkbox" checked></label>
@@ -81,12 +81,12 @@
             <label><span class="layer-swatch induced-swatch"></span><span><b data-i18n="inducedOnly">Induced field only</b><small data-i18n="subtractApplied">Subtract uniform applied field</small></span><input id="show-induced-only" type="checkbox"></label>
             <label><span class="layer-swatch charge-swatch"></span><span><b id="surface-layer-name">Surface charge density</b><small data-i18n="boundaryColor">Boundary color</small></span><input id="show-surface" type="checkbox" checked></label>
           </div>
-        </section>
-        <section class="scene-actions">
+          <div class="scene-actions">
           <button type="button" id="reset-scene" data-i18n="resetShielding">Reset shielding example</button>
           <button type="button" id="clear-scene" data-i18n="removeAll">Remove all</button>
+          </div>
+          <div class="shortcut-note"><kbd>drag</kbd> <span data-i18n="move">move</span>　<kbd>handles</kbd> <span data-i18n="resizeRotate">resize / rotate</span>　<kbd>⌫</kbd> <span data-i18n="delete">delete</span>　<kbd>⌘/Ctrl + D</kbd> <span data-i18n="duplicate">duplicate</span></div>
         </section>
-        <div class="shortcut-note"><kbd>drag</kbd> <span data-i18n="move">move</span>　<kbd>handles</kbd> <span data-i18n="resizeRotate">resize / rotate</span><br><kbd>⌫</kbd> <span data-i18n="delete">delete</span>　<kbd>⌘/Ctrl + D</kbd> <span data-i18n="duplicate">duplicate</span></div>
       </aside>
 
       <section class="field-panel" data-i18n-aria-label="visualizationLabel" aria-label="Field visualization">
