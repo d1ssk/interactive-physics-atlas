@@ -30,7 +30,7 @@
       endpointKicker: "END OF THE CURRENT MAP", endpointTitle: "ここから先は、量子重力の地図が要る",
       endpointText: "Planck スケールは、「最大エネルギー」を示す壁ではありません。場の量子論と一般相対論のパッチワークが信頼できなくなり、量子重力が必要になると考えられる境界です。",
       backTop: "最初のスケールへ戻る ↑", sourcesKicker: "SOURCES & CONVENTIONS", sourcesTitle: "出典と規約",
-      sourceNote1: "粒子質量は PDG 2025 update を中心に採用。軽いクォークは MS̄、μ = 2 GeV、c・b は μ = m̄q の値です。",
+      sourceNote1: "粒子質量は PDG 2025 update を中心に採用。軽いクォークは \\(\\overline{\\mathrm{MS}}\\)、\\(\\mu = 2\\,\\mathrm{GeV}\\)、\\(c, b\\) は \\(\\mu = \\overline{m}_q\\) の値です。",
       sourceNote2: "右の宇宙年齢は独立した熱史ベンチマークです。現在位置の長さ・時間・温度は \\(\\ell = \\hbar c/E\\)、\\(\\tau = \\hbar/E\\)、\\(T = E/k_{\\mathrm B}\\) による換算で、個々の現象の実寸・寿命・実温度を表すものではありません。",
       sourceNote3: "電磁波・化学・核・QCD・仮説スケールの帯は、厳密な誤差棒ではなく慣習的な区分、対象依存性、または模型依存性を可視化したものです。",
       close: "閉じる", detailClose: "詳細を閉じる", markerAria: "{title}、{value}。詳細を開く",
@@ -58,7 +58,7 @@
       endpointKicker: "END OF THE CURRENT MAP", endpointTitle: "Beyond here, we need a map of quantum gravity",
       endpointText: "The Planck scale is not a wall marking a “maximum energy.” It is a boundary where the patchwork of quantum field theory and general relativity ceases to be reliable and quantum gravity is expected to become necessary.",
       backTop: "Return to the first scale ↑", sourcesKicker: "SOURCES & CONVENTIONS", sourcesTitle: "Sources and conventions",
-      sourceNote1: "Particle masses mainly follow the PDG 2025 update. Light-quark values are MS̄ at μ = 2 GeV; c and b use μ = m̄q.",
+      sourceNote1: "Particle masses mainly follow the PDG 2025 update. Light-quark values are \\(\\overline{\\mathrm{MS}}\\) at \\(\\mu = 2\\,\\mathrm{GeV}\\); \\(c, b\\) use \\(\\mu = \\overline{m}_q\\).",
       sourceNote2: "Cosmic ages on the right are independent thermal-history benchmarks. Cursor length, time, and temperature use \\(\\ell = \\hbar c/E\\), \\(\\tau = \\hbar/E\\), and \\(T = E/k_{\\mathrm B}\\); they are not claims about an individual phenomenon’s physical size, lifetime, or actual temperature.",
       sourceNote3: "Bands for the electromagnetic spectrum, chemistry, nuclei, QCD, and hypothetical physics visualize conventional divisions or object/model dependence, not literal statistical error bars.",
       close: "Close", detailClose: "Close details", markerAria: "{title}, {value}. Open details",
@@ -326,6 +326,11 @@
   function revealMathFallback(targets) {
     targets.forEach(target => {
       target.textContent = target.textContent
+        .replaceAll("\\overline{\\mathrm{MS}}", "MS̄")
+        .replaceAll("\\overline{m}_q", "m̄q")
+        .replaceAll("\\mathrm{GeV}", "GeV")
+        .replaceAll("\\mu", "μ")
+        .replaceAll("\\,", " ")
         .replaceAll("\\(", "")
         .replaceAll("\\)", "")
         .replaceAll("\\hbar", "ℏ")
