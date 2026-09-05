@@ -38,7 +38,11 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: Inter, "Hiragino Sans", "Yu Gothic UI", "Noto Sans JP", system-ui, sans-serif;
-  text-rendering: optimizeLegibility;
+  text-rendering: optimizelegibility;
+}
+
+html:not(.math-ready) [data-math] {
+  visibility: hidden;
 }
 
 button,
@@ -94,7 +98,7 @@ select:focus-visible {
 }
 
 .brand {
-  font-family: "Iowan Old Style", "Baskerville", "Times New Roman", serif;
+  font-family: "Iowan Old Style", Baskerville, "Times New Roman", serif;
   font-size: clamp(.95rem, 1.8vw, 1.15rem);
   letter-spacing: .015em;
   text-decoration: none;
@@ -788,7 +792,7 @@ main {
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: currentColor;
+  background: currentcolor;
   content: "";
 }
 
@@ -828,7 +832,7 @@ main {
 }
 
 .marker-card.status-limit .marker-kind::before {
-  border: 1px solid currentColor;
+  border: 1px solid currentcolor;
   border-radius: 0;
   background: transparent;
 }

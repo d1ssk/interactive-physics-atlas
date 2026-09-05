@@ -25,13 +25,13 @@
       start: "スクロールを始める", offAxis: "OFF THE LOG AXIS", masslessTitle: "質量ゼロ",
       photon: "光子", photonNote: "標準模型では m = 0。実験上限は軸上に別表示。", gluon: "グルーオン",
       gluonNote: "標準模型では m = 0。自由粒子としては観測されない。",
-      here: "現在位置", lengthScale: "長さ ℏc/E", timeScale: "時間 ℏ/E", temperatureScale: "温度 E/kB",
+      here: "現在位置", lengthScale: "長さ \\(\\hbar c/E\\)", timeScale: "時間 \\(\\hbar/E\\)", temperatureScale: "温度 \\(E/k_{\\mathrm B}\\)",
       energyAxis: "エネルギー / 質量", thermalHistory: "標準宇宙論の熱史",
       endpointKicker: "END OF THE CURRENT MAP", endpointTitle: "ここから先は、量子重力の地図が要る",
       endpointText: "Planck スケールは、「最大エネルギー」を示す壁ではありません。場の量子論と一般相対論のパッチワークが信頼できなくなり、量子重力が必要になると考えられる境界です。",
       backTop: "最初のスケールへ戻る ↑", sourcesKicker: "SOURCES & CONVENTIONS", sourcesTitle: "出典と規約",
       sourceNote1: "粒子質量は PDG 2025 update を中心に採用。軽いクォークは MS̄、μ = 2 GeV、c・b は μ = m̄q の値です。",
-      sourceNote2: "右の宇宙年齢は独立した熱史ベンチマークです。現在位置の長さ・時間・温度は ℓ = ℏc/E、τ = ℏ/E、T = E/kB による換算で、個々の現象の実寸・寿命・実温度を表すものではありません。",
+      sourceNote2: "右の宇宙年齢は独立した熱史ベンチマークです。現在位置の長さ・時間・温度は \\(\\ell = \\hbar c/E\\)、\\(\\tau = \\hbar/E\\)、\\(T = E/k_{\\mathrm B}\\) による換算で、個々の現象の実寸・寿命・実温度を表すものではありません。",
       sourceNote3: "電磁波・化学・核・QCD・仮説スケールの帯は、厳密な誤差棒ではなく慣習的な区分、対象依存性、または模型依存性を可視化したものです。",
       close: "閉じる", detailClose: "詳細を閉じる", markerAria: "{title}、{value}。詳細を開く",
       source: "出典", secondarySource: "関連出典",
@@ -53,13 +53,13 @@
       start: "Begin scrolling", offAxis: "OFF THE LOG AXIS", masslessTitle: "Zero mass",
       photon: "Photon", photonNote: "m = 0 in the Standard Model; its upper limit appears on-axis.", gluon: "Gluon",
       gluonNote: "m = 0 in the Standard Model; never observed as a free particle.",
-      here: "At the cursor", lengthScale: "length ℏc/E", timeScale: "time ℏ/E", temperatureScale: "temperature E/kB",
+      here: "At the cursor", lengthScale: "length \\(\\hbar c/E\\)", timeScale: "time \\(\\hbar/E\\)", temperatureScale: "temperature \\(E/k_{\\mathrm B}\\)",
       energyAxis: "ENERGY / MASS", thermalHistory: "STANDARD COSMIC THERMAL HISTORY",
       endpointKicker: "END OF THE CURRENT MAP", endpointTitle: "Beyond here, we need a map of quantum gravity",
       endpointText: "The Planck scale is not a wall marking a “maximum energy.” It is a boundary where the patchwork of quantum field theory and general relativity ceases to be reliable and quantum gravity is expected to become necessary.",
       backTop: "Return to the first scale ↑", sourcesKicker: "SOURCES & CONVENTIONS", sourcesTitle: "Sources and conventions",
       sourceNote1: "Particle masses mainly follow the PDG 2025 update. Light-quark values are MS̄ at μ = 2 GeV; c and b use μ = m̄q.",
-      sourceNote2: "Cosmic ages on the right are independent thermal-history benchmarks. Cursor length, time, and temperature use ℓ = ℏc/E, τ = ℏ/E, and T = E/kB; they are not claims about an individual phenomenon’s physical size, lifetime, or actual temperature.",
+      sourceNote2: "Cosmic ages on the right are independent thermal-history benchmarks. Cursor length, time, and temperature use \\(\\ell = \\hbar c/E\\), \\(\\tau = \\hbar/E\\), and \\(T = E/k_{\\mathrm B}\\); they are not claims about an individual phenomenon’s physical size, lifetime, or actual temperature.",
       sourceNote3: "Bands for the electromagnetic spectrum, chemistry, nuclei, QCD, and hypothetical physics visualize conventional divisions or object/model dependence, not literal statistical error bars.",
       close: "Close", detailClose: "Close details", markerAria: "{title}, {value}. Open details",
       source: "Source", secondarySource: "Related source",
@@ -77,10 +77,12 @@
   const labelEntries = [];
   const rendered = new Map();
   const requestedLocale = new URLSearchParams(window.location.search).get("lang");
-  let locale = requestedLocale === "en" || requestedLocale === "ja"
+  const directoryLocale = window.location.pathname.split("/").includes("ja") ? "ja" : "en";
+  const locale = requestedLocale === "en" || requestedLocale === "ja"
     ? requestedLocale
-    : window.location.pathname.split("/").includes("ja") ? "ja" : "en";
+    : directoryLocale;
   let scrollFrame = 0;
+  let detailTrigger = null;
 
   const byId = id => document.getElementById(id);
   const t = (key, values = {}) => Object.entries(values).reduce(
@@ -194,7 +196,7 @@
       makeElement("h3", "", localized(item.title)),
       makeElement("p", "value", localized(item.value)),
     );
-    card.addEventListener("click", () => openDetail(item));
+    card.addEventListener("click", () => openDetail(item, card));
     card.addEventListener("pointerenter", () => highlight(item.id, true));
     card.addEventListener("pointerleave", () => highlight(item.id, false));
     card.addEventListener("focus", () => highlight(item.id, true));
@@ -279,6 +281,7 @@
   }
 
   function localizeStatic() {
+    document.documentElement.classList.remove("math-ready");
     document.documentElement.lang = locale;
     document.title = locale === "ja" ? "エネルギー階層マップ — Interactive Physics Atlas" : "Energy Scale Atlas — Interactive Physics Atlas";
     document.querySelectorAll("[data-i18n]").forEach(element => {
@@ -289,19 +292,31 @@
     document.querySelectorAll("[data-i18n-aria-label]").forEach(element => {
       element.setAttribute("aria-label", t(element.dataset.i18nAriaLabel));
     });
-    byId("brand-home").href = locale === "ja" ? "../../../ja/" : "../../";
+    byId("brand-home").href = directoryLocale === "ja" ? "../../../ja/" : "../../";
     document.querySelectorAll("[data-language]").forEach(link => {
       const isCurrent = link.dataset.language === locale;
       if (isCurrent) link.setAttribute("aria-current", "page");
       else link.removeAttribute("aria-current");
       if (link.dataset.language === "ja") {
-        link.href = locale === "ja" ? "./?lang=ja" : "../../ja/particle-physics/mass-scale-atlas/?lang=ja";
+        link.href = directoryLocale === "ja" ? "./?lang=ja" : "../../ja/particle-physics/mass-scale-atlas/?lang=ja";
       } else {
-        link.href = locale === "ja" ? "../../../particle-physics/mass-scale-atlas/?lang=en" : "./?lang=en";
+        link.href = directoryLocale === "ja" ? "../../../particle-physics/mass-scale-atlas/?lang=en" : "./?lang=en";
       }
     });
     byId("filter-close").setAttribute("aria-label", t("close"));
     byId("detail-close").setAttribute("aria-label", t("detailClose"));
+    typesetLocalizedMath();
+  }
+
+  function typesetLocalizedMath() {
+    if (!window.MathJax?.startup?.promise) return;
+    const targets = [...document.querySelectorAll("[data-math]")];
+    window.MathJax.startup.promise
+      .then(() => {
+        window.MathJax.typesetClear(targets);
+        return window.MathJax.typesetPromise(targets);
+      })
+      .then(() => document.documentElement.classList.add("math-ready"));
   }
 
   function renderAll() {
@@ -497,7 +512,7 @@
     byId("connector-layer").classList.toggle("has-highlight", active);
   }
 
-  function openDetail(item) {
+  function openDetail(item, trigger) {
     const panel = byId("detail-panel");
     panel.className = `detail-panel ${categoryClass(item.category)}`;
     byId("detail-category").textContent = `${categoryLabel(item.category)} · ${statusLabel(item.status ?? "measured")}`;
@@ -516,6 +531,7 @@
       sourceBox.append(link);
     });
     panel.hidden = false;
+    detailTrigger = trigger;
     byId("detail-close").focus();
   }
 
@@ -523,7 +539,8 @@
     const panel = byId("detail-panel");
     if (panel.hidden) return;
     panel.hidden = true;
-    if (restoreFocus) document.querySelector(".marker-card:focus")?.focus();
+    if (restoreFocus) detailTrigger?.focus();
+    detailTrigger = null;
   }
 
   function updateScrollState() {
@@ -552,17 +569,6 @@
     scrollFrame = requestAnimationFrame(updateScrollState);
   }
 
-  function setLocale(nextLocale) {
-    if (nextLocale === locale) return;
-    locale = nextLocale;
-    const url = new URL(window.location.href);
-    if (locale === "ja") url.searchParams.delete("lang");
-    else url.searchParams.set("lang", locale);
-    history.replaceState(null, "", url);
-    closeDetail({restoreFocus: false});
-    renderAll();
-  }
-
   function bindControls() {
     const filterPanel = byId("filter-panel");
     const filterToggle = byId("filter-toggle");
@@ -580,7 +586,10 @@
     document.addEventListener("keydown", event => {
       if (event.key !== "Escape") return;
       if (!byId("detail-panel").hidden) closeDetail();
-      else if (!filterPanel.hidden) setFilterOpen(false);
+      else if (!filterPanel.hidden) {
+        setFilterOpen(false);
+        filterToggle.focus();
+      }
     });
     window.addEventListener("scroll", scheduleScrollUpdate, {passive: true});
     window.addEventListener("resize", () => {

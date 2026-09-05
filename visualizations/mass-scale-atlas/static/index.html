@@ -9,6 +9,12 @@
   <link rel="stylesheet" href="visualization-theme.css">
   <link rel="stylesheet" href="style.css">
   <script src="visualization-theme.js"></script>
+  <script>
+    window.MathJax = {
+      tex: {inlineMath: [["\\(", "\\)"]]},
+    };
+  </script>
+  <script defer src="mathjax-tex-svg.js"></script>
   <script defer src="physics.js"></script>
   <script defer src="data.js"></script>
   <script defer src="app.js"></script>
@@ -105,9 +111,9 @@
           <strong id="current-energy">10<sup>−33</sup> eV</strong>
         </div>
         <div class="readout-conversions">
-          <span><b data-i18n="lengthScale">長さ ℏc/E</b><strong id="current-length">— m</strong></span>
-          <span><b data-i18n="timeScale">時間 ℏ/E</b><strong id="current-time">— s</strong></span>
-          <span><b data-i18n="temperatureScale">温度 E/kB</b><strong id="current-temperature">— K</strong></span>
+          <span><b data-i18n="lengthScale" data-math>長さ ℏc/E</b><strong id="current-length">— m</strong></span>
+          <span><b data-i18n="timeScale" data-math>時間 ℏ/E</b><strong id="current-time">— s</strong></span>
+          <span><b data-i18n="temperatureScale" data-math>温度 E/kB</b><strong id="current-temperature">— K</strong></span>
         </div>
       </div>
 
@@ -146,7 +152,7 @@
       <div class="source-layout">
         <div class="source-notes">
           <p data-i18n="sourceNote1">粒子質量は PDG 2025 update を中心に採用。軽いクォークは MS̄、μ = 2 GeV、c・b は μ = m̄q の値です。</p>
-          <p data-i18n="sourceNote2">右の宇宙年齢は独立した熱史ベンチマークです。現在位置の長さ・時間・温度は ℓ = ℏc/E、τ = ℏ/E、T = E/kB による換算で、個々の現象の実寸・寿命・実温度を表すものではありません。</p>
+          <p data-i18n="sourceNote2" data-math>右の宇宙年齢は独立した熱史ベンチマークです。現在位置の長さ・時間・温度は ℓ = ℏc/E、τ = ℏ/E、T = E/kB による換算で、個々の現象の実寸・寿命・実温度を表すものではありません。</p>
           <p data-i18n="sourceNote3">電磁波・化学・核・QCD・仮説スケールの帯は、厳密な誤差棒ではなく慣習的な区分、対象依存性、または模型依存性を可視化したものです。</p>
         </div>
         <ol class="source-list" id="source-list"></ol>

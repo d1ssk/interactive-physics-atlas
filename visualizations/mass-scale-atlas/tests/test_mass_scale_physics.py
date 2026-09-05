@@ -27,6 +27,8 @@ def test_hubble_and_vacuum_energy_scales_are_distinct() -> None:
 def test_radiation_era_estimate_and_domain() -> None:
     assert physics.radiation_era_age_seconds(1e6) == pytest.approx(0.738, abs=0.01)
     assert physics.radiation_era_age_seconds(1e5) is None
+    assert physics.radiation_era_age_seconds(1e26) is not None
+    assert physics.radiation_era_age_seconds(1e27) is None
 
 
 @pytest.mark.parametrize("energy_ev", [0.0, -1.0])

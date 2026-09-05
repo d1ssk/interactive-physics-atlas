@@ -31,6 +31,8 @@ def test_build_stages_standalone_application_and_shared_theme(tmp_path: Path) ->
         "app.js",
         "visualization-theme.css",
         "visualization-theme.js",
+        "mathjax-tex-svg.js",
+        "mathjax-LICENSE.txt",
     ):
         assert (tmp_path / name).is_file()
 
@@ -40,6 +42,10 @@ def test_build_stages_standalone_application_and_shared_theme(tmp_path: Path) ->
     assert 'href="../../"' in html
     assert "../../ja/particle-physics/mass-scale-atlas/" in app
     assert "../../../particle-physics/mass-scale-atlas/" in app
+    assert "directoryLocale" in app
+    assert "typesetPromise" in app
+    assert "detailTrigger?.focus()" in app
+    assert "filterToggle.focus()" in app
     assert "この試作" not in html + app + data
     assert "prototype" not in html + app + data
     assert "エネルギーの階層を、辿る。" in html

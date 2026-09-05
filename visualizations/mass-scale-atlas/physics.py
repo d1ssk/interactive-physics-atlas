@@ -75,7 +75,7 @@ def effective_relativistic_degrees_of_freedom(temperature_mev: float) -> float:
 
 
 def radiation_era_age_seconds(energy_ev: float) -> float | None:
-    """Estimate cosmic age in radiation domination for 1 MeV <= T <= 1e20 GeV."""
+    """Estimate cosmic age in radiation domination for 1 MeV <= T <= 1e17 GeV."""
 
     temperature_mev = energy_ev / 1e6
     if temperature_mev < 1 or energy_ev > 1e26:
