@@ -100,6 +100,8 @@ def test_static_build_contract(tmp_path, visualization) -> None:
     assert "shadow" not in style
     assert "createRadialGradient" not in app
     assert "ctx.lineTo(shaftEnd.x, shaftEnd.y)" in app
+    assert "const projectedLength = Math.hypot(dx, dy)" in app
+    assert "const inset = Math.min(head * .9, projectedLength)" in app
     assert "const positiveLabel" in app
     assert "background: #fff" in style
     assert "margin: 0 auto" in style

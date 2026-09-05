@@ -313,8 +313,11 @@ class BlochSphere {
     const end = this.project(vector);
     const ctx = this.ctx;
     const width = options.width ?? Math.max(3, this.canvas.width * 0.009);
-    const angle = Math.atan2(end.y - start.y, end.x - start.x);
-    const head = Math.max(10, this.canvas.width * 0.025);
+    const dx = end.x - start.x;
+    const dy = end.y - start.y;
+    const projectedLength = Math.hypot(dx, dy);
+    const angle = Math.atan2(dy, dx);
+    const head = Math.min(Math.max(10, this.canvas.width * 0.025), projectedLength);
     ctx.save();
     ctx.globalAlpha = options.alpha ?? 1;
     ctx.strokeStyle = color;
@@ -323,9 +326,10 @@ class BlochSphere {
     ctx.lineCap = "butt";
     ctx.lineJoin = "miter";
     ctx.setLineDash(options.dashed ? [10, 9] : []);
+    const inset = Math.min(head * .9, projectedLength);
     const shaftEnd = {
-      x: end.x - head * .9 * Math.cos(angle),
-      y: end.y - head * .9 * Math.sin(angle),
+      x: end.x - inset * Math.cos(angle),
+      y: end.y - inset * Math.sin(angle),
     };
     ctx.beginPath();
     ctx.moveTo(start.x, start.y);
