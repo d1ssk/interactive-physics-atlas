@@ -2,7 +2,7 @@
 
 Gauge fields, the Standard Model, and BSM physics.
 
-## Scales across particle physics
+## Standard Model
 
 - **[Energy Scale Atlas](mass-scale-atlas/?lang=en)**<br>
-  Walk from the present Hubble scale to the Planck mass while comparing particle masses, physical phenomena, experiments, and cosmic thermal history on one logarithmic energy axis.
+  Compare particle masses, physical phenomena, experiments, and cosmic thermal history on a single logarithmic energy axis.

@@ -9,5 +9,5 @@
 
 ## 宇宙史のエネルギースケール
 
-- **[エネルギー階層マップ](../particle-physics/mass-scale-atlas/?lang=ja)**<br>
+- **[エネルギースケール・アトラス](../particle-physics/mass-scale-atlas/?lang=ja)**<br>
   現在のHubbleスケールからPlanck質量まで、宇宙熱史の指標を粒子質量や物理現象と比較。
