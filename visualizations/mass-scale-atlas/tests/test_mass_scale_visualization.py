@@ -44,6 +44,8 @@ def test_build_stages_standalone_application_and_shared_theme(tmp_path: Path) ->
     assert "../../../particle-physics/mass-scale-atlas/" in app
     assert "directoryLocale" in app
     assert "typesetPromise" in app
+    assert "revealMathFallback" in app
+    assert ".catch(() => revealMathFallback(targets))" in app
     assert "detailTrigger?.focus()" in app
     assert "filterToggle.focus()" in app
     assert "この試作" not in html + app + data

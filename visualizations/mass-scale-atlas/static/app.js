@@ -309,14 +309,31 @@
   }
 
   function typesetLocalizedMath() {
-    if (!window.MathJax?.startup?.promise) return;
     const targets = [...document.querySelectorAll("[data-math]")];
+    if (!window.MathJax?.startup?.promise) {
+      revealMathFallback(targets);
+      return;
+    }
     window.MathJax.startup.promise
       .then(() => {
         window.MathJax.typesetClear(targets);
         return window.MathJax.typesetPromise(targets);
       })
-      .then(() => document.documentElement.classList.add("math-ready"));
+      .then(() => document.documentElement.classList.add("math-ready"))
+      .catch(() => revealMathFallback(targets));
+  }
+
+  function revealMathFallback(targets) {
+    targets.forEach(target => {
+      target.textContent = target.textContent
+        .replaceAll("\\(", "")
+        .replaceAll("\\)", "")
+        .replaceAll("\\hbar", "ℏ")
+        .replaceAll("\\ell", "ℓ")
+        .replaceAll("\\tau", "τ")
+        .replaceAll("k_{\\mathrm B}", "kB");
+    });
+    document.documentElement.classList.add("math-ready");
   }
 
   function renderAll() {
