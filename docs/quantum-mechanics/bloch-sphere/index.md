@@ -1,26 +1,30 @@
 # Bloch Sphere
 
-## One qubit as a direction
+## Representing a single-qubit state as a point on a sphere
 
-After removing an unobservable global phase, every pure qubit state can be written
+After removing the global phase, which has no effect on observations, every pure single-qubit
+state can be written as
 
 $$
 |\psi\rangle
 =
 \cos\frac{\theta}{2}|0\rangle
-+e^{i\phi}\sin\frac{\theta}{2}|1\rangle.
++
+e^{i\phi}\sin\frac{\theta}{2}|1\rangle
 $$
 
-The pair $(\theta,\phi)$ specifies a point on the unit sphere. Its Cartesian coordinates are the
-expectation values of the Pauli operators,
+The pair $(\theta,\phi)$ specifies a point on the unit sphere. Its Cartesian coordinates are given
+by the expectation values of the Pauli operators,
 
 $$
 \mathbf r
 =
 (\langle X\rangle,\langle Y\rangle,\langle Z\rangle)
 =
-(\sin\theta\cos\phi,\sin\theta\sin\phi,\cos\theta).
+(\sin\theta\cos\phi,\sin\theta\sin\phi,\cos\theta)
 $$
+
+This unit sphere is called the Bloch sphere, and $\mathbf r$ is called the Bloch vector.
 
 ## Visualization
 
@@ -28,26 +32,30 @@ $$
 
 ## Things to try
 
-1. In the first panel, select the same state through the $X$, $Y$, and $Z$ bases and compare its
-   Bloch vector.
-2. In the second panel, vary the relative phase $\delta$. Notice that kets—not Bloch vectors—are
-   added before normalization. Opposite kets can cancel to the zero vector.
-3. In the third panel, apply the Pauli, Hadamard, $S$, and $T$ gates. Drag the progress slider to
-   see each unitary operation as a rotation.
+1. In the first panel, specify the same state in the $X$, $Y$, and $Z$ bases and compare its Bloch
+   vector.
+
+2. In the second panel, vary the relative phase $\delta$. Notice that the kets are superposed and
+   then normalized; the Bloch vectors themselves are not added. Adding kets that are opposite,
+   including their coefficients, can produce the zero vector.
+
+3. In the third panel, apply the Pauli, Hadamard, $S$, and $T$ gates. Move the progress slider and
+   observe how each unitary operation appears as a rotation on the Bloch sphere.
 
 ## What to notice
 
-Pure states always remain on the unit sphere. The north and south poles are $|0\rangle$ and
-$|1\rangle$; equatorial states have equal computational-basis probabilities and differ by relative
-phase. A single-qubit unitary preserves normalization and acts as a rotation of the Bloch vector.
+The Bloch vector of a pure state always lies on the unit sphere. The north and south poles
+correspond to $|0\rangle$ and $|1\rangle$, respectively. Measuring an equatorial state in the
+computational basis gives $0$ and $1$ with equal probability, but its relative phase varies with
+the azimuthal angle on the sphere.
 
-## Conventions and limitations
+A unitary operation on one qubit preserves normalization and, after removing global phase, is
+represented as a rotation on the Bloch sphere.
 
-The visualization shows pure single-qubit states only. Global phase is fixed when displaying a
-ket, because states that differ only by a global phase represent the same physical state. Mixed
-states, which lie inside the Bloch ball, are not included.
+## Scope of this visualization
 
-## Reference
+This visualization considers only pure single-qubit states. Kets that differ only by a global
+phase describe the same physical state, so displayed kets use a fixed convention for global phase.
 
-- M. A. Nielsen and I. L. Chuang, *Quantum Computation and Quantum Information*, 10th anniversary
-  ed., Section 1.2.
+Mixed states are represented by points inside the Bloch sphere, but are not included in this
+visualization.
