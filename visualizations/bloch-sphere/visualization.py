@@ -1,0 +1,21 @@
+"""Static browser application builder for the Bloch-sphere visualization."""
+
+from __future__ import annotations
+
+import shutil
+from pathlib import Path
+
+from physics_atlas.assets import copy_mathjax_assets, copy_visualization_theme_assets
+
+SOURCE_DIR = Path(__file__).resolve().parent
+STATIC_DIR = SOURCE_DIR / "static"
+
+
+def build(output_dir: Path) -> None:
+    """Build the bilingual, same-origin static application."""
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    copy_mathjax_assets(output_dir)
+    copy_visualization_theme_assets(output_dir)
+    for name in ("index.html", "style.css", "physics.mjs", "app.mjs"):
+        shutil.copy2(STATIC_DIR / name, output_dir / name)

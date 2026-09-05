@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bloch Sphere</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="visualization-theme.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="visualization-theme.js"></script>
+  <script>
+    window.MathJax = {
+      tex: {inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]]},
+      svg: {fontCache: "global"},
+      startup: {
+        ready() {
+          MathJax.startup.defaultReady();
+          MathJax.startup.promise.then(() => window.dispatchEvent(new CustomEvent("physics-atlas:mathjax-ready")));
+        },
+      },
+    };
+  </script>
+  <script defer src="mathjax-tex-svg.js"></script>
+</head>
+<body>
+  <main>
+    <header class="hero">
+      <h1 data-i18n="title">Bloch Sphere</h1>
+      <p class="lede" data-i18n="intro">Relate a qubit's complex amplitudes to a direction on the unit sphere.</p>
+    </header>
+
+    <section id="panel-1" class="lab-panel" aria-labelledby="panel-1-title">
+      <div class="panel-heading">
+        <div><h2 id="panel-1-title" data-i18n="panel1Title">State and Bloch vector</h2><p data-i18n="panel1Copy">Choose a basis and amplitudes; the corresponding state appears as one point on the sphere.</p></div>
+        <p class="heading-equation">\( |\psi\rangle=\cos\frac{\theta}{2}|b_0\rangle+e^{i\phi}\sin\frac{\theta}{2}|b_1\rangle \)</p>
+      </div>
+      <div class="state-workspace">
+        <article class="control-card state-editor" id="p1-editor" data-editor="p1">
+          <h3 data-i18n="stateInput">State input</h3>
+          <label class="select-control"><span data-i18n="inputBasis">Input basis</span><select data-field="basis"><option value="z" data-i18n="zBasis">Z basis</option><option value="x" data-i18n="xBasis">X basis</option><option value="y" data-i18n="yBasis">Y basis</option></select></label>
+          <label class="range-control"><span><b data-i18n="amplitudeBalance">Amplitude balance</b><output data-output="theta">\(\theta=54^\circ\)</output></span><input data-field="theta" type="range" min="0" max="180" step="1" value="54"><small><i data-i18n="firstBasisState">first basis state</i><i data-i18n="secondBasisState">second basis state</i></small></label>
+          <div class="probability-bar" aria-hidden="true"><i data-bar="first"></i></div>
+          <p class="probability-copy" data-output="basis-probabilities">P(b₀) = 79.4% · P(b₁) = 20.6%</p>
+          <label class="range-control phase-control"><span><b data-i18n="relativePhase">Relative phase</b><output data-output="phase">\(\phi=42^\circ\)</output></span><input data-field="phase" type="range" min="-180" max="180" step="1" value="42"><small><i>\(-\pi\)</i><i>\(0\)</i><i>\(+\pi\)</i></small></label>
+          <div class="preset-row" data-i18n-aria-label="presetLabel" aria-label="Representative states"><button type="button" data-preset="zero">\(|0\rangle\)</button><button type="button" data-preset="one">\(|1\rangle\)</button><button type="button" data-preset="plus">\(|+\rangle\)</button><button type="button" data-preset="minus">\(|-\rangle\)</button><button type="button" data-preset="plus-y">\(|+y\rangle\)</button><button type="button" data-preset="minus-y">\(|-y\rangle\)</button></div>
+          <div class="state-readout"><span data-i18n="computationalState">State in the computational basis</span><div class="math-value" data-output="ket">\(|\psi\rangle\)</div></div>
+        </article>
+        <figure class="sphere-card large-sphere">
+          <p class="sphere-topline drag-hint" data-i18n="dragHint">drag to rotate</p>
+          <canvas id="sphere-1" width="640" height="640" tabindex="0" role="img" data-i18n-aria-label="sphere1Label" aria-label="Bloch sphere for state A"></canvas>
+          <figcaption><div class="vector-readout" id="p1-vector"><span><i class="axis-x">x</i><b data-coordinate="x">—</b></span><span><i class="axis-y">y</i><b data-coordinate="y">—</b></span><span><i class="axis-z">z</i><b data-coordinate="z">—</b></span></div><p>\(\vec r=(\langle X\rangle,\langle Y\rangle,\langle Z\rangle)\)</p></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="panel-2" class="lab-panel" aria-labelledby="panel-2-title">
+      <div class="panel-heading"><div><h2 id="panel-2-title" data-i18n="panel2Title">Superposition of states</h2><p data-i18n="panel2Copy">Add two kets as complex vectors, then normalize. The relative phase changes the result.</p></div><p class="heading-equation">\( |\Psi\rangle=\mathcal N\bigl(|\psi_A\rangle+e^{i\delta}|\psi_B\rangle\bigr) \)</p></div>
+      <div class="superposition-grid">
+        <article class="mini-state-card state-editor" id="p2a-editor" data-editor="p2a">
+          <h3 data-i18n="stateA">State A</h3><canvas id="sphere-2a" width="430" height="430" tabindex="0" role="img" data-i18n-aria-label="sphere2aLabel" aria-label="State A before superposition"></canvas>
+          <label class="compact-select"><span data-i18n="basis">Basis</span><select data-field="basis"><option value="z" data-i18n="zBasis">Z basis</option><option value="x" data-i18n="xBasis">X basis</option><option value="y" data-i18n="yBasis">Y basis</option></select></label>
+          <label class="compact-range"><span><span data-i18n="amplitude">Amplitude</span> <output data-output="theta">\(\theta=0^\circ\)</output></span><input data-field="theta" type="range" min="0" max="180" step="1" value="0"></label>
+          <label class="compact-range"><span><span data-i18n="phase">Phase</span> <output data-output="phase">\(\phi=0^\circ\)</output></span><input data-field="phase" type="range" min="-180" max="180" step="1" value="0"></label><div class="mini-ket math-value" data-output="ket">\(|\psi_A\rangle\)</div>
+        </article>
+        <article class="mini-state-card state-editor" id="p2b-editor" data-editor="p2b">
+          <h3 data-i18n="stateB">State B</h3><canvas id="sphere-2b" width="430" height="430" tabindex="0" role="img" data-i18n-aria-label="sphere2bLabel" aria-label="State B before superposition"></canvas>
+          <label class="compact-select"><span data-i18n="basis">Basis</span><select data-field="basis"><option value="z" data-i18n="zBasis">Z basis</option><option value="x" data-i18n="xBasis">X basis</option><option value="y" data-i18n="yBasis">Y basis</option></select></label>
+          <label class="compact-range"><span><span data-i18n="amplitude">Amplitude</span> <output data-output="theta">\(\theta=180^\circ\)</output></span><input data-field="theta" type="range" min="0" max="180" step="1" value="180"></label>
+          <label class="compact-range"><span><span data-i18n="phase">Phase</span> <output data-output="phase">\(\phi=0^\circ\)</output></span><input data-field="phase" type="range" min="-180" max="180" step="1" value="0"></label><div class="mini-ket math-value" data-output="ket">\(|\psi_B\rangle\)</div>
+        </article>
+        <article class="result-card" id="p2-result-card">
+          <h3 data-i18n="result">Result</h3><canvas id="sphere-2result" width="430" height="430" tabindex="0" role="img" data-i18n-aria-label="sphereResultLabel" aria-label="State after superposition"></canvas>
+          <label class="range-control result-phase"><span><b data-i18n="phaseOfB">Phase of B relative to A</b><output id="delta-output">\(\delta=0^\circ\)</output></span><input id="delta" type="range" min="-180" max="180" step="1" value="0"><small><i>\(-\pi\)</i><i>\(0\)</i><i>\(+\pi\)</i></small></label>
+          <div class="state-readout result-readout"><span data-i18n="afterNormalization">After normalization</span><div class="math-value" id="p2-result-ket">\(|\Psi\rangle\)</div></div>
+          <p id="p2-warning" class="interference-warning" role="status" hidden data-i18n="cancellationWarning">Complete cancellation: the zero vector cannot be normalized as a quantum state.</p>
+        </article>
+      </div>
+      <p class="panel-note" data-i18n="additionNote">The Bloch vectors are not added. The complex kets are added first, and the new Bloch vector is calculated from the result.</p>
+    </section>
+
+    <section id="panel-3" class="lab-panel" aria-labelledby="panel-3-title">
+      <div class="panel-heading"><div><h2 id="panel-3-title" data-i18n="panel3Title">Single-qubit unitary operations</h2><p data-i18n="panel3Copy">Choose a gate and play the rotation from input to output. The faint arrow is the input.</p></div><p class="heading-equation">\( |\psi'\rangle=U|\psi\rangle \quad\Longleftrightarrow\quad \vec r\,'=R_U\vec r \)</p></div>
+      <div class="gate-layout">
+        <article class="gate-controls">
+          <h3 data-i18n="inputState">Input state</h3>
+          <div class="state-editor compact-editor" id="p3-editor" data-editor="p3">
+            <label class="select-control"><span data-i18n="inputBasis">Input basis</span><select data-field="basis"><option value="z" data-i18n="zBasis">Z basis</option><option value="x" selected data-i18n="xBasis">X basis</option><option value="y" data-i18n="yBasis">Y basis</option></select></label>
+            <label class="range-control"><span><b data-i18n="amplitudeBalance">Amplitude balance</b><output data-output="theta">\(\theta=0^\circ\)</output></span><input data-field="theta" type="range" min="0" max="180" step="1" value="0"><small><i data-i18n="firstBasisState">first basis state</i><i data-i18n="secondBasisState">second basis state</i></small></label>
+            <label class="range-control phase-control"><span><b data-i18n="relativePhase">Relative phase</b><output data-output="phase">\(\phi=0^\circ\)</output></span><input data-field="phase" type="range" min="-180" max="180" step="1" value="0"><small><i>\(-\pi\)</i><i>\(0\)</i><i>\(+\pi\)</i></small></label>
+          </div>
+          <fieldset class="gate-picker"><legend data-i18n="chooseGate">Choose a gate</legend><div class="gate-buttons"><button type="button" data-gate="I">I<small data-i18n="identity">identity</small></button><button type="button" data-gate="X">X<small data-i18n="halfTurnX">180° about x</small></button><button type="button" data-gate="Y">Y<small data-i18n="halfTurnY">180° about y</small></button><button type="button" data-gate="Z">Z<small data-i18n="halfTurnZ">180° about z</small></button><button type="button" data-gate="H" class="active">H<small>Hadamard</small></button><button type="button" data-gate="S">S<small data-i18n="quarterTurnZ">90° about z</small></button><button type="button" data-gate="T">T<small data-i18n="eighthTurnZ">45° about z</small></button></div></fieldset>
+          <div class="state-readout gate-ket-readout"><span data-i18n="actionOnKet">Action on the ket</span><div class="math-value" id="p3-ket">\(U|\psi\rangle\)</div></div>
+        </article>
+        <figure class="sphere-card gate-sphere">
+          <div class="sphere-header"><span id="gate-operation">Hadamard rotation</span><span class="drag-hint" data-i18n="dragHint">drag to rotate</span></div>
+          <canvas id="sphere-3" width="680" height="680" tabindex="0" role="img" data-i18n-aria-label="sphere3Label" aria-label="Bloch vectors before and after a unitary operation"></canvas>
+          <div class="transport-controls"><button type="button" id="gate-play"><span aria-hidden="true">▶</span> <span data-i18n="playAction">Play operation</span></button><label><span data-i18n="rotationProgress">Rotation progress</span><input id="gate-progress" type="range" min="0" max="1000" value="1000" step="1"><output id="gate-progress-output">100%</output></label></div>
+          <figcaption class="gate-caption"><p><i class="legend-before"></i><span data-i18n="input">Input</span> <span id="p3-before-vector">—</span></p><p><i class="legend-after"></i><span data-i18n="output">Output</span> <span id="p3-after-vector">—</span></p></figcaption>
+        </figure>
+      </div>
+    </section>
+  </main>
+  <noscript>JavaScript is required for this visualization. / この可視化にはJavaScriptが必要です。</noscript>
+  <script>
+    (() => {
+      if (window.parent === window) return;
+      const PARENT_TARGET_ORIGIN = window.location.origin;
+      function report() {
+        const main = document.querySelector("main");
+        const contentBottom = main ? main.getBoundingClientRect().bottom : 0;
+        const contentHeight = Math.max(contentBottom, document.body.getBoundingClientRect().height);
+        const frameHeight = Math.ceil(contentHeight);
+        if (window.frameElement) {
+          window.frameElement.style.minHeight = "0";
+          window.frameElement.style.height = frameHeight + "px";
+          window.frameElement.setAttribute("scrolling", "no");
+          window.frameElement.style.overflow = "hidden";
+        }
+        window.parent.postMessage({type: "physics-atlas:frame-height", height: frameHeight}, PARENT_TARGET_ORIGIN);
+      }
+      window.addEventListener("load", report);
+      window.addEventListener("resize", report);
+      window.addEventListener("physics-atlas:mathjax-ready", report);
+      window.addEventListener("message", event => {
+        const expectedParent = event.source === window.parent;
+        const expectedOrigin = event.origin === PARENT_TARGET_ORIGIN;
+        if (expectedParent && expectedOrigin && event.data?.type === "physics-atlas:request-frame-height") report();
+      });
+      if ("ResizeObserver" in window) {
+        const observer = new ResizeObserver(report);
+        observer.observe(document.body);
+        const main = document.querySelector("main");
+        if (main) observer.observe(main);
+        window.addEventListener("pagehide", () => observer.disconnect(), {once: true});
+      }
+      document.fonts?.ready.then(report);
+      report();
+    })();
+  </script>
+  <script type="module" src="app.mjs"></script>
+</body>
+</html>

@@ -282,6 +282,14 @@ html[lang="ja"] .md-typeset h1 {
   background: color-mix(in srgb, var(--atlas-paper) 72%, white);
 }
 
+.md-typeset:has(.center-material-tables) .md-typeset__table {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  overflow-x: auto;
+}
+
 html[lang="en"] .md-nav--primary {
   font-family: "Atlas Source Serif 4", Georgia, serif;
 }
