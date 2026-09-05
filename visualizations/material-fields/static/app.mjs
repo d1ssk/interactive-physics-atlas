@@ -49,8 +49,8 @@ const TRANSLATIONS = {
     magneticCanvas: "Two-dimensional magnetic field distorted by material objects",
     inducedElectricCanvas: "Two-dimensional electric field induced by material objects",
     inducedMagneticCanvas: "Two-dimensional magnetic field induced by material objects",
-    electricModel: "Two-dimensional cross-section · linear dielectric / neutral isolated conductor · insulating top and bottom boundaries",
-    magneticModel: "Two-dimensional cross-section · linear isotropic magnetic material · no free current",
+    electricModel: "Two-dimensional cross-section · linear dielectric / neutral isolated conductor · uniform far-field boundary outside the view",
+    magneticModel: "Two-dimensional cross-section · linear isotropic magnetic material · no free current · uniform far-field boundary outside the view",
   },
   ja: {
     title: "場と物質の応答", fieldTypeLabel: "場の種類", electricField: "電場", magneticField: "磁場",
@@ -85,8 +85,8 @@ const TRANSLATIONS = {
     highPsi: "高い磁気ポテンシャル", negativeSurface: "負の表面密度", positiveSurface: "正の表面密度",
     electricCanvas: "物体によって変形する二次元の電場", magneticCanvas: "物体によって変形する二次元の磁場",
     inducedElectricCanvas: "物体によって誘導された二次元の電場", inducedMagneticCanvas: "物体によって誘導された二次元の磁場",
-    electricModel: "奥行き方向に一様な2次元断面 · 線形誘電体／中性孤立導体 · 上下端は絶縁境界",
-    magneticModel: "奥行き方向に一様な2次元断面 · 線形・等方磁性体 · 自由電流なし",
+    electricModel: "奥行き方向に一様な2次元断面 · 線形誘電体／中性孤立導体 · 表示範囲外に一様場の遠方境界",
+    magneticModel: "奥行き方向に一様な2次元断面 · 線形・等方磁性体 · 自由電流なし · 表示範囲外に一様場の遠方境界",
   },
 };
 
@@ -114,6 +114,7 @@ const context = canvas.getContext("2d");
 const potentialLayer = document.createElement("canvas");
 const potentialContext = potentialLayer.getContext("2d");
 const BOUNDS = {...DEFAULT_BOUNDS};
+const SOLVER_BOUNDS = {xMin: -9, xMax: 9, yMin: -7, yMax: 7};
 const SHAPE_BOUNDARIES = new Map();
 
 function shieldingExample() {
@@ -246,11 +247,11 @@ function submitSolve(quality) {
     options: {
       mode: state.mode,
       objects: state.objects,
-      bounds: BOUNDS,
-      nx: 161,
-      ny: 103,
-      leftPotential: 5 * state.appliedStrength,
-      rightPotential: -5 * state.appliedStrength,
+      bounds: SOLVER_BOUNDS,
+      nx: 217,
+      ny: 169,
+      leftPotential: -SOLVER_BOUNDS.xMin * state.appliedStrength,
+      rightPotential: -SOLVER_BOUNDS.xMax * state.appliedStrength,
       maxIterations: highQuality ? 2200 : 230,
       tolerance: highQuality ? 2.2e-5 : 9e-5,
       revision,
@@ -337,10 +338,28 @@ function drawBackground(view) {
   context.fillRect(0, 0, view.width, view.height);
   if (state.layers.potential && state.solution) {
     updatePotentialLayer();
+    const sourceX = (BOUNDS.xMin - state.solution.bounds.xMin)
+      / (state.solution.bounds.xMax - state.solution.bounds.xMin) * (state.solution.nx - 1);
+    const sourceY = (state.solution.bounds.yMax - BOUNDS.yMax)
+      / (state.solution.bounds.yMax - state.solution.bounds.yMin) * (state.solution.ny - 1);
+    const sourceWidth = (BOUNDS.xMax - BOUNDS.xMin)
+      / (state.solution.bounds.xMax - state.solution.bounds.xMin) * (state.solution.nx - 1);
+    const sourceHeight = (BOUNDS.yMax - BOUNDS.yMin)
+      / (state.solution.bounds.yMax - state.solution.bounds.yMin) * (state.solution.ny - 1);
     context.save();
     context.imageSmoothingEnabled = true;
     context.globalAlpha = 0.96;
-    context.drawImage(potentialLayer, 0, 0, view.width, view.height);
+    context.drawImage(
+      potentialLayer,
+      sourceX,
+      sourceY,
+      sourceWidth,
+      sourceHeight,
+      0,
+      0,
+      view.width,
+      view.height,
+    );
     context.restore();
   }
 
@@ -421,9 +440,10 @@ function drawFieldArrows(view) {
       if (!state.inducedOnly && isInsideElectricConductor(world.x, world.y)) continue;
       const field = sampleDisplayedField(state.solution, world.x, world.y, state.inducedOnly);
       const magnitude = Math.hypot(field.x, field.y);
-      if (magnitude < reference * 0.008) continue;
-      const length = 10 + 14 * Math.tanh(0.58 * magnitude / reference);
-      const alpha = 0.42 + 0.42 * Math.tanh(magnitude / reference);
+      const relativeMagnitude = magnitude / reference;
+      const length = 24 * Math.tanh(0.9 * relativeMagnitude);
+      if (length < 1.5) continue;
+      const alpha = 0.35 + 0.5 * Math.tanh(relativeMagnitude);
       drawArrow(screenX, screenY, field.x, -field.y, length, alpha);
     }
   }
@@ -992,7 +1012,8 @@ window.addEventListener("keydown", event => {
   }
 });
 
-new ResizeObserver(render).observe(canvas.parentElement);
+new ResizeObserver(() => render()).observe(canvas);
+window.addEventListener("resize", render);
 byId("model-description").textContent = t("electricModel");
 syncInspector();
 syncFieldPresentation();

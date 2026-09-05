@@ -76,6 +76,10 @@ def test_static_build_contract(tmp_path, visualization) -> None:
     assert "電場" in app
     assert 'title: "場と物質の応答"' in app
     assert 'magneticMaterialNote: "線形・等方な磁性体として扱います。"' in app
+    assert "insulating top and bottom boundaries" not in app
+    assert "上下端は絶縁境界" not in app
+    assert "const SOLVER_BOUNDS" in app
+    assert "state.solution.bounds.yMax - BOUNDS.yMax" in app
     assert 'iterations: "回"' in app
     assert 'workerError: "計算ワーカーエラー"' in app
     assert (
@@ -90,6 +94,8 @@ def test_static_build_contract(tmp_path, visualization) -> None:
     assert ".display-panel" in style
     assert "grid-column: 1 / -1" in style
     assert "grid-template-rows: auto 380px auto" in style
+    assert "#field-canvas { position: absolute; inset: 0" in style
+    assert "new ResizeObserver(() => render()).observe(canvas)" in app
     assert "--accent: var(--atlas-viz-accent)" in style
     assert "grid-readout" not in html
     assert html.index('id="surface-layer-name"') < html.index('class="density-control"')
@@ -130,8 +136,11 @@ def test_bilingual_articles_are_aligned_and_embedded() -> None:
         assert 'scrolling="no"' in source
         assert "min-height: 780px" in source
         assert "Workbench" not in source
+        assert '<div class="center-material-tables"></div>' in source
 
     english_index = (root / "docs/electromagnetism/index.md").read_text(encoding="utf-8")
     japanese_index = (root / "docs_ja/electromagnetism/index.md").read_text(encoding="utf-8")
     assert "[Electric and Magnetic Response of Materials](material-fields/)" in english_index
     assert "[物質の電場・磁場応答](material-fields/)" in japanese_index
+    extra_css = (root / "docs/stylesheets/extra.css").read_text(encoding="utf-8")
+    assert ":has(.center-material-tables) .md-typeset__table" in extra_css

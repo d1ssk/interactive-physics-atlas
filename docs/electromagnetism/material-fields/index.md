@@ -1,5 +1,7 @@
 # Electric and Magnetic Response of Materials
 
+<div class="center-material-tables"></div>
+
 ## How matter changes an applied field
 
 An applied electric or magnetic field rearranges microscopic degrees of freedom in matter. The
@@ -145,6 +147,12 @@ $$
 \qquad
 \mathbf B=\mu\mathbf H.
 $$
+
+The numerical domain extends beyond the displayed window. On every outer edge, the potential is
+fixed to that of the unperturbed uniform field. The induced component shown by the application is
+the total solution minus that same uniform field, so the applied and induced components add to the
+total field point by point. Moving the finite boundary outside the view reduces its influence and
+approximates the decay of the material response in an unbounded domain.
 
 The cross-section is taken to continue indefinitely perpendicular to the screen. The media are
 static, linear, and isotropic. The model omits dielectric loss, dispersion, anisotropy, hysteresis,

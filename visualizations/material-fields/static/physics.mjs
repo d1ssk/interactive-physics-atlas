@@ -144,10 +144,21 @@ function conductorIds(mask) {
   return [...ids];
 }
 
+function appliedPotentialForColumn(column, nx, leftPotential, rightPotential) {
+  const fraction = column / (nx - 1);
+  return leftPotential + fraction * (rightPotential - leftPotential);
+}
+
 function setAppliedBoundaries(potential, nx, ny, leftPotential, rightPotential) {
   for (let row = 0; row < ny; row += 1) {
     potential[row * nx] = leftPotential;
     potential[row * nx + nx - 1] = rightPotential;
+  }
+  const topOffset = (ny - 1) * nx;
+  for (let column = 0; column < nx; column += 1) {
+    const applied = appliedPotentialForColumn(column, nx, leftPotential, rightPotential);
+    potential[column] = applied;
+    potential[topOffset + column] = applied;
   }
 }
 
@@ -163,8 +174,12 @@ function initialPotential(materials, leftPotential, rightPotential, previous) {
   const potential = new Float64Array(size);
   for (let row = 0; row < ny; row += 1) {
     for (let column = 0; column < nx; column += 1) {
-      const fraction = column / (nx - 1);
-      potential[row * nx + column] = leftPotential + fraction * (rightPotential - leftPotential);
+      potential[row * nx + column] = appliedPotentialForColumn(
+        column,
+        nx,
+        leftPotential,
+        rightPotential,
+      );
     }
   }
   return potential;
@@ -244,7 +259,7 @@ export function solveField(options) {
   for (; iterations < maxIterations; iterations += 1) {
     let maximumChange = 0;
     for (let parity = 0; parity < 2; parity += 1) {
-      for (let row = 0; row < ny; row += 1) {
+      for (let row = 1; row < ny - 1; row += 1) {
         const rowOffset = row * nx;
         for (let column = 1; column < nx - 1; column += 1) {
           if (((column + row) & 1) !== parity) continue;
@@ -259,18 +274,14 @@ export function solveField(options) {
           const eastWeight = neighborWeight(materials, index, east, true);
           sum += westWeight * potential[west] + eastWeight * potential[east];
           totalWeight += westWeight + eastWeight;
-          if (row > 0) {
-            const south = index - nx;
-            const weight = neighborWeight(materials, index, south, false);
-            sum += weight * potential[south];
-            totalWeight += weight;
-          }
-          if (row < ny - 1) {
-            const north = index + nx;
-            const weight = neighborWeight(materials, index, north, false);
-            sum += weight * potential[north];
-            totalWeight += weight;
-          }
+          const south = index - nx;
+          const southWeight = neighborWeight(materials, index, south, false);
+          sum += southWeight * potential[south];
+          totalWeight += southWeight;
+          const north = index + nx;
+          const northWeight = neighborWeight(materials, index, north, false);
+          sum += northWeight * potential[north];
+          totalWeight += northWeight;
           const old = potential[index];
           const next = old + omega * (sum / totalWeight - old);
           potential[index] = next;
