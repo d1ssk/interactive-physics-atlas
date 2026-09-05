@@ -1,0 +1,17 @@
+id: mass-scale-atlas
+title: Energy Scale Atlas
+title_ja: エネルギースケール・アトラス
+field: particle-physics
+topics:
+  - Standard Model particles
+  - mass scales
+  - cosmic thermal history
+  - natural units
+level:
+  - undergraduate
+  - graduate
+runtime: browser-static
+page: particle-physics/mass-scale-atlas
+presentation: standalone
+summary: Walk a logarithmic energy axis from the present Hubble scale to the Planck mass, comparing particles, phenomena, experiments, and cosmic history.
+summary_ja: 現在のHubbleスケールからPlanck質量まで、粒子・現象・実験・宇宙熱史を対数エネルギー軸上で比較。

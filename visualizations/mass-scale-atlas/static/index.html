@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07121d">
+  <title>エネルギースケール・アトラス — Interactive Physics Atlas</title>
+  <link rel="icon" href="../../assets/images/favicon.svg">
+  <link rel="stylesheet" href="visualization-theme.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="visualization-theme.js"></script>
+  <script defer src="physics.js"></script>
+  <script defer src="data.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#scale-start" data-i18n="skip">スケール本体へ移動</a>
+
+  <nav class="site-nav" aria-label="サイトと表示設定" data-i18n-aria-label="siteNavLabel">
+    <a class="brand" id="brand-home" href="../../">Interactive Physics Atlas</a>
+    <div class="nav-actions">
+      <button class="nav-button" id="filter-toggle" type="button" aria-expanded="false" aria-controls="filter-panel">
+        <span class="filter-dot" aria-hidden="true"></span>
+        <span data-i18n="filter">表示項目</span>
+      </button>
+      <div class="language-switch" role="group" aria-label="言語" data-i18n-aria-label="languageLabel">
+        <a data-language="ja" href="../../ja/particle-physics/mass-scale-atlas/?lang=ja" aria-current="page">JA</a>
+        <a data-language="en" href="./?lang=en">EN</a>
+      </div>
+    </div>
+  </nav>
+
+  <aside class="filter-panel" id="filter-panel" hidden>
+    <div class="filter-heading">
+      <div>
+        <p class="panel-kicker" data-i18n="filterKicker">LAYERS</p>
+        <h2 data-i18n="filterTitle">表示するレイヤー</h2>
+      </div>
+      <button class="icon-button" id="filter-close" type="button" aria-label="閉じる">×</button>
+    </div>
+    <div class="filter-options" id="filter-options"></div>
+    <p class="filter-note" data-i18n="filterNote">線の高さは常に値そのもの。ラベルだけ重なりを避けて移動します。</p>
+  </aside>
+
+  <header class="hero">
+    <div class="hero-orbit orbit-one" aria-hidden="true"></div>
+    <div class="hero-orbit orbit-two" aria-hidden="true"></div>
+    <div class="hero-copy">
+      <p class="eyebrow" data-i18n="eyebrow">THE ENERGY SCALE OF THE PHYSICAL WORLD</p>
+      <h1 data-i18n="title"><span class="title-line">エネルギースケールを、</span><span class="title-line">歩く。</span></h1>
+      <p class="hero-lede" data-i18n="lede">現在の宇宙膨張から Planck スケールまで。</p>
+      <div class="hero-facts" aria-label="この図の読み方" data-i18n-aria-label="readingGuideLabel">
+        <div>
+          <span class="fact-number">10<sup>61</sup></span>
+          <span data-i18n="factDecades">倍を越える隔たり</span>
+        </div>
+        <div>
+          <span class="fact-number">eV</span>
+          <span data-i18n="factUnit">全区間で共通の単位</span>
+        </div>
+        <div>
+          <span class="fact-number">↓</span>
+          <span data-i18n="factDirection">下ほど高エネルギー</span>
+        </div>
+      </div>
+      <a class="start-link" href="#scale-start">
+        <span data-i18n="start">スクロールを始める</span>
+        <span aria-hidden="true">↓</span>
+      </a>
+    </div>
+
+    <section class="massless-shelf" aria-labelledby="massless-heading">
+      <div class="shelf-heading">
+        <span class="zero-symbol">0</span>
+        <div>
+          <p class="panel-kicker" data-i18n="offAxis">OFF THE LOG AXIS</p>
+          <h2 id="massless-heading" data-i18n="masslessTitle">質量ゼロ</h2>
+        </div>
+      </div>
+      <div class="massless-particles">
+        <article>
+          <span class="particle-glyph">γ</span>
+          <div>
+            <h3 data-i18n="photon">光子</h3>
+            <p data-i18n="photonNote">標準模型では m = 0。実験上限は軸上に別表示。</p>
+          </div>
+        </article>
+        <article>
+          <span class="particle-glyph">g</span>
+          <div>
+            <h3 data-i18n="gluon">グルーオン</h3>
+            <p data-i18n="gluonNote">標準模型では m = 0。自由粒子としては観測されない。</p>
+          </div>
+        </article>
+      </div>
+    </section>
+  </header>
+
+  <main id="scale-start">
+    <section class="atlas" aria-label="物理世界の質量・エネルギースケール" data-i18n-aria-label="atlasLabel">
+      <div class="sticky-readout" id="sticky-readout" aria-live="polite">
+        <div class="readout-progress" aria-hidden="true"><span id="progress-bar"></span></div>
+        <div class="readout-main">
+          <span class="readout-label" data-i18n="here">現在位置</span>
+          <strong id="current-energy">10<sup>−33</sup> eV</strong>
+        </div>
+        <div class="readout-conversions">
+          <span><b data-i18n="lengthScale">長さ ℏc/E</b><strong id="current-length">— m</strong></span>
+          <span><b data-i18n="timeScale">時間 ℏ/E</b><strong id="current-time">— s</strong></span>
+          <span><b data-i18n="temperatureScale">温度 E/kB</b><strong id="current-temperature">— K</strong></span>
+        </div>
+      </div>
+
+      <div class="reading-line" id="reading-line" aria-hidden="true">
+        <span></span>
+      </div>
+
+      <div class="scale-column-head" aria-hidden="true">
+        <span data-i18n="energyAxis">エネルギー / 質量</span>
+        <span data-i18n="thermalHistory">標準宇宙論の熱史</span>
+      </div>
+
+      <div class="scale-scene" id="scale-scene">
+        <div class="axis-line" id="axis-line" aria-hidden="true"></div>
+        <div class="tick-layer" id="tick-layer" aria-hidden="true"></div>
+        <div class="chapter-layer" id="chapter-layer" aria-hidden="true"></div>
+        <div class="range-layer" id="range-layer"></div>
+        <svg class="connector-layer" id="connector-layer" aria-hidden="true"></svg>
+        <div class="marker-layer" id="marker-layer"></div>
+        <aside class="cosmology-layer" id="cosmology-layer" aria-label="宇宙熱史のベンチマーク" data-i18n-aria-label="cosmologyLabel"></aside>
+      </div>
+    </section>
+
+    <section class="endpoint">
+      <p class="panel-kicker" data-i18n="endpointKicker">END OF THE CURRENT MAP</p>
+      <h2 data-i18n="endpointTitle">ここから先は、量子重力の地図が要る</h2>
+      <p data-i18n="endpointText">Planck スケールは、「最大エネルギー」を示す壁ではありません。既知の理論をそのまま外挿することが信頼できなくなり、量子重力が必要になると考えられる境界です。</p>
+      <a href="#scale-start" data-i18n="backTop">最初のスケールへ戻る ↑</a>
+    </section>
+
+    <footer class="sources-section">
+      <div>
+        <p class="panel-kicker" data-i18n="sourcesKicker">SOURCES & CONVENTIONS</p>
+        <h2 data-i18n="sourcesTitle">出典と、このアトラスの約束</h2>
+      </div>
+      <div class="source-layout">
+        <div class="source-notes">
+          <p data-i18n="sourceNote1">粒子質量は PDG 2025 update を中心に採用。軽いクォークは MS̄、μ = 2 GeV、c・b は μ = m̄q の値です。</p>
+          <p data-i18n="sourceNote2">右の宇宙年齢は独立した熱史ベンチマークです。現在位置の長さ・時間・温度は ℓ = ℏc/E、τ = ℏ/E、T = E/kB による換算で、個々の現象の実寸・寿命・実温度を表すものではありません。</p>
+          <p data-i18n="sourceNote3">電磁波・化学・核・QCD・仮説スケールの帯は、厳密な誤差棒ではなく慣習的な区分、対象依存性、または模型依存性を可視化したものです。</p>
+        </div>
+        <ol class="source-list" id="source-list"></ol>
+      </div>
+    </footer>
+  </main>
+
+  <aside class="detail-panel" id="detail-panel" hidden aria-labelledby="detail-title">
+    <button class="detail-close icon-button" id="detail-close" type="button" aria-label="詳細を閉じる">×</button>
+    <p class="detail-category" id="detail-category"></p>
+    <h2 id="detail-title"></h2>
+    <p class="detail-value" id="detail-value"></p>
+    <p class="detail-text" id="detail-text"></p>
+    <div class="detail-sources" id="detail-sources"></div>
+  </aside>
+
+  <noscript>このアトラスの目盛りと項目表示には JavaScript が必要です。 / JavaScript is required to display the atlas scale and entries.</noscript>
+</body>
+</html>

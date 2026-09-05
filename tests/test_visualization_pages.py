@@ -159,6 +159,23 @@ def test_legendre_transform_is_linked_from_mathematics_and_thermodynamics() -> N
         assert ")**<br>\n  " in source
 
 
+def test_mass_scale_atlas_is_primary_in_particle_physics_and_cross_linked_from_cosmology() -> None:
+    pages = (
+        ROOT / "docs" / "particle-physics" / "index.md",
+        ROOT / "docs_ja" / "particle-physics" / "index.md",
+        ROOT / "docs" / "cosmology" / "index.md",
+        ROOT / "docs_ja" / "cosmology" / "index.md",
+    )
+
+    for page, locale in zip(pages, ("en", "ja", "en", "ja"), strict=True):
+        source = page.read_text(encoding="utf-8")
+        assert f"mass-scale-atlas/?lang={locale}" in source
+        assert ")**<br>\n  " in source
+
+    assert "../particle-physics/mass-scale-atlas/" in pages[2].read_text(encoding="utf-8")
+    assert "../particle-physics/mass-scale-atlas/" in pages[3].read_text(encoding="utf-8")
+
+
 def test_japanese_copy_and_typography_follow_site_style() -> None:
     japanese_pages = (ROOT / "docs_ja").rglob("index.md")
     combined = "\n".join(page.read_text(encoding="utf-8") for page in japanese_pages)
