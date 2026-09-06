@@ -70,6 +70,8 @@ def test_desktop_viewer_drag_uses_screen_relative_rotation_without_euler_angle_p
     assert "単位立体角あたりの光子数" in source
     assert "Frequency [Hz]" in source
     assert "dN/(dV dΩ dlnν) [m⁻³ sr⁻¹]" in source
+    assert 't("spectrumAxisFrequency")' in source
+    assert 't("spectrumAxisDensity")' in source
     assert "Photon number by direction" not in html
 
 
@@ -88,6 +90,12 @@ def test_application_localizes_all_reader_facing_ui_and_reports_frame_height():
     )
     assert message in html
     assert "main.scrollHeight" not in html
+    assert 'radiusLinearCaption: "リニア目盛り"' in source
+    assert 'radiusLogCaption: "対数目盛り"' in source
+    assert 't("radiusLinearCaption")' in source
+    assert "nearest.point !== state.hoveredPoint" in source
+    assert "if (typesetElements([tooltip])) state.hoveredPoint = nearest.point" in source
+    assert "state.hoveredPoint = null" in source
 
 
 def test_radial_ranges_keep_the_high_frequency_cloud_at_similar_outer_size():

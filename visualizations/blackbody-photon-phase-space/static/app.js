@@ -51,6 +51,10 @@ const TRANSLATIONS = {
     frequency: "Frequency",
     occupation: "Occupation number",
     density: "Photon density",
+    radiusLinearCaption: "linear scale",
+    radiusLogCaption: "logarithmic scale",
+    spectrumAxisFrequency: "Frequency [Hz]",
+    spectrumAxisDensity: "dN/(dV dΩ dlnν) [m⁻³ sr⁻¹]",
   },
   ja: {
     pageTitle: "黒体光子の位相空間 — Interactive Physics Atlas",
@@ -98,6 +102,10 @@ const TRANSLATIONS = {
     frequency: "周波数",
     occupation: "占有数",
     density: "光子密度",
+    radiusLinearCaption: "リニア目盛り",
+    radiusLogCaption: "対数目盛り",
+    spectrumAxisFrequency: "Frequency [Hz]",
+    spectrumAxisDensity: "dN/(dV dΩ dlnν) [m⁻³ sr⁻¹]",
   },
 };
 
@@ -182,6 +190,7 @@ const state = {
   panX: 0,
   panY: 0,
   dragging: null,
+  hoveredPoint: null,
   pointCounts: {earth: 0, sun: 0},
   solarDirection: null,
 };
@@ -512,11 +521,12 @@ function formatScientificLatex(value, digits = 2) {
 }
 
 function typesetElements(elements) {
-  if (!window.MathJax?.startup?.promise) return;
+  if (!window.MathJax?.startup?.promise) return false;
   window.MathJax.startup.promise.then(() => {
     window.MathJax.typesetClear(elements);
     return window.MathJax.typesetPromise(elements);
   }).then(() => window.dispatchEvent(new Event("physics-atlas:mathjax-ready")));
+  return true;
 }
 
 function updateLabelsAndDiagnostics() {
@@ -526,8 +536,8 @@ function updateLabelsAndDiagnostics() {
   byId("bond-albedo-output").textContent = current.bondAlbedo.toFixed(2);
   const radiusLabel = byId("frequency-radius-label");
   radiusLabel.innerHTML = current.frequencyScale === "linear"
-    ? "\\(r(\\nu)\\) · linear scale"
-    : "\\(r(\\nu)\\) · logarithmic scale";
+    ? `\\(r(\\nu)\\) · ${t("radiusLinearCaption")}`
+    : `\\(r(\\nu)\\) · ${t("radiusLogCaption")}`;
   byId("frequency-radius-range").textContent = current.frequencyScale === "linear"
     ? "0 → 1.5 PHz"
     : "1 THz → 1.5 PHz";
@@ -631,13 +641,18 @@ function drawSpectrum() {
   spectrumContext.fillStyle = "#617783";
   spectrumContext.font = "9px ui-monospace, monospace";
   spectrumContext.textAlign = "center";
-  spectrumContext.fillText("Frequency [Hz]", plot.left + plot.width / 2, height - 5);
+  spectrumContext.fillText(t("spectrumAxisFrequency"), plot.left + plot.width / 2, height - 5);
   spectrumContext.save();
   spectrumContext.translate(width < 520 ? 10 : 13, height / 2);
   spectrumContext.rotate(-Math.PI / 2);
   spectrumContext.font = "9px ui-monospace, monospace";
-  spectrumContext.fillText("dN/(dV dΩ dlnν) [m⁻³ sr⁻¹]", 0, 0);
+  spectrumContext.fillText(t("spectrumAxisDensity"), 0, 0);
   spectrumContext.restore();
+}
+
+function hideTooltip() {
+  byId("tooltip").hidden = true;
+  state.hoveredPoint = null;
 }
 
 function showTooltip(event) {
@@ -656,20 +671,22 @@ function showTooltip(event) {
   }
   const tooltip = byId("tooltip");
   if (!nearest) {
-    tooltip.hidden = true;
+    hideTooltip();
     return;
   }
-  const isEarth = nearest.point.source === "earth";
-  const color = isEarth ? EARTH_COLOR.css : SUN_COLOR.css;
-  const temperature = isEarth ? parameters().earthTemperature : parameters().sunTemperature;
-  const occupation = Physics.occupationNumber(nearest.point.frequency, temperature);
-  tooltip.style.setProperty("--tooltip-color", color);
-  tooltip.innerHTML = `<strong>${t(isEarth ? "earthPoint" : "sunPoint")}</strong><br>`
-    + `${t("frequency")} = ${formatFrequency(nearest.point.frequency)}<br>`
-    + `${t("occupation")} = ${formatScientificLatex(occupation, 3)}<br>`
-    + `${t("density")} = ${formatScientificLatex(nearest.point.density, 3)} m⁻³ sr⁻¹`;
-  tooltip.hidden = false;
-  typesetElements([tooltip]);
+  if (nearest.point !== state.hoveredPoint || tooltip.hidden) {
+    const isEarth = nearest.point.source === "earth";
+    const color = isEarth ? EARTH_COLOR.css : SUN_COLOR.css;
+    const temperature = isEarth ? parameters().earthTemperature : parameters().sunTemperature;
+    const occupation = Physics.occupationNumber(nearest.point.frequency, temperature);
+    tooltip.style.setProperty("--tooltip-color", color);
+    tooltip.innerHTML = `<strong>${t(isEarth ? "earthPoint" : "sunPoint")}</strong><br>`
+      + `${t("frequency")} = ${formatFrequency(nearest.point.frequency)}<br>`
+      + `${t("occupation")} = ${formatScientificLatex(occupation, 3)}<br>`
+      + `${t("density")} = ${formatScientificLatex(nearest.point.density, 3)} m⁻³ sr⁻¹`;
+    tooltip.hidden = false;
+    if (typesetElements([tooltip])) state.hoveredPoint = nearest.point;
+  }
   const maximumLeft = rectangle.width - tooltip.offsetWidth - 9;
   const maximumTop = rectangle.height - tooltip.offsetHeight - 9;
   tooltip.style.left = `${Math.max(9, Math.min(maximumLeft, x + 14))}px`;
@@ -691,7 +708,7 @@ phaseCanvas.addEventListener("pointerdown", event => {
     y: event.clientY,
     mode: event.shiftKey || event.button === 1 ? "pan" : "rotate",
   };
-  byId("tooltip").hidden = true;
+  hideTooltip();
 });
 
 phaseCanvas.addEventListener("pointermove", event => {
@@ -725,7 +742,7 @@ function finishDragging(event) {
 phaseCanvas.addEventListener("pointerup", finishDragging);
 phaseCanvas.addEventListener("pointercancel", finishDragging);
 phaseCanvas.addEventListener("pointerleave", event => {
-  if (!state.dragging) byId("tooltip").hidden = true;
+  if (!state.dragging) hideTooltip();
   if (state.dragging && event.buttons === 0) finishDragging(event);
 });
 phaseCanvas.addEventListener("wheel", event => {
