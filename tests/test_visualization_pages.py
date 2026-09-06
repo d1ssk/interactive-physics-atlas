@@ -10,6 +10,8 @@ COSMOLOGY_DOCS = ROOT / "docs" / "cosmology"
 JAPANESE_COSMOLOGY_DOCS = ROOT / "docs_ja" / "cosmology"
 RELATIVITY_DOCS = ROOT / "docs" / "relativity"
 JAPANESE_RELATIVITY_DOCS = ROOT / "docs_ja" / "relativity"
+QUANTUM_DOCS = ROOT / "docs" / "quantum-mechanics"
+JAPANESE_QUANTUM_DOCS = ROOT / "docs_ja" / "quantum-mechanics"
 
 
 def test_visualization_iframes_opt_in_to_dynamic_height() -> None:
@@ -33,6 +35,12 @@ def test_visualization_iframes_opt_in_to_dynamic_height() -> None:
             JAPANESE_RELATIVITY_DOCS / "lorentz-transformation" / "index.md",
             1450,
             1000,
+        ),
+        (QUANTUM_DOCS / "partial-wave-scattering" / "index.md", 2300, 1200),
+        (
+            JAPANESE_QUANTUM_DOCS / "partial-wave-scattering" / "index.md",
+            2300,
+            1200,
         ),
     )
 

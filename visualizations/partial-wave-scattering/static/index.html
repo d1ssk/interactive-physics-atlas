@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Partial-Wave Scattering — Interactive Physics Atlas</title>
+  <link rel="stylesheet" href="visualization-theme.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="visualization-theme.js"></script>
+  <script>
+    window.MathJax = {
+      tex: {inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]]},
+      svg: {fontCache: "global"},
+      startup: {
+        ready() {
+          MathJax.startup.defaultReady();
+          MathJax.startup.promise.then(() => {
+            window.dispatchEvent(new Event("physics-atlas:mathjax-ready"));
+          });
+        },
+      },
+    };
+  </script>
+  <script defer src="mathjax-tex-svg.js"></script>
+  <script>
+    window.physicsAtlasPlotlyReady = new Promise((resolve, reject) => {
+      const locale = new URLSearchParams(location.search).get("lang") === "ja" ? "ja" : "en";
+      const root = locale === "ja" ? "../../../../" : "../../../";
+      const script = document.createElement("script");
+      script.src = new URL(`${root}javascripts/__PLOTLY_ASSET__`, location.href);
+      script.addEventListener("load", resolve, {once:true});
+      script.addEventListener("error", reject, {once:true});
+      document.head.append(script);
+    });
+  </script>
+</head>
+<body>
+  <main>
+    <p id="runtime-status" class="runtime-status" role="status" aria-live="polite" data-i18n="loading">Preparing the visualization…</p>
+
+    <section class="visualization-panel" aria-labelledby="plane-heading">
+      <header class="panel-heading">
+        <div><span class="panel-number">1</span><h2 id="plane-heading" data-i18n="planeTitle">Building a plane wave</h2></div>
+        <p data-i18n="planeText">Compare the current partial sum, the next angular-momentum channel, and the sum obtained by adding that channel.</p>
+      </header>
+      <div class="control-strip">
+        <button id="plane-back" type="button" data-i18n="back">Back</button>
+        <label class="range-control">
+          <span>\(\ell_{\max}\)</span>
+          <input id="plane-ell" type="range" min="0" max="12" step="1" value="4">
+          <output id="plane-ell-output">4</output>
+        </label>
+        <button id="plane-add" class="primary" type="button"><span data-i18n="add">Add</span> \(\ell=\)<b id="plane-next-output">5</b></button>
+      </div>
+      <div class="plane-grid">
+        <figure>
+          <figcaption><span data-i18n="threeD">3-D partial sum</span><small data-i18n="rotate">Drag to rotate; wheel to zoom</small></figcaption>
+          <div id="plane-3d" class="plot plot-3d" aria-label="Three-dimensional plane-wave partial sum" data-i18n-aria="plane3dAria"></div>
+        </figure>
+        <figure>
+          <figcaption><span data-i18n="addition">Addition on the y = 0 plane</span><small data-i18n="sameSnapshot">Real part at the same phase</small></figcaption>
+          <div class="slice-control-strip">
+            <label class="range-control">
+              <span>\(\ell_{\max}\)</span>
+              <input id="plane-ell-slices" type="range" min="0" max="12" step="1" value="4">
+              <output id="plane-ell-slices-output">4</output>
+            </label>
+          </div>
+          <div id="plane-2d" class="heatmap-group" aria-label="Partial-wave addition on the y equals zero plane" data-i18n-aria="plane2dAria">
+            <section class="heatmap-panel"><h3 data-i18n="current">Current sum</h3><canvas id="plane-current"></canvas></section>
+            <section class="heatmap-panel"><h3><span data-i18n="next">Next channel</span> <span id="plane-next-label">ℓ=5</span></h3><canvas id="plane-next"></canvas></section>
+            <section class="heatmap-panel"><h3 data-i18n="after">After addition</h3><canvas id="plane-after"></canvas></section>
+          </div>
+        </figure>
+      </div>
+    </section>
+
+    <section class="visualization-panel" aria-labelledby="scatter-heading">
+      <header class="panel-heading">
+        <div><span class="panel-number">2</span><h2 id="scatter-heading" data-i18n="scatterTitle">Scattering from a central potential</h2></div>
+        <p data-i18n="scatterText">See how the potential changes the phase shifts, angular distribution, radial waves, and outgoing scattering field.</p>
+      </header>
+
+      <div class="preset-strip" role="group" aria-label="Potential presets" data-i18n-aria="presetsAria">
+        <button type="button" data-preset="well" class="active" data-i18n="well">Attractive well</button>
+        <button type="button" data-preset="barrier" data-i18n="barrier">Repulsive barrier</button>
+        <button type="button" data-preset="coreWell" data-i18n="coreWell">Core and well</button>
+      </div>
+      <div class="parameter-grid">
+        <label><span><span data-i18n="strength">Gaussian strength \(U_0\)</span><output id="strength-output">−8.0</output></span><input id="strength" type="range" min="-18" max="18" step="0.25" value="-8"></label>
+        <label><span><span data-i18n="range">Range \(a\)</span><output id="range-output">1.15</output></span><input id="range" type="range" min="0.55" max="1.8" step="0.05" value="1.15"></label>
+        <label><span><span data-i18n="core">Repulsive core \(U_c\)</span><output id="core-output">0.0</output></span><input id="core" type="range" min="0" max="24" step="0.5" value="0"></label>
+        <label><span><span data-i18n="energy">Energy \(E=k^2\)</span><output id="energy-output">5.00</output></span><input id="energy" type="range" min="0.5" max="16" step="0.1" value="5"></label>
+      </div>
+
+      <div class="summary-plot-grid">
+        <figure><figcaption data-i18n="potentialProfile">Potential profile</figcaption><div id="potential-profile" class="plot plot-diagnostic"></div></figure>
+        <figure><figcaption data-i18n="phaseShiftPlot">Phase shifts</figcaption><div id="phase-shifts" class="plot plot-diagnostic"></div></figure>
+        <figure><figcaption data-i18n="angularDistribution">Angular distribution \(d\sigma/d\Omega\)</figcaption><div id="differential-cross-section" class="plot plot-diagnostic"></div></figure>
+      </div>
+      <div class="resonance-plot-grid">
+        <figure><figcaption data-i18n="resonanceEnergy">Selected-channel energy response</figcaption><div id="resonance-energy" class="plot plot-diagnostic"></div></figure>
+        <figure><figcaption data-i18n="radialComparison">Selected-channel radial wave</figcaption><div id="resonance-radial" class="plot plot-diagnostic"></div></figure>
+      </div>
+
+      <div class="control-strip scattering-controls">
+        <div class="segmented" role="group" aria-label="Scattering field" data-i18n-aria="fieldModeAria">
+          <button type="button" data-field-mode="total" aria-pressed="true" data-i18n="total">Incident + scattered</button>
+          <button type="button" data-field-mode="scattered" aria-pressed="false" data-i18n="scattered">Scattered only</button>
+        </div>
+        <button id="scatter-back" type="button" data-i18n="back">Back</button>
+        <label class="range-control scattering-range-control">
+          <span>\(\ell_{\max}\)</span>
+          <input id="scatter-ell" type="range" min="0" max="10" step="1" value="0">
+          <output id="scatter-ell-output">0</output>
+        </label>
+        <button id="scatter-add" class="primary" type="button"><span data-i18n="add">Add</span> \(\ell=\)<b id="scatter-next-output">1</b></button>
+        <label class="select-control"><span data-i18n="channel">Resonance channel</span><select id="resonance-ell"></select></label>
+      </div>
+      <figure class="field-figure">
+        <figcaption><span data-i18n="fieldComparison">Scattering field on the y = 0 plane</span><small id="cross-section">—</small></figcaption>
+        <div id="scattering-field" class="heatmap-group scattering-heatmaps" aria-label="Scattering field on the y equals zero plane" data-i18n-aria="scatteringFieldAria">
+          <section class="heatmap-panel"><h3 id="field-current-label" data-i18n="current">Current sum</h3><canvas id="field-current"></canvas></section>
+          <section class="heatmap-panel"><h3 id="field-next-label" data-i18n="next">Next channel</h3><canvas id="field-next"></canvas></section>
+          <section class="heatmap-panel"><h3 data-i18n="after">After addition</h3><canvas id="field-after"></canvas></section>
+        </div>
+      </figure>
+      <p class="note" data-i18n="maskNote">The gray disk masks the potential interior, where the asymptotic outgoing-wave expression is not used.</p>
+    </section>
+
+  </main>
+  <script>
+    (() => {
+      const main = document.querySelector("main");
+      const expectedParent = window.parent !== window ? window.parent : null;
+      const expectedOrigin = location.protocol === "http:" || location.protocol === "https:" ? location.origin : null;
+      const report = () => {
+        if (!expectedParent || !expectedOrigin) return;
+        const height = Math.ceil(Math.max(main.getBoundingClientRect().bottom, document.body.getBoundingClientRect().height));
+        expectedParent.postMessage({type:"physics-atlas:frame-height", height}, expectedOrigin);
+      };
+      addEventListener("message", event => {
+        if (event.source === expectedParent && event.origin === expectedOrigin && event.data?.type === "physics-atlas:request-frame-height") report();
+      });
+      addEventListener("load", report);
+      addEventListener("resize", report);
+      addEventListener("physics-atlas:mathjax-ready", report);
+      const observer = new ResizeObserver(report);
+      observer.observe(document.body);
+      observer.observe(main);
+      addEventListener("pagehide", () => observer.disconnect(), {once:true});
+      document.fonts?.ready.then(report);
+      report();
+    })();
+  </script>
+  <script id="runtime-manifest" type="application/json">__RUNTIME_MANIFEST__</script>
+  <script type="module" src="app.mjs"></script>
+</body>
+</html>

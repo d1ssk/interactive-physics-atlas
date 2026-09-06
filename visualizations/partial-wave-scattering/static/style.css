@@ -1,0 +1,99 @@
+:root {
+  --paper: var(--atlas-viz-background);
+  --panel: var(--atlas-viz-panel);
+  --panel-subtle: var(--atlas-viz-panel-subtle);
+  --border: var(--atlas-viz-border);
+  --accent: var(--atlas-viz-accent);
+  --ink: #263238;
+  --muted: #667078;
+  --blue: #3b6fb6;
+  --orange: #d9772b;
+  --violet: #69558f;
+  --gold: #b68516;
+  color-scheme: light;
+  font-family: Inter, "Noto Sans JP", ui-sans-serif, system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; background: var(--paper); color: var(--ink); }
+a { color: inherit; }
+button, input, select { font: inherit; }
+button, select { border: 1px solid var(--border); border-radius: 3px; background: var(--panel); color: var(--ink); }
+button { min-height: 34px; padding: 6px 12px; cursor: pointer; }
+button:hover { border-color: var(--accent); }
+button:disabled { cursor: default; opacity: .42; }
+button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible { outline: 3px solid var(--atlas-viz-focus); outline-offset: 2px; }
+
+main { width: min(1380px, calc(100% - 24px)); margin: 0 auto; padding: 12px 0 30px; }
+.runtime-status { min-height: 22px; margin: 0 0 8px; color: var(--muted); font-size: .72rem; }
+.runtime-status.error { color: #a33b32; }
+
+.visualization-panel { margin-bottom: 30px; border: 1px solid var(--border); background: var(--panel); }
+.panel-heading { display: grid; grid-template-columns: max-content minmax(280px, 1fr); gap: 28px; align-items: end; padding: 22px 24px; border-bottom: 1px solid var(--border); }
+.panel-heading > div { display: flex; align-items: baseline; gap: 12px; }
+.panel-number { color: var(--accent); font-size: .7rem; font-weight: 800; }
+.panel-heading h2 { margin: 0; font-size: clamp(.94rem, 2.4vw, 2rem); letter-spacing: -.025em; white-space: nowrap; }
+.panel-heading p { margin: 0; color: var(--muted); font-size: .8rem; line-height: 1.65; }
+.control-strip, .preset-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--panel-subtle); }
+button.primary { border-color: var(--blue); background: var(--blue); color: white; }
+.range-control { display: grid; grid-template-columns: auto minmax(160px, 1fr) 28px; align-items: center; gap: 10px; flex: 1 1 250px; font-size: .78rem; }
+input[type="range"] { width: 100%; accent-color: var(--blue); }
+output { color: var(--blue); font-variant-numeric: tabular-nums; font-weight: 700; }
+.plane-grid { display: grid; grid-template-columns: minmax(0, .78fr) minmax(0, 1.22fr); align-items: start; }
+figure { min-width: 0; margin: 0; }
+.plane-grid figure + figure, .summary-plot-grid figure + figure, .resonance-plot-grid figure + figure { border-left: 1px solid var(--border); }
+figcaption { display: flex; justify-content: space-between; gap: 14px; min-height: 42px; padding: 12px 14px; border-bottom: 1px solid var(--border); color: var(--ink); font-size: .74rem; font-weight: 700; }
+figcaption small { color: var(--muted); font-size: .65rem; font-weight: 500; }
+.plot { width: 100%; background: var(--panel); }
+.plot-3d { height: 560px; }
+.plot .modebar { opacity: .4; }
+.plot:hover .modebar { opacity: 1; }
+.slice-control-strip { padding: 10px 14px; border-bottom: 1px solid var(--border); background: var(--panel-subtle); }
+.heatmap-group { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; height: auto; padding: 12px; gap: 8px; }
+.heatmap-panel { display: grid; grid-template-rows: 28px auto; min-width: 0; border: 1px solid var(--border); background: var(--panel); }
+.heatmap-panel h3 { margin: 0; padding: 7px 8px 5px; color: var(--muted); font-size: .65rem; font-weight: 650; text-align: center; }
+.heatmap-panel canvas { display: block; width: 100%; height: auto; aspect-ratio: 1; }
+
+.preset-strip button { color: var(--muted); font-size: .72rem; }
+.preset-strip button.active { border-color: var(--blue); color: var(--blue); }
+.parameter-grid { display: grid; grid-template-columns: repeat(4, minmax(170px, 1fr)); gap: 1px; background: var(--border); border-bottom: 1px solid var(--border); }
+.parameter-grid label { display: block; padding: 13px 15px; background: var(--panel); }
+.parameter-grid label > span { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 9px; color: var(--muted); font-size: .68rem; }
+.summary-plot-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-bottom: 1px solid var(--border); }
+.resonance-plot-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-bottom: 1px solid var(--border); }
+.plot-diagnostic { height: 340px; }
+.scattering-controls { justify-content: flex-start; }
+.scattering-range-control { max-width: 460px; }
+.segmented { display: flex; }
+.segmented button + button { margin-left: -1px; }
+.segmented button[aria-pressed="true"] { border-color: var(--blue); color: var(--blue); position: relative; }
+.ell-readout { min-width: 76px; text-align: center; font-size: .75rem; }
+.select-control { display: flex; align-items: center; gap: 8px; margin-left: auto; color: var(--muted); font-size: .7rem; }
+.select-control select { min-height: 34px; padding: 5px 30px 5px 9px; }
+.scattering-heatmaps { height: auto; }
+.field-figure figcaption small { color: var(--blue); }
+.note { margin: 0; padding: 11px 15px; border-top: 1px solid var(--border); color: var(--muted); font-size: .68rem; line-height: 1.6; }
+
+@media (max-width: 980px) {
+  .plane-grid { grid-template-columns: 1fr; }
+  .plane-grid figure + figure { border-left: 0; border-top: 1px solid var(--border); }
+  .parameter-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 800px) {
+  .summary-plot-grid, .resonance-plot-grid { grid-template-columns: 1fr; }
+  .summary-plot-grid figure + figure, .resonance-plot-grid figure + figure { border-left: 0; border-top: 1px solid var(--border); }
+}
+
+@media (max-width: 680px) {
+  main { width: min(100% - 20px, 1380px); }
+  .panel-heading { grid-template-columns: 1fr; gap: 10px; padding: 18px 15px; }
+  .parameter-grid { grid-template-columns: 1fr; }
+  .control-strip { align-items: stretch; }
+  .range-control { order: -1; flex-basis: 100%; }
+  .select-control { width: 100%; margin-left: 0; justify-content: space-between; }
+  .plot-3d { height: 480px; }
+  .plot-diagnostic { height: 340px; }
+  .heatmap-group { grid-template-columns: 1fr; }
+  figcaption { align-items: flex-start; flex-direction: column; gap: 3px; }
+}
