@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Blackbody Photon Phase Space</title>
+  <link rel="stylesheet" href="visualization-theme.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="visualization-theme.js"></script>
+  <script>
+    window.MathJax = {
+      tex: {inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]]},
+      svg: {fontCache: "global"},
+      startup: {
+        ready() {
+          MathJax.startup.defaultReady();
+          MathJax.startup.promise.then(() => {
+            window.dispatchEvent(new Event("physics-atlas:mathjax-ready"));
+          });
+        },
+      },
+    };
+  </script>
+  <script defer src="mathjax-tex-svg.js"></script>
+</head>
+<body>
+  <main>
+    <header class="app-header">
+      <div>
+        <h1><span data-i18n="titlePrefix">Blackbody photons in</span> <span class="nowrap">\((\nu,\Omega)\)</span></h1>
+        <p class="lede" data-i18n="lede">Compare low-temperature radiation spread over the sky with high-temperature sunlight confined to one tiny direction.</p>
+      </div>
+      <div class="source-key" data-i18n-aria-label="sourceLegendLabel" aria-label="Radiation-source legend">
+        <span><i class="source-dot earth"></i><span data-i18n="earthLegend">Earth · full sky</span></span>
+        <span><i class="source-dot sun"></i><span data-i18n="sunLegend">Sun · solar disk</span></span>
+      </div>
+    </header>
+
+    <section class="app-shell">
+      <aside class="controls" data-i18n-aria-label="settingsLabel" aria-label="Display settings">
+        <section class="control-section">
+          <h2 data-i18n="physicalParameters">Physical parameters</h2>
+          <label class="range-label" for="earth-temperature">
+            <span><span data-i18n="earthTemperature">Earth temperature</span> <output id="earth-temperature-output">255 K</output></span>
+            <input id="earth-temperature" type="range" min="230" max="280" step="1" value="255">
+          </label>
+          <label class="range-label" for="sun-temperature">
+            <span><span data-i18n="sunTemperature">Sun temperature</span> <output id="sun-temperature-output">5800 K</output></span>
+            <input id="sun-temperature" type="range" min="5400" max="6200" step="20" value="5800">
+          </label>
+          <label class="range-label" for="bond-albedo">
+            <span><span data-i18n="bondAlbedo">Bond albedo</span> <output id="bond-albedo-output">0.30</output></span>
+            <input id="bond-albedo" type="range" min="0" max="0.6" step="0.01" value="0.30">
+          </label>
+        </section>
+
+        <section class="control-section">
+          <h2 data-i18n="display">Display</h2>
+          <label for="frequency-scale"><span data-i18n="frequencyScale">Radial frequency scale</span>
+            <select id="frequency-scale">
+              <option value="linear" selected data-i18n="linearScale">Linear · frequency</option>
+              <option value="log" data-i18n="logScale">Logarithmic · log₁₀ frequency</option>
+            </select>
+          </label>
+          <label for="point-count"><span data-i18n="pointCount">Number of points</span>
+            <select id="point-count">
+              <option value="7000" data-i18n="pointsLight">7,000 · light</option>
+              <option value="13000" selected data-i18n="pointsStandard">13,000 · standard</option>
+              <option value="22000" data-i18n="pointsDense">22,000 · dense</option>
+            </select>
+          </label>
+          <label for="solar-magnification"><span data-i18n="solarMagnification">Solar-disk angular magnification</span>
+            <select id="solar-magnification">
+              <option value="1" selected data-i18n="magnificationOne">×1 · physical angular size</option>
+              <option value="10" data-i18n="magnificationTen">×10 · visual aid</option>
+            </select>
+          </label>
+          <div class="check-row">
+            <label><input id="show-earth" type="checkbox" checked> <span data-i18n="earth">Earth</span></label>
+            <label><input id="show-sun" type="checkbox" checked> <span data-i18n="sun">Sun</span></label>
+          </div>
+          <button id="reset-view" class="reset-button" type="button" data-i18n="resetView">Reset view</button>
+        </section>
+
+        <section class="diagnostics" data-i18n-aria-label="integratedQuantitiesLabel" aria-label="Integrated quantities">
+          <h2 data-i18n="integrateSameSpace">Integrate the same phase space</h2>
+          <dl>
+            <div><dt data-i18n="solarAngularRadius">Solar angular radius</dt><dd id="solar-angle">—</dd></div>
+            <div><dt data-i18n="solarSolidAngle">Solar solid angle</dt><dd id="solar-solid-angle">—</dd></div>
+            <div><dt data-i18n="fractionOfSky">Fraction of the sky</dt><dd id="solar-sky-fraction">—</dd></div>
+            <div><dt data-i18n="photonRatio">Photon number, Sun / Earth</dt><dd id="photon-ratio">—</dd></div>
+            <div class="energy-row"><dt data-i18n="energyRatio">Absorbed solar energy / terrestrial energy</dt><dd id="energy-ratio">—</dd></div>
+            <div><dt data-i18n="renderedPoints">Rendered points, Earth / Sun</dt><dd id="rendered-points">—</dd></div>
+          </dl>
+          <p data-i18n="diagnosticCaveat">Ideal blackbodies integrated over all frequencies. Bond albedo affects only the energy ratio; wavelength dependence and atmospheric transfer are omitted.</p>
+        </section>
+      </aside>
+
+      <section class="viewer-column">
+        <div class="viewer-card" data-i18n-aria-label="phaseSpaceLabel" aria-label="Three-dimensional blackbody photon phase space">
+          <canvas id="phase-space-canvas"></canvas>
+          <div class="frequency-caption">
+            <span id="frequency-radius-label">\(r(\nu)\) · linear scale</span><br>
+            <span id="frequency-radius-range">0 → 1.5 PHz</span>
+          </div>
+          <output id="zoom-readout" class="zoom-readout" aria-live="polite">Zoom 1.00×</output>
+          <div class="viewer-help" data-i18n="viewerHelp">Drag: rotate · Shift-drag: pan · Wheel: zoom · Hover: inspect a point</div>
+          <div id="tooltip" class="tooltip" role="status" hidden></div>
+        </div>
+        <div class="spectrum-card">
+          <div class="card-heading">
+            <h2 data-i18n="spectrumTitle">Photon number per unit solid angle</h2>
+          </div>
+          <canvas id="spectrum-canvas" aria-label="Earth and solar photon spectra" data-i18n-aria-label="spectrumLabel"></canvas>
+          <div class="chart-legend"><span class="earth-line" data-i18n="earth">Earth</span><span class="sun-line" data-i18n="solarDirection">Solar component within the disk</span></div>
+        </div>
+      </section>
+    </section>
+
+  </main>
+
+  <script>
+    (() => {
+      if (window.parent === window) return;
+      const PARENT_TARGET_ORIGIN = window.location.origin;
+      function report() {
+        const main = document.querySelector("main");
+        const contentBottom = main ? main.getBoundingClientRect().bottom : 0;
+        const contentHeight = Math.max(contentBottom, document.body.getBoundingClientRect().height);
+        const frameHeight = Math.ceil(contentHeight);
+        if (window.frameElement) {
+          window.frameElement.style.minHeight = "0";
+          window.frameElement.style.height = `${frameHeight}px`;
+          window.frameElement.setAttribute("scrolling", "no");
+          window.frameElement.style.overflow = "hidden";
+        }
+        window.parent.postMessage(
+          {type: "physics-atlas:frame-height", height: frameHeight},
+          PARENT_TARGET_ORIGIN,
+        );
+      }
+      window.addEventListener("load", report);
+      window.addEventListener("resize", report);
+      window.addEventListener("physics-atlas:mathjax-ready", report);
+      window.addEventListener("message", event => {
+        const expectedParent = event.source === window.parent;
+        const expectedOrigin = event.origin === PARENT_TARGET_ORIGIN;
+        if (expectedParent && expectedOrigin && event.data?.type === "physics-atlas:request-frame-height") report();
+      });
+      if ("ResizeObserver" in window) {
+        const observer = new ResizeObserver(report);
+        observer.observe(document.body);
+        const main = document.querySelector("main");
+        if (main) observer.observe(main);
+        window.addEventListener("pagehide", () => observer.disconnect(), {once: true});
+      }
+      document.fonts?.ready.then(report);
+      report();
+    })();
+  </script>
+  <script src="physics.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

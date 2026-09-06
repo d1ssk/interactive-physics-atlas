@@ -48,6 +48,7 @@ property = "G-P4BVZ9ZZ0E"
 
 [project.markdown_extensions]
 pymdownx.arithmatex.generic = true
+footnotes = {}
 
 [project.plugins.macros.config]
 module_name = "physics_atlas.docs_macros"

@@ -1,0 +1,16 @@
+id: blackbody-photon-phase-space
+title: Phase Space of Terrestrial and Solar Radiation
+title_ja: 地球・太陽放射の位相空間
+field: statistical-physics
+topics:
+  - blackbody radiation
+  - photon phase space
+  - entropy
+  - nonequilibrium thermodynamics
+level:
+  - advanced undergraduate
+  - graduate
+runtime: browser-static
+page: statistical-physics/blackbody-photon-phase-space
+summary: Frequency-direction distributions of solar and terrestrial radiation.
+summary_ja: 太陽放射と地球放射の周波数・方向分布。

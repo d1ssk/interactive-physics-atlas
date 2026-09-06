@@ -30,6 +30,8 @@ def test_configs_define_distinct_canonical_languages_and_mathjax() -> None:
     assert english["site_url"].endswith("interactive-physics-atlas/")
     assert japanese["site_url"].endswith("interactive-physics-atlas/ja/")
     assert english["markdown_extensions"]["pymdownx"]["arithmatex"]["generic"] is True
+    assert english["markdown_extensions"]["footnotes"] == {}
+    assert japanese["markdown_extensions"]["footnotes"] == {}
     assert "javascripts/mathjax-tex-svg.js" in english["extra_javascript"]
     assert "javascripts/mathjax-tex-svg.js" in japanese["extra_javascript"]
     assert not any(source.startswith("http") for source in english["extra_javascript"])

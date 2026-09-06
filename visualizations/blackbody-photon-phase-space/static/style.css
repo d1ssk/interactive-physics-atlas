@@ -1,0 +1,173 @@
+:root {
+  color-scheme: light;
+  --ink: #202422;
+  --muted: #68716d;
+  --earth: #2da8bd;
+  --sun: #df8c1d;
+  --plot-background: #061019;
+  --plot-grid: rgb(145 176 192 / 18%);
+  --plot-label: #a7bdc8;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-width: 320px;
+  color: var(--ink);
+  background: var(--atlas-viz-background);
+  font-family: Inter, "Noto Sans JP", "Hiragino Sans", system-ui, sans-serif;
+}
+
+main {
+  width: min(1440px, 100%);
+  margin: 0 auto;
+  padding: 30px 24px 38px;
+}
+
+.app-header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 0 4px 22px;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 48px);
+  line-height: 1.1;
+  letter-spacing: -.035em;
+}
+
+h2 { margin: 0; font-size: 15px; line-height: 1.35; }
+
+.lede {
+  max-width: 760px;
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.nowrap { white-space: nowrap; }
+
+.source-key {
+  display: grid;
+  gap: 8px;
+  min-width: 175px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.source-key > span { display: flex; align-items: center; gap: 8px; }
+.source-dot { width: 9px; height: 9px; border-radius: 50%; }
+.source-dot.earth { color: var(--earth); background: var(--earth); }
+.source-dot.sun { color: var(--sun); background: var(--sun); }
+
+.app-shell { display: grid; grid-template-columns: 306px minmax(0, 1fr); gap: 14px; }
+
+.controls,
+.viewer-card,
+.spectrum-card {
+  border: 1px solid var(--atlas-viz-border);
+  background: var(--atlas-viz-panel);
+}
+
+.controls { align-self: start; border-radius: 14px; overflow: hidden; }
+.control-section, .diagnostics { padding: 18px; border-bottom: 1px solid var(--atlas-viz-border); }
+.controls > :last-child { border-bottom: 0; }
+.control-section h2, .diagnostics h2 { margin-bottom: 16px; }
+
+label { display: grid; gap: 7px; margin-top: 14px; color: var(--muted); font-size: 12px; }
+label:first-of-type { margin-top: 0; }
+.range-label > span { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+output { color: var(--ink); font: 650 12px ui-monospace, monospace; }
+input[type="range"] { width: 100%; accent-color: var(--atlas-viz-accent); }
+
+select,
+button {
+  min-height: 39px;
+  border: 1px solid var(--atlas-viz-border);
+  border-radius: 8px;
+  color: var(--ink);
+  background: var(--atlas-viz-panel-subtle);
+  font: inherit;
+}
+
+select { width: 100%; padding: 0 9px; }
+button { padding: 0 11px; cursor: pointer; }
+button:hover { border-color: var(--atlas-viz-accent); }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--atlas-viz-focus); outline-offset: 2px; }
+.reset-button { width: 100%; margin-top: 14px; }
+.check-row { display: flex; gap: 22px; margin-top: 15px; }
+.check-row label { display: flex; align-items: center; gap: 7px; margin: 0; }
+.check-row input { accent-color: var(--atlas-viz-accent); }
+
+.diagnostics dl { display: grid; gap: 10px; margin: 0; }
+.diagnostics dl div { display: flex; justify-content: space-between; gap: 12px; }
+.diagnostics dt { color: var(--muted); font-size: 11px; }
+.diagnostics dd { margin: 0; color: var(--ink); font: 600 11px ui-monospace, monospace; text-align: right; }
+.diagnostics .energy-row { margin: 2px -7px; padding: 7px; border-radius: 7px; background: color-mix(in srgb, var(--sun) 11%, transparent); }
+.diagnostics > p { margin: 14px 0 0; color: var(--muted); font-size: 10px; line-height: 1.55; }
+
+.viewer-column { display: grid; grid-template-rows: clamp(500px, 58vw, 680px) 250px; gap: 14px; min-width: 0; }
+.viewer-card { position: relative; min-height: 0; overflow: hidden; border-radius: 14px; touch-action: none; background: var(--plot-background); }
+#phase-space-canvas { display: block; width: 100%; height: 100%; cursor: grab; }
+#phase-space-canvas:active { cursor: grabbing; }
+
+.viewer-help,
+.frequency-caption,
+.zoom-readout {
+  position: absolute;
+  z-index: 2;
+  color: #bdd0d9;
+  background: rgb(3 9 14 / 76%);
+  border: 1px solid rgb(118 145 159 / 48%);
+  backdrop-filter: blur(8px);
+  font: 10px/1.5 ui-monospace, monospace;
+}
+
+.viewer-help { right: 12px; bottom: 11px; padding: 7px 9px; border-radius: 7px; }
+.frequency-caption { left: 12px; bottom: 11px; padding: 8px 10px; border-radius: 7px; color: #e1ebef; }
+.frequency-caption span:last-child { color: #a0b4bf; }
+.zoom-readout { top: 11px; right: 12px; padding: 6px 9px; border-radius: 7px; }
+.frequency-caption mjx-container, .card-heading mjx-container { margin: 0 !important; }
+
+.tooltip {
+  position: absolute;
+  z-index: 4;
+  min-width: 180px;
+  padding: 9px 11px;
+  border: 1px solid #607587;
+  border-radius: 8px;
+  color: #eef5f7;
+  background: rgb(4 10 15 / 95%);
+  pointer-events: none;
+  font: 11px/1.55 ui-monospace, monospace;
+}
+
+.tooltip strong { color: var(--tooltip-color, white); }
+.spectrum-card { min-width: 0; padding: 16px 19px 11px; border-radius: 14px; }
+.card-heading { margin-bottom: 3px; }
+#spectrum-canvas { display: block; width: 100%; height: 185px; }
+.chart-legend { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px 22px; color: var(--muted); font-size: 10px; }
+.chart-legend span::before { content: ""; display: inline-block; width: 16px; height: 2px; margin: 0 6px 3px 0; }
+.earth-line::before { background: var(--earth); }
+.sun-line::before { background: var(--sun); }
+
+@media (max-width: 900px) {
+  main { padding: 25px 15px 34px; }
+  .app-header { align-items: start; flex-direction: column; }
+  .source-key { display: flex; flex-wrap: wrap; }
+  .app-shell { grid-template-columns: 1fr; }
+  .controls { display: grid; grid-template-columns: 1fr 1fr; }
+  .diagnostics { grid-column: 1 / -1; }
+  .viewer-column { grid-template-rows: 540px 250px; }
+}
+
+@media (max-width: 620px) {
+  .controls { display: block; }
+  .viewer-column { grid-template-rows: 460px 260px; }
+  .viewer-help { display: none; }
+}
