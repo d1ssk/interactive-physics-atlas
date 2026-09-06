@@ -1,6 +1,6 @@
 id: blackbody-photon-phase-space
-title: Blackbody Photon Phase Space
-title_ja: 黒体光子の位相空間
+title: Phase Space of Terrestrial and Solar Radiation
+title_ja: 地球・太陽放射の位相空間
 field: statistical-physics
 topics:
   - blackbody radiation
@@ -12,5 +12,5 @@ level:
   - graduate
 runtime: browser-static
 page: statistical-physics/blackbody-photon-phase-space
-summary: Compare the frequency-direction distributions of sunlight and terrestrial radiation, revealing how similar energy flows can carry radically different entropy.
-summary_ja: 太陽放射と地球放射の周波数・方向分布を比較し、同程度のエネルギー流がまったく異なるエントロピーを運ぶことを可視化。
+summary: Frequency-direction distributions of solar and terrestrial radiation.
+summary_ja: 太陽放射と地球放射の周波数・方向分布。

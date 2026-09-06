@@ -1,62 +1,101 @@
-# Blackbody Photon Phase Space
+# Phase Space of Terrestrial and Solar Radiation
 
 ## What do we receive from the Sun?
 
-What does Earth actually receive from the Sun? The first answer is usually **energy**. But energy alone misses the essential point.
+What does Earth receive from the Sun? The first answer that comes to mind is **energy**. But the amount of energy alone misses the essential point.
 
-On climate timescales, Earth cannot keep receiving a large net supply of energy while maintaining an approximately steady temperature. It absorbs part of the incoming sunlight and returns almost the same power to space as thermal infrared radiation. The present balance is not exact: rising greenhouse-gas concentrations, including carbon dioxide, have reduced outgoing radiation relative to absorbed sunlight, so the Earth system is now gaining a modest amount of energy and warming. Nevertheless, this imbalance is small compared with the continuously exchanged incoming and outgoing powers.
+For Earth to maintain an approximately constant temperature on climatic timescales, it must return almost as much power to space as it absorbs from solar radiation. In fact, Earth reflects about 30% of the incoming solar radiation, absorbs the rest, and emits nearly the same amount of energy to space as thermal infrared radiation.[^energy-imbalance]
 
-The enduring resource supplied by the Sun is therefore not net energy, but **free energy**—more precisely, radiative exergy or available work: energy arriving in a low-entropy, highly structured form. Earth degrades that structure and exports the same order of energy in a higher-entropy form. The resulting throughput drives the planet's nonequilibrium dynamics.
+[^energy-imbalance]: Earth is not currently in perfect radiative equilibrium: the radiative energy it absorbs slightly exceeds the energy it emits. Increasing greenhouse-gas concentrations shift the new radiative equilibrium toward a higher temperature, but the Earth system—especially the oceans—has substantial thermal inertia, so it is presently in a transient state approaching that equilibrium.
+
+What drives Earth's nonequilibrium phenomena is therefore not primarily the **difference in quantity** between the energy arriving from the Sun and the energy leaving for space, but the **difference in quality** between them.
+
+Solar radiation reaching Earth is close to blackbody radiation at about $5800\,\mathrm K$, concentrated at high frequencies and within a restricted range of directions. Earth, by contrast, dissipates the absorbed energy and emits it to space in every direction as low-temperature thermal radiation with an effective radiating temperature of about $255\,\mathrm K$.
+
+Even when the two energy flows are nearly balanced in magnitude, the entropy they carry differs greatly. This contrast between hot solar radiation and cool terrestrial radiation provides the **radiative exergy** available to Earth's environment. Its flow drives life, weather, ocean circulation, and other nonequilibrium dynamics on Earth.
 
 ## Similar energy, radically different phase space
 
-For a blackbody at temperature $T$, the photon number per physical volume, solid angle, and logarithmic frequency interval is
+For blackbody radiation at temperature $T$, the photon number per physical volume, solid angle, and logarithmic frequency interval is
 
 $$
 \frac{\mathrm dN}{\mathrm dV\,\mathrm d\Omega\,\mathrm d\ln\nu}
-=\frac{2\nu^3}{c^3}\frac{1}{\exp(h\nu/k_{\mathrm B}T)-1}.
+=
+\frac{2\nu^3}{c^3}
+\frac{1}{\exp(h\nu/k_{\mathrm B}T)-1}
 $$
 
-Multiplication by $h\nu$ gives the corresponding energy distribution:
+Multiplying this by the energy $h\nu$ of one photon gives
 
 $$
 \frac{\mathrm dE}{\mathrm dV\,\mathrm d\Omega\,\mathrm d\ln\nu}
-=h\nu\frac{\mathrm dN}{\mathrm dV\,\mathrm d\Omega\,\mathrm d\ln\nu}.
+=
+h\nu
+\frac{\mathrm dN}{\mathrm dV\,\mathrm d\Omega\,\mathrm d\ln\nu}
 $$
 
-After integration over frequency and an occupied solid angle $\Omega$, the photon number and energy scale as
+If blackbody radiation uniformly occupies a solid angle $\Omega$, its photon number and energy integrated over frequency and solid angle scale as
 
 $$
 N\propto \Omega T^3,
 \qquad
-E\propto \Omega T^4.
+E\propto \Omega T^4
 $$
 
-The Sun is hot, $T_\odot\simeq 5800\,\mathrm K$, but its disk occupies only
-$\Omega_\odot\simeq 6.8\times10^{-5}\,\mathrm{sr}$. Terrestrial radiation is cool, with a characteristic temperature near $275\,\mathrm K$, and spreads over nearly the whole directional phase space. In the idealized comparison used here,
+The Sun's photospheric temperature is
 
 $$
-\frac{E_\odot}{E_\oplus}
-=\frac{\Omega_\odot}{4\pi}
+T_\odot\simeq5800\,\mathrm K
+$$
+
+but the solid angle of the solar disk as seen from Earth is only
+
+$$
+\Omega_\odot\simeq6.8\times10^{-5}\,\mathrm{sr}
+$$
+
+The effective radiating temperature of Earth, meanwhile, is
+
+$$
+T_\oplus\simeq255\,\mathrm K
+$$
+
+and, when thermal radiation emitted to space from the whole globe is considered together, its propagation directions span nearly the full sky of $4\pi$.
+
+About 30% of the solar radiation incident on Earth is reflected back to space by clouds, the atmosphere, and the surface. This global mean reflectivity is the Bond albedo $A$, so the fraction absorbed by Earth is $1-A$. Under this idealization,
+
+$$
+\frac{E_{\odot,\mathrm{abs}}}{E_\oplus}
+=
+(1-A)
+\frac{\Omega_\odot}{4\pi}
 \left(\frac{T_\odot}{T_\oplus}\right)^4
-\simeq 1.
+\simeq1.
 $$
 
-The integrated energies are comparable, yet their distributions in $(\nu,\Omega)$ are not. Solar radiation is concentrated at higher frequencies and into a tiny cone; terrestrial radiation occupies lower frequencies and almost every direction. For ideal blackbody radiation, the entropy-to-energy ratio is
+This relation is also the global-mean radiative equilibrium of Earth,
 
 $$
-\frac{S}{E}=\frac{4}{3T}.
+\frac{(1-A)S_\odot}{4}
+\simeq
+\sigma T_\oplus^4
 $$
 
-Thus the cooler outgoing radiation carries much more entropy per unit energy. The compact incoming distribution is precisely what makes sunlight thermodynamically valuable.
+rewritten in terms of the phase space occupied by terrestrial and solar radiation.
 
-## Two ways Earth spends that free energy
+Although their total energies are nearly equal, their distributions in $(\nu,\Omega)$ are entirely different. Absorbed solar radiation is concentrated at high frequencies and within a minute angular region, whereas terrestrial radiation is shifted to low frequencies and emitted from the globe across a broad range of directions.
 
-Life uses the frequency structure directly. Visible solar photons carry energies of order a few electronvolts, enough to drive specific molecular transitions. Photosynthesis captures part of that radiative free energy as chemical free energy. Metabolism and ecosystems then consume it step by step, maintaining organized, nonequilibrium activity while dissipating energy and increasing total entropy.
+For blackbody radiation, the ratio of entropy $S$ to energy $E$ is
 
-Atmospheric and oceanic motion uses a different feature. Once sunlight is absorbed and thermalized, the identity of an individual high-energy photon is lost. What remains dynamically important is that the radiation arrived from a sharply selected direction. Together with planetary geometry, rotation, clouds, albedo, and the day-night cycle, this directionality creates uneven heating. Temperature and pressure gradients then drive winds, weather, and ocean circulation.
+$$
+\frac{S}{E}
+=
+\frac{4}{3T}
+$$
 
-These are two uses of the same low-entropy input: spectral concentration can be converted into chemical free energy, while angular concentration produces spatially and temporally uneven heating.
+Cooler radiation therefore carries more entropy for the same energy. Earth dissipates the low-entropy radiation received from the Sun and returns nearly the same energy to space as higher-entropy thermal radiation.
+
+**What matters between the Sun and Earth is not merely that energy flows. It is that nearly the same energy flows in and out in radically different regions of phase space.**
 
 ## Visualization
 
@@ -69,23 +108,42 @@ These are two uses of the same low-entropy input: spectral concentration can be 
   data-auto-height
 ></iframe>
 
-Each rendered point represents the same photon number. Point density therefore shows
-$\mathrm dN/(\mathrm dV\,\mathrm d\Omega\,\mathrm d\ln\nu)$; brightness is not a second encoding. Radius represents frequency and direction from the origin represents $\Omega$.
+Each rendered point represents the same photon number. Point density therefore corresponds to
+
+$$
+\frac{\mathrm dN}{\mathrm dV\,\mathrm d\Omega\,\mathrm d\ln\nu}
+$$
+
+Radius represents frequency $\nu$, while direction from the origin represents the photon propagation direction $\Omega$.
 
 ## Suggested explorations
 
-- Start with the linear radial scale. Notice the broad radial separation between terrestrial and solar photons, and the enormous angular contrast between a full sky and the solar disk.
-- Switch to the logarithmic scale. The radial map changes, but both scales end at $1.5\,\mathrm{PHz}$ so the overall cloud remains comparable in size.
-- Change the solar-disk magnification from $\times1$ to $\times10$. The cone becomes easier to see, while the solar solid angle, point count, and integrated ratios remain unchanged.
-- Vary either temperature and compare the photon-number and energy ratios. The different $T^3$ and $T^4$ scalings explain why comparable energy does not imply comparable photon number.
+* Begin with the default linear radial scale and observe the large frequency separation between solar photons and low-temperature blackbody photons. At the same time, compare the extreme angular difference between the full sky and the solar disk.
 
-## Conventions and limitations
+* Switch to the logarithmic scale. The outer edge remains at $1.5\,\mathrm{PHz}$, but stretching the low-frequency region makes the two spectral shapes easier to compare in one figure.
 
-This is a phase-space comparison, not a complete terrestrial radiation-budget model. It superposes an isotropic, uniform-temperature blackbody Earth and a uniform blackbody solar disk at $1\,\mathrm{AU}$. It omits reflection, wavelength-dependent absorption and emissivity, atmospheric transfer, limb darkening, surface geometry, horizon occultation, and day-night structure. The displayed frequency band is $1\,\mathrm{THz}$ to $1.5\,\mathrm{PHz}$, while the diagnostics use analytic integrals over all frequencies. Angular magnification is purely visual. Here “free energy” means availability relative to the terrestrial environment, not one particular Helmholtz or Gibbs state function.
+* Change the solar-disk angular magnification from $\times1$ to $\times10$. The cone becomes easier to see, but its physical solid angle, point count, and integrated values do not change.
 
-Accordingly, the near-unity energy ratio should be read as the central scaling argument, not as a precision estimate of Earth's energy balance. A realistic calculation must include albedo, emitting area, effective radiating temperature, and atmospheric transfer.
+* Vary the two temperatures and the Bond albedo, then compare the photon-number and energy ratios. Because photon number scales as $T^3$ while energy scales as $T^4$, comparable energy does not imply comparable photon number. The Bond albedo changes only the absorbed solar energy used in the energy ratio; it does not change the displayed photon distribution.
 
-## References
+## What this model idealizes
 
-- [NASA Earth Observatory: Climate and Earth's Energy Budget](https://science.nasa.gov/earth/earth-observatory/climate-and-earths-energy-budget/)
-- [IPCC AR6 Working Group I, Chapter 7: The Earth's Energy Budget, Climate Feedbacks, and Climate Sensitivity](https://www.ipcc.ch/report/ar6/wg1/chapter/chapter-7/)
+This visualization approximates solar and terrestrial radiation as blackbodies and compares their distributions in frequency $\nu$ and propagation direction $\Omega$. Reflection of solar radiation by Earth is included through a global-mean albedo, while terrestrial radiation is treated as a blackbody at its effective radiating temperature.
+
+Terrestrial radiation is displayed by combining the propagation directions of photons emitted to space from the whole globe into a distribution spanning $4\pi$. This does not mean that every location emits in every direction; it is a superposition of global emission in a single angular space.
+
+Real radiation includes wavelength-dependent reflection and absorption, atmospheric absorption bands, distributions of cloud and surface temperatures, and diurnal and seasonal variations. Here these effects are reduced to a global-mean blackbody radiation field and reflectivity.
+
+The point of this model is that **nearly the same amount of energy enters from the Sun as hot radiation concentrated in a narrow phase-space region, and leaves Earth as cool radiation dispersed across a broad region of phase space**.
+
+## References and videos
+
+* [NASA Earth Observatory: Climate and Earth's Energy Budget](https://science.nasa.gov/earth/earth-observatory/climate-and-earths-energy-budget/)
+
+* [IPCC AR6 Working Group I, Chapter 7: The Earth's Energy Budget, Climate Feedbacks, and Climate Sensitivity](https://www.ipcc.ch/report/ar6/wg1/chapter/chapter-7/)
+
+* [NASA Technical Reports Server: The Far Infrared Earth](https://ntrs.nasa.gov/citations/20100033490)
+
+* [Entropy of radiation: the unseen side of light](https://www.nature.com/articles/s41598-017-01622-6)
+
+* [Veritasium: The Most Misunderstood Concept in Physics](https://youtu.be/DxL2HoqLbyA?si=fRnODBoAv4wURXsQ)

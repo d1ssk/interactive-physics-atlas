@@ -34,6 +34,14 @@ test("integrated energy density obeys temperature-fourth scaling", () => {
   assert.ok(relativeError(ratio, 16) < 1e-12);
 });
 
+test("Bond albedo removes the reflected energy fraction", () => {
+  const total = P.energyDensityInSolidAngle(5800, 1);
+  const absorbed = P.absorbedEnergyDensityInSolidAngle(5800, 1, 0.30);
+  assert.ok(relativeError(absorbed, 0.70 * total) < 1e-12);
+  assert.equal(P.absorbedEnergyDensityInSolidAngle(5800, 1, 1), 0);
+  assert.throws(() => P.absorbedEnergyDensityInSolidAngle(5800, 1, -0.01), RangeError);
+});
+
 test("the photon-number log-spectrum peak is locally maximal", () => {
   const peak = P.frequencyForPhotonLogPeak(275);
   const atPeak = P.photonNumberPerLogFrequencySolidAngle(peak, 275);

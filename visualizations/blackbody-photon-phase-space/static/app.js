@@ -16,6 +16,7 @@ const TRANSLATIONS = {
     physicalParameters: "Physical parameters",
     earthTemperature: "Earth temperature",
     sunTemperature: "Sun temperature",
+    bondAlbedo: "Bond albedo",
     display: "Display",
     frequencyScale: "Radial frequency scale",
     linearScale: "Linear · frequency",
@@ -36,9 +37,9 @@ const TRANSLATIONS = {
     solarSolidAngle: "Solar solid angle",
     fractionOfSky: "Fraction of the sky",
     photonRatio: "Photon number, Sun / Earth",
-    energyRatio: "Energy, Sun / Earth",
+    energyRatio: "Absorbed solar energy / terrestrial energy",
     renderedPoints: "Rendered points, Earth / Sun",
-    diagnosticCaveat: "Ideal blackbodies integrated over all frequencies; absorption, reflection, atmosphere, and geometry are omitted.",
+    diagnosticCaveat: "Ideal blackbodies integrated over all frequencies. Bond albedo affects only the energy ratio; wavelength dependence and atmospheric transfer are omitted.",
     phaseSpaceLabel: "Three-dimensional blackbody photon phase space",
     viewerHelp: "Drag: rotate · Shift-drag: pan · Wheel: zoom · Hover: inspect a point",
     zoom: "Zoom",
@@ -62,6 +63,7 @@ const TRANSLATIONS = {
     physicalParameters: "物理パラメータ",
     earthTemperature: "地球温度",
     sunTemperature: "太陽温度",
+    bondAlbedo: "Bond albedo",
     display: "表示",
     frequencyScale: "周波数の半径目盛り",
     linearScale: "リニア · 周波数",
@@ -82,9 +84,9 @@ const TRANSLATIONS = {
     solarSolidAngle: "太陽の立体角",
     fractionOfSky: "全天に占める割合",
     photonRatio: "光子数 太陽 / 地球",
-    energyRatio: "エネルギー 太陽 / 地球",
+    energyRatio: "吸収太陽エネルギー / 地球放射エネルギー",
     renderedPoints: "表示点 地球 / 太陽",
-    diagnosticCaveat: "全周波数で積分した理想黒体の値です。吸収・反射・大気・幾何学的効果は含みません。",
+    diagnosticCaveat: "全周波数で積分した理想黒体の値です。Bond albedo はエネルギー比だけに反映し、波長依存性と大気中の放射輸送は省略しています。",
     phaseSpaceLabel: "黒体光子位相空間の3次元表示",
     viewerHelp: "ドラッグ：回転 · Shift＋ドラッグ：移動 · ホイール：拡大 · 点にカーソル：値を表示",
     zoom: "拡大",
@@ -188,6 +190,7 @@ function parameters() {
   return {
     earthTemperature: Number(byId("earth-temperature").value),
     sunTemperature: Number(byId("sun-temperature").value),
+    bondAlbedo: Number(byId("bond-albedo").value),
     frequencyScale: byId("frequency-scale").value,
     pointCount: Number(byId("point-count").value),
     solarMagnification: Number(byId("solar-magnification").value),
@@ -520,6 +523,7 @@ function updateLabelsAndDiagnostics() {
   const current = parameters();
   byId("earth-temperature-output").textContent = `${current.earthTemperature} K`;
   byId("sun-temperature-output").textContent = `${current.sunTemperature} K`;
+  byId("bond-albedo-output").textContent = current.bondAlbedo.toFixed(2);
   const radiusLabel = byId("frequency-radius-label");
   radiusLabel.innerHTML = current.frequencyScale === "linear"
     ? "\\(r(\\nu)\\) · linear scale"
@@ -533,7 +537,11 @@ function updateLabelsAndDiagnostics() {
   const earthPhotons = Physics.photonDensityInSolidAngle(current.earthTemperature, 4 * Math.PI);
   const solarPhotons = Physics.photonDensityInSolidAngle(current.sunTemperature, SOLAR_SOLID_ANGLE);
   const earthEnergy = Physics.energyDensityInSolidAngle(current.earthTemperature, 4 * Math.PI);
-  const solarEnergy = Physics.energyDensityInSolidAngle(current.sunTemperature, SOLAR_SOLID_ANGLE);
+  const solarEnergy = Physics.absorbedEnergyDensityInSolidAngle(
+    current.sunTemperature,
+    SOLAR_SOLID_ANGLE,
+    current.bondAlbedo,
+  );
   byId("solar-angle").textContent = `${angleDegrees.toFixed(4)}°`;
   byId("solar-solid-angle").textContent = `${(SOLAR_SOLID_ANGLE * 1e6).toFixed(2)} µsr`;
   byId("solar-sky-fraction").textContent = `${(skyFraction * 100).toFixed(6)} %`;
@@ -736,6 +744,7 @@ phaseCanvas.addEventListener("contextmenu", event => event.preventDefault());
 
 byId("earth-temperature").addEventListener("input", regenerateGeometry);
 byId("sun-temperature").addEventListener("input", regenerateGeometry);
+byId("bond-albedo").addEventListener("input", updateLabelsAndDiagnostics);
 byId("frequency-scale").addEventListener("change", regenerateGeometry);
 byId("point-count").addEventListener("change", regenerateGeometry);
 byId("solar-magnification").addEventListener("change", regenerateGeometry);

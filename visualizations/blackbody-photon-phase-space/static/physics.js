@@ -71,6 +71,13 @@
     return numerator / denominator;
   }
 
+  function absorbedEnergyDensityInSolidAngle(temperatureK, solidAngleSr, bondAlbedo) {
+    if (!(bondAlbedo >= 0 && bondAlbedo <= 1)) {
+      throw new RangeError("Bond albedo must lie between zero and one");
+    }
+    return (1 - bondAlbedo) * energyDensityInSolidAngle(temperatureK, solidAngleSr);
+  }
+
   function frequencyForPhotonLogPeak(temperatureK) {
     const dimensionlessPeak = 2.8214393721220787;
     return dimensionlessPeak * CONSTANTS.boltzmann * temperatureK / CONSTANTS.planck;
@@ -100,6 +107,7 @@
     photonDensityInSolidAngle,
     photonDensityInFrequencyBand,
     energyDensityInSolidAngle,
+    absorbedEnergyDensityInSolidAngle,
     frequencyForPhotonLogPeak,
     directionFromAzimuthElevation,
     angularSeparation,

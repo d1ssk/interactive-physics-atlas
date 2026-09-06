@@ -2,10 +2,10 @@
 
 Fluctuations, emergent phenomena, and universality.
 
-## Radiation and nonequilibrium
+## Nonequilibrium
 
-- **[Blackbody Photon Phase Space](blackbody-photon-phase-space/)**<br>
-  Frequency-direction comparison of solar and terrestrial radiation, showing how similar energy flows carry radically different entropy.
+- **[Phase Space of Terrestrial and Solar Radiation](blackbody-photon-phase-space/)**<br>
+  Frequency-direction distributions of solar and terrestrial radiation.
 
 ## Simulations and phase transitions
 

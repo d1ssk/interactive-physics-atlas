@@ -49,11 +49,21 @@ def test_blackbody_entropy_energy_ratio_is_four_over_three_t(physics):
     assert entropy / energy == pytest.approx(4 / (3 * temperature))
 
 
-def test_default_sun_and_earth_energy_densities_are_comparable(physics):
+def test_default_absorbed_solar_and_earth_energy_densities_are_comparable(physics):
     solar_solid_angle = physics.circular_cone_solid_angle(physics.solar_angular_radius())
-    solar = physics.energy_density_in_solid_angle(5800, solar_solid_angle)
-    earth = physics.energy_density_in_solid_angle(275, 4 * math.pi)
-    assert 0.9 < solar / earth < 1.2
+    solar = physics.absorbed_energy_density_in_solid_angle(5800, solar_solid_angle, 0.30)
+    earth = physics.energy_density_in_solid_angle(255, 4 * math.pi)
+    assert solar / earth == pytest.approx(1.013, abs=0.001)
+
+
+def test_bond_albedo_removes_the_reflected_energy_fraction(physics):
+    total = physics.energy_density_in_solid_angle(5800, 1.0)
+    assert physics.absorbed_energy_density_in_solid_angle(5800, 1.0, 0.30) == pytest.approx(
+        0.70 * total
+    )
+    assert physics.absorbed_energy_density_in_solid_angle(5800, 1.0, 1.0) == 0.0
+    with pytest.raises(ValueError, match="albedo"):
+        physics.absorbed_energy_density_in_solid_angle(5800, 1.0, -0.01)
 
 
 def test_reported_photon_log_peak_is_locally_maximal(physics):

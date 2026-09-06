@@ -113,6 +113,18 @@ def energy_density_in_solid_angle(temperature_k: float, solid_angle_sr: float) -
     return numerator / denominator
 
 
+def absorbed_energy_density_in_solid_angle(
+    temperature_k: float,
+    solid_angle_sr: float,
+    bond_albedo: float,
+) -> float:
+    """Return blackbody energy density remaining after Bond-albedo reflection."""
+
+    if not 0.0 <= bond_albedo <= 1.0:
+        raise ValueError("Bond albedo must lie between zero and one")
+    return (1.0 - bond_albedo) * energy_density_in_solid_angle(temperature_k, solid_angle_sr)
+
+
 def entropy_density_in_solid_angle(temperature_k: float, solid_angle_sr: float) -> float:
     """Return equilibrium blackbody entropy density in the selected solid angle."""
 

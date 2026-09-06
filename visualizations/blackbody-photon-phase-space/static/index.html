@@ -42,12 +42,16 @@
         <section class="control-section">
           <h2 data-i18n="physicalParameters">Physical parameters</h2>
           <label class="range-label" for="earth-temperature">
-            <span><span data-i18n="earthTemperature">Earth temperature</span> <output id="earth-temperature-output">275 K</output></span>
-            <input id="earth-temperature" type="range" min="250" max="300" step="1" value="275">
+            <span><span data-i18n="earthTemperature">Earth temperature</span> <output id="earth-temperature-output">255 K</output></span>
+            <input id="earth-temperature" type="range" min="250" max="300" step="1" value="255">
           </label>
           <label class="range-label" for="sun-temperature">
             <span><span data-i18n="sunTemperature">Sun temperature</span> <output id="sun-temperature-output">5800 K</output></span>
             <input id="sun-temperature" type="range" min="5400" max="6200" step="20" value="5800">
+          </label>
+          <label class="range-label" for="bond-albedo">
+            <span><span data-i18n="bondAlbedo">Bond albedo</span> <output id="bond-albedo-output">0.30</output></span>
+            <input id="bond-albedo" type="range" min="0" max="0.6" step="0.01" value="0.30">
           </label>
         </section>
 
@@ -86,10 +90,10 @@
             <div><dt data-i18n="solarSolidAngle">Solar solid angle</dt><dd id="solar-solid-angle">—</dd></div>
             <div><dt data-i18n="fractionOfSky">Fraction of the sky</dt><dd id="solar-sky-fraction">—</dd></div>
             <div><dt data-i18n="photonRatio">Photon number, Sun / Earth</dt><dd id="photon-ratio">—</dd></div>
-            <div class="energy-row"><dt data-i18n="energyRatio">Energy, Sun / Earth</dt><dd id="energy-ratio">—</dd></div>
+            <div class="energy-row"><dt data-i18n="energyRatio">Absorbed solar energy / terrestrial energy</dt><dd id="energy-ratio">—</dd></div>
             <div><dt data-i18n="renderedPoints">Rendered points, Earth / Sun</dt><dd id="rendered-points">—</dd></div>
           </dl>
-          <p data-i18n="diagnosticCaveat">Ideal blackbodies integrated over all frequencies; absorption, reflection, atmosphere, and geometry are omitted.</p>
+          <p data-i18n="diagnosticCaveat">Ideal blackbodies integrated over all frequencies. Bond albedo affects only the energy ratio; wavelength dependence and atmospheric transfer are omitted.</p>
         </section>
       </aside>
 

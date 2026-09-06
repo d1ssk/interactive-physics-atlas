@@ -34,6 +34,9 @@ def test_ui_is_density_only_and_uses_requested_controls():
     css = (STATIC_DIR / "style.css").read_text(encoding="utf-8")
 
     assert 'value="linear" selected' in html
+    assert 'id="earth-temperature" type="range" min="250" max="300" step="1" value="255"' in html
+    assert 'id="bond-albedo" type="range" min="0" max="0.6" step="0.01" value="0.30"' in html
+    assert 'id="bond-albedo-output">0.30</output>' in html
     assert set(_select_values(html, "solar-magnification")) == {"1", "10"}
     assert 'id="representation"' not in html
     assert 'id="spin-toggle"' not in html
@@ -45,6 +48,8 @@ def test_ui_is_density_only_and_uses_requested_controls():
     assert "PHOTON PHASE SPACE" not in html
     assert "SPECTRAL SLICE" not in html
     assert "box-shadow" not in css
+    assert 'byId("bond-albedo").addEventListener("input", updateLabelsAndDiagnostics)' in source
+    assert "absorbedEnergyDensityInSolidAngle" in source
 
 
 def test_desktop_viewer_drag_uses_screen_relative_rotation_without_euler_angle_poles():
@@ -104,21 +109,23 @@ def test_bilingual_articles_keep_equations_and_embeds_aligned():
     english_math = re.findall(r"\$\$\s*(.*?)\s*\$\$", english, flags=re.DOTALL)
     japanese_math = re.findall(r"\$\$\s*(.*?)\s*\$\$", japanese, flags=re.DOTALL)
     assert english_math == japanese_math
-    assert len(english_math) == 5
+    assert len(english_math) == 10
     assert 'src="app/index.html?lang=en"' in english
     assert 'src="app/index.html?lang=ja"' in japanese
     for source in (english, japanese):
         assert "data-auto-height" in source
         assert 'scrolling="no"' in source
-        assert "free energy" in source.lower() or "自由エネルギー" in source
+        assert "exergy" in source.lower() or "エクセルギー" in source
+        assert "[^energy-imbalance]" in source
 
 
 def test_statistical_physics_indexes_link_the_bilingual_article():
     english = (ROOT / "docs" / "statistical-physics" / "index.md").read_text(encoding="utf-8")
     japanese = (ROOT / "docs_ja" / "statistical-physics" / "index.md").read_text(encoding="utf-8")
 
-    assert "[Blackbody Photon Phase Space](blackbody-photon-phase-space/)" in english
-    assert "[黒体光子の位相空間](blackbody-photon-phase-space/)" in japanese
+    english_link = "[Phase Space of Terrestrial and Solar Radiation](blackbody-photon-phase-space/)"
+    assert english_link in english
+    assert "[地球・太陽放射の位相空間](blackbody-photon-phase-space/)" in japanese
     assert ")**<br>\n  " in english
     assert ")**<br>\n  " in japanese
     assert "blackbody-photon-phase-space" not in (
