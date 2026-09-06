@@ -71,21 +71,26 @@ if (window.MathJax?.startup?.promise) {
   });
 }
 
-await window.physicsAtlasPlotlyReady;
-
-const root = LOCALE === "ja" ? "../../../../" : "../../../";
-const runtimeBase = new URL(`${root}quantum-mechanics/partial-wave-scattering/app/runtime/`, location.href);
-const providerModule = await import(new URL(DATA.providerAsset, runtimeBase));
-const provider = new providerModule.PyodideComputeProvider({
-  workerUrl:new URL(DATA.workerAsset, runtimeBase),
-  resultSchemas:DATA.resultSchemas,
-  runtime:{
-    name:"pyodide", version:DATA.pyodideVersion,
-    pythonVersion:DATA.pythonVersion, numpyVersion:DATA.numpyVersion,
-  },
-  cacheEntries:DATA.limits.memoryCacheEntries,
-  maximumTimeoutMs:DATA.limits.hardMaxElapsedMs,
-});
+let provider;
+try {
+  await window.physicsAtlasPlotlyReady;
+  const root = LOCALE === "ja" ? "../../../../" : "../../../";
+  const runtimeBase = new URL(`${root}quantum-mechanics/partial-wave-scattering/app/runtime/`, location.href);
+  const providerModule = await import(new URL(DATA.providerAsset, runtimeBase));
+  provider = new providerModule.PyodideComputeProvider({
+    workerUrl:new URL(DATA.workerAsset, runtimeBase),
+    resultSchemas:DATA.resultSchemas,
+    runtime:{
+      name:"pyodide", version:DATA.pyodideVersion,
+      pythonVersion:DATA.pythonVersion, numpyVersion:DATA.numpyVersion,
+    },
+    cacheEntries:DATA.limits.memoryCacheEntries,
+    maximumTimeoutMs:DATA.limits.hardMaxElapsedMs,
+  });
+} catch (cause) {
+  setStatus("error", true);
+  throw cause;
+}
 
 const CONFIG = {
   responsive:true,
@@ -137,7 +142,7 @@ const PHASE_STATUS = {
 };
 
 let sequence = 0;
-let latestRequest = "";
+const latestRequestByOperation = new Map();
 async function compute(operation, input) {
   const request = {
     protocol:DATA.protocol,
@@ -147,20 +152,63 @@ async function compute(operation, input) {
     input,
     limits:{maxElapsedMs:DATA.limits.maxElapsedMs},
   };
-  latestRequest = request.requestId;
-  const response = await provider.compute(request, {
-    onPhase:phase => {
-      if (latestRequest === request.requestId) setStatus(PHASE_STATUS[phase] ?? "calculating");
-    },
-  });
-  if (latestRequest !== request.requestId) return null;
+  latestRequestByOperation.set(operation, request.requestId);
+  let response;
+  try {
+    response = await provider.compute(request, {
+      onPhase:phase => {
+        if (latestRequestByOperation.get(operation) === request.requestId) {
+          setStatus(PHASE_STATUS[phase] ?? "calculating");
+        }
+      },
+    });
+  } catch {
+    if (latestRequestByOperation.get(operation) === request.requestId) {
+      setStatus("error", true);
+    }
+    return {kind:"failed"};
+  }
+  if (latestRequestByOperation.get(operation) !== request.requestId) {
+    return {kind:"obsolete"};
+  }
   if (!response.ok) {
-    if (["CANCELLED", "SUPERSEDED"].includes(response.error?.code)) return null;
+    if (response.error?.code === "SUPERSEDED") return {kind:"superseded"};
+    if (response.error?.code === "CANCELLED") return {kind:"cancelled"};
     setStatus("error", true);
-    return null;
+    return {kind:"failed"};
   }
   setStatus(response.provider?.cacheHit ? "cached" : "ready");
-  return response.result;
+  return {kind:"result", value:response.result};
+}
+
+const pendingComputations = new Map();
+let drainingComputations = false;
+
+function enqueueComputation(operation, input, render) {
+  pendingComputations.set(operation, {operation, input, render});
+  if (!drainingComputations) void drainComputationQueue();
+}
+
+async function drainComputationQueue() {
+  if (drainingComputations) return;
+  drainingComputations = true;
+  try {
+    while (pendingComputations.size) {
+      const [operation, job] = pendingComputations.entries().next().value;
+      pendingComputations.delete(operation);
+      const outcome = await compute(job.operation, job.input);
+      if (outcome.kind === "superseded") {
+        if (!pendingComputations.has(operation)) pendingComputations.set(operation, job);
+      } else if (outcome.kind === "result" && !pendingComputations.has(operation)) {
+        await job.render(outcome.value);
+      }
+    }
+  } catch {
+    setStatus("error", true);
+  } finally {
+    drainingComputations = false;
+    if (pendingComputations.size) void drainComputationQueue();
+  }
 }
 
 function meshCoordinates(values) {
@@ -404,12 +452,11 @@ function setPlaneEll(value) {
   byId("plane-add").disabled = maximumEll === 12;
 }
 
-async function requestPlane() {
+function requestPlane() {
   planeTimer = null;
   const maximumEll = Number(byId("plane-ell").value);
   setPlaneEll(maximumEll);
-  const result = await compute(DATA.operations.plane.name, {maximumEll});
-  if (result) await renderPlane(result);
+  enqueueComputation(DATA.operations.plane.name, {maximumEll}, renderPlane);
 }
 
 function schedulePlane() {
@@ -418,17 +465,20 @@ function schedulePlane() {
 }
 
 let scatterTimer = null;
-async function requestScattering() {
+function requestScattering() {
   scatterTimer = null;
   updateParameterOutputs();
   updateScatterControls();
-  const result = await compute(DATA.operations.scattering.name, {
-    ...parameters(),
-    maximumEll:scatterState.maximumEll,
-    fieldMode:scatterState.fieldMode,
-    resonanceEll:scatterState.resonanceEll,
-  });
-  if (result) await renderScattering(result);
+  enqueueComputation(
+    DATA.operations.scattering.name,
+    {
+      ...parameters(),
+      maximumEll:scatterState.maximumEll,
+      fieldMode:scatterState.fieldMode,
+      resonanceEll:scatterState.resonanceEll,
+    },
+    renderScattering,
+  );
 }
 
 function scheduleScattering() {
@@ -514,5 +564,5 @@ window.addEventListener("resize", () => {
 });
 updateParameterOutputs();
 updateScatterControls();
-await requestPlane();
-await requestScattering();
+requestPlane();
+requestScattering();

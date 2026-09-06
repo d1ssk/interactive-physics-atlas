@@ -36,6 +36,8 @@ def test_static_build_has_no_precomputed_figure_payload(
     assert 'id="differential-cross-section"' in html
     assert 'id="resonance-energy"' in html
     assert 'id="resonance-radial"' in html
+    assert 'id="field-current-label" data-i18n="current"' in html
+    assert 'id="field-next-label" data-i18n="next"' in html
     assert "<footer>" not in html
     assert "aspect-ratio: 1" in style
     assert ".scattering-heatmaps { height: auto; }" in style
@@ -72,6 +74,13 @@ def test_static_build_has_no_precomputed_figure_payload(
     assert "部分波散乱" in app
     assert "ブラウザ内のPython" not in app
     assert "Calculating in Python" not in app
+    assert "try {\n  await window.physicsAtlasPlotlyReady;" in app
+    assert 'setStatus("error", true);\n  throw cause;' in app
+    assert "const latestRequestByOperation = new Map();" in app
+    assert "const pendingComputations = new Map();" in app
+    assert "await compute(job.operation, job.input)" in app
+    assert 'outcome.kind === "superseded"' in app
+    assert app.count("provider.compute(") == 1
     assert "white-space: nowrap" in style
     assert "grid-template-columns: repeat(3, minmax(0, 1fr))" in style
     assert "grid-template-columns: repeat(2, minmax(0, 1fr))" in style
