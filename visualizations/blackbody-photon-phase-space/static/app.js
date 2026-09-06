@@ -42,15 +42,9 @@ const TRANSLATIONS = {
     phaseSpaceLabel: "Three-dimensional blackbody photon phase space",
     viewerHelp: "Drag: rotate · Shift-drag: pan · Wheel: zoom · Hover: inspect a point",
     zoom: "Zoom",
-    spectrumTitle: "Photon number by direction",
+    spectrumTitle: "Photon number per unit solid angle",
     spectrumLabel: "Earth and solar photon spectra",
     solarDirection: "Solar component within the disk",
-    geometryTitle: "Nested frequency spheres",
-    geometryText: "Direction from the origin is solid angle, while radius is frequency. Earth radiation fills every direction; sunlight occupies only the narrow solar cone.",
-    densityTitle: "Every point carries equal photon number",
-    densityText: "Points are sampled in proportion to photon number per logarithmic frequency and solid angle. Their density—not brightness—represents the distribution.",
-    modelTitle: "An idealized comparison",
-    modelText: "The model superposes an isotropic blackbody Earth and a uniform solar disk at 1 AU. Angular magnification never changes the disk's physical solid angle or any integral.",
     earthPoint: "Earth · full sky",
     sunPoint: "Sun · within disk",
     frequency: "Frequency",
@@ -94,15 +88,9 @@ const TRANSLATIONS = {
     phaseSpaceLabel: "黒体光子位相空間の3次元表示",
     viewerHelp: "ドラッグ：回転 · Shift＋ドラッグ：移動 · ホイール：拡大 · 点にカーソル：値を表示",
     zoom: "拡大",
-    spectrumTitle: "方向ごとの光子数",
+    spectrumTitle: "単位立体角あたりの光子数",
     spectrumLabel: "地球と太陽の光子スペクトル",
     solarDirection: "太陽円盤内の太陽成分",
-    geometryTitle: "周波数球を重ねる",
-    geometryText: "原点からの向きが立体角、半径が周波数です。地球放射は全天を満たし、太陽放射は細い太陽方向の円錐だけを占めます。",
-    densityTitle: "各点が同じ光子数",
-    densityText: "対数周波数・立体角あたりの光子数に比例して点を配置します。明るさではなく、点の密度が分布量を表します。",
-    modelTitle: "理想化した比較",
-    modelText: "等方的な黒体の地球と、1 AUから見た一様な太陽円盤を重ねます。角度表示倍率は物理的な立体角や積分量を変えません。",
     earthPoint: "地球 · 全天",
     sunPoint: "太陽 · 円盤内",
     frequency: "周波数",
@@ -557,7 +545,7 @@ function drawSpectrum() {
   for (const item of [...earthValues, ...sunValues]) maximumValue = Math.max(maximumValue, item.value);
   const maximum = Math.ceil(Math.log10(maximumValue));
   const bounds = {maximum, minimum: maximum - 13};
-  const plot = {left: 49, right: 10, top: 8, bottom: 25};
+  const plot = {left: 73, right: 10, top: 8, bottom: 43};
   plot.width = width - plot.left - plot.right;
   plot.height = height - plot.top - plot.bottom;
 
@@ -586,7 +574,7 @@ function drawSpectrum() {
     spectrumContext.stroke();
     spectrumContext.fillStyle = "#738995";
     spectrumContext.textAlign = "center";
-    spectrumContext.fillText(formatFrequency(frequency), x, height - 7);
+    spectrumContext.fillText(formatFrequency(frequency), x, height - 23);
   }
   spectrumContext.save();
   spectrumContext.beginPath();
@@ -594,6 +582,17 @@ function drawSpectrum() {
   spectrumContext.clip();
   drawSpectrumLine(earthValues, bounds, plot, EARTH_COLOR.css);
   drawSpectrumLine(sunValues, bounds, plot, SUN_COLOR.css);
+  spectrumContext.restore();
+
+  spectrumContext.fillStyle = "#617783";
+  spectrumContext.font = "9px ui-monospace, monospace";
+  spectrumContext.textAlign = "center";
+  spectrumContext.fillText("Frequency [Hz]", plot.left + plot.width / 2, height - 5);
+  spectrumContext.save();
+  spectrumContext.translate(width < 520 ? 10 : 13, height / 2);
+  spectrumContext.rotate(-Math.PI / 2);
+  spectrumContext.font = "9px ui-monospace, monospace";
+  spectrumContext.fillText("dN/(dV dΩ dlnν) [m⁻³ sr⁻¹]", 0, 0);
   spectrumContext.restore();
 }
 
@@ -663,7 +662,7 @@ phaseCanvas.addEventListener("pointermove", event => {
     state.panX += deltaX;
     state.panY += deltaY;
   } else {
-    state.yaw += deltaX * 0.008;
+    state.yaw -= deltaX * 0.008;
     state.pitch = Math.max(-1.48, Math.min(1.48, state.pitch + deltaY * 0.008));
   }
   state.dragging = {...state.dragging, x: event.clientX, y: event.clientY};

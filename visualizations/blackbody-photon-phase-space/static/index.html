@@ -28,7 +28,6 @@
   <main>
     <header class="app-header">
       <div>
-        <p class="eyebrow">PHOTON PHASE SPACE</p>
         <h1><span data-i18n="titlePrefix">Blackbody photons in</span> <span class="nowrap">\((\nu,\Omega)\)</span></h1>
         <p class="lede" data-i18n="lede">Compare low-temperature radiation spread over the sky with high-temperature sunlight confined to one tiny direction.</p>
       </div>
@@ -107,11 +106,7 @@
         </div>
         <div class="spectrum-card">
           <div class="card-heading">
-            <div>
-              <p class="eyebrow">SPECTRAL SLICE</p>
-              <h2 data-i18n="spectrumTitle">Photon number by direction</h2>
-            </div>
-            <p>\(\mathrm{d}N/(\mathrm{d}V\,\mathrm{d}\Omega\,\mathrm{d}\ln\nu)\)</p>
+            <h2 data-i18n="spectrumTitle">Photon number per unit solid angle</h2>
           </div>
           <canvas id="spectrum-canvas" aria-label="Earth and solar photon spectra" data-i18n-aria-label="spectrumLabel"></canvas>
           <div class="chart-legend"><span class="earth-line" data-i18n="earth">Earth</span><span class="sun-line" data-i18n="solarDirection">Solar component within the disk</span></div>
@@ -119,23 +114,6 @@
       </section>
     </section>
 
-    <section class="notes">
-      <article>
-        <p class="eyebrow">GEOMETRY</p>
-        <h2 data-i18n="geometryTitle">Nested frequency spheres</h2>
-        <p data-i18n="geometryText">Direction from the origin is solid angle, while radius is frequency. Earth radiation fills every direction; sunlight occupies only the narrow solar cone.</p>
-      </article>
-      <article>
-        <p class="eyebrow">DENSITY</p>
-        <h2 data-i18n="densityTitle">Every point carries equal photon number</h2>
-        <p data-i18n="densityText">Points are sampled in proportion to photon number per logarithmic frequency and solid angle. Their density—not brightness—represents the distribution.</p>
-      </article>
-      <article>
-        <p class="eyebrow">CONVENTION</p>
-        <h2 data-i18n="modelTitle">An idealized comparison</h2>
-        <p data-i18n="modelText">The model superposes an isotropic blackbody Earth and a uniform solar disk at 1 AU. Angular magnification never changes the disk's physical solid angle or any integral.</p>
-      </article>
-    </section>
   </main>
 
   <script>

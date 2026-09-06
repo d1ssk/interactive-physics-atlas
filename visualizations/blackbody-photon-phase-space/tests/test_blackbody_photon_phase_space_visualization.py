@@ -31,6 +31,7 @@ def test_build_stages_shared_assets_and_static_application(tmp_path, visualizati
 def test_ui_is_density_only_and_uses_requested_controls():
     html = (STATIC_DIR / "index.html").read_text(encoding="utf-8")
     source = (STATIC_DIR / "app.js").read_text(encoding="utf-8")
+    css = (STATIC_DIR / "style.css").read_text(encoding="utf-8")
 
     assert 'value="linear" selected' in html
     assert set(_select_values(html, "solar-magnification")) == {"1", "10"}
@@ -40,6 +41,24 @@ def test_ui_is_density_only_and_uses_requested_controls():
     assert "createBrightnessGeometry" not in source
     assert "setSpinning" not in source
     assert "enterEarthRadiation" not in source
+    assert 'class="notes"' not in html
+    assert "PHOTON PHASE SPACE" not in html
+    assert "SPECTRAL SLICE" not in html
+    assert "box-shadow" not in css
+
+
+def test_desktop_viewer_drag_and_spectrum_labels_follow_requested_conventions():
+    html = (STATIC_DIR / "index.html").read_text(encoding="utf-8")
+    source = (STATIC_DIR / "app.js").read_text(encoding="utf-8")
+    css = (STATIC_DIR / "style.css").read_text(encoding="utf-8")
+
+    assert "state.yaw -= deltaX * 0.008" in source
+    assert "clamp(500px, 58vw, 680px)" in css
+    assert "Photon number per unit solid angle" in source
+    assert "単位立体角あたりの光子数" in source
+    assert "Frequency [Hz]" in source
+    assert "dN/(dV dΩ dlnν) [m⁻³ sr⁻¹]" in source
+    assert "Photon number by direction" not in html
 
 
 def test_application_localizes_all_reader_facing_ui_and_reports_frame_height():
@@ -69,9 +88,11 @@ def test_radial_ranges_keep_the_high_frequency_cloud_at_similar_outer_size():
 
 
 def test_bilingual_articles_keep_equations_and_embeds_aligned():
-    english_path = ROOT / "docs" / "thermodynamics" / "blackbody-photon-phase-space" / "index.md"
+    english_path = (
+        ROOT / "docs" / "statistical-physics" / "blackbody-photon-phase-space" / "index.md"
+    )
     japanese_path = (
-        ROOT / "docs_ja" / "thermodynamics" / "blackbody-photon-phase-space" / "index.md"
+        ROOT / "docs_ja" / "statistical-physics" / "blackbody-photon-phase-space" / "index.md"
     )
     english = english_path.read_text(encoding="utf-8")
     japanese = japanese_path.read_text(encoding="utf-8")
@@ -88,14 +109,20 @@ def test_bilingual_articles_keep_equations_and_embeds_aligned():
         assert "free energy" in source.lower() or "自由エネルギー" in source
 
 
-def test_thermodynamics_indexes_link_the_bilingual_article():
-    english = (ROOT / "docs" / "thermodynamics" / "index.md").read_text(encoding="utf-8")
-    japanese = (ROOT / "docs_ja" / "thermodynamics" / "index.md").read_text(encoding="utf-8")
+def test_statistical_physics_indexes_link_the_bilingual_article():
+    english = (ROOT / "docs" / "statistical-physics" / "index.md").read_text(encoding="utf-8")
+    japanese = (ROOT / "docs_ja" / "statistical-physics" / "index.md").read_text(encoding="utf-8")
 
     assert "[Blackbody Photon Phase Space](blackbody-photon-phase-space/)" in english
     assert "[黒体光子の位相空間](blackbody-photon-phase-space/)" in japanese
     assert ")**<br>\n  " in english
     assert ")**<br>\n  " in japanese
+    assert "blackbody-photon-phase-space" not in (
+        ROOT / "docs" / "thermodynamics" / "index.md"
+    ).read_text(encoding="utf-8")
+    assert "blackbody-photon-phase-space" not in (
+        ROOT / "docs_ja" / "thermodynamics" / "index.md"
+    ).read_text(encoding="utf-8")
 
 
 def test_browser_physics_invariants():
