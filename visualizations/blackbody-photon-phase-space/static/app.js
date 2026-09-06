@@ -191,6 +191,7 @@ const state = {
   panY: 0,
   dragging: null,
   hoveredPoint: null,
+  tooltipAwaitingMathJax: false,
   pointCounts: {earth: 0, sun: 0},
   solarDirection: null,
 };
@@ -685,7 +686,14 @@ function showTooltip(event) {
       + `${t("occupation")} = ${formatScientificLatex(occupation, 3)}<br>`
       + `${t("density")} = ${formatScientificLatex(nearest.point.density, 3)} m⁻³ sr⁻¹`;
     tooltip.hidden = false;
-    if (typesetElements([tooltip])) state.hoveredPoint = nearest.point;
+    state.hoveredPoint = nearest.point;
+    if (!typesetElements([tooltip]) && !state.tooltipAwaitingMathJax) {
+      state.tooltipAwaitingMathJax = true;
+      window.addEventListener("physics-atlas:mathjax-ready", () => {
+        state.tooltipAwaitingMathJax = false;
+        if (!tooltip.hidden) typesetElements([tooltip]);
+      }, {once: true});
+    }
   }
   const maximumLeft = rectangle.width - tooltip.offsetWidth - 9;
   const maximumTop = rectangle.height - tooltip.offsetHeight - 9;

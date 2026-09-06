@@ -94,7 +94,10 @@ def test_application_localizes_all_reader_facing_ui_and_reports_frame_height():
     assert 'radiusLogCaption: "対数目盛り"' in source
     assert 't("radiusLinearCaption")' in source
     assert "nearest.point !== state.hoveredPoint" in source
-    assert "if (typesetElements([tooltip])) state.hoveredPoint = nearest.point" in source
+    assert "state.hoveredPoint = nearest.point" in source
+    assert "if (!typesetElements([tooltip]) && !state.tooltipAwaitingMathJax)" in source
+    assert 'window.addEventListener("physics-atlas:mathjax-ready"' in source
+    assert "if (!tooltip.hidden) typesetElements([tooltip])" in source
     assert "state.hoveredPoint = null" in source
 
 
