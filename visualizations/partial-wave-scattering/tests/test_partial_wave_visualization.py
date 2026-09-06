@@ -61,6 +61,9 @@ def test_static_build_has_no_precomputed_figure_payload(
     assert "scattering angle θ [rad]" in app
     assert "dσ/dΩ [L² sr⁻¹]" in app
     assert "reduced radial wave uℓ(r) [arb. units]" in app
+    assert "x0:result.parameters.energy, x1:result.parameters.energy" in app
+    assert 'xref:"x", yref:"paper"' in app
+    assert 'line:{color:COLORS.orange, width:2, dash:"dash"}' in app
     assert "title:{text:title, standoff:8}" in app
     assert 'byId("scatter-ell").addEventListener("input"' in app
     assert 'const planeEllInputs = [byId("plane-ell"), byId("plane-ell-slices")];' in app

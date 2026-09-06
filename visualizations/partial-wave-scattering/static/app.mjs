@@ -354,6 +354,13 @@ async function renderScattering(result) {
     xaxis:axis("energy E [L⁻²]"),
     yaxis:axis("phase shift δℓ [rad]"),
     yaxis2:{...axis("sin²δℓ [dimensionless]"), overlaying:"y", side:"right", range:[0, 1], showgrid:false},
+    shapes:[{
+      type:"line",
+      xref:"x", yref:"paper",
+      x0:result.parameters.energy, x1:result.parameters.energy,
+      y0:0, y1:1,
+      line:{color:COLORS.orange, width:2, dash:"dash"},
+    }],
   };
 
   const radialData = [
