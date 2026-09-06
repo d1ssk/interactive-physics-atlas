@@ -102,7 +102,6 @@ def scattering_domain(
         scattering_angles,
         wave_number,
         phases,
-        maximum_ell,
     )
 
     extent = 7.0
@@ -194,10 +193,7 @@ def scattering_domain(
         },
         "phases": _values(phases),
         "phaseStrengths": _values(np.sin(phases) ** 2),
-        "crossSection": round(
-            total_cross_section(wave_number, phases[: maximum_ell + 1]),
-            DISPLAY_DECIMALS,
-        ),
+        "crossSection": round(total_cross_section(wave_number, phases), DISPLAY_DECIMALS),
         "differentialCrossSection": {
             "angle": _values(scattering_angles),
             "value": _values(angular_cross_section),

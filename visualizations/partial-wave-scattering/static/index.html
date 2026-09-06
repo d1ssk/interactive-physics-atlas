@@ -94,10 +94,14 @@
         <label><span><span data-i18n="energy">Energy \(E=k^2\)</span><output id="energy-output">5.00</output></span><input id="energy" type="range" min="0.5" max="16" step="0.1" value="5"></label>
       </div>
 
-      <div class="diagnostic-grid">
-        <figure><figcaption data-i18n="potentialPhase">Potential and phase shifts</figcaption><div id="potential-phase" class="plot plot-diagnostic"></div></figure>
+      <div class="summary-plot-grid">
+        <figure><figcaption data-i18n="potentialProfile">Potential profile</figcaption><div id="potential-profile" class="plot plot-diagnostic"></div></figure>
+        <figure><figcaption data-i18n="phaseShiftPlot">Phase shifts</figcaption><div id="phase-shifts" class="plot plot-diagnostic"></div></figure>
         <figure><figcaption data-i18n="angularDistribution">Angular distribution \(d\sigma/d\Omega\)</figcaption><div id="differential-cross-section" class="plot plot-diagnostic"></div></figure>
-        <figure class="resonance-figure"><figcaption data-i18n="resonance">Selected-channel resonance diagnostic</figcaption><div id="resonance" class="plot plot-diagnostic"></div></figure>
+      </div>
+      <div class="resonance-plot-grid">
+        <figure><figcaption data-i18n="resonanceEnergy">Selected-channel energy response</figcaption><div id="resonance-energy" class="plot plot-diagnostic"></div></figure>
+        <figure><figcaption data-i18n="radialComparison">Selected-channel radial wave</figcaption><div id="resonance-radial" class="plot plot-diagnostic"></div></figure>
       </div>
 
       <div class="control-strip scattering-controls">

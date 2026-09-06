@@ -31,7 +31,11 @@ def test_static_build_has_no_precomputed_figure_payload(
     assert html.count('type="range" min="0" max="12"') == 2
     assert 'id="plane-ell-slices"' in html
     assert 'id="scatter-ell" type="range" min="0" max="10"' in html
+    assert 'id="potential-profile"' in html
+    assert 'id="phase-shifts"' in html
     assert 'id="differential-cross-section"' in html
+    assert 'id="resonance-energy"' in html
+    assert 'id="resonance-radial"' in html
     assert "<footer>" not in html
     assert "aspect-ratio: 1" in style
     assert ".scattering-heatmaps { height: auto; }" in style
@@ -44,10 +48,20 @@ def test_static_build_has_no_precomputed_figure_payload(
     assert 'type:"bar"' not in app
     assert 'drawField(byId("plane-current")' in app
     assert 'drawField(byId("field-current")' in app
-    assert 'Plotly.react("differential-cross-section"' in app
-    assert "scattering angle θ (rad)" in app
-    assert "differential cross section dσ/dΩ" in app
-    assert "reduced radial wave uℓ(r)" in app
+    for plot_id in (
+        "potential-profile",
+        "phase-shifts",
+        "differential-cross-section",
+        "resonance-energy",
+        "resonance-radial",
+    ):
+        assert f'Plotly.react("{plot_id}"' in app
+    assert "xaxis2" not in app
+    assert "xaxis3" not in app
+    assert "scattering angle θ [rad]" in app
+    assert "dσ/dΩ [L² sr⁻¹]" in app
+    assert "reduced radial wave uℓ(r) [arb. units]" in app
+    assert "title:{text:title, standoff:8}" in app
     assert 'byId("scatter-ell").addEventListener("input"' in app
     assert 'const planeEllInputs = [byId("plane-ell"), byId("plane-ell-slices")];' in app
     assert "interior radial-weight ratio" in app
@@ -56,6 +70,9 @@ def test_static_build_has_no_precomputed_figure_payload(
     assert "ブラウザ内のPython" not in app
     assert "Calculating in Python" not in app
     assert "white-space: nowrap" in style
+    assert "grid-template-columns: repeat(3, minmax(0, 1fr))" in style
+    assert "grid-template-columns: repeat(2, minmax(0, 1fr))" in style
+    assert "@media (max-width: 800px)" in style
     assert 'rel="stylesheet" href="visualization-theme.css"' in html
     assert 'src="visualization-theme.js"' in html
     assert 'defer src="mathjax-tex-svg.js"' in html

@@ -17,15 +17,15 @@ const TEXT = {
     addition:"Addition on the y = 0 plane", sameSnapshot:"Real part at the same phase",
     scatterTitle:"Scattering from a central potential", scatterText:"See how the potential changes the phase shifts, angular distribution, radial waves, and outgoing scattering field.",
     presetsAria:"Potential presets", well:"Attractive well", barrier:"Repulsive barrier", coreWell:"Core and well",
-    strength:"Gaussian strength \\(U_0\\)", range:"Range \\(a\\)", core:"Repulsive core \\(U_c\\)", energy:"Energy \\(E=k^2\\)",
-    potentialPhase:"Potential and phase shifts", angularDistribution:"Angular distribution \\(d\\sigma/d\\Omega\\)", resonance:"Selected-channel resonance diagnostic",
+    strength:"Gaussian strength \\(U_0\\) [\\(L^{-2}\\)]", range:"Range \\(a\\) [\\(L\\)]", core:"Repulsive core \\(U_c\\) [\\(L^{-2}\\)]", energy:"Energy \\(E=k^2\\) [\\(L^{-2}\\)]",
+    potentialProfile:"Potential profile", phaseShiftPlot:"Phase shifts", angularDistribution:"Angular distribution \\(d\\sigma/d\\Omega\\)",
+    resonanceEnergy:"Selected-channel energy response", radialComparison:"Selected-channel radial wave",
     fieldModeAria:"Scattering field", total:"Incident + scattered", scattered:"Scattered only",
     channel:"Resonance channel", fieldComparison:"Scattering field on the y = 0 plane",
     maskNote:"The gray disk masks the potential interior, where the asymptotic outgoing-wave expression is not used.",
     plane3dAria:"Three-dimensional plane-wave partial sum", plane2dAria:"Partial-wave addition on the y equals zero plane",
     scatteringFieldAria:"Scattering field on the y equals zero plane",
-    current:"Current sum", next:"Next channel", after:"After addition", potential:"potential", phaseShifts:"phase shifts",
-    phase:"phase", strengthCurve:"sin² phase", interacting:"interacting", free:"free", radial:"radial wave",
+    current:"Current sum", next:"Next channel", after:"After addition",
     crossSection:"total cross section", enhancement:"interior radial-weight ratio",
   },
   ja: {
@@ -40,15 +40,15 @@ const TEXT = {
     addition:"\\(y=0\\) 平面での加算", sameSnapshot:"同じ位相における実部",
     scatterTitle:"中心力ポテンシャルによる散乱", scatterText:"ポテンシャルによる位相シフト、角度分布、動径波、外向き散乱場の変化を比較します。",
     presetsAria:"ポテンシャルのプリセット", well:"引力井戸", barrier:"斥力障壁", coreWell:"芯と井戸",
-    strength:"Gaussian強度 \\(U_0\\)", range:"到達距離 \\(a\\)", core:"短距離斥力 \\(U_c\\)", energy:"エネルギー \\(E=k^2\\)",
-    potentialPhase:"ポテンシャルと位相シフト", angularDistribution:"角度分布 \\(d\\sigma/d\\Omega\\)", resonance:"選択チャネルの共鳴診断",
+    strength:"Gaussian強度 \\(U_0\\) [\\(L^{-2}\\)]", range:"到達距離 \\(a\\) [\\(L\\)]", core:"短距離斥力 \\(U_c\\) [\\(L^{-2}\\)]", energy:"エネルギー \\(E=k^2\\) [\\(L^{-2}\\)]",
+    potentialProfile:"ポテンシャル", phaseShiftPlot:"位相シフト", angularDistribution:"角度分布 \\(d\\sigma/d\\Omega\\)",
+    resonanceEnergy:"選択チャネルのエネルギー応答", radialComparison:"選択チャネルの動径波",
     fieldModeAria:"散乱場", total:"入射波＋散乱波", scattered:"散乱波のみ",
     channel:"共鳴チャネル", fieldComparison:"\\(y=0\\) 平面上の散乱場",
     maskNote:"灰色の円内はポテンシャル内部として除外し、漸近的な外向き散乱波を適用しません。",
     plane3dAria:"平面波部分和の三次元表示", plane2dAria:"y=0平面における部分波の加算",
     scatteringFieldAria:"y=0平面における散乱場",
-    current:"現在の和", next:"次のチャネル", after:"加算後", potential:"ポテンシャル", phaseShifts:"位相シフト",
-    phase:"位相", strengthCurve:"sin² 位相", interacting:"ポテンシャルあり", free:"自由波", radial:"動径波",
+    current:"現在の和", next:"次のチャネル", after:"加算後",
     crossSection:"全断面積", enhancement:"内部動径重み比",
   },
 };
@@ -115,7 +115,12 @@ function baseLayout(height) {
 }
 
 function axis(title) {
-  return {title, gridcolor:COLORS.grid, zerolinecolor:COLORS.muted, automargin:true};
+  return {
+    title:{text:title, standoff:8},
+    gridcolor:COLORS.grid,
+    zerolinecolor:COLORS.muted,
+    automargin:true,
+  };
 }
 
 function setStatus(key, error = false) {
@@ -245,9 +250,9 @@ let lastScatteringResult = null;
 function drawPlaneSlices(result) {
   const matrices = [result.current, result.next, result.after];
   const scale = sharedScale(matrices);
-  drawField(byId("plane-current"), result.current, result.axis2d, scale, "x / λ", "z / λ");
-  drawField(byId("plane-next"), result.next, result.axis2d, scale, "x / λ", "z / λ");
-  drawField(byId("plane-after"), result.after, result.axis2d, scale, "x / λ", "z / λ");
+  drawField(byId("plane-current"), result.current, result.axis2d, scale, "x / λ [dimensionless]", "z / λ [dimensionless]");
+  drawField(byId("plane-next"), result.next, result.axis2d, scale, "x / λ [dimensionless]", "z / λ [dimensionless]");
+  drawField(byId("plane-after"), result.after, result.axis2d, scale, "x / λ [dimensionless]", "z / λ [dimensionless]");
   byId("plane-next-label").textContent = `ℓ=${result.nextEll}`;
 }
 
@@ -259,13 +264,13 @@ async function renderPlane(result) {
     isomin:-.85, isomax:.85, surface:{count:7}, opacity:.62,
     colorscale:[[0, COLORS.blue], [.5, "#F7F8FA"], [1, COLORS.orange]],
     caps:{x:{show:false}, y:{show:false}, z:{show:false}},
-    colorbar:{title:"Re ψ", thickness:13, len:.65},
+    colorbar:{title:"Re ψ [arb. units]", thickness:13, len:.65},
     hovertemplate:"x=%{x:.2f} λ<br>y=%{y:.2f} λ<br>z=%{z:.2f} λ<br>Re ψ=%{value:.3f}<extra></extra>",
   }];
   const layout3d = {
     ...baseLayout(560), margin:{l:4, r:4, t:8, b:4}, dragmode:false,
     scene:{
-      xaxis:axis("x / λ"), yaxis:axis("y / λ"), zaxis:axis("z / λ"),
+      xaxis:axis("x / λ [dimensionless]"), yaxis:axis("y / λ [dimensionless]"), zaxis:axis("z / λ [dimensionless]"),
       aspectmode:"cube", dragmode:"turntable", camera:{eye:{x:1.5, y:1.35, z:1.15}},
     },
   };
@@ -300,16 +305,24 @@ async function renderScattering(result) {
   const phaseLines = result.phases.flatMap((value, ell) => [
     {ell, value:0}, {ell, value}, {ell:null, value:null},
   ]);
-  const potentialPhaseData = [
-    {type:"scatter", mode:"lines", x:result.potential.radius, y:result.potential.value, name:t("potential"), line:{color:result.parameters.strength < 0 ? COLORS.blue : COLORS.orange, width:2.2}},
+  const potentialData = [
+    {type:"scatter", mode:"lines", x:result.potential.radius, y:result.potential.value, name:"potential", line:{color:result.parameters.strength < 0 ? COLORS.blue : COLORS.orange, width:2.2}},
     {type:"scatter", mode:"lines", x:[0, 4.5], y:[result.parameters.energy, result.parameters.energy], name:"E", line:{color:COLORS.gold, width:1.4, dash:"dash"}},
-    {type:"scatter", mode:"lines", x:phaseLines.map(point => point.ell), y:phaseLines.map(point => point.value), line:{color:COLORS.grid, width:5}, showlegend:false, hoverinfo:"skip", xaxis:"x2", yaxis:"y2"},
-    {type:"scatter", mode:"markers", x:result.phases.map((_, ell) => ell), y:result.phases, marker:{size:9, color:result.phaseStrengths, colorscale:[[0, "#C8D6E5"], [1, COLORS.violet]], cmin:0, cmax:1}, name:t("phaseShifts"), xaxis:"x2", yaxis:"y2", hovertemplate:"ℓ=%{x}<br>δ=%{y:.4f}<extra></extra>"},
   ];
-  const potentialPhaseLayout = {
-    ...baseLayout(390), showlegend:false, margin:{l:58, r:20, t:28, b:50},
-    xaxis:{...axis("radius r"), domain:[0, .45]}, yaxis:axis("potential U(r), energy E"),
-    xaxis2:{...axis("partial wave ℓ"), domain:[.57, 1], dtick:1}, yaxis2:{...axis("phase shift δℓ (rad)"), range:[-Math.PI / 2, Math.PI / 2], tickvals:[-Math.PI / 2, 0, Math.PI / 2], ticktext:["−π/2", "0", "+π/2"]},
+  const potentialLayout = {
+    ...baseLayout(340), showlegend:false, margin:{l:74, r:18, t:22, b:58},
+    xaxis:axis("radius r [L]"),
+    yaxis:axis("potential U(r), energy E [L⁻²]"),
+  };
+
+  const phaseShiftData = [
+    {type:"scatter", mode:"lines", x:phaseLines.map(point => point.ell), y:phaseLines.map(point => point.value), line:{color:COLORS.grid, width:5}, showlegend:false, hoverinfo:"skip"},
+    {type:"scatter", mode:"markers", x:result.phases.map((_, ell) => ell), y:result.phases, marker:{size:9, color:result.phaseStrengths, colorscale:[[0, "#C8D6E5"], [1, COLORS.violet]], cmin:0, cmax:1}, name:"phase shifts", hovertemplate:"ℓ=%{x}<br>δ=%{y:.4f} rad<extra></extra>"},
+  ];
+  const phaseShiftLayout = {
+    ...baseLayout(340), showlegend:false, margin:{l:72, r:18, t:22, b:58},
+    xaxis:{...axis("partial-wave index ℓ [dimensionless]"), dtick:1},
+    yaxis:{...axis("phase shift δℓ [rad]"), range:[-Math.PI / 2, Math.PI / 2], tickvals:[-Math.PI / 2, 0, Math.PI / 2], ticktext:["−π/2", "0", "+π/2"]},
   };
 
   const differential = result.differentialCrossSection;
@@ -321,42 +334,53 @@ async function renderScattering(result) {
     hovertemplate:"θ=%{x:.3f} rad<br>dσ/dΩ=%{y:.5f}<extra></extra>",
   }];
   const differentialLayout = {
-    ...baseLayout(390), showlegend:false, margin:{l:72, r:22, t:28, b:58},
+    ...baseLayout(340), showlegend:false, margin:{l:76, r:18, t:22, b:58},
     xaxis:{
-      ...axis("scattering angle θ (rad)"),
+      ...axis("scattering angle θ [rad]"),
       range:[0, Math.PI],
       tickvals:[0, Math.PI / 4, Math.PI / 2, 3 * Math.PI / 4, Math.PI],
       ticktext:["0", "π/4", "π/2", "3π/4", "π"],
     },
-    yaxis:{...axis("differential cross section dσ/dΩ"), rangemode:"tozero"},
+    yaxis:{...axis("dσ/dΩ [L² sr⁻¹]"), rangemode:"tozero"},
   };
 
-  const resonanceData = [
-    {type:"scatter", mode:"lines", x:result.resonance.energy, y:result.resonance.phase, name:t("phase"), line:{color:COLORS.violet, width:2}, xaxis:"x", yaxis:"y"},
-    {type:"scatter", mode:"lines", x:result.resonance.energy, y:result.resonance.strength, name:t("strengthCurve"), line:{color:COLORS.gold, width:1.5, dash:"dash"}, xaxis:"x", yaxis:"y2"},
-    {type:"scatter", mode:"lines", x:result.resonance.radius, y:result.resonance.radial, name:t("interacting"), line:{color:COLORS.violet, width:2}, xaxis:"x3", yaxis:"y3"},
-    {type:"scatter", mode:"lines", x:result.resonance.radius, y:result.resonance.freeRadial, name:t("free"), line:{color:COLORS.muted, width:1.3, dash:"dash"}, xaxis:"x3", yaxis:"y3"},
+  const resonanceEnergyData = [
+    {type:"scatter", mode:"lines", x:result.resonance.energy, y:result.resonance.phase, name:"phase shift", line:{color:COLORS.violet, width:2}},
+    {type:"scatter", mode:"lines", x:result.resonance.energy, y:result.resonance.strength, name:"sin² phase shift", line:{color:COLORS.gold, width:1.5, dash:"dash"}, yaxis:"y2"},
   ];
-  const resonanceLayout = {
-    ...baseLayout(390), margin:{l:58, r:52, t:28, b:50},
-    legend:{orientation:"h", x:0, y:1.16, font:{size:10}},
-    xaxis:{...axis("energy E"), domain:[0, .46]}, yaxis:axis("phase shift δℓ (rad)"),
-    yaxis2:{overlaying:"y", side:"right", range:[0, 1], title:"scattering strength sin²δℓ", showgrid:false},
-    xaxis3:{...axis("radius r"), domain:[.59, 1]}, yaxis3:axis("reduced radial wave uℓ(r)"),
+  const resonanceEnergyLayout = {
+    ...baseLayout(340), margin:{l:74, r:76, t:36, b:58},
+    legend:{orientation:"h", x:0, y:1.13, font:{size:10}},
+    xaxis:axis("energy E [L⁻²]"),
+    yaxis:axis("phase shift δℓ [rad]"),
+    yaxis2:{...axis("sin²δℓ [dimensionless]"), overlaying:"y", side:"right", range:[0, 1], showgrid:false},
+  };
+
+  const radialData = [
+    {type:"scatter", mode:"lines", x:result.resonance.radius, y:result.resonance.radial, name:"with potential", line:{color:COLORS.violet, width:2}},
+    {type:"scatter", mode:"lines", x:result.resonance.radius, y:result.resonance.freeRadial, name:"free", line:{color:COLORS.muted, width:1.3, dash:"dash"}},
+  ];
+  const radialLayout = {
+    ...baseLayout(340), margin:{l:74, r:18, t:36, b:58},
+    legend:{orientation:"h", x:0, y:1.13, font:{size:10}},
+    xaxis:axis("radius r [L]"),
+    yaxis:axis("reduced radial wave uℓ(r) [arb. units]"),
   };
 
   const field = result.field;
   const fieldScale = sharedScale([field.current, field.next, field.after]);
-  drawField(byId("field-current"), field.current, field.axis, fieldScale, "transverse x", "incident axis z");
-  drawField(byId("field-next"), field.next, field.axis, fieldScale, "transverse x", "incident axis z");
-  drawField(byId("field-after"), field.after, field.axis, fieldScale, "transverse x", "incident axis z");
+  drawField(byId("field-current"), field.current, field.axis, fieldScale, "transverse x [L]", "incident axis z [L]");
+  drawField(byId("field-next"), field.next, field.axis, fieldScale, "transverse x [L]", "incident axis z [L]");
+  drawField(byId("field-after"), field.after, field.axis, fieldScale, "transverse x [L]", "incident axis z [L]");
   byId("field-current-label").textContent = `${t("current")} ℓ≤${result.maximumEll}`;
   byId("field-next-label").textContent = `${t("next")} ℓ=${result.nextEll}`;
-  byId("cross-section").textContent = `${t("crossSection")} σ = ${result.crossSection.toFixed(3)} · ${t("enhancement")} (ℓ=${result.resonanceEll}) = ${result.resonance.enhancement.toFixed(2)}`;
+  byId("cross-section").textContent = `${t("crossSection")} σ = ${result.crossSection.toFixed(3)} L² · ${t("enhancement")} (ℓ=${result.resonanceEll}) = ${result.resonance.enhancement.toFixed(2)}`;
   await Promise.all([
-    Plotly.react("potential-phase", potentialPhaseData, potentialPhaseLayout, CONFIG),
+    Plotly.react("potential-profile", potentialData, potentialLayout, CONFIG),
+    Plotly.react("phase-shifts", phaseShiftData, phaseShiftLayout, CONFIG),
     Plotly.react("differential-cross-section", differentialData, differentialLayout, CONFIG),
-    Plotly.react("resonance", resonanceData, resonanceLayout, CONFIG),
+    Plotly.react("resonance-energy", resonanceEnergyData, resonanceEnergyLayout, CONFIG),
+    Plotly.react("resonance-radial", radialData, radialLayout, CONFIG),
   ]);
 }
 
@@ -475,9 +499,9 @@ window.addEventListener("resize", () => {
     if (lastScatteringResult) {
       const field = lastScatteringResult.field;
       const scale = sharedScale([field.current, field.next, field.after]);
-      drawField(byId("field-current"), field.current, field.axis, scale, "transverse x", "incident axis z");
-      drawField(byId("field-next"), field.next, field.axis, scale, "transverse x", "incident axis z");
-      drawField(byId("field-after"), field.after, field.axis, scale, "transverse x", "incident axis z");
+      drawField(byId("field-current"), field.current, field.axis, scale, "transverse x [L]", "incident axis z [L]");
+      drawField(byId("field-next"), field.next, field.axis, scale, "transverse x [L]", "incident axis z [L]");
+      drawField(byId("field-after"), field.after, field.axis, scale, "transverse x [L]", "incident axis z [L]");
     }
   }, 120);
 });

@@ -41,7 +41,7 @@ input[type="range"] { width: 100%; accent-color: var(--blue); }
 output { color: var(--blue); font-variant-numeric: tabular-nums; font-weight: 700; }
 .plane-grid { display: grid; grid-template-columns: minmax(0, .78fr) minmax(0, 1.22fr); align-items: start; }
 figure { min-width: 0; margin: 0; }
-.plane-grid figure + figure, .diagnostic-grid figure:nth-child(2) { border-left: 1px solid var(--border); }
+.plane-grid figure + figure, .summary-plot-grid figure + figure, .resonance-plot-grid figure + figure { border-left: 1px solid var(--border); }
 figcaption { display: flex; justify-content: space-between; gap: 14px; min-height: 42px; padding: 12px 14px; border-bottom: 1px solid var(--border); color: var(--ink); font-size: .74rem; font-weight: 700; }
 figcaption small { color: var(--muted); font-size: .65rem; font-weight: 500; }
 .plot { width: 100%; background: var(--panel); }
@@ -59,9 +59,9 @@ figcaption small { color: var(--muted); font-size: .65rem; font-weight: 500; }
 .parameter-grid { display: grid; grid-template-columns: repeat(4, minmax(170px, 1fr)); gap: 1px; background: var(--border); border-bottom: 1px solid var(--border); }
 .parameter-grid label { display: block; padding: 13px 15px; background: var(--panel); }
 .parameter-grid label > span { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 9px; color: var(--muted); font-size: .68rem; }
-.diagnostic-grid { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--border); }
-.diagnostic-grid .resonance-figure { grid-column: 1 / -1; border-top: 1px solid var(--border); }
-.plot-diagnostic { height: 390px; }
+.summary-plot-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-bottom: 1px solid var(--border); }
+.resonance-plot-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-bottom: 1px solid var(--border); }
+.plot-diagnostic { height: 340px; }
 .scattering-controls { justify-content: flex-start; }
 .scattering-range-control { max-width: 460px; }
 .segmented { display: flex; }
@@ -75,10 +75,14 @@ figcaption small { color: var(--muted); font-size: .65rem; font-weight: 500; }
 .note { margin: 0; padding: 11px 15px; border-top: 1px solid var(--border); color: var(--muted); font-size: .68rem; line-height: 1.6; }
 
 @media (max-width: 980px) {
-  .plane-grid, .diagnostic-grid { grid-template-columns: 1fr; }
-  .plane-grid figure + figure, .diagnostic-grid figure + figure { border-left: 0; border-top: 1px solid var(--border); }
-  .diagnostic-grid .resonance-figure { grid-column: auto; }
+  .plane-grid { grid-template-columns: 1fr; }
+  .plane-grid figure + figure { border-left: 0; border-top: 1px solid var(--border); }
   .parameter-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 800px) {
+  .summary-plot-grid, .resonance-plot-grid { grid-template-columns: 1fr; }
+  .summary-plot-grid figure + figure, .resonance-plot-grid figure + figure { border-left: 0; border-top: 1px solid var(--border); }
 }
 
 @media (max-width: 680px) {
@@ -89,7 +93,7 @@ figcaption small { color: var(--muted); font-size: .65rem; font-weight: 500; }
   .range-control { order: -1; flex-basis: 100%; }
   .select-control { width: 100%; margin-left: 0; justify-content: space-between; }
   .plot-3d { height: 480px; }
-  .plot-diagnostic { height: 440px; }
+  .plot-diagnostic { height: 340px; }
   .heatmap-group { grid-template-columns: 1fr; }
   figcaption { align-items: flex-start; flex-direction: column; gap: 3px; }
 }

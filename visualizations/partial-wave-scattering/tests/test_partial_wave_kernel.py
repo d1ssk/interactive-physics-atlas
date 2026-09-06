@@ -62,3 +62,27 @@ def test_kernel_rejects_out_of_range_input(kernel, protocol) -> None:
     )
     assert response["ok"] is False
     assert response["error"]["code"] == "LIMIT_EXCEEDED"
+
+
+def test_angular_distribution_uses_all_available_partial_waves(kernel, protocol) -> None:
+    common = {
+        "strength": -8,
+        "range": 1.15,
+        "core": 0,
+        "energy": 5,
+        "fieldMode": "scattered",
+        "resonanceEll": 0,
+    }
+    s_wave = kernel.handle_request(
+        request(protocol, protocol.SCATTER_OPERATION, {**common, "maximumEll": 0})
+    )["result"]
+    all_fields = kernel.handle_request(
+        request(protocol, protocol.SCATTER_OPERATION, {**common, "maximumEll": 10})
+    )["result"]
+
+    np.testing.assert_allclose(
+        s_wave["differentialCrossSection"]["value"],
+        all_fields["differentialCrossSection"]["value"],
+    )
+    assert s_wave["crossSection"] == all_fields["crossSection"]
+    assert s_wave["field"]["current"] != all_fields["field"]["current"]

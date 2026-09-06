@@ -63,7 +63,8 @@ strong angular structure in the outgoing field.
 ## Conventions and limitations
 
 The scattering panel uses $\hbar^2/(2\mu)=1$, so $E=k^2$, with the incident wave traveling in the
-$+z$ direction. The model potential is
+$+z$ direction. If $L$ denotes the model length unit, radii are shown in $L$, energies and
+potentials in $L^{-2}$, and cross sections in $L^2$. The model potential is
 
 $$
 U(r)=U_0e^{-(r/a)^2}+U_c e^{-(r/a_c)^4},\qquad
