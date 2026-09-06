@@ -25,7 +25,7 @@ LIE_RUNTIME_RELATIVE_DIR = (
     Path("mathematics-for-physics") / "lie-roots-weights-products" / "app" / "runtime"
 )
 PARTIAL_WAVE_RUNTIME_RELATIVE_DIR = (
-    Path("quantum-mechanics") / "partial-wave-scattering" / "runtime"
+    Path("quantum-mechanics") / "partial-wave-scattering" / "app" / "runtime"
 )
 ENGLISH_ONLY_RUNTIME_DIRS = (
     LIE_RUNTIME_RELATIVE_DIR,

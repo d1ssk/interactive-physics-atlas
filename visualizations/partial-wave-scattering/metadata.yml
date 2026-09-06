@@ -12,6 +12,5 @@ level:
   - graduate
 runtime: plotly-static
 page: quantum-mechanics/partial-wave-scattering
-presentation: standalone
 summary: Build a plane wave from angular-momentum channels, then calculate scattering from an adjustable central potential in the browser.
 summary_ja: 角運動量チャネルによる平面波の構成と、可変中心力ポテンシャルによる散乱のブラウザ内計算。

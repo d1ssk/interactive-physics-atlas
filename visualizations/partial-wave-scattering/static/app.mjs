@@ -24,6 +24,7 @@ const TEXT = {
     maskNote:"The gray disk masks the potential interior, where the asymptotic outgoing-wave expression is not used.",
     convention:"Convention: \\(\\hbar^2/(2\\mu)=1\\). The Gaussian model is elastic and central; the displayed exterior field uses the asymptotic scattering form.",
     plane3dAria:"Three-dimensional plane-wave partial sum", plane2dAria:"Partial-wave addition on the y equals zero plane",
+    scatteringFieldAria:"Scattering field on the y equals zero plane",
     current:"Current sum", next:"Next channel", after:"After addition", potential:"potential", phaseShifts:"phase shifts",
     phase:"phase", strengthCurve:"sin² phase", interacting:"interacting", free:"free", radial:"radial wave",
     crossSection:"total cross section", enhancement:"interior enhancement",
@@ -47,6 +48,7 @@ const TEXT = {
     maskNote:"灰色の円内はポテンシャル内部として除外し、漸近的な外向き散乱波を適用しません。",
     convention:"規約：\\(\\hbar^2/(2\\mu)=1\\)。Gaussian模型は弾性的な中心力散乱で、外部場には漸近散乱形を用いています。",
     plane3dAria:"平面波部分和の三次元表示", plane2dAria:"y=0平面における部分波の加算",
+    scatteringFieldAria:"y=0平面における散乱場",
     current:"現在の和", next:"次のチャネル", after:"加算後", potential:"ポテンシャル", phaseShifts:"位相シフト",
     phase:"位相", strengthCurve:"sin² 位相", interacting:"ポテンシャルあり", free:"自由波", radial:"動径波",
     crossSection:"全断面積", enhancement:"内部増幅率",
@@ -57,12 +59,6 @@ const t = key => TEXT[LOCALE][key] ?? key;
 const status = byId("runtime-status");
 document.documentElement.lang = LOCALE;
 document.title = `${t("title")} — Interactive Physics Atlas`;
-byId("brand-home").href = LOCALE === "ja" ? "../../../ja/" : "../../";
-byId("locale-link").href = LOCALE === "ja"
-  ? "../../../quantum-mechanics/partial-wave-scattering/?lang=en"
-  : "../../ja/quantum-mechanics/partial-wave-scattering/?lang=ja";
-byId("locale-link").textContent = LOCALE === "ja" ? "English" : "日本語";
-byId("locale-link").lang = LOCALE === "ja" ? "en" : "ja";
 document.querySelectorAll("[data-i18n]").forEach(element => {
   element.textContent = t(element.dataset.i18n);
 });
@@ -79,8 +75,8 @@ if (window.MathJax?.startup?.promise) {
 
 await window.physicsAtlasPlotlyReady;
 
-const root = LOCALE === "ja" ? "../../../" : "../../";
-const runtimeBase = new URL(`${root}quantum-mechanics/partial-wave-scattering/runtime/`, location.href);
+const root = LOCALE === "ja" ? "../../../../" : "../../../";
+const runtimeBase = new URL(`${root}quantum-mechanics/partial-wave-scattering/app/runtime/`, location.href);
 const providerModule = await import(new URL(DATA.providerAsset, runtimeBase));
 const provider = new providerModule.PyodideComputeProvider({
   workerUrl:new URL(DATA.workerAsset, runtimeBase),
@@ -104,7 +100,7 @@ const themeColor = (name, fallback) => theme.getPropertyValue(name).trim() || fa
 const COLORS = {
   blue:"#3B6FB6", orange:"#D9772B", violet:"#69558F", gold:"#B68516",
   ink:"#263238", muted:"#667078", grid:themeColor("--atlas-viz-border", "#DDE2E6"),
-  panel:themeColor("--atlas-viz-panel", "#FCFCFD"), mask:"#D7DBDE",
+  panel:themeColor("--atlas-viz-panel", "#FCFCFD"),
 };
 
 function baseLayout(height) {
@@ -176,15 +172,85 @@ function meshCoordinates(values) {
   return {x, y, z};
 }
 
-function plane2dTrace(name, values, domainIndex) {
-  const suffix = domainIndex === 1 ? "" : String(domainIndex);
-  return {
-    type:"heatmap", name, z:values, coloraxis:"coloraxis",
-    xaxis:`x${suffix}`, yaxis:`y${suffix}`, hovertemplate:"x=%{x:.2f} λ<br>z=%{y:.2f} λ<br>Re ψ=%{z:.3f}<extra></extra>",
-  };
+function interpolate(left, right, fraction) {
+  return left.map((value, index) => Math.round(value + (right[index] - value) * fraction));
+}
+
+function fieldColor(value, scale) {
+  const normalized = Math.max(-1, Math.min(1, value / Math.max(scale, 1e-12)));
+  return normalized < 0
+    ? interpolate([247, 248, 250], [59, 111, 182], -normalized)
+    : interpolate([247, 248, 250], [217, 119, 43], normalized);
+}
+
+function sharedScale(matrices) {
+  const sample = matrices.flatMap(matrix => matrix.flat().filter(Number.isFinite).map(Math.abs));
+  sample.sort((left, right) => left - right);
+  return sample[Math.min(sample.length - 1, Math.floor(.985 * sample.length))] || 1;
+}
+
+function drawField(canvas, matrix, axisValues, scale) {
+  const width = Math.max(120, canvas.clientWidth);
+  const height = Math.max(160, canvas.clientHeight);
+  const ratio = Math.min(2, window.devicePixelRatio || 1);
+  canvas.width = Math.round(width * ratio);
+  canvas.height = Math.round(height * ratio);
+  const context = canvas.getContext("2d");
+  context.scale(ratio, ratio);
+  context.clearRect(0, 0, width, height);
+  const margin = {left:30, right:8, top:8, bottom:26};
+  const side = Math.min(width - margin.left - margin.right, height - margin.top - margin.bottom);
+  const left = margin.left + Math.max(0, (width - margin.left - margin.right - side) / 2);
+  const top = margin.top + Math.max(0, (height - margin.top - margin.bottom - side) / 2);
+  const size = matrix.length;
+  const imageCanvas = document.createElement("canvas");
+  imageCanvas.width = size;
+  imageCanvas.height = size;
+  const imageContext = imageCanvas.getContext("2d");
+  const image = imageContext.createImageData(size, size);
+  for (let row = 0; row < size; row += 1) {
+    for (let column = 0; column < size; column += 1) {
+      const value = matrix[row][column];
+      const pixel = 4 * ((size - row - 1) * size + column);
+      const color = Number.isFinite(value) ? fieldColor(value, scale) : [211, 216, 220];
+      image.data[pixel] = color[0];
+      image.data[pixel + 1] = color[1];
+      image.data[pixel + 2] = color[2];
+      image.data[pixel + 3] = 255;
+    }
+  }
+  imageContext.putImageData(image, 0, 0);
+  context.imageSmoothingEnabled = true;
+  context.drawImage(imageCanvas, left, top, side, side);
+  context.strokeStyle = COLORS.grid;
+  context.strokeRect(left, top, side, side);
+  context.fillStyle = COLORS.muted;
+  context.font = "10px Arial, sans-serif";
+  context.textAlign = "center";
+  context.fillText("x", left + side / 2, top + side + 20);
+  context.fillText(axisValues[0].toFixed(1), left, top + side + 20);
+  context.fillText(axisValues.at(-1).toFixed(1), left + side, top + side + 20);
+  context.save();
+  context.translate(left - 20, top + side / 2);
+  context.rotate(-Math.PI / 2);
+  context.fillText("z", 0, 0);
+  context.restore();
+}
+
+let lastPlaneResult = null;
+let lastScatteringResult = null;
+
+function drawPlaneSlices(result) {
+  const matrices = [result.current, result.next, result.after];
+  const scale = sharedScale(matrices);
+  drawField(byId("plane-current"), result.current, result.axis2d, scale);
+  drawField(byId("plane-next"), result.next, result.axis2d, scale);
+  drawField(byId("plane-after"), result.after, result.axis2d, scale);
+  byId("plane-next-label").textContent = `ℓ=${result.nextEll}`;
 }
 
 async function renderPlane(result) {
+  lastPlaneResult = result;
   const coordinates = meshCoordinates(result.axis3d);
   const figure3d = [{
     type:"isosurface", ...coordinates, value:result.field3d,
@@ -201,29 +267,8 @@ async function renderPlane(result) {
       aspectmode:"cube", dragmode:"turntable", camera:{eye:{x:1.5, y:1.35, z:1.15}},
     },
   };
-  const a = result.axis2d;
-  const traces2d = [
-    {...plane2dTrace(t("current"), result.current, 1), x:a, y:a},
-    {...plane2dTrace(t("next"), result.next, 2), x:a, y:a},
-    {...plane2dTrace(t("after"), result.after, 3), x:a, y:a},
-  ];
-  const layout2d = {
-    ...baseLayout(560),
-    margin:{l:54, r:70, t:58, b:52},
-    coloraxis:{colorscale:[[0, COLORS.blue], [.5, "#F7F8FA"], [1, COLORS.orange]], cmin:-1.2, cmax:1.2, colorbar:{title:"Re ψ", thickness:12}},
-    xaxis:{...axis("x / λ"), domain:[0, .29]}, yaxis:{...axis("z / λ"), scaleanchor:"x", scaleratio:1},
-    xaxis2:{...axis("x / λ"), domain:[.355, .645]}, yaxis2:{...axis("z / λ"), scaleanchor:"x2", scaleratio:1},
-    xaxis3:{...axis("x / λ"), domain:[.71, 1]}, yaxis3:{...axis("z / λ"), scaleanchor:"x3", scaleratio:1},
-    annotations:[
-      {text:t("current"), x:.145, y:1.08, xref:"paper", yref:"paper", showarrow:false},
-      {text:`${t("next")} ℓ=${result.nextEll}`, x:.5, y:1.08, xref:"paper", yref:"paper", showarrow:false},
-      {text:t("after"), x:.855, y:1.08, xref:"paper", yref:"paper", showarrow:false},
-    ],
-  };
-  await Promise.all([
-    Plotly.react("plane-3d", figure3d, layout3d, CONFIG),
-    Plotly.react("plane-2d", traces2d, layout2d, CONFIG),
-  ]);
+  drawPlaneSlices(result);
+  await Plotly.react("plane-3d", figure3d, layout3d, CONFIG);
 }
 
 const parameterIds = ["strength", "range", "core", "energy"];
@@ -247,28 +292,16 @@ function updateScatterControls() {
   byId("scatter-add").disabled = scatterState.maximumEll === 10;
 }
 
-function maskShapes(radius) {
-  return ["", "2", "3"].map(suffix => ({
-    type:"circle", xref:`x${suffix}`, yref:`y${suffix}`,
-    x0:-radius, x1:radius, y0:-radius, y1:radius,
-    fillcolor:COLORS.mask, line:{color:COLORS.muted, width:1}, layer:"below",
-  }));
-}
-
-function scatteringHeatmap(name, z, index, axisValues) {
-  const suffix = index === 1 ? "" : String(index);
-  return {
-    type:"heatmap", name, z, x:axisValues, y:axisValues, coloraxis:"coloraxis",
-    xaxis:`x${suffix}`, yaxis:`y${suffix}`, connectgaps:false,
-    hovertemplate:"x=%{x:.2f}<br>z=%{y:.2f}<br>Re ψ=%{z:.3f}<extra></extra>",
-  };
-}
-
 async function renderScattering(result) {
+  lastScatteringResult = result;
+  const phaseLines = result.phases.flatMap((value, ell) => [
+    {ell, value:0}, {ell, value}, {ell:null, value:null},
+  ]);
   const potentialPhaseData = [
     {type:"scatter", mode:"lines", x:result.potential.radius, y:result.potential.value, name:t("potential"), line:{color:result.parameters.strength < 0 ? COLORS.blue : COLORS.orange, width:2.2}},
     {type:"scatter", mode:"lines", x:[0, 4.5], y:[result.parameters.energy, result.parameters.energy], name:"E", line:{color:COLORS.gold, width:1.4, dash:"dash"}},
-    {type:"bar", x:result.phases.map((_, ell) => ell), y:result.phases, marker:{color:result.phaseStrengths, colorscale:[[0, "#C8D6E5"], [1, COLORS.violet]], cmin:0, cmax:1}, name:t("phaseShifts"), xaxis:"x2", yaxis:"y2", hovertemplate:"ℓ=%{x}<br>δ=%{y:.4f}<extra></extra>"},
+    {type:"scatter", mode:"lines", x:phaseLines.map(point => point.ell), y:phaseLines.map(point => point.value), line:{color:COLORS.grid, width:5}, showlegend:false, hoverinfo:"skip", xaxis:"x2", yaxis:"y2"},
+    {type:"scatter", mode:"markers", x:result.phases.map((_, ell) => ell), y:result.phases, marker:{size:9, color:result.phaseStrengths, colorscale:[[0, "#C8D6E5"], [1, COLORS.violet]], cmin:0, cmax:1}, name:t("phaseShifts"), xaxis:"x2", yaxis:"y2", hovertemplate:"ℓ=%{x}<br>δ=%{y:.4f}<extra></extra>"},
   ];
   const potentialPhaseLayout = {
     ...baseLayout(390), showlegend:false, margin:{l:58, r:20, t:28, b:50},
@@ -291,29 +324,16 @@ async function renderScattering(result) {
   };
 
   const field = result.field;
-  const fieldData = [
-    scatteringHeatmap(t("current"), field.current, 1, field.axis),
-    scatteringHeatmap(t("next"), field.next, 2, field.axis),
-    scatteringHeatmap(t("after"), field.after, 3, field.axis),
-  ];
-  const fieldLayout = {
-    ...baseLayout(500), margin:{l:54, r:72, t:55, b:52},
-    coloraxis:{colorscale:[[0, COLORS.blue], [.5, "#F7F8FA"], [1, COLORS.orange]], cmid:0, colorbar:{title:"Re ψ", thickness:12}},
-    xaxis:{...axis("x"), domain:[0, .29]}, yaxis:{...axis("z"), scaleanchor:"x", scaleratio:1},
-    xaxis2:{...axis("x"), domain:[.355, .645]}, yaxis2:{...axis("z"), scaleanchor:"x2", scaleratio:1},
-    xaxis3:{...axis("x"), domain:[.71, 1]}, yaxis3:{...axis("z"), scaleanchor:"x3", scaleratio:1},
-    shapes:maskShapes(field.maskRadius),
-    annotations:[
-      {text:`${t("current")} ℓ≤${result.maximumEll}`, x:.145, y:1.08, xref:"paper", yref:"paper", showarrow:false},
-      {text:`${t("next")} ℓ=${result.nextEll}`, x:.5, y:1.08, xref:"paper", yref:"paper", showarrow:false},
-      {text:t("after"), x:.855, y:1.08, xref:"paper", yref:"paper", showarrow:false},
-    ],
-  };
+  const fieldScale = sharedScale([field.current, field.next, field.after]);
+  drawField(byId("field-current"), field.current, field.axis, fieldScale);
+  drawField(byId("field-next"), field.next, field.axis, fieldScale);
+  drawField(byId("field-after"), field.after, field.axis, fieldScale);
+  byId("field-current-label").textContent = `${t("current")} ℓ≤${result.maximumEll}`;
+  byId("field-next-label").textContent = `${t("next")} ℓ=${result.nextEll}`;
   byId("cross-section").textContent = `${t("crossSection")} σ = ${result.crossSection.toFixed(3)} · ${t("enhancement")} = ${result.resonance.enhancement.toFixed(2)}`;
   await Promise.all([
     Plotly.react("potential-phase", potentialPhaseData, potentialPhaseLayout, CONFIG),
     Plotly.react("resonance", resonanceData, resonanceLayout, CONFIG),
-    Plotly.react("scattering-field", fieldData, fieldLayout, CONFIG),
   ]);
 }
 
@@ -411,6 +431,20 @@ byId("resonance-ell").addEventListener("change", event => {
 });
 
 window.addEventListener("pagehide", () => provider.dispose(), {once:true});
+let resizeTimer = null;
+window.addEventListener("resize", () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (lastPlaneResult) drawPlaneSlices(lastPlaneResult);
+    if (lastScatteringResult) {
+      const field = lastScatteringResult.field;
+      const scale = sharedScale([field.current, field.next, field.after]);
+      drawField(byId("field-current"), field.current, field.axis, scale);
+      drawField(byId("field-next"), field.next, field.axis, scale);
+      drawField(byId("field-after"), field.after, field.axis, scale);
+    }
+  }, 120);
+});
 updateParameterOutputs();
 updateScatterControls();
 await requestPlane();

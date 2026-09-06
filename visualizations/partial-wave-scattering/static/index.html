@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
   <title>Partial-Wave Scattering — Interactive Physics Atlas</title>
-  <link rel="icon" href="../../assets/images/favicon.svg">
   <link rel="stylesheet" href="visualization-theme.css">
   <link rel="stylesheet" href="style.css">
   <script src="visualization-theme.js"></script>
@@ -13,13 +12,21 @@
     window.MathJax = {
       tex: {inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]]},
       svg: {fontCache: "global"},
+      startup: {
+        ready() {
+          MathJax.startup.defaultReady();
+          MathJax.startup.promise.then(() => {
+            window.dispatchEvent(new Event("physics-atlas:mathjax-ready"));
+          });
+        },
+      },
     };
   </script>
   <script defer src="mathjax-tex-svg.js"></script>
   <script>
     window.physicsAtlasPlotlyReady = new Promise((resolve, reject) => {
       const locale = new URLSearchParams(location.search).get("lang") === "ja" ? "ja" : "en";
-      const root = locale === "ja" ? "../../../" : "../../";
+      const root = locale === "ja" ? "../../../../" : "../../../";
       const script = document.createElement("script");
       script.src = new URL(`${root}javascripts/__PLOTLY_ASSET__`, location.href);
       script.addEventListener("load", resolve, {once:true});
@@ -30,21 +37,6 @@
 </head>
 <body>
   <main>
-    <nav class="site-nav" aria-label="Site navigation" data-i18n-aria="siteNav">
-      <a id="brand-home" class="brand" href="../../">Interactive Physics Atlas</a>
-      <a id="locale-link" class="locale-link" href="../../ja/quantum-mechanics/partial-wave-scattering/?lang=ja" lang="ja">日本語</a>
-    </nav>
-
-    <header class="app-header">
-      <p class="eyebrow" data-i18n="field">Quantum mechanics</p>
-      <h1 data-i18n="title">Partial-Wave Scattering</h1>
-      <p data-i18n="lede">Construct a plane wave from angular-momentum channels, then see how a central potential changes their phases and the outgoing field.</p>
-      <div class="equations">
-        <span>\(e^{ikz}=\sum_{\ell=0}^{\infty}i^\ell(2\ell+1)j_\ell(kr)P_\ell(\cos\theta)\)</span>
-        <span>\(S_\ell=e^{2i\delta_\ell}\)</span>
-      </div>
-    </header>
-
     <p id="runtime-status" class="runtime-status" role="status" aria-live="polite" data-i18n="loading">Loading the Python calculation runtime…</p>
 
     <section class="visualization-panel" aria-labelledby="plane-heading">
@@ -68,7 +60,11 @@
         </figure>
         <figure>
           <figcaption><span data-i18n="addition">Addition on the y = 0 plane</span><small data-i18n="sameSnapshot">Real part at the same phase</small></figcaption>
-          <div id="plane-2d" class="plot plot-2d" aria-label="Partial-wave addition on the y equals zero plane" data-i18n-aria="plane2dAria"></div>
+          <div id="plane-2d" class="heatmap-group" aria-label="Partial-wave addition on the y equals zero plane" data-i18n-aria="plane2dAria">
+            <section class="heatmap-panel"><h3 data-i18n="current">Current sum</h3><canvas id="plane-current"></canvas></section>
+            <section class="heatmap-panel"><h3><span data-i18n="next">Next channel</span> <span id="plane-next-label">ℓ=5</span></h3><canvas id="plane-next"></canvas></section>
+            <section class="heatmap-panel"><h3 data-i18n="after">After addition</h3><canvas id="plane-after"></canvas></section>
+          </div>
         </figure>
       </div>
     </section>
@@ -108,7 +104,11 @@
       </div>
       <figure class="field-figure">
         <figcaption><span data-i18n="fieldComparison">Scattering field on the y = 0 plane</span><small id="cross-section">—</small></figcaption>
-        <div id="scattering-field" class="plot plot-field"></div>
+        <div id="scattering-field" class="heatmap-group scattering-heatmaps" aria-label="Scattering field on the y equals zero plane" data-i18n-aria="scatteringFieldAria">
+          <section class="heatmap-panel"><h3 id="field-current-label">Current sum</h3><canvas id="field-current"></canvas></section>
+          <section class="heatmap-panel"><h3 id="field-next-label">Next channel</h3><canvas id="field-next"></canvas></section>
+          <section class="heatmap-panel"><h3 data-i18n="after">After addition</h3><canvas id="field-after"></canvas></section>
+        </div>
       </figure>
       <p class="note" data-i18n="maskNote">The gray disk masks the potential interior, where the asymptotic outgoing-wave expression is not used.</p>
     </section>
@@ -117,6 +117,30 @@
       <p data-i18n="convention">Convention: \(\hbar^2/(2\mu)=1\). The Gaussian model is elastic and central; the displayed exterior field uses the asymptotic scattering form.</p>
     </footer>
   </main>
+  <script>
+    (() => {
+      const main = document.querySelector("main");
+      const expectedParent = window.parent !== window ? window.parent : null;
+      const expectedOrigin = location.protocol === "http:" || location.protocol === "https:" ? location.origin : null;
+      const report = () => {
+        if (!expectedParent || !expectedOrigin) return;
+        const height = Math.ceil(Math.max(main.getBoundingClientRect().bottom, document.body.getBoundingClientRect().height));
+        expectedParent.postMessage({type:"physics-atlas:frame-height", height}, expectedOrigin);
+      };
+      addEventListener("message", event => {
+        if (event.source === expectedParent && event.origin === expectedOrigin && event.data?.type === "physics-atlas:request-frame-height") report();
+      });
+      addEventListener("load", report);
+      addEventListener("resize", report);
+      addEventListener("physics-atlas:mathjax-ready", report);
+      const observer = new ResizeObserver(report);
+      observer.observe(document.body);
+      observer.observe(main);
+      addEventListener("pagehide", () => observer.disconnect(), {once:true});
+      document.fonts?.ready.then(report);
+      report();
+    })();
+  </script>
   <script id="runtime-manifest" type="application/json">__RUNTIME_MANIFEST__</script>
   <script type="module" src="app.mjs"></script>
 </body>

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import numpy as np
+
 
 def request(protocol, operation, inputs):
     return {
@@ -18,6 +20,8 @@ def test_plane_result_is_bounded_domain_data(kernel, protocol) -> None:
     result = response["result"]
     assert result["schema"] == protocol.PLANE_RESULT_SCHEMA
     assert len(result["field3d"]) == 19**3
+    assert np.linalg.matrix_rank(np.asarray(result["current"])) > 10
+    assert np.linalg.matrix_rank(np.asarray(result["next"])) > 10
     assert "data" not in result and "layout" not in result and "frames" not in result
 
 
@@ -39,6 +43,10 @@ def test_scattering_result_preserves_requested_state(kernel, protocol) -> None:
     assert result["resonanceEll"] == 1
     assert result["crossSection"] >= 0
     assert len(result["field"]["current"]) == len(result["field"]["axis"])
+    assert (
+        np.linalg.matrix_rank(np.nan_to_num(np.asarray(result["field"]["current"], dtype=float)))
+        > 10
+    )
 
 
 def test_kernel_rejects_out_of_range_input(kernel, protocol) -> None:

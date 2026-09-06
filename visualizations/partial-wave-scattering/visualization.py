@@ -1,4 +1,4 @@
-"""Static standalone builder for the browser-computed partial-wave application."""
+"""Static embedded-app builder for browser-computed partial-wave scattering."""
 
 from __future__ import annotations
 
