@@ -60,6 +60,13 @@
         </figure>
         <figure>
           <figcaption><span data-i18n="addition">Addition on the y = 0 plane</span><small data-i18n="sameSnapshot">Real part at the same phase</small></figcaption>
+          <div class="slice-control-strip">
+            <label class="range-control">
+              <span>\(\ell_{\max}\)</span>
+              <input id="plane-ell-slices" type="range" min="0" max="12" step="1" value="4">
+              <output id="plane-ell-slices-output">4</output>
+            </label>
+          </div>
           <div id="plane-2d" class="heatmap-group" aria-label="Partial-wave addition on the y equals zero plane" data-i18n-aria="plane2dAria">
             <section class="heatmap-panel"><h3 data-i18n="current">Current sum</h3><canvas id="plane-current"></canvas></section>
             <section class="heatmap-panel"><h3><span data-i18n="next">Next channel</span> <span id="plane-next-label">ℓ=5</span></h3><canvas id="plane-next"></canvas></section>
@@ -113,9 +120,6 @@
       <p class="note" data-i18n="maskNote">The gray disk masks the potential interior, where the asymptotic outgoing-wave expression is not used.</p>
     </section>
 
-    <footer>
-      <p data-i18n="convention">Convention: \(\hbar^2/(2\mu)=1\). The Gaussian model is elastic and central; the displayed exterior field uses the asymptotic scattering form.</p>
-    </footer>
   </main>
   <script>
     (() => {

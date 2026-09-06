@@ -22,12 +22,11 @@ const TEXT = {
     fieldModeAria:"Scattering field", total:"Incident + scattered", scattered:"Scattered only",
     channel:"Resonance channel", fieldComparison:"Scattering field on the y = 0 plane",
     maskNote:"The gray disk masks the potential interior, where the asymptotic outgoing-wave expression is not used.",
-    convention:"Convention: \\(\\hbar^2/(2\\mu)=1\\). The Gaussian model is elastic and central; the displayed exterior field uses the asymptotic scattering form.",
     plane3dAria:"Three-dimensional plane-wave partial sum", plane2dAria:"Partial-wave addition on the y equals zero plane",
     scatteringFieldAria:"Scattering field on the y equals zero plane",
     current:"Current sum", next:"Next channel", after:"After addition", potential:"potential", phaseShifts:"phase shifts",
     phase:"phase", strengthCurve:"sin² phase", interacting:"interacting", free:"free", radial:"radial wave",
-    crossSection:"total cross section", enhancement:"interior enhancement",
+    crossSection:"total cross section", enhancement:"interior radial-weight ratio",
   },
   ja: {
     siteNav:"サイトナビゲーション", field:"量子力学", title:"部分波散乱",
@@ -46,12 +45,11 @@ const TEXT = {
     fieldModeAria:"散乱場", total:"入射波＋散乱波", scattered:"散乱波のみ",
     channel:"共鳴チャネル", fieldComparison:"\\(y=0\\) 平面上の散乱場",
     maskNote:"灰色の円内はポテンシャル内部として除外し、漸近的な外向き散乱波を適用しません。",
-    convention:"規約：\\(\\hbar^2/(2\\mu)=1\\)。Gaussian模型は弾性的な中心力散乱で、外部場には漸近散乱形を用いています。",
     plane3dAria:"平面波部分和の三次元表示", plane2dAria:"y=0平面における部分波の加算",
     scatteringFieldAria:"y=0平面における散乱場",
     current:"現在の和", next:"次のチャネル", after:"加算後", potential:"ポテンシャル", phaseShifts:"位相シフト",
     phase:"位相", strengthCurve:"sin² 位相", interacting:"ポテンシャルあり", free:"自由波", radial:"動径波",
-    crossSection:"全断面積", enhancement:"内部増幅率",
+    crossSection:"全断面積", enhancement:"内部動径重み比",
   },
 };
 
@@ -330,7 +328,7 @@ async function renderScattering(result) {
   drawField(byId("field-after"), field.after, field.axis, fieldScale);
   byId("field-current-label").textContent = `${t("current")} ℓ≤${result.maximumEll}`;
   byId("field-next-label").textContent = `${t("next")} ℓ=${result.nextEll}`;
-  byId("cross-section").textContent = `${t("crossSection")} σ = ${result.crossSection.toFixed(3)} · ${t("enhancement")} = ${result.resonance.enhancement.toFixed(2)}`;
+  byId("cross-section").textContent = `${t("crossSection")} σ = ${result.crossSection.toFixed(3)} · ${t("enhancement")} (ℓ=${result.resonanceEll}) = ${result.resonance.enhancement.toFixed(2)}`;
   await Promise.all([
     Plotly.react("potential-phase", potentialPhaseData, potentialPhaseLayout, CONFIG),
     Plotly.react("resonance", resonanceData, resonanceLayout, CONFIG),
@@ -338,13 +336,22 @@ async function renderScattering(result) {
 }
 
 let planeTimer = null;
-async function requestPlane() {
-  planeTimer = null;
-  const maximumEll = Number(byId("plane-ell").value);
-  byId("plane-ell-output").textContent = maximumEll;
+const planeEllInputs = [byId("plane-ell"), byId("plane-ell-slices")];
+const planeEllOutputs = [byId("plane-ell-output"), byId("plane-ell-slices-output")];
+
+function setPlaneEll(value) {
+  const maximumEll = Math.max(0, Math.min(12, Number(value)));
+  planeEllInputs.forEach(input => { input.value = maximumEll; });
+  planeEllOutputs.forEach(output => { output.textContent = maximumEll; });
   byId("plane-next-output").textContent = Math.min(12, maximumEll + 1);
   byId("plane-back").disabled = maximumEll === 0;
   byId("plane-add").disabled = maximumEll === 12;
+}
+
+async function requestPlane() {
+  planeTimer = null;
+  const maximumEll = Number(byId("plane-ell").value);
+  setPlaneEll(maximumEll);
   const result = await compute(DATA.operations.plane.name, {maximumEll});
   if (result) await renderPlane(result);
 }
@@ -373,17 +380,16 @@ function scheduleScattering() {
   scatterTimer = setTimeout(requestScattering, 260);
 }
 
-byId("plane-ell").addEventListener("input", event => {
-  byId("plane-ell-output").textContent = event.target.value;
-  byId("plane-next-output").textContent = Math.min(12, Number(event.target.value) + 1);
+planeEllInputs.forEach(input => input.addEventListener("input", event => {
+  setPlaneEll(event.target.value);
   schedulePlane();
-});
+}));
 byId("plane-back").addEventListener("click", () => {
-  byId("plane-ell").value = Math.max(0, Number(byId("plane-ell").value) - 1);
+  setPlaneEll(Number(byId("plane-ell").value) - 1);
   schedulePlane();
 });
 byId("plane-add").addEventListener("click", () => {
-  byId("plane-ell").value = Math.min(12, Number(byId("plane-ell").value) + 1);
+  setPlaneEll(Number(byId("plane-ell").value) + 1);
   schedulePlane();
 });
 

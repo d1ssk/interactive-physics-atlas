@@ -67,9 +67,19 @@ a_c=\max(0.12,0.34a)
 $$
 
 Only elastic scattering by a real central potential is included. The two-dimensional field view
-uses the asymptotic incident-plus-outgoing form and masks the potential interior. A large interior
-radial amplitude or $\sin^2\delta_\ell\simeq1$ signals resonant scattering, not a positive-energy
-bound state.
+uses the asymptotic incident-plus-outgoing form and masks the potential interior. For the selected
+resonance channel, the displayed interior radial-weight ratio is
+
+$$
+\mathcal R_{\mathrm{int}}=
+\frac{\int_0^{2a}|u_\ell(r)|^2\,dr}
+{\int_0^{2a}|u_\ell^{(0)}(r)|^2\,dr}
+$$
+
+where the interacting and free reduced radial waves have the same exterior normalization. A value
+above one means that this channel carries more radial weight near the potential than the free wave.
+A large $\mathcal R_{\mathrm{int}}$ or $\sin^2\delta_\ell\simeq1$ can signal resonant scattering; it
+does not by itself imply a positive-energy bound state.
 
 ## References
 

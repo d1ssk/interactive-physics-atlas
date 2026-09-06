@@ -28,6 +28,11 @@ def test_static_build_has_no_precomputed_figure_payload(
     assert set(manifest["operations"]) == {"plane", "scattering"}
     assert len(manifest_text) < 2_500
     assert html.count('class="visualization-panel"') == 2
+    assert html.count('type="range" min="0" max="12"') == 2
+    assert 'id="plane-ell-slices"' in html
+    assert "<footer>" not in html
+    assert "aspect-ratio: 1" in style
+    assert ".scattering-heatmaps { height: auto; }" in style
     assert "linear-gradient" not in style
     assert "plane_wave_partial_sum" not in app
     assert "radial_solution" not in app
@@ -37,6 +42,9 @@ def test_static_build_has_no_precomputed_figure_payload(
     assert 'type:"bar"' not in app
     assert 'drawField(byId("plane-current")' in app
     assert 'drawField(byId("field-current")' in app
+    assert 'const planeEllInputs = [byId("plane-ell"), byId("plane-ell-slices")];' in app
+    assert "interior radial-weight ratio" in app
+    assert "内部動径重み比" in app
     assert "部分波散乱" in app
     assert "ブラウザ内のPython" in app
     assert 'rel="stylesheet" href="visualization-theme.css"' in html
