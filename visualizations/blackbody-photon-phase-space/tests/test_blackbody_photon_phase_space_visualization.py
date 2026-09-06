@@ -47,13 +47,16 @@ def test_ui_is_density_only_and_uses_requested_controls():
     assert "box-shadow" not in css
 
 
-def test_desktop_viewer_drag_and_spectrum_labels_follow_requested_conventions():
+def test_desktop_viewer_drag_uses_screen_relative_rotation_without_euler_angle_poles():
     html = (STATIC_DIR / "index.html").read_text(encoding="utf-8")
     source = (STATIC_DIR / "app.js").read_text(encoding="utf-8")
     css = (STATIC_DIR / "style.css").read_text(encoding="utf-8")
 
-    assert "state.yaw += deltaX * 0.008" in source
-    assert "state.yaw -= deltaX * 0.008" not in source
+    assert "state.yaw" not in source
+    assert "state.pitch" not in source
+    assert "rotationAroundScreenY(deltaX * DRAG_ROTATION_SPEED)" in source
+    assert "rotationAroundScreenX(deltaY * DRAG_ROTATION_SPEED)" in source
+    assert "multiplyRotations(horizontalRotation, state.viewRotation)" in source
     assert "clamp(500px, 58vw, 680px)" in css
     assert "Photon number per unit solid angle" in source
     assert "単位立体角あたりの光子数" in source

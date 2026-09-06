@@ -130,12 +130,52 @@ const RADIAL_TICKS = Object.freeze({
   linear: [0, 300e12, 600e12, 900e12, 1.2e15, 1.5e15],
   log: [1e12, 10e12, 100e12, 1e15, 1.5e15],
 });
+const INITIAL_YAW = -0.72;
+const INITIAL_PITCH = -0.36;
+const DRAG_ROTATION_SPEED = 0.008;
+
+function multiplyRotations(left, right) {
+  return left.map((row, rowIndex) =>
+    row.map((_, columnIndex) =>
+      row.reduce(
+        (sum, __, innerIndex) => sum + left[rowIndex][innerIndex] * right[innerIndex][columnIndex],
+        0,
+      ),
+    ),
+  );
+}
+
+function rotationAroundScreenX(angle) {
+  const cosine = Math.cos(angle);
+  const sine = Math.sin(angle);
+  return [
+    [1, 0, 0],
+    [0, cosine, -sine],
+    [0, sine, cosine],
+  ];
+}
+
+function rotationAroundScreenY(angle) {
+  const cosine = Math.cos(angle);
+  const sine = Math.sin(angle);
+  return [
+    [cosine, 0, sine],
+    [0, 1, 0],
+    [-sine, 0, cosine],
+  ];
+}
+
+function initialViewRotation() {
+  return multiplyRotations(
+    rotationAroundScreenX(INITIAL_PITCH),
+    rotationAroundScreenY(INITIAL_YAW),
+  );
+}
 
 const state = {
   points: [],
   hitPoints: [],
-  yaw: -0.72,
-  pitch: -0.36,
+  viewRotation: initialViewRotation(),
   zoom: 1,
   panX: 0,
   panY: 0,
@@ -330,14 +370,10 @@ function regenerateGeometry() {
 }
 
 function project(point, width, height) {
-  const cosineYaw = Math.cos(state.yaw);
-  const sineYaw = Math.sin(state.yaw);
-  const cosinePitch = Math.cos(state.pitch);
-  const sinePitch = Math.sin(state.pitch);
-  const rotatedX = cosineYaw * point.x + sineYaw * point.z;
-  const firstZ = -sineYaw * point.x + cosineYaw * point.z;
-  const rotatedY = cosinePitch * point.y - sinePitch * firstZ;
-  const rotatedZ = sinePitch * point.y + cosinePitch * firstZ;
+  const coordinates = [point.x, point.y, point.z];
+  const [rotatedX, rotatedY, rotatedZ] = state.viewRotation.map(row =>
+    row.reduce((sum, coefficient, index) => sum + coefficient * coordinates[index], 0),
+  );
   const perspective = 3.7 / (3.7 - rotatedZ);
   const scale = Math.min(width, height) * 0.43 * state.zoom;
   return {
@@ -633,8 +669,7 @@ function showTooltip(event) {
 }
 
 function resetView() {
-  state.yaw = -0.72;
-  state.pitch = -0.36;
+  state.viewRotation = initialViewRotation();
   state.zoom = 1;
   state.panX = 0;
   state.panY = 0;
@@ -662,8 +697,13 @@ phaseCanvas.addEventListener("pointermove", event => {
     state.panX += deltaX;
     state.panY += deltaY;
   } else {
-    state.yaw += deltaX * 0.008;
-    state.pitch = Math.max(-1.48, Math.min(1.48, state.pitch + deltaY * 0.008));
+    const horizontalRotation = rotationAroundScreenY(deltaX * DRAG_ROTATION_SPEED);
+    const verticalRotation = rotationAroundScreenX(deltaY * DRAG_ROTATION_SPEED);
+    // Pre-multiply so the drag axes stay fixed to the screen at every viewing angle.
+    state.viewRotation = multiplyRotations(
+      verticalRotation,
+      multiplyRotations(horizontalRotation, state.viewRotation),
+    );
   }
   state.dragging = {...state.dragging, x: event.clientX, y: event.clientY};
   render();
