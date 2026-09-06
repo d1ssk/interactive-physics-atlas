@@ -662,7 +662,7 @@ phaseCanvas.addEventListener("pointermove", event => {
     state.panX += deltaX;
     state.panY += deltaY;
   } else {
-    state.yaw -= deltaX * 0.008;
+    state.yaw += deltaX * 0.008;
     state.pitch = Math.max(-1.48, Math.min(1.48, state.pitch + deltaY * 0.008));
   }
   state.dragging = {...state.dragging, x: event.clientX, y: event.clientY};

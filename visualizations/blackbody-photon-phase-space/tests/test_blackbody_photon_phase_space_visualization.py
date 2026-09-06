@@ -52,7 +52,8 @@ def test_desktop_viewer_drag_and_spectrum_labels_follow_requested_conventions():
     source = (STATIC_DIR / "app.js").read_text(encoding="utf-8")
     css = (STATIC_DIR / "style.css").read_text(encoding="utf-8")
 
-    assert "state.yaw -= deltaX * 0.008" in source
+    assert "state.yaw += deltaX * 0.008" in source
+    assert "state.yaw -= deltaX * 0.008" not in source
     assert "clamp(500px, 58vw, 680px)" in css
     assert "Photon number per unit solid angle" in source
     assert "単位立体角あたりの光子数" in source
