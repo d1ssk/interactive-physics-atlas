@@ -18,7 +18,11 @@ f(\theta)=\frac{1}{k}\sum_{\ell=0}^{\infty}(2\ell+1)
 e^{i\delta_\ell}\sin\delta_\ell P_\ell(\cos\theta)
 $$
 
-全弾性散乱断面積は
+微分弾性散乱断面積と全弾性散乱断面積は、それぞれ
+
+$$
+\frac{d\sigma}{d\Omega}=|f(\theta)|^2
+$$
 
 $$
 \sigma_{\mathrm{tot}}=\frac{4\pi}{k^2}\sum_{\ell=0}^{\infty}
@@ -30,8 +34,8 @@ $$
 ## インタラクティブ可視化
 
 第1パネルでは、角運動量チャネルを一つずつ加えて平面波を構成します。第2パネルでは、
-可変Gaussian井戸または障壁に対する動径Schrödinger方程式を解きます。計算はブラウザ内の
-Pythonで実行され、表示データは事前生成したアニメーションフレームではありません。
+可変Gaussian井戸または障壁による位相シフト、角度分布、選択した動径波、散乱場の変化を
+表示します。
 
 <iframe
   src="app/index.html?lang=ja"

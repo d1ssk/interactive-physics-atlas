@@ -43,3 +43,18 @@ def test_elastic_optical_theorem(physics) -> None:
     np.testing.assert_allclose(
         optical, physics.total_cross_section(wave_number, phases), rtol=1e-13
     )
+
+
+def test_differential_cross_section_integrates_to_total(physics) -> None:
+    wave_number = np.sqrt(5.0)
+    phases = physics.phase_shifts(7, 5.0, physics.PotentialParameters(-8, 1.15))
+    theta = np.linspace(0.0, np.pi, 20_001)
+    differential = physics.differential_cross_section(theta, wave_number, phases)
+    integrated = 2 * np.pi * np.trapezoid(differential * np.sin(theta), theta)
+
+    assert np.all(differential >= 0)
+    np.testing.assert_allclose(
+        integrated,
+        physics.total_cross_section(wave_number, phases),
+        rtol=2e-7,
+    )

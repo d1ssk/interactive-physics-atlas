@@ -10,6 +10,7 @@ from .physics import (
     PotentialParameters,
     asymptotic_fields,
     central_potential,
+    differential_cross_section,
     phase_shifts,
     plane_wave_component,
     plane_wave_partial_sum,
@@ -96,6 +97,13 @@ def scattering_domain(
 
     potential_radii = np.linspace(0.0, 4.5, 181)
     potential = central_potential(potential_radii, parameters)
+    scattering_angles = np.linspace(0.0, np.pi, 181)
+    angular_cross_section = differential_cross_section(
+        scattering_angles,
+        wave_number,
+        phases,
+        maximum_ell,
+    )
 
     extent = 7.0
     field_axis = np.linspace(-extent, extent, 83)
@@ -186,7 +194,14 @@ def scattering_domain(
         },
         "phases": _values(phases),
         "phaseStrengths": _values(np.sin(phases) ** 2),
-        "crossSection": round(total_cross_section(wave_number, phases), DISPLAY_DECIMALS),
+        "crossSection": round(
+            total_cross_section(wave_number, phases[: maximum_ell + 1]),
+            DISPLAY_DECIMALS,
+        ),
+        "differentialCrossSection": {
+            "angle": _values(scattering_angles),
+            "value": _values(angular_cross_section),
+        },
         "field": {
             "axis": _values(field_axis),
             "extent": extent,
@@ -236,12 +251,27 @@ def validate_scattering_domain(result: Mapping[str, object]) -> None:
         raise ArithmeticError("unexpected scattering result schema")
     phases = result.get("phases")
     strengths = result.get("phaseStrengths")
+    differential = result.get("differentialCrossSection")
     field = result.get("field")
     resonance = result.get("resonance")
     if not isinstance(phases, list) or len(phases) != 11 or not isinstance(strengths, list):
         raise ArithmeticError("phase-shift arrays are inconsistent")
-    if not isinstance(field, Mapping) or not isinstance(resonance, Mapping):
+    if (
+        not isinstance(field, Mapping)
+        or not isinstance(resonance, Mapping)
+        or not isinstance(differential, Mapping)
+    ):
         raise ArithmeticError("scattering result sections are missing")
+    angles = differential.get("angle")
+    angular_cross_section = differential.get("value")
+    if (
+        not isinstance(angles, list)
+        or not isinstance(angular_cross_section, list)
+        or len(angles) != len(angular_cross_section)
+        or len(angles) < 2
+        or any(value is None or value < 0 for value in angular_cross_section)
+    ):
+        raise ArithmeticError("differential cross section is inconsistent")
     axis = field.get("axis")
     if not isinstance(axis, list):
         raise ArithmeticError("scattering field axis is missing")

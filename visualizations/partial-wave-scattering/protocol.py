@@ -4,8 +4,8 @@ COMPUTE_PROTOCOL_SCHEMA = "physics-atlas.compute.v1"
 PLANE_OPERATION = "partial-wave.plane-wave.v1"
 PLANE_RESULT_SCHEMA = "physics-atlas.partial-wave.plane.v1"
 SCATTER_OPERATION = "partial-wave.scattering.v1"
-SCATTER_RESULT_SCHEMA = "physics-atlas.partial-wave.scattering.v1"
-KERNEL_VERSION = "1.0.0"
+SCATTER_RESULT_SCHEMA = "physics-atlas.partial-wave.scattering.v2"
+KERNEL_VERSION = "1.1.0"
 
 DEFAULT_MAX_ELAPSED_MS = 30_000
 HARD_MAX_ELAPSED_MS = 60_000

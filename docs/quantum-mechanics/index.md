@@ -13,4 +13,4 @@ Quantum states, time evolution, and measurement.
   Three-dimensional orbitals, complex phase, coherent superpositions, hybridization, and time evolution.
 
 - **[Partial-Wave Scattering](partial-wave-scattering/)**<br>
-  Build a plane wave from angular-momentum channels, then calculate scattering from an adjustable central potential in the browser.
+  Build a plane wave from angular-momentum channels, then explore scattering from an adjustable central potential.

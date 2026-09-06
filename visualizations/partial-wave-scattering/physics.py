@@ -274,6 +274,18 @@ def scattering_amplitude(
     return result
 
 
+def differential_cross_section(
+    theta: np.ndarray,
+    wave_number: float,
+    phases: np.ndarray,
+    maximum_ell: int | None = None,
+) -> np.ndarray:
+    """Return the elastic differential cross section as a function of angle."""
+
+    amplitude = scattering_amplitude(theta, wave_number, phases, maximum_ell)
+    return np.abs(amplitude) ** 2
+
+
 def scattered_partial_field(
     x: np.ndarray,
     z: np.ndarray,

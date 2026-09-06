@@ -37,12 +37,12 @@
 </head>
 <body>
   <main>
-    <p id="runtime-status" class="runtime-status" role="status" aria-live="polite" data-i18n="loading">Loading the Python calculation runtime…</p>
+    <p id="runtime-status" class="runtime-status" role="status" aria-live="polite" data-i18n="loading">Preparing the visualization…</p>
 
     <section class="visualization-panel" aria-labelledby="plane-heading">
       <header class="panel-heading">
         <div><span class="panel-number">1</span><h2 id="plane-heading" data-i18n="planeTitle">Building a plane wave</h2></div>
-        <p data-i18n="planeText">The same Python partial sum is shown as a three-dimensional isosurface and as three slices: the current sum, the next channel, and their sum.</p>
+        <p data-i18n="planeText">Compare the current partial sum, the next angular-momentum channel, and the sum obtained by adding that channel.</p>
       </header>
       <div class="control-strip">
         <button id="plane-back" type="button" data-i18n="back">Back</button>
@@ -79,7 +79,7 @@
     <section class="visualization-panel" aria-labelledby="scatter-heading">
       <header class="panel-heading">
         <div><span class="panel-number">2</span><h2 id="scatter-heading" data-i18n="scatterTitle">Scattering from a central potential</h2></div>
-        <p data-i18n="scatterText">Changing a control runs the radial Schrödinger calculation in Python inside the browser. The phase shifts, field, and resonance diagnostics all come from that result.</p>
+        <p data-i18n="scatterText">See how the potential changes the phase shifts, angular distribution, radial waves, and outgoing scattering field.</p>
       </header>
 
       <div class="preset-strip" role="group" aria-label="Potential presets" data-i18n-aria="presetsAria">
@@ -96,7 +96,8 @@
 
       <div class="diagnostic-grid">
         <figure><figcaption data-i18n="potentialPhase">Potential and phase shifts</figcaption><div id="potential-phase" class="plot plot-diagnostic"></div></figure>
-        <figure><figcaption data-i18n="resonance">Selected-channel resonance diagnostic</figcaption><div id="resonance" class="plot plot-diagnostic"></div></figure>
+        <figure><figcaption data-i18n="angularDistribution">Angular distribution \(d\sigma/d\Omega\)</figcaption><div id="differential-cross-section" class="plot plot-diagnostic"></div></figure>
+        <figure class="resonance-figure"><figcaption data-i18n="resonance">Selected-channel resonance diagnostic</figcaption><div id="resonance" class="plot plot-diagnostic"></div></figure>
       </div>
 
       <div class="control-strip scattering-controls">
@@ -105,7 +106,11 @@
           <button type="button" data-field-mode="scattered" aria-pressed="false" data-i18n="scattered">Scattered only</button>
         </div>
         <button id="scatter-back" type="button" data-i18n="back">Back</button>
-        <span class="ell-readout">\(\ell_{\max}=\)<b id="scatter-ell-output">0</b></span>
+        <label class="range-control scattering-range-control">
+          <span>\(\ell_{\max}\)</span>
+          <input id="scatter-ell" type="range" min="0" max="10" step="1" value="0">
+          <output id="scatter-ell-output">0</output>
+        </label>
         <button id="scatter-add" class="primary" type="button"><span data-i18n="add">Add</span> \(\ell=\)<b id="scatter-next-output">1</b></button>
         <label class="select-control"><span data-i18n="channel">Resonance channel</span><select id="resonance-ell"></select></label>
       </div>

@@ -42,6 +42,13 @@ def test_scattering_result_preserves_requested_state(kernel, protocol) -> None:
     assert result["maximumEll"] == 2
     assert result["resonanceEll"] == 1
     assert result["crossSection"] >= 0
+    assert len(result["differentialCrossSection"]["angle"]) == 181
+    assert len(result["differentialCrossSection"]["value"]) == 181
+    assert min(result["differentialCrossSection"]["value"]) >= 0
+    angles = np.asarray(result["differentialCrossSection"]["angle"])
+    differential = np.asarray(result["differentialCrossSection"]["value"])
+    integrated = 2 * np.pi * np.trapezoid(differential * np.sin(angles), angles)
+    np.testing.assert_allclose(integrated, result["crossSection"], rtol=2e-3)
     assert len(result["field"]["current"]) == len(result["field"]["axis"])
     assert (
         np.linalg.matrix_rank(np.nan_to_num(np.asarray(result["field"]["current"], dtype=float)))

@@ -8,17 +8,17 @@ const TEXT = {
   en: {
     siteNav:"Site navigation", field:"Quantum mechanics", title:"Partial-Wave Scattering",
     lede:"Construct a plane wave from angular-momentum channels, then see how a central potential changes their phases and the outgoing field.",
-    loading:"Loading the Python calculation runtime…", runtimeLoading:"Loading Pyodide and NumPy…",
-    kernelLoading:"Loading the partial-wave Python kernel…", calculating:"Calculating in Python…",
-    validating:"Checking the calculation…", ready:"Python calculation complete.", cached:"Loaded the calculation from memory.",
-    error:"The browser calculation failed. Reload the page and check the HTTP connection.",
-    planeTitle:"Building a plane wave", planeText:"The same Python partial sum is shown as a three-dimensional isosurface and as three slices: the current sum, the next channel, and their sum.",
+    loading:"Preparing the visualization…", runtimeLoading:"Preparing the numerical model…",
+    kernelLoading:"Preparing the scattering model…", calculating:"Updating the fields…",
+    validating:"Checking the result…", ready:"Ready.", cached:"Updated.",
+    error:"The calculation failed. Reload the page and check the connection.",
+    planeTitle:"Building a plane wave", planeText:"Compare the current partial sum, the next angular-momentum channel, and the sum obtained by adding that channel.",
     back:"Back", add:"Add", threeD:"3-D partial sum", rotate:"Drag to rotate; wheel to zoom",
     addition:"Addition on the y = 0 plane", sameSnapshot:"Real part at the same phase",
-    scatterTitle:"Scattering from a central potential", scatterText:"Changing a control runs the radial Schrödinger calculation in Python inside the browser. The phase shifts, field, and resonance diagnostics all come from that result.",
+    scatterTitle:"Scattering from a central potential", scatterText:"See how the potential changes the phase shifts, angular distribution, radial waves, and outgoing scattering field.",
     presetsAria:"Potential presets", well:"Attractive well", barrier:"Repulsive barrier", coreWell:"Core and well",
     strength:"Gaussian strength \\(U_0\\)", range:"Range \\(a\\)", core:"Repulsive core \\(U_c\\)", energy:"Energy \\(E=k^2\\)",
-    potentialPhase:"Potential and phase shifts", resonance:"Selected-channel resonance diagnostic",
+    potentialPhase:"Potential and phase shifts", angularDistribution:"Angular distribution \\(d\\sigma/d\\Omega\\)", resonance:"Selected-channel resonance diagnostic",
     fieldModeAria:"Scattering field", total:"Incident + scattered", scattered:"Scattered only",
     channel:"Resonance channel", fieldComparison:"Scattering field on the y = 0 plane",
     maskNote:"The gray disk masks the potential interior, where the asymptotic outgoing-wave expression is not used.",
@@ -31,17 +31,17 @@ const TEXT = {
   ja: {
     siteNav:"サイトナビゲーション", field:"量子力学", title:"部分波散乱",
     lede:"角運動量チャネルから平面波を構成し、中心力ポテンシャルが各チャネルの位相と外向き散乱場をどう変えるかを調べます。",
-    loading:"Python計算ランタイムを読み込んでいます…", runtimeLoading:"PyodideとNumPyを読み込んでいます…",
-    kernelLoading:"部分波Pythonカーネルを読み込んでいます…", calculating:"Pythonで計算しています…",
-    validating:"計算結果を検証しています…", ready:"Python計算が完了しました。", cached:"計算結果をメモリから読み込みました。",
-    error:"ブラウザ内計算に失敗しました。ページを再読み込みし、HTTP接続を確認してください。",
-    planeTitle:"平面波を部分波から組み立てる", planeText:"同じPython部分和を、三次元等値面と三つの断面（現在の和、次のチャネル、加算後）で表示します。",
+    loading:"可視化を準備しています…", runtimeLoading:"数値モデルを準備しています…",
+    kernelLoading:"散乱モデルを準備しています…", calculating:"波動場を更新しています…",
+    validating:"結果を確認しています…", ready:"準備ができました。", cached:"更新しました。",
+    error:"計算に失敗しました。ページを再読み込みし、接続を確認してください。",
+    planeTitle:"平面波を部分波から組み立てる", planeText:"現在の部分和、次の角運動量チャネル、そのチャネルを加えた後の和を比較します。",
     back:"戻す", add:"加える", threeD:"三次元部分和", rotate:"ドラッグで回転、ホイールでズーム",
     addition:"\\(y=0\\) 平面での加算", sameSnapshot:"同じ位相における実部",
-    scatterTitle:"中心力ポテンシャルによる散乱", scatterText:"操作を変えるたびに、ブラウザ内のPythonで動径Schrödinger方程式を計算します。位相シフト、散乱場、共鳴診断はすべてその結果に基づきます。",
+    scatterTitle:"中心力ポテンシャルによる散乱", scatterText:"ポテンシャルによる位相シフト、角度分布、動径波、外向き散乱場の変化を比較します。",
     presetsAria:"ポテンシャルのプリセット", well:"引力井戸", barrier:"斥力障壁", coreWell:"芯と井戸",
     strength:"Gaussian強度 \\(U_0\\)", range:"到達距離 \\(a\\)", core:"短距離斥力 \\(U_c\\)", energy:"エネルギー \\(E=k^2\\)",
-    potentialPhase:"ポテンシャルと位相シフト", resonance:"選択チャネルの共鳴診断",
+    potentialPhase:"ポテンシャルと位相シフト", angularDistribution:"角度分布 \\(d\\sigma/d\\Omega\\)", resonance:"選択チャネルの共鳴診断",
     fieldModeAria:"散乱場", total:"入射波＋散乱波", scattered:"散乱波のみ",
     channel:"共鳴チャネル", fieldComparison:"\\(y=0\\) 平面上の散乱場",
     maskNote:"灰色の円内はポテンシャル内部として除外し、漸近的な外向き散乱波を適用しません。",
@@ -187,7 +187,7 @@ function sharedScale(matrices) {
   return sample[Math.min(sample.length - 1, Math.floor(.985 * sample.length))] || 1;
 }
 
-function drawField(canvas, matrix, axisValues, scale) {
+function drawField(canvas, matrix, axisValues, scale, xLabel, zLabel) {
   const width = Math.max(120, canvas.clientWidth);
   const height = Math.max(160, canvas.clientHeight);
   const ratio = Math.min(2, window.devicePixelRatio || 1);
@@ -196,7 +196,7 @@ function drawField(canvas, matrix, axisValues, scale) {
   const context = canvas.getContext("2d");
   context.scale(ratio, ratio);
   context.clearRect(0, 0, width, height);
-  const margin = {left:30, right:8, top:8, bottom:26};
+  const margin = {left:48, right:8, top:12, bottom:40};
   const side = Math.min(width - margin.left - margin.right, height - margin.top - margin.bottom);
   const left = margin.left + Math.max(0, (width - margin.left - margin.right - side) / 2);
   const top = margin.top + Math.max(0, (height - margin.top - margin.bottom - side) / 2);
@@ -225,13 +225,17 @@ function drawField(canvas, matrix, axisValues, scale) {
   context.fillStyle = COLORS.muted;
   context.font = "10px Arial, sans-serif";
   context.textAlign = "center";
-  context.fillText("x", left + side / 2, top + side + 20);
-  context.fillText(axisValues[0].toFixed(1), left, top + side + 20);
-  context.fillText(axisValues.at(-1).toFixed(1), left + side, top + side + 20);
+  context.fillText(axisValues[0].toFixed(1), left, top + side + 13);
+  context.fillText(axisValues.at(-1).toFixed(1), left + side, top + side + 13);
+  context.fillText(xLabel, left + side / 2, top + side + 29);
+  context.textAlign = "right";
+  context.fillText(axisValues.at(-1).toFixed(1), left - 5, top + 4);
+  context.fillText(axisValues[0].toFixed(1), left - 5, top + side);
   context.save();
-  context.translate(left - 20, top + side / 2);
+  context.translate(left - 35, top + side / 2);
   context.rotate(-Math.PI / 2);
-  context.fillText("z", 0, 0);
+  context.textAlign = "center";
+  context.fillText(zLabel, 0, 0);
   context.restore();
 }
 
@@ -241,9 +245,9 @@ let lastScatteringResult = null;
 function drawPlaneSlices(result) {
   const matrices = [result.current, result.next, result.after];
   const scale = sharedScale(matrices);
-  drawField(byId("plane-current"), result.current, result.axis2d, scale);
-  drawField(byId("plane-next"), result.next, result.axis2d, scale);
-  drawField(byId("plane-after"), result.after, result.axis2d, scale);
+  drawField(byId("plane-current"), result.current, result.axis2d, scale, "x / λ", "z / λ");
+  drawField(byId("plane-next"), result.next, result.axis2d, scale, "x / λ", "z / λ");
+  drawField(byId("plane-after"), result.after, result.axis2d, scale, "x / λ", "z / λ");
   byId("plane-next-label").textContent = `ℓ=${result.nextEll}`;
 }
 
@@ -284,6 +288,7 @@ function updateParameterOutputs() {
 
 const scatterState = {maximumEll:0, fieldMode:"total", resonanceEll:0};
 function updateScatterControls() {
+  byId("scatter-ell").value = scatterState.maximumEll;
   byId("scatter-ell-output").textContent = scatterState.maximumEll;
   byId("scatter-next-output").textContent = Math.min(10, scatterState.maximumEll + 1);
   byId("scatter-back").disabled = scatterState.maximumEll === 0;
@@ -303,8 +308,27 @@ async function renderScattering(result) {
   ];
   const potentialPhaseLayout = {
     ...baseLayout(390), showlegend:false, margin:{l:58, r:20, t:28, b:50},
-    xaxis:{...axis("r"), domain:[0, .45]}, yaxis:axis("U(r), E"),
-    xaxis2:{...axis("ℓ"), domain:[.57, 1], dtick:1}, yaxis2:{...axis("δℓ"), range:[-Math.PI / 2, Math.PI / 2], tickvals:[-Math.PI / 2, 0, Math.PI / 2], ticktext:["−π/2", "0", "+π/2"]},
+    xaxis:{...axis("radius r"), domain:[0, .45]}, yaxis:axis("potential U(r), energy E"),
+    xaxis2:{...axis("partial wave ℓ"), domain:[.57, 1], dtick:1}, yaxis2:{...axis("phase shift δℓ (rad)"), range:[-Math.PI / 2, Math.PI / 2], tickvals:[-Math.PI / 2, 0, Math.PI / 2], ticktext:["−π/2", "0", "+π/2"]},
+  };
+
+  const differential = result.differentialCrossSection;
+  const differentialData = [{
+    type:"scatter", mode:"lines",
+    x:differential.angle, y:differential.value,
+    line:{color:COLORS.blue, width:2.4},
+    fill:"tozeroy", fillcolor:"rgba(59, 111, 182, 0.10)",
+    hovertemplate:"θ=%{x:.3f} rad<br>dσ/dΩ=%{y:.5f}<extra></extra>",
+  }];
+  const differentialLayout = {
+    ...baseLayout(390), showlegend:false, margin:{l:72, r:22, t:28, b:58},
+    xaxis:{
+      ...axis("scattering angle θ (rad)"),
+      range:[0, Math.PI],
+      tickvals:[0, Math.PI / 4, Math.PI / 2, 3 * Math.PI / 4, Math.PI],
+      ticktext:["0", "π/4", "π/2", "3π/4", "π"],
+    },
+    yaxis:{...axis("differential cross section dσ/dΩ"), rangemode:"tozero"},
   };
 
   const resonanceData = [
@@ -316,21 +340,22 @@ async function renderScattering(result) {
   const resonanceLayout = {
     ...baseLayout(390), margin:{l:58, r:52, t:28, b:50},
     legend:{orientation:"h", x:0, y:1.16, font:{size:10}},
-    xaxis:{...axis("E"), domain:[0, .46]}, yaxis:axis("δℓ"),
-    yaxis2:{overlaying:"y", side:"right", range:[0, 1], title:"sin²δ", showgrid:false},
-    xaxis3:{...axis("r"), domain:[.59, 1]}, yaxis3:axis("uℓ(r)"),
+    xaxis:{...axis("energy E"), domain:[0, .46]}, yaxis:axis("phase shift δℓ (rad)"),
+    yaxis2:{overlaying:"y", side:"right", range:[0, 1], title:"scattering strength sin²δℓ", showgrid:false},
+    xaxis3:{...axis("radius r"), domain:[.59, 1]}, yaxis3:axis("reduced radial wave uℓ(r)"),
   };
 
   const field = result.field;
   const fieldScale = sharedScale([field.current, field.next, field.after]);
-  drawField(byId("field-current"), field.current, field.axis, fieldScale);
-  drawField(byId("field-next"), field.next, field.axis, fieldScale);
-  drawField(byId("field-after"), field.after, field.axis, fieldScale);
+  drawField(byId("field-current"), field.current, field.axis, fieldScale, "transverse x", "incident axis z");
+  drawField(byId("field-next"), field.next, field.axis, fieldScale, "transverse x", "incident axis z");
+  drawField(byId("field-after"), field.after, field.axis, fieldScale, "transverse x", "incident axis z");
   byId("field-current-label").textContent = `${t("current")} ℓ≤${result.maximumEll}`;
   byId("field-next-label").textContent = `${t("next")} ℓ=${result.nextEll}`;
   byId("cross-section").textContent = `${t("crossSection")} σ = ${result.crossSection.toFixed(3)} · ${t("enhancement")} (ℓ=${result.resonanceEll}) = ${result.resonance.enhancement.toFixed(2)}`;
   await Promise.all([
     Plotly.react("potential-phase", potentialPhaseData, potentialPhaseLayout, CONFIG),
+    Plotly.react("differential-cross-section", differentialData, differentialLayout, CONFIG),
     Plotly.react("resonance", resonanceData, resonanceLayout, CONFIG),
   ]);
 }
@@ -429,6 +454,11 @@ byId("scatter-add").addEventListener("click", () => {
   scatterState.maximumEll = Math.min(10, scatterState.maximumEll + 1);
   scheduleScattering();
 });
+byId("scatter-ell").addEventListener("input", event => {
+  scatterState.maximumEll = Number(event.target.value);
+  updateScatterControls();
+  scheduleScattering();
+});
 
 for (let ell = 0; ell <= 10; ell += 1) byId("resonance-ell").add(new Option(`ℓ = ${ell}`, String(ell)));
 byId("resonance-ell").addEventListener("change", event => {
@@ -445,9 +475,9 @@ window.addEventListener("resize", () => {
     if (lastScatteringResult) {
       const field = lastScatteringResult.field;
       const scale = sharedScale([field.current, field.next, field.after]);
-      drawField(byId("field-current"), field.current, field.axis, scale);
-      drawField(byId("field-next"), field.next, field.axis, scale);
-      drawField(byId("field-after"), field.after, field.axis, scale);
+      drawField(byId("field-current"), field.current, field.axis, scale, "transverse x", "incident axis z");
+      drawField(byId("field-next"), field.next, field.axis, scale, "transverse x", "incident axis z");
+      drawField(byId("field-after"), field.after, field.axis, scale, "transverse x", "incident axis z");
     }
   }, 120);
 });

@@ -18,7 +18,11 @@ f(\theta)=\frac{1}{k}\sum_{\ell=0}^{\infty}(2\ell+1)
 e^{i\delta_\ell}\sin\delta_\ell P_\ell(\cos\theta)
 $$
 
-The total elastic cross section is
+The differential and total elastic cross sections are
+
+$$
+\frac{d\sigma}{d\Omega}=|f(\theta)|^2
+$$
 
 $$
 \sigma_{\mathrm{tot}}=\frac{4\pi}{k^2}\sum_{\ell=0}^{\infty}
@@ -27,9 +31,9 @@ $$
 
 ## Interactive visualization
 
-The first panel constructs a plane wave one angular-momentum channel at a time. The second solves
-the radial Schrödinger equation for an adjustable Gaussian well or barrier. Calculations run in
-Python inside the browser; the displayed data are not precomputed animation frames.
+The first panel constructs a plane wave one angular-momentum channel at a time. The second shows
+how an adjustable Gaussian well or barrier changes the phase shifts, angular distribution,
+selected radial wave, and scattering field.
 
 <iframe
   src="app/index.html?lang=en"
