@@ -4,7 +4,7 @@ Fluctuations, emergent phenomena, and universality.
 
 ## Nonequilibrium
 
-- **[Phase Space of Terrestrial and Solar Radiation](blackbody-photon-phase-space/)**<br>
+- **[Phase Space of Blackbody Radiation](blackbody-photon-phase-space/)**<br>
   Frequency-direction distributions of solar and terrestrial radiation.
 
 ## Simulations and phase transitions

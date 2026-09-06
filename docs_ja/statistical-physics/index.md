@@ -4,7 +4,7 @@
 
 ## 非平衡
 
-- **[地球・太陽放射の位相空間](blackbody-photon-phase-space/)**<br>
+- **[黒体放射の位相空間](blackbody-photon-phase-space/)**<br>
   太陽放射と地球放射の周波数・方向分布
 
 ## シミュレーションと相転移

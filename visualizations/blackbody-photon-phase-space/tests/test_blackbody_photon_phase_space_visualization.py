@@ -34,7 +34,10 @@ def test_ui_is_density_only_and_uses_requested_controls():
     css = (STATIC_DIR / "style.css").read_text(encoding="utf-8")
 
     assert 'value="linear" selected' in html
-    assert 'id="earth-temperature" type="range" min="250" max="300" step="1" value="255"' in html
+    earth_temperature_slider = (
+        'id="earth-temperature" type="range" min="230" max="280" step="1" value="255"'
+    )
+    assert earth_temperature_slider in html
     assert 'id="bond-albedo" type="range" min="0" max="0.6" step="0.01" value="0.30"' in html
     assert 'id="bond-albedo-output">0.30</output>' in html
     assert set(_select_values(html, "solar-magnification")) == {"1", "10"}
@@ -123,9 +126,9 @@ def test_statistical_physics_indexes_link_the_bilingual_article():
     english = (ROOT / "docs" / "statistical-physics" / "index.md").read_text(encoding="utf-8")
     japanese = (ROOT / "docs_ja" / "statistical-physics" / "index.md").read_text(encoding="utf-8")
 
-    english_link = "[Phase Space of Terrestrial and Solar Radiation](blackbody-photon-phase-space/)"
+    english_link = "[Phase Space of Blackbody Radiation](blackbody-photon-phase-space/)"
     assert english_link in english
-    assert "[地球・太陽放射の位相空間](blackbody-photon-phase-space/)" in japanese
+    assert "[黒体放射の位相空間](blackbody-photon-phase-space/)" in japanese
     assert ")**<br>\n  " in english
     assert ")**<br>\n  " in japanese
     assert "blackbody-photon-phase-space" not in (
