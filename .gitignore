@@ -169,6 +169,7 @@ venv.bak/
 # Project build output
 /site/
 /docs/mathematics-for-physics/legendre-transform/
+/docs/quantum-mechanics/partial-wave-scattering/
 
 # mypy
 .mypy_cache/

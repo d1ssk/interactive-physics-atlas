@@ -1,0 +1,34 @@
+"""Versioned browser-compute protocol for partial-wave scattering."""
+
+COMPUTE_PROTOCOL_SCHEMA = "physics-atlas.compute.v1"
+PLANE_OPERATION = "partial-wave.plane-wave.v1"
+PLANE_RESULT_SCHEMA = "physics-atlas.partial-wave.plane.v1"
+SCATTER_OPERATION = "partial-wave.scattering.v1"
+SCATTER_RESULT_SCHEMA = "physics-atlas.partial-wave.scattering.v1"
+KERNEL_VERSION = "1.0.0"
+
+DEFAULT_MAX_ELAPSED_MS = 30_000
+HARD_MAX_ELAPSED_MS = 60_000
+MEMORY_CACHE_MAX_ENTRIES = 12
+MAX_ELL = 12
+MAX_SCATTER_ELL = 10
+
+RESULT_SCHEMAS = {
+    PLANE_OPERATION: PLANE_RESULT_SCHEMA,
+    SCATTER_OPERATION: SCATTER_RESULT_SCHEMA,
+}
+
+ERROR_CODES = (
+    "PROTOCOL_MISMATCH",
+    "KERNEL_MISMATCH",
+    "UNSUPPORTED_OPERATION",
+    "INVALID_REQUEST",
+    "INVALID_INPUT",
+    "LIMIT_EXCEEDED",
+    "CALCULATION_FAILED",
+    "INVARIANT_FAILED",
+    "RUNTIME_LOAD_FAILED",
+    "CANCELLED",
+    "SUPERSEDED",
+    "TIMEOUT",
+)

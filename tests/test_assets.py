@@ -80,12 +80,16 @@ def test_plotly_bundle_is_not_duplicated_in_japanese_site_assets(tmp_path, monke
     lie_runtime = english_dir / build_site.LIE_RUNTIME_RELATIVE_DIR
     lie_runtime.mkdir(parents=True)
     (lie_runtime / "worker.mjs").write_text("worker", encoding="utf-8")
+    partial_wave_runtime = english_dir / build_site.PARTIAL_WAVE_RUNTIME_RELATIVE_DIR
+    partial_wave_runtime.mkdir(parents=True)
+    (partial_wave_runtime / "worker.mjs").write_text("worker", encoding="utf-8")
     build_site.stage_japanese_docs()
 
     assert (english_dir / "javascripts" / PLOTLY_GL3D_ASSET_NAME).is_file()
     assert not (japanese_dir / "javascripts" / PLOTLY_GL3D_ASSET_NAME).exists()
     assert not (japanese_dir / "javascripts" / PLOTLY_LICENSE_ASSET_NAME).exists()
     assert not (japanese_dir / build_site.LIE_RUNTIME_RELATIVE_DIR).exists()
+    assert not (japanese_dir / build_site.PARTIAL_WAVE_RUNTIME_RELATIVE_DIR).exists()
 
 
 def test_pinned_pyodide_subset_has_expected_versions_and_digests():
