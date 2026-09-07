@@ -1,4 +1,6 @@
-# Interactive Physics Atlas
+# Intuit Physics
+
+<p class="home-tagline">Interactive explorations of physical ideas</p>
 
 Visualizations for exploring physical concepts interactively.
 

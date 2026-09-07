@@ -96,21 +96,20 @@ def build_kernel_wheel(source_dir: Path, output_path: Path) -> None:
     dist_info = f"{KERNEL_DISTRIBUTION}-{KERNEL_VERSION}.dist-info"
     entries: dict[str, bytes] = {
         f"{KERNEL_DISTRIBUTION}/__init__.py": (
-            f'"""Interactive Physics Atlas Lie computation kernel."""\n\n'
-            f'__version__ = "{KERNEL_VERSION}"\n'
+            f'"""Intuit Physics Lie computation kernel."""\n\n__version__ = "{KERNEL_VERSION}"\n'
         ).encode(),
         f"{dist_info}/METADATA": (
             "Metadata-Version: 2.1\n"
             "Name: physics-atlas-lie-kernel\n"
             f"Version: {KERNEL_VERSION}\n"
-            "Summary: Authoritative Lie computation kernel for Interactive Physics Atlas\n"
+            "Summary: Authoritative Lie computation kernel for Intuit Physics\n"
             "License: MIT\n"
             "Requires-Python: >=3.12\n"
             "Requires-Dist: numpy\n"
         ).encode(),
         f"{dist_info}/WHEEL": (
             b"Wheel-Version: 1.0\n"
-            b"Generator: Interactive Physics Atlas\n"
+            b"Generator: Intuit Physics\n"
             b"Root-Is-Purelib: true\n"
             b"Tag: py3-none-any\n"
         ),

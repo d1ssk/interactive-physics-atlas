@@ -6,7 +6,7 @@ const LOCALE = new URLSearchParams(window.location.search).get("lang") === "ja" 
 
 const TRANSLATIONS = {
   en: {
-    pageTitle: "Blackbody Photon Phase Space — Interactive Physics Atlas",
+    pageTitle: "Blackbody Photon Phase Space — Intuit Physics",
     titlePrefix: "Blackbody photons in",
     lede: "Compare low-temperature radiation spread over the sky with high-temperature sunlight confined to one tiny direction.",
     sourceLegendLabel: "Radiation-source legend",
@@ -57,7 +57,7 @@ const TRANSLATIONS = {
     spectrumAxisDensity: "dN/(dV dΩ dlnν) [m⁻³ sr⁻¹]",
   },
   ja: {
-    pageTitle: "黒体光子の位相空間 — Interactive Physics Atlas",
+    pageTitle: "黒体光子の位相空間 — Intuit Physics",
     titlePrefix: "黒体光子の",
     lede: "低温で全天に広がる地球放射と、高温でごく狭い方向に集中する太陽放射を、同じ位相空間で比較します。",
     sourceLegendLabel: "放射源の凡例",

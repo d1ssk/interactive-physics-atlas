@@ -1,10 +1,10 @@
-# Interactive Physics Atlas
+# Intuit Physics
 
 An interactive visual atlas of physical and mathematical concepts.
 
 ## Purpose
 
-Interactive Physics Atlas collects rigorous interactive visualizations designed to make
+Intuit Physics collects rigorous interactive visualizations designed to make
 physical ideas, mathematical structures, symmetries, and dynamics directly explorable.
 
 The atlas is organized around:
