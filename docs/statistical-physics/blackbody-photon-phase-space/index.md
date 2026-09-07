@@ -97,6 +97,16 @@ Cooler radiation therefore carries more entropy for the same energy. Earth dissi
 
 **What matters between the Sun and Earth is not merely that energy flows. It is that nearly the same energy flows in and out in radically different regions of phase space.**
 
+## What phase-space structure produces on Earth
+
+The high radiation temperature of sunlight first appears in its spectrum. Visible solar photons carry energies of a few electronvolts and can directly excite electronic states in molecules. Photosynthesis stores part of this radiant energy as chemical free energy. Living processes and ecosystems use it in stages, maintaining nonequilibrium states while dissipating energy.
+
+The strong directionality of solar radiation, meanwhile, appears in Earth's heating pattern. Once sunlight is absorbed by matter and thermalized, the information about the direction from which each photon arrived is lost. Nevertheless, because sunlight arrives from essentially one direction while Earth is spherical and rotating, heating varies with latitude, day and night, and season. Clouds and surface albedo further modify this spatial heterogeneity.
+
+The resulting temperature and pressure gradients drive winds, weather, and ocean circulation.
+
+This does not decompose radiative exergy into two independent quantities, a frequency component and an angular component. High radiation temperature and strong directionality are two aspects of the same phase-space structure of sunlight. That structure manifests as a spectrum in photochemical reactions and as nonuniform heating in the climate system.
+
 ## Visualization
 
 <iframe

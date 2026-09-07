@@ -71,7 +71,7 @@
         <label><span><span data-i18n="playbackSpeed">Playback speed</span> <output id="speed-output">4.0 a.u./s</output></span>
           <input id="speed-slider" type="range" min="0.25" max="16" step="0.25" value="4" aria-label="Playback speed">
         </label>
-        <p class="help-text" data-i18n="timeHelp">One atomic time unit is 24.19 as. Each component evolves as \(\exp(-iE_n t/\hbar)\).</p>
+        <p class="help-text" data-i18n="timeHelp">One atomic time unit is 24.19 as. The lowest selected energy \(E_{\rm ref}\) is held fixed, and each component evolves as \(\exp[-i(E_n-E_{\rm ref})t/\hbar]\).</p>
       </section>
 
       <section class="control-section display-controls">
@@ -91,7 +91,7 @@
       </section>
 
       <div class="phase-legend" aria-label="Complex phase color wheel">
-        <span class="control-label" data-i18n="phaseLabel">Phase \(\arg\psi\)</span>
+        <span class="control-label" data-i18n="phaseLabel">Relative phase \(\arg\widetilde\psi\)</span>
         <i></i>
         <span>\(-\pi\)</span><span>\(0\)</span><span>\(+\pi\)</span>
       </div>
@@ -120,7 +120,7 @@
       <section class="about-display" aria-labelledby="about-display-heading">
         <h2 id="about-display-heading" data-i18n="displayDetails">About the display</h2>
         <div>
-          <p data-i18n="detailPhase">Hue represents the complex phase; point placement and brightness represent probability density. A hybrid containing only one principal quantum number has stationary density while its common phase evolves.</p>
+          <p data-i18n="detailPhase">Hue represents complex phase relative to the lowest selected energy; point placement and brightness represent probability density. The unobservable common dynamical phase is removed, so an energy eigenstate is fully stationary.</p>
           <p data-i18n="detailHybrid">The \(sp\), \(sp^2\), and \(sp^3\) presets are normalized combinations of the \(n=2\) states \(2s\) and real \(2p\). Relative phases change when different principal quantum numbers are combined, so the interference pattern evolves.</p>
         </div>
       </section>

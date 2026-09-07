@@ -96,15 +96,13 @@ Visual appeal is important, but must never override correctness.
 
 ## Validation
 
-Before considering a change complete, run:
+During iteration, run only the checks relevant to the articles, visualizations, and tests being
+changed. Do not repeatedly run the complete repository suite after each edit.
 
-    uv run ruff check .
-    uv run ruff format --check .
-    uv run pytest
-    uv run python scripts/validate_metadata.py
-    uv run python scripts/build_site.py
-
-All must succeed.
+Once the work is ready for completion, run `uv run python scripts/check.py --all --quiet`. It runs
+the required repository-wide lint, format, test, metadata, and site-build checks while retaining
+full logs under ignored build output. All checks must pass. If a failure requires another edit,
+rerun the relevant targeted check first, then run the completion check again.
 
 ## Physics policy
 

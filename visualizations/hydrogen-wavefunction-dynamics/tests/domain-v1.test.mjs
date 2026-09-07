@@ -10,6 +10,33 @@ test("browser domain preserves analytic hydrogen values", () => {
   assert.equal(physics.HARTREE_ENERGY_EV, 27.211386245988);
 });
 
+test("displayed evolution removes the common phase of an energy eigenspace", () => {
+  const components = physics.normalizeComponents([
+    {n: 2, l: 0, m: 0, basis: "complex", amplitude: 1, phase: 0},
+    {n: 2, l: 1, m: 1, basis: "complex", amplitude: 1, phase: .4},
+  ]);
+  const initial = physics.superpositionWavefunction(components, 2.1, .8, 1.3, 0);
+  const evolved = physics.superpositionWavefunction(components, 2.1, .8, 1.3, 37);
+  assert.ok(Math.hypot(initial.re - evolved.re, initial.im - evolved.im) < 1e-15);
+  assert.equal(
+    physics.phaseReferenceEnergyHartree(components),
+    physics.energyHartree(2),
+  );
+});
+
+test("higher-energy components evolve relative to the lowest selected energy", () => {
+  const components = physics.normalizeComponents([
+    {n: 1, l: 0, m: 0, basis: "real", amplitude: 1, phase: 0},
+    {n: 2, l: 0, m: 0, basis: "real", amplitude: 1, phase: 0},
+  ]);
+  const reference = physics.phaseReferenceEnergyHartree(components);
+  const time = 2.3;
+  const ground = physics.timeEvolvedCoefficient(components[0], time, reference);
+  const excited = physics.timeEvolvedCoefficient(components[1], time, reference);
+  assert.deepEqual(ground, components[0].coefficient);
+  assert.ok(Math.abs(Math.atan2(excited.im, excited.re) + 3 * time / 8) < 1e-15);
+});
+
 test("importance sampling remains normalized during a quantum beat", () => {
   const components = [
     {n: 1, l: 0, m: 0, basis: "real", amplitude: 1, phase: 0},

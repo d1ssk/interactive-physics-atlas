@@ -166,9 +166,17 @@
     return -1 / (2 * n * n);
   }
 
-  function timeEvolvedCoefficient(component, timeAu) {
+  function phaseReferenceEnergyHartree(components) {
+    const normalized = normalizedComponents(components);
+    return Math.min(...normalized.map(component => energyHartree(component.n)));
+  }
+
+  function timeEvolvedCoefficient(component, timeAu, referenceEnergyHartree) {
     if (!Number.isFinite(timeAu)) throw new RangeError("time must be finite");
-    const angle = -energyHartree(component.n) * timeAu;
+    if (!Number.isFinite(referenceEnergyHartree)) {
+      throw new RangeError("reference energy must be finite");
+    }
+    const angle = -(energyHartree(component.n) - referenceEnergyHartree) * timeAu;
     return complexMultiply(component.coefficient, {re: Math.cos(angle), im: Math.sin(angle)});
   }
 
@@ -180,6 +188,7 @@
 
   function superpositionWavefunction(components, r, theta, phi, timeAu = 0) {
     const normalized = normalizedComponents(components);
+    const referenceEnergy = phaseReferenceEnergyHartree(normalized);
     const total = {re: 0, im: 0};
     for (const component of normalized) {
       const basisValue = wavefunctionSpherical(
@@ -191,7 +200,10 @@
         phi,
         component.basis,
       );
-      const term = complexMultiply(timeEvolvedCoefficient(component, timeAu), basisValue);
+      const term = complexMultiply(
+        timeEvolvedCoefficient(component, timeAu, referenceEnergy),
+        basisValue,
+      );
       total.re += term.re;
       total.im += term.im;
     }
@@ -396,10 +408,11 @@
     if (!point.values || point.values.length !== normalized.length) {
       return superpositionWavefunction(normalized, point.r, point.theta, point.phi, timeAu);
     }
+    const referenceEnergy = phaseReferenceEnergyHartree(normalized);
     const total = {re: 0, im: 0};
     for (let index = 0; index < normalized.length; index += 1) {
       const term = complexMultiply(
-        timeEvolvedCoefficient(normalized[index], timeAu),
+        timeEvolvedCoefficient(normalized[index], timeAu, referenceEnergy),
         point.values[index],
       );
       total.re += term.re;
@@ -416,11 +429,12 @@
 
   function radialProbability(components, r, timeAu = 0) {
     const normalized = normalizedComponents(components);
+    const referenceEnergy = phaseReferenceEnergyHartree(normalized);
     const angularChannels = new Map();
     for (const component of normalized) {
       const key = `${component.basis}:${component.l}:${component.m}`;
       const total = angularChannels.get(key) || {re: 0, im: 0};
-      const coefficient = timeEvolvedCoefficient(component, timeAu);
+      const coefficient = timeEvolvedCoefficient(component, timeAu, referenceEnergy);
       const radial = radialWavefunction(component.n, component.l, r);
       total.re += coefficient.re * radial;
       total.im += coefficient.im * radial;
@@ -491,6 +505,7 @@
     importanceWeightAtSample,
     makeRadialDistribution,
     normalizeComponents,
+    phaseReferenceEnergyHartree,
     probabilityDensity,
     radialExtent,
     radialProbability,

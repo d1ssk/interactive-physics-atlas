@@ -72,9 +72,32 @@ def test_degenerate_hybrid_density_is_stationary(physics) -> None:
     )
     initial = physics.superposition_wavefunction(hybrid, 3.1, 0.7, 1.2, 0)
     evolved = physics.superposition_wavefunction(hybrid, 3.1, 0.7, 1.2, 9.4)
+    assert evolved == pytest.approx(initial, abs=1e-15)
     assert abs(evolved) ** 2 == pytest.approx(abs(initial) ** 2, abs=1e-15)
     assert physics.energy_uncertainty_hartree(hybrid) == 0
     assert physics.shortest_beat_period_au(hybrid) == math.inf
+
+
+def test_displayed_phase_is_relative_to_the_lowest_selected_energy(physics) -> None:
+    components = physics.normalize_components(
+        [
+            {"n": 1, "l": 0, "m": 0, "basis": "real", "amplitude": 1},
+            {"n": 2, "l": 0, "m": 0, "basis": "real", "amplitude": 1},
+        ]
+    )
+    reference = physics.phase_reference_energy_hartree(components)
+    time_au = 2.3
+
+    assert reference == physics.energy_hartree(1)
+    assert physics.evolved_coefficient(components[0], time_au, reference) == pytest.approx(
+        components[0].coefficient
+    )
+    expected_excited = components[1].coefficient * complex(
+        math.cos(-3 * time_au / 8), math.sin(-3 * time_au / 8)
+    )
+    assert physics.evolved_coefficient(components[1], time_au, reference) == pytest.approx(
+        expected_excited
+    )
 
 
 def test_one_s_two_s_density_repeats_at_the_beat_period(physics) -> None:
@@ -88,6 +111,7 @@ def test_one_s_two_s_density_repeats_at_the_beat_period(physics) -> None:
     assert physics.shortest_beat_period_au(components) == pytest.approx(period)
     initial = physics.superposition_wavefunction(components, 1.4, 0.8, 0.3, 0)
     repeated = physics.superposition_wavefunction(components, 1.4, 0.8, 0.3, period)
+    assert repeated == pytest.approx(initial, abs=1e-15)
     assert abs(repeated) ** 2 == pytest.approx(abs(initial) ** 2, abs=1e-15)
     assert physics.energy_uncertainty_hartree(components) > 0
 

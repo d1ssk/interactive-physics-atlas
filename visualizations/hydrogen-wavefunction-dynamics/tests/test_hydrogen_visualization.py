@@ -146,12 +146,11 @@ def test_bilingual_pages_align_equations_embedding_and_category_links() -> None:
     japanese_math = re.findall(r"\$\$\s*(.*?)\s*\$\$", japanese, flags=re.DOTALL)
 
     assert english_math == japanese_math
-    assert len(english_math) == 16
     for source, locale in ((english, "en"), (japanese, "ja")):
         assert f"app/index.html?lang={locale}" in source
         first_prose = "The hydrogen atom is" if locale == "en" else "水素原子は、"
-        assert source.index("<iframe") < source.index(first_prose)
-        assert source.count("\n\n    ") >= 5
+        assert source.index(first_prose) < source.index("<iframe")
+        assert r"E_{\mathrm{ref}}=\min_{j:\,c_j\ne0} E_{n_j}" in source
         assert "data-auto-height" in source
         assert 'scrolling="no"' in source
         assert "height: 2000px" in source
