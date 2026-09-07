@@ -68,7 +68,7 @@ $$
 \right)
 $$
 
-The overall signs and phases in these expressions depend on convention. If a basis ket is multiplied by a phase, its expansion coefficient must be multiplied by the inverse phase. With this consistent transformation, the represented state and all physical quantities remain unchanged.
+The overall signs and phases in these expressions depend on convention, but they do not affect physical quantities such as the probability density.
 
 
 ## Coherent time evolution
