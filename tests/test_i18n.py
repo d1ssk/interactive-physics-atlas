@@ -46,14 +46,14 @@ def test_configs_define_distinct_canonical_languages_and_mathjax() -> None:
         }
 
 
-def test_homepages_use_the_shared_brand_and_localized_taglines() -> None:
+def test_homepages_use_the_shared_brand_and_tagline() -> None:
     english = (ROOT / "docs" / "index.md").read_text(encoding="utf-8")
     japanese = (ROOT / "docs_ja" / "index.md").read_text(encoding="utf-8")
 
     assert english.startswith("# Intuit Physics\n")
     assert japanese.startswith("# Intuit Physics\n")
     assert '<p class="home-tagline">Interactive explorations of physical ideas</p>' in english
-    assert '<p class="home-tagline">物理のアイデアをインタラクティブに探る</p>' in japanese
+    assert '<p class="home-tagline">Interactive explorations of physical ideas</p>' in japanese
 
 
 def test_header_uses_linked_brand_without_default_logo() -> None:
