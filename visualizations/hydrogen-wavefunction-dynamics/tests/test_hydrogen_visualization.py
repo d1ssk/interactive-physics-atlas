@@ -146,7 +146,7 @@ def test_bilingual_pages_align_equations_embedding_and_category_links() -> None:
     japanese_math = re.findall(r"\$\$\s*(.*?)\s*\$\$", japanese, flags=re.DOTALL)
 
     assert english_math == japanese_math
-    assert len(english_math) == 16
+    assert len(english_math) == 17
     for source, locale in ((english, "en"), (japanese, "ja")):
         assert f"app/index.html?lang={locale}" in source
         first_prose = "The hydrogen atom is" if locale == "en" else "水素原子は、"

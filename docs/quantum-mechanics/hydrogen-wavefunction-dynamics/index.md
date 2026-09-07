@@ -9,7 +9,7 @@ The hydrogen atom is a canonical quantum-mechanical system whose wavefunctions c
 
 This visualization represents the local complex phase of the wavefunction by hue, and its probability density by the distribution and brightness of points. By superposing hydrogen eigenstates, it can also construct states corresponding to the $sp$, $sp^2$, and $sp^3$ hybrid orbitals commonly used in chemistry within the degenerate $n=2$ subspace.
 
-Following the time evolution makes the distinction between a changing wavefunction phase and a changing probability density visible. For an energy eigenstate, the overall complex phase advances in time while the probability density remains unchanged. By contrast, when states with different energies are coherently superposed, their relative phases change with time, so the interference pattern and the probability density itself can evolve.
+Following the time evolution makes the distinction between relative phase and probability density visible. The visualization removes the unobservable common dynamical phase, so an energy eigenstate is stationary in both color and probability density. When states with different energies are coherently superposed, their relative phases change with time, so the interference pattern and the probability density itself can evolve.
 
 
 ## Hydrogen energy eigenstates
@@ -96,13 +96,26 @@ e^{-iE_{n_j}t/\hbar}
 \psi_{n_j\ell_jm_j}(\mathbf r).
 $$
 
-When every component has the same principal quantum number $n$, their energies are equal in the ideal Coulomb potential, and time evolution multiplies the entire state by one common phase factor. Consequently, the following probability density
+Adding a constant to every energy changes this expression only by an overall time-dependent phase and cannot affect an observable. The visualization therefore displays the equivalent representative
 
 $$
-|\Psi(\mathbf r,t)|^2
+\widetilde\Psi(\mathbf r,t)
+=
+\sum_j
+c_j
+e^{-i(E_{n_j}-E_{\mathrm{ref}})t/\hbar}
+\psi_{n_j\ell_jm_j}(\mathbf r),
+\qquad
+E_{\mathrm{ref}}=\min_j E_{n_j},
 $$
 
-is independent of time.
+where the minimum is taken over the selected nonzero components. This choice fixes the lowest-energy component's phase while preserving every relative phase and observable.
+
+When every component has the same principal quantum number $n$, their energies are equal in the ideal Coulomb potential. The exact state acquires only a common phase factor, which is removed from the displayed representative. Consequently, both the displayed phase pattern and the following probability density are independent of time:
+
+$$
+|\widetilde\Psi(\mathbf r,t)|^2=|\Psi(\mathbf r,t)|^2
+$$
 
 When components with different principal quantum numbers are superposed, their energy differences instead cause the relative phases to evolve. The interference terms can then change, allowing the probability density to vary with time.
 
@@ -168,14 +181,14 @@ The displayed state represents one direction in each of the $sp$, $sp^2$, and $s
 
 These combinations do not introduce new energy eigenstates of hydrogen. In the ideal Coulomb problem, all $n=2$ states, including $2s$ and $2p$, are degenerate, so the hybrid orbitals can be regarded as a different choice of basis within this degenerate subspace.
 
-Their common phase color therefore changes under time evolution, while the probability density of each hybrid orbital remains stationary.
+After removal of their common dynamical phase, both their displayed phase color and their probability density remain stationary.
 
 
 ## Suggested explorations
 
-1. **Time evolution of the $1s$ state**
+1. **Stationarity of the $1s$ state**
 
-    Select $1s$ and press **Play**. Confirm that the spherical probability density remains fixed while only the color representing phase cycles with time.
+    Select $1s$ and press **Play**. Confirm that both the spherical probability density and its phase color remain fixed. A lone eigenstate has no relative dynamical phase to display.
 
 2. **Shapes of hybrid orbitals**
 
@@ -191,12 +204,12 @@ Their common phase color therefore changes under time evolution, while the proba
 
 5. **Azimuthal phase of the $m=1$ state**
 
-    Return to the default $2p$, $m=1$ state. The change in hue on going once around the $z$ axis reveals the winding of its azimuthal phase. Pressing **Play** advances the common phase of the entire wavefunction without changing its probability density.
+    Return to the default $2p$, $m=1$ state. The change in hue on going once around the $z$ axis reveals the winding of its azimuthal phase. This spatial phase structure remains visible and stationary after the common dynamical phase is removed.
 
 
 ## What to notice
 
-For a single isolated energy eigenstate, the overall phase of the wavefunction does not appear in its probability density. A phase color that cycles with time therefore does not mean that the orbital itself is rotating in space.
+For a single isolated energy eigenstate, the overall phase of the wavefunction is not observable, and its rate of change depends on the arbitrary energy zero. The visualization removes this common phase instead of depicting it as a color cycle. The spatial winding of a complex $m\ne0$ eigenstate remains visible; unlike a uniform hue shift, its phase gradient is related to azimuthal probability current and angular momentum.
 
 For the probability density to exhibit actual time dependence, relative phases must generally evolve between interfering components with different energies.
 
@@ -232,6 +245,8 @@ t_{\mathrm a}
 \simeq
 24.19\,\mathrm{as}
 $$
+
+The displayed complex phase uses the lowest selected energy as its reference. Changing this reference would multiply the displayed wavefunction by a spatially uniform phase without changing its probability density or any relative phase.
 
 The model uses the nonrelativistic Coulomb Hamiltonian without spin. It omits fine structure, the Lamb shift, external fields, nuclear motion due to finite nuclear mass, and interactions with the environment. Including these effects can lift the ideal $n=2$ degeneracy used here to construct the hybrid orbitals.
 

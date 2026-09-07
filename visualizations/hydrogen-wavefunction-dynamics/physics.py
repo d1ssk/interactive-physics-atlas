@@ -211,12 +211,26 @@ def normalize_components(components: Iterable[Mapping[str, object]]) -> tuple[Ba
     )
 
 
-def evolved_coefficient(component: BasisComponent, time_au: float) -> complex:
-    """Evolve one coefficient under the field-free hydrogen Hamiltonian."""
+def phase_reference_energy_hartree(components: Iterable[BasisComponent]) -> float:
+    """Return the lowest occupied energy used as the displayed phase reference."""
+
+    energies = tuple(energy_hartree(component.n) for component in components)
+    if not energies:
+        raise ValueError("at least one component is required")
+    return min(energies)
+
+
+def evolved_coefficient(
+    component: BasisComponent, time_au: float, reference_energy_hartree: float
+) -> complex:
+    """Evolve one coefficient relative to a specified energy reference."""
 
     if not math.isfinite(time_au):
         raise ValueError("time must be finite")
-    return component.coefficient * cmath.exp(-1j * energy_hartree(component.n) * time_au)
+    if not math.isfinite(reference_energy_hartree):
+        raise ValueError("reference energy must be finite")
+    relative_energy = energy_hartree(component.n) - reference_energy_hartree
+    return component.coefficient * cmath.exp(-1j * relative_energy * time_au)
 
 
 def superposition_wavefunction(
@@ -226,10 +240,12 @@ def superposition_wavefunction(
     phi: float,
     time_au: float = 0.0,
 ) -> complex:
-    """Evaluate a normalized coherent superposition at one point and time."""
+    """Evaluate a coherent superposition with its common dynamical phase removed."""
 
+    values = tuple(components)
+    reference_energy = phase_reference_energy_hartree(values)
     return sum(
-        evolved_coefficient(component, time_au)
+        evolved_coefficient(component, time_au, reference_energy)
         * wavefunction_spherical(
             component.n,
             component.ell,
@@ -239,7 +255,7 @@ def superposition_wavefunction(
             phi,
             component.basis,
         )
-        for component in components
+        for component in values
     )
 
 
@@ -248,11 +264,13 @@ def radial_probability(
 ) -> float:
     """Return the angle-integrated radial probability density ``P(r,t)``."""
 
+    values = tuple(components)
+    reference_energy = phase_reference_energy_hartree(values)
     channels: dict[tuple[str, int, int], complex] = {}
-    for component in components:
+    for component in values:
         key = (component.basis, component.ell, component.m)
         channels[key] = channels.get(key, 0j) + evolved_coefficient(
-            component, time_au
+            component, time_au, reference_energy
         ) * radial_wavefunction(component.n, component.ell, radius)
     return radius * radius * sum(abs(value) ** 2 for value in channels.values())
 

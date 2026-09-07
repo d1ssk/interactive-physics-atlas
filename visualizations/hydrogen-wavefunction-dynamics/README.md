@@ -1,8 +1,9 @@
 # Hydrogen Wavefunction
 
 A static browser application for constructing normalized superpositions of nonrelativistic
-hydrogen eigenstates. It animates the exact phase factor for every energy eigenstate and renders
-the evolving complex phase and probability density as an importance-weighted point cloud.
+hydrogen eigenstates. It removes the unobservable common dynamical phase, evolves each component
+relative to the lowest selected energy, and renders the complex phase and probability density as
+an importance-weighted point cloud.
 
 The Python physics layer defines the conventions and supplies independently testable reference
 calculations. The versioned browser domain module implements the same formulas for interactive
