@@ -68,7 +68,7 @@ $$
 \right)
 $$
 
-The overall signs and phases in these expressions depend on convention, but they do not affect physical quantities such as the probability density.
+The overall signs and phases in these expressions depend on convention. If a basis ket is multiplied by a phase, its expansion coefficient must be multiplied by the inverse phase. With this consistent transformation, the represented state and all physical quantities remain unchanged.
 
 
 ## Coherent time evolution
@@ -105,7 +105,7 @@ c_j
 e^{-i(E_{n_j}-E_{\mathrm{ref}})t/\hbar}
 \psi_{n_j\ell_jm_j}(\mathbf r),
 \qquad
-E_{\mathrm{ref}}=\min_j E_{n_j},
+E_{\mathrm{ref}}=\min_{j:\,c_j\ne0} E_{n_j},
 $$
 
 where the minimum is taken over components whose coefficient $c_j$ is nonzero. This convention fixes the dynamical phase of the lowest-energy component while preserving all relative phases and observables.
