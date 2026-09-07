@@ -1,4 +1,4 @@
-"""Shared infrastructure for Interactive Physics Atlas."""
+"""Shared infrastructure for Intuit Physics."""
 
 from physics_atlas.metadata import (
     CANONICAL_FIELDS,

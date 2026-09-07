@@ -1,7 +1,7 @@
 [project]
-site_name = "Interactive Physics Atlas"
-site_url = "https://d1ssk.github.io/interactive-physics-atlas/ja/"
-site_description = "物理学と数学の概念を扱うインタラクティブなビジュアルアトラス。"
+site_name = "Intuit Physics"
+site_url = "https://d1ssk.github.io/intuit-physics/ja/"
+site_description = "物理のアイデアをインタラクティブに探る。"
 copyright = "Copyright &copy; 2026 Daichi Sasaki"
 docs_dir = "build/docs-ja"
 site_dir = "site/ja"
@@ -40,7 +40,7 @@ locale = "ja"
 home_name = "ホーム"
 alternate_name = "English"
 alternate_lang = "en"
-alternate_base_url = "https://d1ssk.github.io/interactive-physics-atlas/"
+alternate_base_url = "https://d1ssk.github.io/intuit-physics/"
 
 [project.extra.analytics]
 provider = "google"

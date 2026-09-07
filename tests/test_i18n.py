@@ -27,8 +27,12 @@ def test_configs_define_distinct_canonical_languages_and_mathjax() -> None:
 
     assert english["theme"]["language"] == "en"
     assert japanese["theme"]["language"] == "ja"
-    assert english["site_url"].endswith("interactive-physics-atlas/")
-    assert japanese["site_url"].endswith("interactive-physics-atlas/ja/")
+    assert english["site_name"] == "Intuit Physics"
+    assert japanese["site_name"] == "Intuit Physics"
+    assert english["site_url"] == "https://d1ssk.github.io/intuit-physics/"
+    assert japanese["site_url"] == "https://d1ssk.github.io/intuit-physics/ja/"
+    assert english["extra"]["alternate_base_url"] == japanese["site_url"]
+    assert japanese["extra"]["alternate_base_url"] == english["site_url"]
     assert english["markdown_extensions"]["pymdownx"]["arithmatex"]["generic"] is True
     assert english["markdown_extensions"]["footnotes"] == {}
     assert japanese["markdown_extensions"]["footnotes"] == {}
@@ -40,6 +44,16 @@ def test_configs_define_distinct_canonical_languages_and_mathjax() -> None:
             "provider": "google",
             "property": "G-P4BVZ9ZZ0E",
         }
+
+
+def test_homepages_use_the_shared_brand_and_localized_taglines() -> None:
+    english = (ROOT / "docs" / "index.md").read_text(encoding="utf-8")
+    japanese = (ROOT / "docs_ja" / "index.md").read_text(encoding="utf-8")
+
+    assert english.startswith("# Intuit Physics\n")
+    assert japanese.startswith("# Intuit Physics\n")
+    assert '<p class="home-tagline">Interactive explorations of physical ideas</p>' in english
+    assert '<p class="home-tagline">物理のアイデアをインタラクティブに探る</p>' in japanese
 
 
 def test_header_uses_linked_brand_without_default_logo() -> None:

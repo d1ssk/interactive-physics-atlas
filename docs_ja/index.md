@@ -1,4 +1,6 @@
-# Interactive Physics Atlas
+# Intuit Physics
+
+<p class="home-tagline">物理のアイデアをインタラクティブに探る</p>
 
 物理の概念をインタラクティブに探索するための visualization をまとめています。
 
