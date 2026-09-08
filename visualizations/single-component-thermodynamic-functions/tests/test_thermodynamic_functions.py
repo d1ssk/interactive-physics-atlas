@@ -111,4 +111,4 @@ def test_browser_physics_invariants():
             pytest.fail("Node.js is required for browser physics tests in CI")
         pytest.skip("Node.js is not installed")
     test_file = Path(__file__).with_name("physics.test.mjs")
-    subprocess.run([node, "--test", str(test_file)], check=True)
+    subprocess.run([node, "--test", str(test_file)], check=True, timeout=300)

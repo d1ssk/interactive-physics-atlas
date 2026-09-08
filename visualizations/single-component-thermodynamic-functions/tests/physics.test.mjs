@@ -411,7 +411,9 @@ test('Gibbs boundary polylines use the sheet edge vertices on a logarithmic glob
 });
 
 test('mixed volume scale is continuous, invertible, and reserves condensed-phase width', async () => {
-  const {axisCoordinate,axisInverse,surfaceGeometry}=await import('../static/surface_canvas.mjs');
+  const {axisCoordinate,axisInverse,formatAxisTick,surfaceGeometry}=await import('../static/surface_canvas.mjs');
+  assert.equal(formatAxisTick(.02), '0.02');
+  assert.equal(formatAxisTick(.00125), '1.3e-3');
   for(const potential of ['U','S','F']){
     const surf=dispatch({kind:'globalSurface',model:'water',potential});
     const [low,high]=surf.limits[1],{knee,linearFraction}=surf.volumeScale;

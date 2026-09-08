@@ -8,6 +8,13 @@ const PHASE_COLORS = {
   "01": "#b4a4d2", "12": "#e6a58b", "02": "#ce9eb3", "012": "#d7b456",
 };
 
+export function formatAxisTick(value) {
+  if (value !== 0 && (Math.abs(value) >= 1e4 || Math.abs(value) < 1e-2)) {
+    return value.toExponential(1);
+  }
+  return Number(value.toPrecision(3)).toString();
+}
+
 function phaseRegion(fractions, collapsed = false) {
   if (collapsed) return fractions.indexOf(Math.max(...fractions)).toString();
   const active = fractions.map((value, index) => value > 1e-4 ? index : -1).filter(index => index >= 0);
@@ -364,10 +371,6 @@ export class SurfaceCanvas {
       const labelY=end.y-dy/length*5-dx/length*5;
       g.fillText(label,Math.max(3,Math.min(size.width-g.measureText(label).width-3,labelX)),Math.max(11,Math.min(size.height-4,labelY)));
     }
-    const formatTick = (value) => {
-      if (value !== 0 && (Math.abs(value) >= 1e4 || Math.abs(value) < 1e-2)) return value.toExponential(1);
-      return Number(value.toPrecision(3)).toString();
-    };
     g.font = "9px system-ui"; g.fillStyle = "#6c8086";
     const tickSets = [
       {axis:0,range: xRange, fractions: [0.14, 0.54, 0.9], raw: value => [value, yRange[0], floor], offset: [-5, 12]},
@@ -377,7 +380,7 @@ export class SurfaceCanvas {
     if (!this.data.compact) for (const ticks of tickSets) for (const fraction of ticks.fractions) {
       const value = ticks.axis<2?this.axisValue(ticks.range,fraction,ticks.axis):ticks.range[0]+(ticks.range[1]-ticks.range[0])*fraction;
       const position = project(ticks.raw(value));
-      g.fillText(formatTick(value), position.x + ticks.offset[0], position.y + ticks.offset[1]);
+      g.fillText(formatAxisTick(value), position.x + ticks.offset[0], position.y + ticks.offset[1]);
     }
     if(this.data.surf.volumeScale){
       const {knee,linearFraction:f}=this.data.surf.volumeScale;
@@ -390,7 +393,7 @@ export class SurfaceCanvas {
       };
       this.drawLine([project([xRange[0],knee,floor]),project([xRange[1],knee,floor])],"#9b8ba9",1,[3,3]);
       g.font="8px system-ui";g.fillStyle="#526b75";
-      for(const [value,label] of [[yRange[0],formatTick(yRange[0])],[knee,'0.020'],[yRange[1],formatTick(yRange[1])]]){
+      for(const [value,label] of [[yRange[0],formatAxisTick(yRange[0])],[knee,formatAxisTick(knee)],[yRange[1],formatAxisTick(yRange[1])]]){
         const p=edge(value);labelAt(p,label,13);
       }
       for(const [fraction,label] of [[f/2,'linear'],[(1+f)/2,'log']]){
