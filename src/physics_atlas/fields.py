@@ -58,6 +58,7 @@ FIELDS = (
         "Equilibrium, heat, work, entropy, and thermodynamic potentials.",
         "熱力学",
         "平衡、熱、仕事、エントロピー、熱力学ポテンシャル",
+        "assets/images/thermodynamics.png",
     ),
     FieldDefinition(
         "statistical-physics",
