@@ -86,6 +86,12 @@ def test_static_build_contract(tmp_path, visualization):
     assert "直接的加熱・冷却" in i18n
     assert "熱浴との熱交換" in i18n
     assert "灰色の線" in html
+    assert "熱力学では、巨視的な平衡状態を少数の状態変数で記述します。" in html
+    assert "In the internal-energy representation" in i18n
+    assert "ヘルムホルツ" not in html + i18n
+    assert "ギブズ" not in html + i18n
+    assert "Helmholtz 自由エネルギー" in i18n
+    assert "Gibbs 自由エネルギー" in i18n
     assert "wallLimit=.62" in html
     assert "g.moveTo(left,top-24)" in html
     assert ".system-card,.viewer-card{height:100%!important}" in html
