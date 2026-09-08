@@ -1,0 +1,16 @@
+id: single-component-thermodynamic-functions
+title: Thermodynamic Functions of a One-Component System
+title_ja: 一成分系の熱力学関数
+field: thermodynamics
+topics:
+  - thermodynamic potentials
+  - phase coexistence
+  - natural variables
+level:
+  - undergraduate
+  - graduate
+runtime: browser-static
+page: thermodynamics/single-component-thermodynamic-functions
+presentation: standalone
+summary: Connect quasistatic operations on a one-mole system with thermodynamic surfaces and their natural variables.
+summary_ja: 1 mol 系への準静的操作と、自然変数で表した熱力学曲面の対応。

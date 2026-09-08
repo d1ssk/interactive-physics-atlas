@@ -2,7 +2,7 @@
 
 Fluctuations, emergent phenomena, and universality.
 
-## Nonequilibrium
+## Statistical Physics of Radiation
 
 - **[Phase Space of Blackbody Radiation](blackbody-photon-phase-space/)**<br>
   Frequency-direction distributions of solar and terrestrial radiation.
