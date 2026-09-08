@@ -74,7 +74,7 @@ const STRINGS = {
     overviewAria: "Global thermodynamic-function surface and local display boundary. Click to select an equilibrium state.",
   },
   ja: {
-    documentTitle: "1成分系の熱力学関数 — Interactive Physics Vignettes",
+    documentTitle: "一成分系の熱力学関数 — Interactive Physics Vignettes",
     pressureIsobaric: "外圧は対数目盛。変更中は熱交換せず、エントロピーを保ちます。",
     pressureBath: "外圧は対数目盛。変更中は熱浴が温度を一定に保ちます。",
     conditionAdiabatic: "断熱壁。ピストン操作は準静的で、操作後は壁を固定します。",
@@ -111,7 +111,7 @@ const STRINGS = {
 };
 
 const STATIC_EN = new Map([
-  ["1成分系の熱力学関数", "Thermodynamic Functions of a One-Component System"],
+  ["一成分系の熱力学関数", "Thermodynamic Functions of a One-Component System"],
   ["熱力学では、平衡状態を温度 \\(T\\)、圧力 \\(P\\)、モル体積 \\(v\\)、モルエントロピー \\(s\\) などの熱力学量で記述します。内部エネルギー \\(u\\) やエンタルピー \\(h\\) などの熱力学関数は状態だけで決まり、準静的な操作は平衡状態の連続的な移り変わりとして表せます。", "Thermodynamics describes equilibrium states using quantities such as temperature \\(T\\), pressure \\(P\\), molar volume \\(v\\), and molar entropy \\(s\\). Thermodynamic functions such as internal energy \\(u\\) and enthalpy \\(h\\) depend only on the state, so a quasistatic operation can be represented as a continuous succession of equilibrium states."],
   ["どの関数が適しているかは状況ごとの拘束条件によって異なります。\\(u(s,v)\\)、\\(s(u,v)\\)、\\(f(T,v)\\)、\\(h(s,P)\\)、\\(g(T,P)\\) は自然変数が異なり、互いにルジャンドル変換で結ばれています。曲面の傾きは、温度・圧力・エントロピー・体積などの共役な熱力学量を与えます。", "The most useful function depends on the constraints of the situation. The functions \\(u(s,v)\\), \\(s(u,v)\\), \\(f(T,v)\\), \\(h(s,P)\\), and \\(g(T,P)\\) have different natural variables and are related by Legendre transforms. Their surface slopes give conjugate thermodynamic quantities such as temperature, pressure, entropy, and volume."],
   ["この可視化では、ピストン、直接的な加熱・冷却、熱浴、外圧を操作し、平衡状態の変化を熱力学関数の曲面上の移動として追います。収支に表示される熱 \\(Q\\) と系がする仕事 \\(W\\) から \\(\\Delta U=Q-W\\) を確認できます。水を模したモデルでは、相共存と、相転移に伴って熱力学関数やその微分に現れる非解析的な構造も観察できます。示量変数は 1 mol あたりで表示します。", "In this visualization, you operate the piston, apply direct heating or cooling, and vary the heat bath and external pressure while following equilibrium-state changes across a thermodynamic-function surface. The ledger shows heat \\(Q\\) and work done by the system \\(W\\), letting you verify \\(\\Delta U=Q-W\\). The water-like model also reveals phase coexistence and the nonanalytic structures that phase transitions produce in thermodynamic functions or their derivatives. Extensive quantities are shown per mole."],
@@ -145,6 +145,7 @@ const STATIC_EN = new Map([
 ]);
 
 const ATTRIBUTE_EN = new Map([
+  ["サイトナビゲーション", "Site navigation"],
   ["熱浴、断熱壁、相の体積割合、体積変化を表すピストンの模式図", "Schematic of a heat bath, insulated walls, phase volume fractions, and a volume-changing piston"],
   ["自然変数平面。ドラッグで状態を指定できます。キーボードでは隣のスライダーを使用してください。", "Natural-variable plane. Drag to select a state; keyboard users can use the adjacent sliders."],
   ["第一自然変数を直接指定", "Select the first natural variable directly"], ["第二自然変数を直接指定", "Select the second natural variable directly"],

@@ -89,8 +89,12 @@ def test_static_build_contract(tmp_path, visualization):
     assert "wallLimit=.62" in html
     assert "g.moveTo(left,top-24)" in html
     assert ".system-card,.viewer-card{height:100%!important}" in html
+    assert '<nav class="site-nav" aria-label="サイトナビゲーション">' in html
+    assert 'font-family:Georgia,"Times New Roman","Yu Mincho",serif' in html
+    assert ".viewer-card #plot{height:575px}" in html
+    assert ".viewer-card #overviewPlot{height:520px}" in html
     assert 'documentTitle: "Thermodynamic Functions of a One-Component System' in i18n
-    assert 'documentTitle: "1成分系の熱力学関数' in i18n
+    assert 'documentTitle: "一成分系の熱力学関数' in i18n
     assert '"v (L/mol) · linear / log",8,15' not in renderer
 
 
