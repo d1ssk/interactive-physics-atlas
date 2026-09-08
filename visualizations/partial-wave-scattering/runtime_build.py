@@ -88,20 +88,21 @@ def build_kernel_wheel(source_dir: Path, output_path: Path) -> None:
     dist_info = f"{KERNEL_DISTRIBUTION}-{KERNEL_VERSION}.dist-info"
     entries: dict[str, bytes] = {
         f"{KERNEL_DISTRIBUTION}/__init__.py": (
-            f'"""Intuit Physics partial-wave kernel."""\n\n__version__ = "{KERNEL_VERSION}"\n'
+            f'"""Interactive Physics Vignettes partial-wave kernel."""\n\n'
+            f'__version__ = "{KERNEL_VERSION}"\n'
         ).encode(),
         f"{dist_info}/METADATA": (
             "Metadata-Version: 2.1\n"
             "Name: physics-atlas-partial-wave-kernel\n"
             f"Version: {KERNEL_VERSION}\n"
-            "Summary: Partial-wave computation kernel for Intuit Physics\n"
+            "Summary: Partial-wave computation kernel for Interactive Physics Vignettes\n"
             "License: MIT\n"
             "Requires-Python: >=3.12\n"
             "Requires-Dist: numpy\n"
         ).encode(),
         f"{dist_info}/WHEEL": (
             b"Wheel-Version: 1.0\n"
-            b"Generator: Intuit Physics\n"
+            b"Generator: Interactive Physics Vignettes\n"
             b"Root-Is-Purelib: true\n"
             b"Tag: py3-none-any\n"
         ),

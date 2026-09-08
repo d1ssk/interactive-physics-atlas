@@ -27,10 +27,10 @@ def test_configs_define_distinct_canonical_languages_and_mathjax() -> None:
 
     assert english["theme"]["language"] == "en"
     assert japanese["theme"]["language"] == "ja"
-    assert english["site_name"] == "Intuit Physics"
-    assert japanese["site_name"] == "Intuit Physics"
-    assert english["site_url"] == "https://d1ssk.github.io/intuit-physics/"
-    assert japanese["site_url"] == "https://d1ssk.github.io/intuit-physics/ja/"
+    assert english["site_name"] == "Interactive Physics Vignettes"
+    assert japanese["site_name"] == "Interactive Physics Vignettes"
+    assert english["site_url"] == "https://d1ssk.github.io/interactive-physics-vignettes/"
+    assert japanese["site_url"] == ("https://d1ssk.github.io/interactive-physics-vignettes/ja/")
     assert english["extra"]["alternate_base_url"] == japanese["site_url"]
     assert japanese["extra"]["alternate_base_url"] == english["site_url"]
     assert english["markdown_extensions"]["pymdownx"]["arithmatex"]["generic"] is True
@@ -46,14 +46,14 @@ def test_configs_define_distinct_canonical_languages_and_mathjax() -> None:
         }
 
 
-def test_homepages_use_the_shared_brand_and_tagline() -> None:
+def test_homepages_use_the_shared_brand_without_a_tagline() -> None:
     english = (ROOT / "docs" / "index.md").read_text(encoding="utf-8")
     japanese = (ROOT / "docs_ja" / "index.md").read_text(encoding="utf-8")
 
-    assert english.startswith("# Intuit Physics\n")
-    assert japanese.startswith("# Intuit Physics\n")
-    assert '<p class="home-tagline">Interactive explorations of physical ideas</p>' in english
-    assert '<p class="home-tagline">Interactive explorations of physical ideas</p>' in japanese
+    assert english.startswith("# Interactive Physics Vignettes\n")
+    assert japanese.startswith("# Interactive Physics Vignettes\n")
+    assert "home-tagline" not in english
+    assert "home-tagline" not in japanese
 
 
 def test_header_uses_linked_brand_without_default_logo() -> None:

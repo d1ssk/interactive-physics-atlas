@@ -283,7 +283,7 @@
   function localizeStatic() {
     document.documentElement.classList.remove("math-ready");
     document.documentElement.lang = locale;
-    document.title = locale === "ja" ? "エネルギー階層マップ — Intuit Physics" : "Energy Scale Atlas — Intuit Physics";
+    document.title = locale === "ja" ? "エネルギー階層マップ — Interactive Physics Vignettes" : "Energy Scale Atlas — Interactive Physics Vignettes";
     document.querySelectorAll("[data-i18n]").forEach(element => {
       const value = t(element.dataset.i18n);
       if (element.dataset.i18n === "title") element.innerHTML = value;
