@@ -438,3 +438,22 @@ test('local volume windows contain the state throughout the former 0.020–0.030
     assert.ok(point[2]>=Math.min(...zs)-.02&&point[2]<=Math.max(...zs)+.02);
   }
 });
+
+test('global focus outline contains only the four local display boundaries', async () => {
+  const {focusBoundarySegments}=await import('../static/surface_canvas.mjs');
+  const point=(x,y)=>[x,y,x+y];
+  const geometry=[
+    {raw:[point(0,0),point(.5,0),point(.5,1)]},
+    {raw:[point(0,0),point(.5,1),point(0,1)]},
+    {raw:[point(.5,0),point(1,0),point(1,1)]},
+    {raw:[point(.5,0),point(1,1),point(.5,1)]},
+  ];
+  const limits=[[.2,.8],[.2,.8]],segments=focusBoundarySegments(geometry,limits);
+  assert.ok(segments.length>0);
+  const close=(a,b)=>Math.abs(a-b)<1e-10;
+  for(const segment of segments)assert.ok([0,1].some(axis=>limits[axis].some(boundary=>
+    segment.every(vertex=>close(vertex[axis],boundary)))));
+  for(let axis=0;axis<2;axis++)for(const boundary of limits[axis])assert.ok(segments.some(segment=>
+    segment.every(vertex=>close(vertex[axis],boundary))));
+  assert.ok(!segments.some(segment=>segment.every(vertex=>close(vertex[0],.5))));
+});

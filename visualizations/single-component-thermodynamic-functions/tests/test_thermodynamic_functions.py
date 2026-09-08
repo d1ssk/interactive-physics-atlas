@@ -76,9 +76,18 @@ def test_static_build_contract(tmp_path, visualization):
     assert "相転移の入口へ移動" not in html
     assert "data-preset" not in html
     assert "pick:p=>{if(!locked)direct(p.x,p.y);}" in html
-    assert 'this.drawLine(edge.map(project),"#7357af",2.2)' in renderer
+    assert 'this.drawLine(edge.map(project),"#737b7e",2)' in renderer
+    assert "focusBoundarySegments(this.geometry,data.focusSurface.limits)" in renderer
     assert "rgba(115,87,175,.13)" not in renderer
+    assert 'scalarFill.addColorStop(0,"#b9d9d3")' in renderer
+    assert "const before=state" in html
+    assert "historyEntry(action,before,state)" in html
+    assert "断熱壁。ピストン操作は準静的で、操作後は壁を固定します。" in i18n
+    assert "直接的加熱・冷却" in i18n
+    assert "熱浴との熱交換" in i18n
+    assert "灰色の線" in html
     assert "wallLimit=.62" in html
+    assert "g.moveTo(left,top-24)" in html
     assert ".system-card,.viewer-card{height:100%!important}" in html
     assert 'documentTitle: "Thermodynamic Functions of a One-Component System' in i18n
     assert 'documentTitle: "1成分系の熱力学関数' in i18n

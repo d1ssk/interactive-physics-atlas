@@ -89,6 +89,24 @@ export function surfaceGeometry(surf) {
   return cells;
 }
 
+export function focusBoundarySegments(geometry, limits) {
+  const spans=limits.map(range=>Math.max(1e-12,Math.abs(range[1]-range[0])));
+  const onBoundary=(point,axis,side)=>Math.abs(point[axis]-limits[axis][side])<=spans[axis]*1e-8;
+  const key=point=>point.map(value=>Number(value).toPrecision(11)).join(",");
+  const segments=new Map();
+  for(const cell of geometry){
+    const polygon=clipSurfacePolygon(cell.raw,limits);
+    for(let index=0;index<polygon.length;index++){
+      const points=[polygon[index],polygon[(index+1)%polygon.length]];
+      const isDisplayBoundary=[0,1].some(axis=>[0,1].some(side=>
+        points.every(point=>onBoundary(point,axis,side))));
+      if(!isDisplayBoundary||key(points[0])===key(points[1]))continue;
+      segments.set(points.map(key).sort().join("|"),points);
+    }
+  }
+  return [...segments.values()];
+}
+
 export class SurfaceCanvas {
   constructor(container, {pick, camera, cameraChanged, ariaLabel="Three-dimensional thermodynamic-function surface"}) {
     this.container = container;
@@ -136,17 +154,8 @@ export class SurfaceCanvas {
         Math.min(lo,...cell.raw.map(p=>p[2])),Math.max(hi,...cell.raw.map(p=>p[2]))],[Infinity,-Infinity]);
     }
     if(this.data?.surf!==data.surf||this.data?.focusSurface!==data.focusSurface){
-      this.focusGeometry=data.focusSurface?this.geometry.map(cell=>
-        clipSurfacePolygon(cell.raw,data.focusSurface.limits)).filter(p=>p.length>=3):[];
-      const edges=new Map();
-      const key=point=>point.map(value=>Number(value).toPrecision(12)).join(",");
-      for(const polygon of this.focusGeometry)for(let index=0;index<polygon.length;index++){
-        const points=[polygon[index],polygon[(index+1)%polygon.length]];
-        const edgeKey=points.map(key).sort().join("|");
-        const previous=edges.get(edgeKey);
-        edges.set(edgeKey,previous?{...previous,count:previous.count+1}:{points,count:1});
-      }
-      this.focusBoundary=[...edges.values()].filter(edge=>edge.count===1).map(edge=>edge.points);
+      this.focusBoundary=data.focusSurface
+        ?focusBoundarySegments(this.geometry,data.focusSurface.limits):[];
     }
     this.data = data; this.draw();
   }
@@ -279,11 +288,11 @@ export class SurfaceCanvas {
     }
     const cells=this.projected;
     this.hitCells = cells;
+    const scalarFill=g.createLinearGradient(0,size.height,0,0);
+    scalarFill.addColorStop(0,"#b9d9d3");
+    scalarFill.addColorStop(1,"#4f9895");
     for (const cell of cells) {
-      const normalizedZ = (cell.raw.reduce((sum, p) => sum + p[2], 0) / cell.raw.length - frame.zMin)
-        / (frame.zMax - frame.zMin);
-      const light = 82 - Math.max(0, Math.min(1, normalizedZ)) * 34;
-      const fill = this.data.showPhaseColors ? PHASE_COLORS[cell.region] : `hsla(177,35%,${light}%,0.91)`;
+      const fill = this.data.showPhaseColors ? PHASE_COLORS[cell.region] : scalarFill;
       this.polygon(cell.screen, fill, fill, 0.8);
     }
     if (this.data.showPhaseColors && this.data.surf.collapsedCoexistence) {
@@ -293,7 +302,7 @@ export class SurfaceCanvas {
       }
     }
     if (this.data.focusSurface) for(const edge of this.focusBoundary || []) {
-      this.drawLine(edge.map(project),"#7357af",2.2);
+      this.drawLine(edge.map(project),"#737b7e",2);
     }
 
     const plane = (slopes, color) => {
