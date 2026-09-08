@@ -263,15 +263,6 @@ html[lang="ja"] .atlas-language-switch {
   letter-spacing: -0.025em;
 }
 
-.md-typeset .home-tagline {
-  margin-top: -0.55rem;
-  margin-bottom: 1.35rem;
-  color: var(--atlas-muted);
-  font-family: "Atlas Source Serif 4", Georgia, serif;
-  font-size: 1rem;
-  line-height: 1.45;
-}
-
 html[lang="ja"] .md-typeset h1 {
   font-family: "Atlas Japanese Display", "Atlas Source Serif 4", serif;
   font-size: 1.4625rem;

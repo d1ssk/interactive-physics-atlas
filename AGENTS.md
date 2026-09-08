@@ -1,4 +1,4 @@
-# Intuit Physics
+# Interactive Physics Vignettes
 
 ## Project purpose
 
@@ -47,7 +47,7 @@ Visual appeal is important, but must never override correctness.
 9. Do not modify unrelated visualizations when implementing one feature.
 10. Published content supports English (`en`) and Japanese (`ja`). Every public page and
     every user-facing string must be available in both languages.
-11. The site brand is always `Intuit Physics`. It links to the home page for
+11. The site brand is always `Interactive Physics Vignettes`. It links to the home page for
     the current language and is displayed without a separate logo icon.
 12. Language switches must point to the corresponding page, not merely the other-language
     home page.
@@ -69,7 +69,7 @@ Visual appeal is important, but must never override correctness.
 - Localize every user-facing control, instruction, status, error, and accessibility label.
   Plot-internal text—including axes, legends, hover text, and Plotly controls—remains English in
   both languages so a single figure payload can be shared.
-- `Intuit Physics` is the untranslated site brand and home link. Do not place a logo
+- `Interactive Physics Vignettes` is the untranslated site brand and home link. Do not place a logo
   icon beside it. Page headings and visualization UI titles may be localized.
 - Write natural technical Japanese rather than translating English syntax mechanically. For
   short summaries and card descriptions, prefer concise noun-ending phrases when natural; avoid

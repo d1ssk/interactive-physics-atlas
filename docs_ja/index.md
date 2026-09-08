@@ -1,6 +1,4 @@
-# Intuit Physics
-
-<p class="home-tagline">Interactive explorations of physical ideas</p>
+# Interactive Physics Vignettes
 
 物理の概念をインタラクティブに探索するための visualization をまとめています。
 
