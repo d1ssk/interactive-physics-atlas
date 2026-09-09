@@ -97,7 +97,7 @@ def test_browser_physics_invariants() -> None:
             pytest.fail("Node.js is required for browser physics tests in CI")
         pytest.skip("Node.js is not installed")
     test_file = Path(__file__).with_name("physics.test.mjs")
-    subprocess.run([node, "--test", str(test_file)], check=True)
+    subprocess.run([node, "--test", str(test_file)], check=True, timeout=300)
 
 
 def test_static_build_and_four_panel_contract(tmp_path, visualization) -> None:
@@ -130,6 +130,13 @@ def test_static_build_and_four_panel_contract(tmp_path, visualization) -> None:
     assert "Brillouin torus と Bloch 球" in app
     assert "X and Y" in app
     assert "X と Y" in app
+    assert 'data-i18n="transitionTick"' in html
+    assert 'data-i18n="sshBandStructure"' in html
+    assert 'data-i18n="finiteChainFlow"' in html
+    assert 'transitionTick: "1 · transition"' in app
+    assert 'transitionTick: "1 · 相転移"' in app
+    assert 'finiteChainFlow: "FINITE-CHAIN SPECTRAL FLOW"' in app
+    assert 'finiteChainFlow: "有限鎖のスペクトルフロー"' in app
     assert 'id="torus-canvas"' in html
     assert 'id="qwz-energy-canvas"' in html
     assert 'id="qwz-band-canvas"' not in html

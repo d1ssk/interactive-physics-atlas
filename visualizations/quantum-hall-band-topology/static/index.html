@@ -142,7 +142,7 @@
         <label class="range-control">
           <span><b data-i18n="intracellRatio">Intracell ratio</b><output data-ssh-output>t₁/t₂ = 0.65</output></span>
           <input type="range" min="0" max="1.8" step="0.01" value="0.65" data-ssh-ratio data-i18n-aria="sshRatioAria">
-          <small><i>0</i><i>1 · transition</i><i>1.8</i></small>
+          <small><i>0</i><i data-i18n="transitionTick">1 · transition</i><i>1.8</i></small>
         </label>
         <div class="preset-row">
           <button type="button" data-ssh-preset="0.45" data-i18n="topological">Topological</button>
@@ -161,11 +161,11 @@
       <p class="equation-line">\(q(k)=d_x+i d_y=t_1+t_2e^{ik},\qquad \nu=\frac{1}{2\pi}\oint dk\,\partial_k\arg q(k)\)</p>
       <div class="two-plot-grid">
         <figure class="canvas-card plot-card">
-          <figcaption><span>SSH BAND STRUCTURE</span><small data-i18n="moveAlongK">MOVE ALONG k</small></figcaption>
+          <figcaption><span data-i18n="sshBandStructure">SSH BAND STRUCTURE</span><small data-i18n="moveAlongK">MOVE ALONG k</small></figcaption>
           <canvas id="ssh-band-canvas" width="720" height="500" tabindex="0" role="img" data-i18n-aria="sshBandAria"></canvas>
         </figure>
         <figure class="canvas-card plot-card">
-          <figcaption><span>d-VECTOR TRAJECTORY</span><small>ORIGIN = WINDING TEST</small></figcaption>
+          <figcaption><span data-i18n="dVectorTrajectory">d-VECTOR TRAJECTORY</span><small data-i18n="originWindingTest">ORIGIN = WINDING TEST</small></figcaption>
           <canvas id="ssh-winding-canvas" width="720" height="500" role="img" data-i18n-aria="windingAria"></canvas>
         </figure>
       </div>
@@ -177,7 +177,7 @@
         <label class="range-control">
           <span><b data-i18n="intracellRatio">Intracell ratio</b><output data-ssh-output>t₁/t₂ = 0.65</output></span>
           <input type="range" min="0" max="1.8" step="0.01" value="0.65" data-ssh-ratio data-i18n-aria="sshRatioAria">
-          <small><i>0</i><i>1 · transition</i><i>1.8</i></small>
+          <small><i>0</i><i data-i18n="transitionTick">1 · transition</i><i>1.8</i></small>
         </label>
         <div class="preset-row">
           <button type="button" data-ssh-preset="0.45" data-i18n="topological">Topological</button>
@@ -191,12 +191,12 @@
       </div>
       <div class="edge-grid">
         <figure class="canvas-card dark-card">
-          <figcaption><span>FINITE-CHAIN SPECTRAL FLOW</span><small>12 UNIT CELLS</small></figcaption>
+          <figcaption><span data-i18n="finiteChainFlow">FINITE-CHAIN SPECTRAL FLOW</span><small data-i18n="twelveCells">12 UNIT CELLS</small></figcaption>
           <canvas id="chain-spectrum-canvas" width="780" height="530" role="img" data-i18n-aria="flowAria"></canvas>
         </figure>
         <div class="profile-card">
           <figure class="canvas-card plot-card">
-            <figcaption><span>REAL-SPACE PROFILE</span><small>18 UNIT CELLS</small></figcaption>
+            <figcaption><span data-i18n="realSpaceProfile">REAL-SPACE PROFILE</span><small data-i18n="eighteenCells">18 UNIT CELLS</small></figcaption>
             <canvas id="edge-profile-canvas" width="780" height="400" role="img" data-i18n-aria="profileAria"></canvas>
           </figure>
           <div class="edge-metrics" aria-live="polite">

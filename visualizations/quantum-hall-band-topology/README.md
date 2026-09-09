@@ -1,7 +1,7 @@
 # Chern insulators and bulk–edge correspondence
 
-This publication visualization promotes the four linked views from
-`workbench/quantum-hall-band-topology` into one bilingual static application.
+This publication visualization combines four linked views in one bilingual
+static application.
 The article embeds that application four times using the `panel` query parameter:
 
 - `map`: the square Brillouin zone, its colored three-dimensional torus, and its
