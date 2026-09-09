@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en" data-panel="map">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chern Bands and Bulk–Edge Topology</title>
+  <link rel="stylesheet" href="visualization-theme.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="visualization-theme.js"></script>
+  <script>
+    (() => {
+      const query = new URLSearchParams(window.location.search);
+      const requested = query.get("panel");
+      const panels = new Set(["map", "transition", "winding", "edge"]);
+      document.documentElement.dataset.panel = panels.has(requested) ? requested : "map";
+      document.documentElement.lang = query.get("lang") === "ja" ? "ja" : "en";
+    })();
+    window.MathJax = {
+      tex: {inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]]},
+      svg: {fontCache: "global"},
+      startup: {
+        ready() {
+          MathJax.startup.defaultReady();
+          MathJax.startup.promise.then(() => {
+            window.dispatchEvent(new Event("physics-atlas:mathjax-ready"));
+          });
+        },
+      },
+    };
+  </script>
+  <script defer src="mathjax-tex-svg.js"></script>
+</head>
+<body>
+  <main>
+    <header class="app-header">
+      <div>
+        <p class="eyebrow" data-i18n="eyebrow">BAND TOPOLOGY</p>
+        <h1 id="app-title">Brillouin torus and Bloch sphere</h1>
+        <p id="app-lede" class="lede">Track the occupied-band map from momentum space to the unit sphere.</p>
+      </div>
+      <div class="model-tag" id="model-tag">QWZ · 2D</div>
+    </header>
+
+    <section id="view-map" class="view" aria-labelledby="app-title">
+      <div class="control-strip qwz-controls">
+        <label class="range-control">
+          <span><b data-i18n="mass">Mass</b><output data-output="mass">m = −1.00</output></span>
+          <input type="range" min="-3" max="3" step="0.02" value="-1" data-qwz-param="mass" data-i18n-aria="massAria">
+          <small><i>−3</i><i>−2</i><i>0</i><i>+2</i><i>+3</i></small>
+        </label>
+        <label class="range-control">
+          <span><b data-i18n="hopping">Hopping amplitude</b><output data-output="hopping">A = 1.00</output></span>
+          <input type="range" min="0.25" max="1.75" step="0.05" value="1" data-qwz-param="hopping" data-i18n-aria="hoppingAria">
+          <small><i>0.25</i><i>1.00</i><i>1.75</i></small>
+        </label>
+        <label class="range-control">
+          <span><b data-i18n="orientation">Orientation</b><output data-output="trBreaking">λ = +1.00</output></span>
+          <input type="range" min="-1.5" max="1.5" step="0.05" value="1" data-qwz-param="trBreaking" data-i18n-aria="orientationAria">
+          <small><i>−1.5</i><i>0</i><i>+1.5</i></small>
+        </label>
+        <div class="primary-metric">
+          <span data-i18n="occupiedChern">OCCUPIED CHERN NUMBER</span>
+          <strong>\(C=\)<b data-qwz-chern>+1</b></strong>
+        </div>
+      </div>
+
+      <p class="equation-line">\(\hat{\mathbf d}:T^2\longrightarrow S^2,\qquad P_-(\mathbf k)=\frac{1-\sum_a\hat d_a(\mathbf k)\sigma_a}{2}\)</p>
+
+      <div class="map-grid">
+        <figure class="canvas-card dark-card">
+          <figcaption><span>BRILLOUIN ZONE · \(T^2\)</span><small data-i18n="movePointer">MOVE POINTER</small></figcaption>
+          <canvas id="bz-canvas" width="620" height="500" tabindex="0" role="img" data-i18n-aria="bzAria"></canvas>
+          <p class="canvas-note" data-i18n="bzNote">Opposite edges are identified.</p>
+        </figure>
+        <div class="map-arrow" aria-hidden="true">\(\hat{\mathbf d}\)<b>→</b></div>
+        <figure class="canvas-card dark-card">
+          <figcaption><span>BLOCH SPHERE · \(S^2\)</span><small data-i18n="dragOrbit">DRAG TO ORBIT</small></figcaption>
+          <canvas id="sphere-canvas" width="620" height="500" tabindex="0" role="img" data-i18n-aria="sphereAria"></canvas>
+          <p class="canvas-note" data-i18n="sphereNote">Each dot is the image of a momentum-grid point.</p>
+        </figure>
+      </div>
+
+      <div class="readout-grid" aria-live="polite">
+        <div><span data-i18n="momentum">MOMENTUM</span><strong id="selected-k">(0.00π, 0.00π)</strong></div>
+        <div><span data-i18n="unitVector">UNIT VECTOR</span><strong id="selected-d">(0.000, 0.000, 1.000)</strong></div>
+        <div><span data-i18n="localCurvature">LOCAL CURVATURE</span><strong id="selected-curvature">Ω₋ = +0.500</strong></div>
+        <div><span data-i18n="bulkGap">BULK GAP</span><strong>Δ = <b data-qwz-gap>2.000</b></strong></div>
+      </div>
+    </section>
+
+    <section id="view-transition" class="view" aria-labelledby="app-title">
+      <div class="transition-layout">
+        <div>
+          <div class="control-strip transition-controls">
+            <label class="range-control">
+              <span><b data-i18n="changeMass">Change mass continuously</b><output data-output="mass">m = −1.00</output></span>
+              <input type="range" min="-3" max="3" step="0.02" value="-1" data-qwz-param="mass" data-i18n-aria="massAria">
+              <small><i>−3</i><i>−2</i><i>0</i><i>+2</i><i>+3</i></small>
+            </label>
+            <div class="primary-metric compact">
+              <span data-i18n="occupiedChern">OCCUPIED CHERN NUMBER</span>
+              <strong>\(C=\)<b data-qwz-chern>+1</b></strong>
+            </div>
+            <div class="primary-metric compact">
+              <span data-i18n="bulkGap">BULK GAP</span>
+              <strong>\(\Delta=\)<b data-qwz-gap>2.000</b></strong>
+            </div>
+          </div>
+          <figure class="canvas-card plot-card">
+            <figcaption><span>QWZ BANDS · Γ—X—M—Y—Γ</span><small>ENERGY</small></figcaption>
+            <canvas id="qwz-band-canvas" width="1080" height="520" role="img" data-i18n-aria="bandAria"></canvas>
+          </figure>
+        </div>
+        <aside class="phase-panel">
+          <p class="mini-heading" data-i18n="gappedPhases">GAPPED PHASES</p>
+          <div class="phase-buttons">
+            <button type="button" data-mass-preset="-2.65"><small>\(m&lt;-2\)</small><b>\(C=0\)</b></button>
+            <button type="button" data-mass-preset="-1"><small>\(-2&lt;m&lt;0\)</small><b>\(C=+1\)</b></button>
+            <button type="button" data-mass-preset="1"><small>\(0&lt;m&lt;2\)</small><b>\(C=-1\)</b></button>
+            <button type="button" data-mass-preset="2.65"><small>\(2&lt;m\)</small><b>\(C=0\)</b></button>
+          </div>
+          <p class="mini-heading" data-i18n="gapClosings">GAP CLOSINGS</p>
+          <div class="critical-buttons">
+            <button type="button" data-mass-preset="-2">\(m=-2\) · Γ</button>
+            <button type="button" data-mass-preset="0">\(m=0\) · X, Y</button>
+            <button type="button" data-mass-preset="2">\(m=+2\) · M</button>
+          </div>
+          <p id="gap-explanation" class="status-note" aria-live="polite">The gap is open, so the Chern number cannot change under a smooth deformation.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="view-winding" class="view" aria-labelledby="app-title">
+      <div class="control-strip ssh-controls">
+        <label class="range-control">
+          <span><b data-i18n="intracellRatio">Intracell ratio</b><output data-ssh-output>t₁/t₂ = 0.65</output></span>
+          <input type="range" min="0" max="1.8" step="0.01" value="0.65" data-ssh-ratio data-i18n-aria="sshRatioAria">
+          <small><i>0</i><i>1 · transition</i><i>1.8</i></small>
+        </label>
+        <div class="preset-row">
+          <button type="button" data-ssh-preset="0.45" data-i18n="topological">Topological</button>
+          <button type="button" data-ssh-preset="1" data-i18n="critical">Critical</button>
+          <button type="button" data-ssh-preset="1.45" data-i18n="trivial">Trivial</button>
+        </div>
+        <div class="primary-metric compact">
+          <span data-i18n="winding">WINDING</span>
+          <strong>\(\nu=\)<b data-winding>1</b></strong>
+        </div>
+        <div class="primary-metric compact">
+          <span data-i18n="bulkGap">BULK GAP</span>
+          <strong>\(\Delta=\)<b data-ssh-gap>0.700</b></strong>
+        </div>
+      </div>
+      <p class="equation-line">\(q(k)=d_x+i d_y=t_1+t_2e^{ik},\qquad \nu=\frac{1}{2\pi}\oint dk\,\partial_k\arg q(k)\)</p>
+      <div class="two-plot-grid">
+        <figure class="canvas-card plot-card">
+          <figcaption><span>SSH BAND STRUCTURE</span><small data-i18n="moveAlongK">MOVE ALONG k</small></figcaption>
+          <canvas id="ssh-band-canvas" width="720" height="500" tabindex="0" role="img" data-i18n-aria="sshBandAria"></canvas>
+        </figure>
+        <figure class="canvas-card plot-card">
+          <figcaption><span>d-VECTOR TRAJECTORY</span><small>ORIGIN = WINDING TEST</small></figcaption>
+          <canvas id="ssh-winding-canvas" width="720" height="500" role="img" data-i18n-aria="windingAria"></canvas>
+        </figure>
+      </div>
+      <p id="ssh-status" class="status-note" aria-live="polite">The circle encloses the origin once.</p>
+    </section>
+
+    <section id="view-edge" class="view" aria-labelledby="app-title">
+      <div class="control-strip ssh-controls edge-controls">
+        <label class="range-control">
+          <span><b data-i18n="intracellRatio">Intracell ratio</b><output data-ssh-output>t₁/t₂ = 0.65</output></span>
+          <input type="range" min="0" max="1.8" step="0.01" value="0.65" data-ssh-ratio data-i18n-aria="sshRatioAria">
+          <small><i>0</i><i>1 · transition</i><i>1.8</i></small>
+        </label>
+        <div class="preset-row">
+          <button type="button" data-ssh-preset="0.45" data-i18n="topological">Topological</button>
+          <button type="button" data-ssh-preset="1" data-i18n="critical">Critical</button>
+          <button type="button" data-ssh-preset="1.45" data-i18n="trivial">Trivial</button>
+        </div>
+        <div class="primary-metric compact">
+          <span data-i18n="winding">WINDING</span>
+          <strong>\(\nu=\)<b data-winding>1</b></strong>
+        </div>
+      </div>
+      <div class="edge-grid">
+        <figure class="canvas-card dark-card">
+          <figcaption><span>FINITE-CHAIN SPECTRAL FLOW</span><small>12 UNIT CELLS</small></figcaption>
+          <canvas id="chain-spectrum-canvas" width="780" height="530" role="img" data-i18n-aria="flowAria"></canvas>
+        </figure>
+        <div class="profile-card">
+          <figure class="canvas-card plot-card">
+            <figcaption><span>REAL-SPACE PROFILE</span><small>18 UNIT CELLS</small></figcaption>
+            <canvas id="edge-profile-canvas" width="780" height="400" role="img" data-i18n-aria="profileAria"></canvas>
+          </figure>
+          <div class="edge-metrics" aria-live="polite">
+            <div><span data-i18n="centralEnergies">CENTRAL ENERGIES</span><strong id="edge-energies">±0.000</strong></div>
+            <div><span data-i18n="edgeWeight">EDGE WEIGHT</span><strong id="edge-weight">—</strong></div>
+            <div><span data-i18n="localization">LOCALIZATION</span><strong id="edge-verdict">EDGE</strong></div>
+          </div>
+        </div>
+      </div>
+      <p id="edge-status" class="status-note" aria-live="polite">The two central states are concentrated at opposite ends of the chain.</p>
+    </section>
+  </main>
+
+  <noscript>JavaScript is required for this visualization. / この可視化にはJavaScriptが必要です。</noscript>
+  <script>
+    (() => {
+      if (window.parent === window) return;
+      const PARENT_TARGET_ORIGIN = window.location.origin;
+      function report() {
+        const main = document.querySelector("main");
+        const contentBottom = main ? main.getBoundingClientRect().bottom : 0;
+        const contentHeight = Math.max(contentBottom, document.body.getBoundingClientRect().height);
+        const frameHeight = Math.ceil(contentHeight);
+        if (window.frameElement) {
+          window.frameElement.style.minHeight = "0";
+          window.frameElement.style.height = `${frameHeight}px`;
+          window.frameElement.setAttribute("scrolling", "no");
+          window.frameElement.style.overflow = "hidden";
+        }
+        window.parent.postMessage(
+          {type: "physics-atlas:frame-height", height: frameHeight},
+          PARENT_TARGET_ORIGIN,
+        );
+      }
+      window.addEventListener("load", report);
+      window.addEventListener("resize", report);
+      window.addEventListener("physics-atlas:mathjax-ready", report);
+      window.addEventListener("physics-atlas:visualization-rendered", report);
+      window.addEventListener("message", event => {
+        const expectedParent = event.source === window.parent;
+        const expectedOrigin = event.origin === PARENT_TARGET_ORIGIN;
+        if (expectedParent && expectedOrigin && event.data?.type === "physics-atlas:request-frame-height") {
+          report();
+        }
+      });
+      if ("ResizeObserver" in window) {
+        const observer = new ResizeObserver(report);
+        observer.observe(document.body);
+        const main = document.querySelector("main");
+        if (main) observer.observe(main);
+        window.addEventListener("pagehide", () => observer.disconnect(), {once: true});
+      }
+      document.fonts?.ready.then(report);
+      report();
+    })();
+  </script>
+  <script type="module" src="app.mjs"></script>
+</body>
+</html>
