@@ -1,4 +1,4 @@
-# Interactive Physics Vignettes
+# Interactive Physics Olio
 
 物理の概念をインタラクティブに探索するための visualization をまとめています。
 

@@ -1,4 +1,4 @@
-# Interactive Physics Vignettes
+# Interactive Physics Olio
 
 Visualizations for exploring physical concepts interactively.
 

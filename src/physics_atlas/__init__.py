@@ -1,4 +1,4 @@
-"""Shared infrastructure for Interactive Physics Vignettes."""
+"""Shared infrastructure for Interactive Physics Olio."""
 
 from physics_atlas.metadata import (
     CANONICAL_FIELDS,

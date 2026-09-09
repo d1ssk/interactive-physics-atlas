@@ -56,7 +56,7 @@ const TEXT = {
 const t = key => TEXT[LOCALE][key] ?? key;
 const status = byId("runtime-status");
 document.documentElement.lang = LOCALE;
-document.title = `${t("title")} — Interactive Physics Vignettes`;
+document.title = `${t("title")} — Interactive Physics Olio`;
 document.querySelectorAll("[data-i18n]").forEach(element => {
   element.textContent = t(element.dataset.i18n);
 });

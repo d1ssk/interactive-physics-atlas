@@ -1,10 +1,10 @@
-# Interactive Physics Vignettes
+# Interactive Physics Olio
 
 An interactive visual atlas of physical and mathematical concepts.
 
 ## Purpose
 
-Interactive Physics Vignettes collects rigorous interactive visualizations designed to make
+Interactive Physics Olio collects rigorous interactive visualizations designed to make
 physical ideas, mathematical structures, symmetries, and dynamics directly explorable.
 
 The atlas is organized around:

@@ -5,7 +5,7 @@ const locale = new URLSearchParams(window.location.search).get("lang") === "ja" 
 
 const I18N = {
   en: {
-    pageTitle: "Legendre Transform Explorer — Interactive Physics Vignettes",
+    pageTitle: "Legendre Transform Explorer — Interactive Physics Olio",
     siteNavLabel: "Site navigation",
     title: "Legendre Transform Explorer",
     lede: "Move a supporting line and watch its slope and negative intercept become the coordinates of a point on the convex conjugate.",
@@ -44,7 +44,7 @@ const I18N = {
   },
 
   ja: {
-    pageTitle: "Legendre変換エクスプローラ — Interactive Physics Vignettes",
+    pageTitle: "Legendre変換エクスプローラ — Interactive Physics Olio",
     siteNavLabel: "サイトナビゲーション",
     title: "Legendre変換エクスプローラ",
     lede: "支持線を動かし、その傾きと切片の符号を反転した量が、凸共役上の点の座標になる様子を観察します。",
