@@ -74,6 +74,7 @@ FIELDS = (
         "Many-body systems, matter, and phases.",
         "物性物理学",
         "多体系、物質、相",
+        "assets/images/condensed-matter-physics.png",
     ),
     FieldDefinition(
         "fluid-mechanics",

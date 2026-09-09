@@ -188,6 +188,7 @@ def test_bilingual_articles_are_aligned_and_distribute_the_panels() -> None:
         assert source.count("<iframe ") == 4
         assert source.count("data-auto-height") == 4
         assert source.count('scrolling="no"') == 4
+        assert '<div class="center-material-tables"></div>' in source
         assert "Workbench" not in source
     english_index = (root / "docs/condensed-matter-physics/index.md").read_text(encoding="utf-8")
     japanese_index = (root / "docs_ja/condensed-matter-physics/index.md").read_text(

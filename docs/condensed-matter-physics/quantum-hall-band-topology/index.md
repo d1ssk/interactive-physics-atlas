@@ -1,5 +1,7 @@
 # Chern Insulators and Bulk–Edge Correspondence
 
+<div class="center-material-tables"></div>
+
 When the Fermi level of an insulator lies inside a band gap, there are no low-energy bulk
 excitations. Even so, not all insulators are equivalent.
 

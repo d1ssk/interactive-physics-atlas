@@ -24,6 +24,10 @@ def test_field_catalog_uses_agreed_labels() -> None:
     assert FIELD_BY_SLUG["classical-mechanics"].image == "assets/images/classical-mechanics.png"
     assert FIELD_BY_SLUG["thermodynamics"].image == "assets/images/thermodynamics.png"
     assert FIELD_BY_SLUG["statistical-physics"].image == "assets/images/statistical-physics.png"
+    assert (
+        FIELD_BY_SLUG["condensed-matter-physics"].image
+        == "assets/images/condensed-matter-physics.png"
+    )
     assert FIELD_BY_SLUG["quantum-mechanics"].image == "assets/images/quantum-mechanics.png"
     assert FIELD_BY_SLUG["electromagnetism"].image == "assets/images/electromagnetism.png"
     assert FIELD_BY_SLUG["cosmology"].image == "assets/images/cosmology.png"
