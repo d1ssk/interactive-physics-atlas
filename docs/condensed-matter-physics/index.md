@@ -1,6 +1,6 @@
 # Condensed Matter Physics
 
-Many-body systems, matter, elementary excitation　and phases.
+Many-body systems, matter, elementary excitations, and phases.
 
 ## Topological phases
 
