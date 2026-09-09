@@ -21,7 +21,7 @@ const RENDER_SETTLE_DELAY = 140;
 
 const STRINGS = {
   en: {
-    documentTitle: "Complex Function Explorer — Interactive Physics Vignettes",
+    documentTitle: "Complex Function Explorer — Interactive Physics Olio",
     siteNavLabel: "Site navigation",
     title: "Complex Function Explorer",
     lede: "Explore values of complex functions, the branch structure of multivalued functions, and contour integrals on the same input plane.",
@@ -114,7 +114,7 @@ const STRINGS = {
     presetXYDescription: "A general complex-valued field built from independent x and y variables.",
   },
   ja: {
-    documentTitle: "複素関数エクスプローラ — Interactive Physics Vignettes",
+    documentTitle: "複素関数エクスプローラ — Interactive Physics Olio",
     siteNavLabel: "サイトナビゲーション",
     title: "複素関数エクスプローラ",
     lede: "複素関数の値、多価関数の分枝構造、線積分を同じ入力平面上で調べます。",

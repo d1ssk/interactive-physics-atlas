@@ -6,7 +6,7 @@ export const locale = (() => {
 
 const STRINGS = {
   en: {
-    documentTitle: "Thermodynamic Functions of a One-Component System — Interactive Physics Vignettes",
+    documentTitle: "Thermodynamic Functions of a One-Component System — Interactive Physics Olio",
     pressureIsobaric: "Pressure uses a logarithmic scale. Changing it is adiabatic and preserves entropy.",
     pressureBath: "Pressure uses a logarithmic scale. The heat bath holds temperature fixed while it changes.",
     conditionAdiabatic: "Insulated walls. Piston operations are quasistatic, and the wall is fixed afterward.",
@@ -74,7 +74,7 @@ const STRINGS = {
     overviewAria: "Global thermodynamic-function surface and local display boundary. Click to select an equilibrium state.",
   },
   ja: {
-    documentTitle: "一成分系の熱力学関数 — Interactive Physics Vignettes",
+    documentTitle: "一成分系の熱力学関数 — Interactive Physics Olio",
     pressureIsobaric: "外圧は対数目盛。変更中は熱交換せず、エントロピーを保ちます。",
     pressureBath: "外圧は対数目盛。変更中は熱浴が温度を一定に保ちます。",
     conditionAdiabatic: "断熱壁。ピストン操作は準静的で、操作後は壁を固定します。",

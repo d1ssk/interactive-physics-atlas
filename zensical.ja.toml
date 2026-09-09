@@ -1,6 +1,6 @@
 [project]
-site_name = "Interactive Physics Vignettes"
-site_url = "https://d1ssk.github.io/interactive-physics-vignettes/ja/"
+site_name = "Interactive Physics Olio"
+site_url = "https://d1ssk.github.io/interactive-physics-olio/ja/"
 site_description = "物理学と数学の概念を扱うインタラクティブなビジュアルアトラス。"
 copyright = "Copyright &copy; 2026 Daichi Sasaki"
 docs_dir = "build/docs-ja"
@@ -40,7 +40,7 @@ locale = "ja"
 home_name = "ホーム"
 alternate_name = "English"
 alternate_lang = "en"
-alternate_base_url = "https://d1ssk.github.io/interactive-physics-vignettes/"
+alternate_base_url = "https://d1ssk.github.io/interactive-physics-olio/"
 
 [project.extra.analytics]
 provider = "google"
