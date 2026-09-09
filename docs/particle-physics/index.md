@@ -1,6 +1,6 @@
 # Particle Physics
 
-Gauge fields, the Standard Model, and BSM physics.
+Gauge theories, the Standard Model, and BSM physics.
 
 ## Standard Model
 

@@ -7,7 +7,7 @@ Fields, currents, and electromagnetic waves.
 - **[Electric and Magnetic Response of Materials](material-fields/)**<br>
   Conductors, dielectrics, magnetic materials, induced surface response, and shielding in applied fields.
 
-## Radiation
+## Electromagnetic waves
 
 - **[Retarded Fields and Radiation from a Moving Charge](moving-charge-radiation/)**<br>
   Retarded electric and magnetic fields and radiation from a moving point charge.

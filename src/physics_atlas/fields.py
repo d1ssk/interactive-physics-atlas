@@ -71,9 +71,10 @@ FIELDS = (
     FieldDefinition(
         "condensed-matter-physics",
         "Condensed Matter Physics",
-        "Many-body systems, matter, and phases.",
+        "Many-body systems, matter, elementary excitations, and phases.",
         "物性物理学",
-        "多体系、物質、相",
+        "多体系、物質、素励起、相",
+        "assets/images/condensed-matter-physics.png",
     ),
     FieldDefinition(
         "fluid-mechanics",
@@ -100,9 +101,9 @@ FIELDS = (
     FieldDefinition(
         "particle-physics",
         "Particle Physics",
-        "Elementary particles, gauge fields, the Standard Model, and BSM physics.",
+        "Elementary particles, gauge theories, the Standard Model, and BSM physics.",
         "素粒子物理学",
-        "素粒子、ゲージ場、標準模型、BSM",
+        "素粒子、ゲージ理論、標準模型、BSM",
         "assets/images/particle-physics.png",
     ),
     FieldDefinition(
@@ -116,9 +117,9 @@ FIELDS = (
     FieldDefinition(
         "supersymmetry",
         "Supersymmetry",
-        "Supersymmetry, supersymmetric quantum field theory, and supersymmetric quantum mechanics.",
+        "Supersymmetric quantum mechanics, supersymmetric quantum field theory, and supergravity.",
         "超対称性",
-        "超対称性、超対称場の量子論、超対称量子力学",
+        "超対称量子力学、超対称場の量子論、超重力",
     ),
     FieldDefinition(
         "string-theory",
