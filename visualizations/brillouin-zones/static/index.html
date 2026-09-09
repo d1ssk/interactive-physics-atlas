@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Crystal Lattices and First Brillouin Zones</title>
+  <link rel="stylesheet" href="visualization-theme.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="visualization-theme.js"></script>
+  <script>
+    window.MathJax = {
+      tex: {inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]]},
+      svg: {fontCache: "global"},
+      startup: {
+        ready() {
+          MathJax.startup.defaultReady();
+          MathJax.startup.promise.then(() => {
+            window.dispatchEvent(new Event("physics-atlas:mathjax-ready"));
+          });
+        },
+      },
+    };
+  </script>
+  <script defer src="mathjax-tex-svg.js"></script>
+  <script>
+    window.physicsAtlasPlotlyReady = new Promise((resolve, reject) => {
+      const locale = new URLSearchParams(location.search).get("lang") === "ja" ? "ja" : "en";
+      const root = locale === "ja" ? "../../../../" : "../../../";
+      const script = document.createElement("script");
+      script.src = new URL(`${root}javascripts/__PLOTLY_ASSET__`, location.href);
+      script.addEventListener("load", resolve, {once: true});
+      script.addEventListener("error", reject, {once: true});
+      document.head.append(script);
+    });
+  </script>
+</head>
+<body>
+  <main>
+    <header class="app-header">
+      <h1 data-i18n="title">Crystal lattices and first Brillouin zones</h1>
+      <p>
+        <span data-i18n="leadReal">Compare a real-space Bravais lattice with its reciprocal lattice.</span>
+        <span data-i18n="leadDefinition">The shaded first Brillouin zone is the reciprocal-lattice Wigner–Seitz cell.</span>
+      </p>
+    </header>
+
+    <section class="panel controls" data-i18n-aria-label="settingsLabel" aria-label="Display settings">
+      <label class="select-control" for="lattice-select">
+        <span data-i18n="lattice">Lattice</span>
+        <select id="lattice-select"></select>
+      </label>
+      <div class="toggle-grid">
+        <label><input id="real-points" type="checkbox" checked> <span data-i18n="realPoints">Real-lattice points</span></label>
+        <label><input id="real-cell" type="checkbox" checked> <span data-i18n="primitiveCell">Primitive cell and basis</span></label>
+        <label><input id="reciprocal-points" type="checkbox" checked> <span data-i18n="reciprocalPoints">Reciprocal-lattice points</span></label>
+        <label><input id="zone-edges" type="checkbox" checked> <span data-i18n="zoneEdges">Zone edges</span></label>
+      </div>
+      <label class="opacity-control" for="opacity">
+        <span data-i18n="zoneOpacity">Zone opacity</span>
+        <input id="opacity" type="range" min="0.08" max="0.85" step="0.01" value="0.34">
+      </label>
+    </section>
+
+    <section class="panel summary" aria-live="polite">
+      <div><small data-i18n="selected">Selected lattice</small><strong id="selected-name">—</strong></div>
+      <div><small data-i18n="cellVolume">Primitive-cell volume</small><strong id="cell-volume">—</strong></div>
+      <div><small data-i18n="zoneVolume">Brillouin-zone volume</small><strong id="zone-volume">—</strong></div>
+      <p id="note">—</p>
+    </section>
+
+    <p id="runtime-status" class="runtime-status" role="status" aria-live="polite" data-i18n="loading">Loading three-dimensional plots…</p>
+    <section class="plots" data-i18n-aria-label="plotsLabel" aria-label="Real- and reciprocal-space plots">
+      <figure class="panel plot-card">
+        <figcaption data-i18n="realCaption">Real space</figcaption>
+        <div id="real-plot" class="plot" data-i18n-aria-label="realPlotLabel" aria-label="Three-dimensional real-space crystal lattice"></div>
+      </figure>
+      <figure class="panel plot-card">
+        <figcaption data-i18n="reciprocalCaption">Reciprocal space and first Brillouin zone</figcaption>
+        <div id="reciprocal-plot" class="plot" data-i18n-aria-label="reciprocalPlotLabel" aria-label="Three-dimensional reciprocal lattice and first Brillouin zone"></div>
+      </figure>
+    </section>
+
+    <section class="panel reading-note">
+      <p><strong data-i18n="howToRead">How to read the plots.</strong>
+        <span data-i18n="basisExplanation">The red, green, and blue vectors are the primitive bases</span>
+        \(\mathbf a_1,\mathbf a_2,\mathbf a_3\)
+        <span data-i18n="and">and</span>
+        \(\mathbf b_1,\mathbf b_2,\mathbf b_3\).
+        <span data-i18n="faceExplanation">Every shaded face bisects the segment from the origin to a reciprocal-lattice point.</span>
+        <span data-i18n="gestureHelp">Drag to rotate and use the wheel or trackpad to zoom.</span>
+      </p>
+    </section>
+  </main>
+
+  <noscript>JavaScript is required for this visualization. / この可視化にはJavaScriptが必要です。</noscript>
+  <script>
+    (() => {
+      if (window.parent === window) return;
+      const PARENT_TARGET_ORIGIN = window.location.origin;
+      function report() {
+        const main = document.querySelector("main");
+        const contentBottom = main ? main.getBoundingClientRect().bottom : 0;
+        const contentHeight = Math.max(contentBottom, document.body.getBoundingClientRect().height);
+        const frameHeight = Math.ceil(contentHeight);
+        if (window.frameElement) {
+          window.frameElement.style.minHeight = "0";
+          window.frameElement.style.height = `${frameHeight}px`;
+          window.frameElement.setAttribute("scrolling", "no");
+          window.frameElement.style.overflow = "hidden";
+        }
+        window.parent.postMessage(
+          {type: "physics-atlas:frame-height", height: frameHeight},
+          PARENT_TARGET_ORIGIN,
+        );
+      }
+      window.addEventListener("load", report);
+      window.addEventListener("resize", report);
+      window.addEventListener("physics-atlas:mathjax-ready", report);
+      window.addEventListener("message", event => {
+        const expectedParent = event.source === window.parent;
+        const expectedOrigin = event.origin === PARENT_TARGET_ORIGIN;
+        if (expectedParent && expectedOrigin && event.data?.type === "physics-atlas:request-frame-height") report();
+      });
+      if ("ResizeObserver" in window) {
+        const observer = new ResizeObserver(report);
+        observer.observe(document.body);
+        const main = document.querySelector("main");
+        if (main) observer.observe(main);
+        window.addEventListener("pagehide", () => observer.disconnect(), {once: true});
+      }
+      document.fonts?.ready.then(report);
+      report();
+    })();
+  </script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
