@@ -1,9 +1,9 @@
 import {
   TAU,
   qwzBandGap,
-  qwzBandPath,
   qwzBerryCurvature,
   qwzChernNumber,
+  qwzEnergy,
   sshBandGap,
   sshD,
   sshFiniteSpectrum,
@@ -36,7 +36,9 @@ const MESSAGES = {
     occupiedChern: "OCCUPIED CHERN NUMBER",
     movePointer: "MOVE POINTER",
     dragOrbit: "DRAG TO ORBIT",
+    identifyEdges: "IDENTIFY EDGES",
     bzNote: "Opposite edges are identified.",
+    torusNote: "The marker is the same momentum as in the square.",
     sphereNote: "Each dot is the image of a momentum-grid point.",
     momentum: "MOMENTUM",
     unitVector: "UNIT VECTOR",
@@ -58,8 +60,10 @@ const MESSAGES = {
     hoppingAria: "QWZ hopping amplitude A",
     orientationAria: "QWZ time-reversal-breaking orientation lambda",
     bzAria: "Colored Brillouin zone; move the pointer to select momentum",
+    torusAria: "Three-dimensional Brillouin torus colored by the Bloch-vector direction; drag to orbit",
     sphereAria: "Image of the Brillouin zone on the Bloch sphere; drag to orbit",
-    bandAria: "QWZ bands along the Gamma-X-M-Y-Gamma path",
+    energySurfaceAria: "Upper and lower QWZ energy surfaces over the full Brillouin zone; drag to orbit",
+    energySurfaceNote: "Both bands are shown over the full Brillouin zone.",
     sshRatioAria: "SSH intracell to intercell hopping ratio",
     sshBandAria: "SSH band structure; move the pointer along momentum",
     windingAria: "Closed SSH d-vector trajectory around the origin",
@@ -100,7 +104,9 @@ const MESSAGES = {
     occupiedChern: "占有バンドの CHERN 数",
     movePointer: "ポインターで選択",
     dragOrbit: "ドラッグで回転",
+    identifyEdges: "辺を同一視",
     bzNote: "向かい合う辺は同一視されています。",
+    torusNote: "マーカーは正方形上と同じ運動量を示します。",
     sphereNote: "各点は運動量格子点の像です。",
     momentum: "運動量",
     unitVector: "単位ベクトル",
@@ -122,8 +128,10 @@ const MESSAGES = {
     hoppingAria: "QWZ ホッピング振幅 A",
     orientationAria: "QWZ の時間反転対称性を破る向き lambda",
     bzAria: "色付けした Brillouin zone。ポインターで運動量を選択できます",
+    torusAria: "Bloch ベクトルの向きで着色した 3 次元 Brillouin torus。ドラッグで回転できます",
     sphereAria: "Brillouin zone の Bloch 球上の像。ドラッグで回転できます",
-    bandAria: "Gamma-X-M-Y-Gamma 経路に沿う QWZ バンド",
+    energySurfaceAria: "Brillouin zone 全体にわたる QWZ 上下バンドのエネルギー曲面。ドラッグで回転できます",
+    energySurfaceNote: "Brillouin zone 全体にわたる上下 2 バンドを表示しています。",
     sshRatioAria: "SSH の単位胞内・単位胞間ホッピング比",
     sshBandAria: "SSH バンド構造。ポインターで運動量を選択できます",
     windingAria: "原点のまわりを通る SSH d ベクトルの閉軌道",
@@ -308,11 +316,13 @@ function directionColor(vector, alpha = 1) {
 
 const qwzState = {mass: -1, hopping: 1, trBreaking: 1};
 const selectedMomentum = {kx: 0, ky: 0};
+const torusCamera = {azimuth: -0.72, elevation: 0.48};
 const sphereCamera = {azimuth: -0.7, elevation: 0.34};
+const energyCamera = {azimuth: -0.74, elevation: 0.5};
 const sshState = {ratio: 0.65, selectedK: 0};
 
-function projectSphere(vector, geometry) {
-  const {azimuth, elevation} = sphereCamera;
+function project3D(vector, camera, geometry) {
+  const {azimuth, elevation} = camera;
   const right = {x: Math.cos(azimuth), y: Math.sin(azimuth), z: 0};
   const up = {
     x: -Math.sin(azimuth) * Math.sin(elevation),
@@ -325,12 +335,55 @@ function projectSphere(vector, geometry) {
     z: -Math.sin(elevation),
   };
   return {
-    x: geometry.cx + geometry.radius * (vector.x * right.x + vector.y * right.y),
-    y: geometry.cy - geometry.radius * (
+    x: geometry.cx + geometry.scale * (
+      vector.x * right.x + vector.y * right.y + vector.z * right.z
+    ),
+    y: geometry.cy - geometry.scale * (
       vector.x * up.x + vector.y * up.y + vector.z * up.z
     ),
     depth: vector.x * forward.x + vector.y * forward.y + vector.z * forward.z,
   };
+}
+
+function projectSphere(vector, geometry) {
+  return project3D(vector, sphereCamera, {...geometry, scale: geometry.radius});
+}
+
+function installOrbitControls(canvas, camera, redraw) {
+  let drag = null;
+  canvas.addEventListener("pointerdown", event => {
+    canvas.setPointerCapture(event.pointerId);
+    drag = {id: event.pointerId, x: event.clientX, y: event.clientY};
+  });
+  canvas.addEventListener("pointermove", event => {
+    if (!drag || drag.id !== event.pointerId) return;
+    camera.azimuth += (event.clientX - drag.x) * 0.008;
+    camera.elevation = clamp(
+      camera.elevation - (event.clientY - drag.y) * 0.008,
+      -1.25,
+      1.25,
+    );
+    drag.x = event.clientX;
+    drag.y = event.clientY;
+    redraw();
+  });
+  const stopDrag = event => {
+    if (drag?.id === event.pointerId) drag = null;
+  };
+  canvas.addEventListener("pointerup", stopDrag);
+  canvas.addEventListener("pointercancel", stopDrag);
+  canvas.addEventListener("keydown", event => {
+    const step = event.shiftKey ? 0.2 : 0.08;
+    if (event.key === "ArrowLeft") camera.azimuth -= step;
+    else if (event.key === "ArrowRight") camera.azimuth += step;
+    else if (event.key === "ArrowUp") {
+      camera.elevation = clamp(camera.elevation + step, -1.25, 1.25);
+    } else if (event.key === "ArrowDown") {
+      camera.elevation = clamp(camera.elevation - step, -1.25, 1.25);
+    } else return;
+    event.preventDefault();
+    redraw();
+  });
 }
 
 function sphereCurve(kind, fixed, samples = 90) {
@@ -439,6 +492,101 @@ function drawBZ() {
   circle(context, selectedX, selectedY, 4, palette.highlight);
 }
 
+function torusPoint(kx, ky) {
+  const majorRadius = 1.05;
+  const minorRadius = 0.42;
+  const radial = majorRadius + minorRadius * Math.cos(ky);
+  return {
+    x: radial * Math.cos(kx),
+    y: radial * Math.sin(kx),
+    z: minorRadius * Math.sin(ky),
+  };
+}
+
+function torusNormal(kx, ky) {
+  return {
+    x: Math.cos(ky) * Math.cos(kx),
+    y: Math.cos(ky) * Math.sin(kx),
+    z: Math.sin(ky),
+  };
+}
+
+function drawTorus() {
+  const canvas = byId("torus-canvas");
+  const context = canvas.getContext("2d");
+  const palette = colors();
+  const geometry = {
+    cx: canvas.width / 2,
+    cy: canvas.height / 2 + 2,
+    scale: Math.min(canvas.width, canvas.height) * 0.29,
+  };
+  const majorSteps = 48;
+  const minorSteps = 24;
+  const faces = [];
+
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = palette.dark;
+  context.fillRect(0, 0, canvas.width, canvas.height);
+
+  for (let ix = 0; ix < majorSteps; ix += 1) {
+    const kx0 = -Math.PI + TAU * ix / majorSteps;
+    const kx1 = -Math.PI + TAU * (ix + 1) / majorSteps;
+    for (let iy = 0; iy < minorSteps; iy += 1) {
+      const ky0 = -Math.PI + TAU * iy / minorSteps;
+      const ky1 = -Math.PI + TAU * (iy + 1) / minorSteps;
+      const vertices = [
+        torusPoint(kx0, ky0),
+        torusPoint(kx1, ky0),
+        torusPoint(kx1, ky1),
+        torusPoint(kx0, ky1),
+      ].map(point => project3D(point, torusCamera, geometry));
+      const vector = unitD((kx0 + kx1) / 2, (ky0 + ky1) / 2, qwzState);
+      faces.push({
+        vertices,
+        depth: vertices.reduce((sum, point) => sum + point.depth, 0) / vertices.length,
+        color: directionColor(vector, 0.94),
+      });
+    }
+  }
+
+  faces.sort((left, right) => left.depth - right.depth);
+  for (const face of faces) {
+    context.beginPath();
+    face.vertices.forEach((point, index) => {
+      if (index === 0) context.moveTo(point.x, point.y);
+      else context.lineTo(point.x, point.y);
+    });
+    context.closePath();
+    context.fillStyle = face.color;
+    context.fill();
+    context.strokeStyle = "rgba(13,22,30,.18)";
+    context.lineWidth = 0.65;
+    context.stroke();
+  }
+
+  const surface = torusPoint(selectedMomentum.kx, selectedMomentum.ky);
+  const normal = torusNormal(selectedMomentum.kx, selectedMomentum.ky);
+  const lifted = {
+    x: surface.x + 0.16 * normal.x,
+    y: surface.y + 0.16 * normal.y,
+    z: surface.z + 0.16 * normal.z,
+  };
+  const surfaceProjection = project3D(surface, torusCamera, geometry);
+  const liftedProjection = project3D(lifted, torusCamera, geometry);
+  const selected = unitD(selectedMomentum.kx, selectedMomentum.ky, qwzState);
+  line(context, [surfaceProjection, liftedProjection], {stroke: "white", width: 2});
+  circle(context, liftedProjection.x, liftedProjection.y, 11, "rgba(17,25,34,.68)", "white", 2);
+  circle(
+    context,
+    liftedProjection.x,
+    liftedProjection.y,
+    4,
+    directionColor(selected),
+    palette.highlight,
+    2,
+  );
+}
+
 function drawSphere() {
   const canvas = byId("sphere-canvas");
   const context = canvas.getContext("2d");
@@ -540,73 +688,141 @@ function updateQwzReadout() {
   }
 }
 
-function drawQwzBands() {
-  const canvas = byId("qwz-band-canvas");
+function energySurfacePoint(kx, ky, sign, energyScale) {
+  return {
+    x: 1.28 * kx / Math.PI,
+    y: 1.28 * ky / Math.PI,
+    z: sign * 1.18 * qwzEnergy(kx, ky, qwzState) / energyScale,
+  };
+}
+
+function drawEnergySurfaces() {
+  const canvas = byId("qwz-energy-canvas");
   const context = canvas.getContext("2d");
   const palette = colors();
-  const area = drawPlotFrame(context, canvas.width, canvas.height, {rows: 8});
-  const ymax = 5.25;
-  const xCanvas = x => lerp(area.left, area.right, x / 4);
-  const yCanvas = energy => lerp(area.bottom, area.top, (energy + ymax) / (2 * ymax));
-  const path = qwzBandPath(qwzState, 84);
+  const geometry = {
+    cx: canvas.width * 0.5,
+    cy: canvas.height * 0.51,
+    scale: Math.min(canvas.width, canvas.height) * 0.285,
+  };
+  const energyScale = Math.max(4.2, Math.abs(qwzState.mass) + 2.35);
+  const resolution = 31;
+  const faces = [];
 
-  context.save();
-  context.strokeStyle = palette.border;
-  context.setLineDash([4, 5]);
-  for (let x = 0; x <= 4; x += 1) {
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = palette.dark;
+  context.fillRect(0, 0, canvas.width, canvas.height);
+
+  const planeLines = [];
+  for (const coordinate of [-1.28, -0.64, 0, 0.64, 1.28]) {
+    planeLines.push([
+      {x: -1.28, y: coordinate, z: 0},
+      {x: 1.28, y: coordinate, z: 0},
+    ]);
+    planeLines.push([
+      {x: coordinate, y: -1.28, z: 0},
+      {x: coordinate, y: 1.28, z: 0},
+    ]);
+  }
+  for (const points of planeLines) {
+    line(context, points.map(point => project3D(point, energyCamera, geometry)), {
+      stroke: "#52646e",
+      width: 1,
+      alpha: 0.48,
+    });
+  }
+
+  for (const sign of [-1, 1]) {
+    for (let ix = 0; ix < resolution - 1; ix += 1) {
+      const kx0 = -Math.PI + TAU * ix / (resolution - 1);
+      const kx1 = -Math.PI + TAU * (ix + 1) / (resolution - 1);
+      for (let iy = 0; iy < resolution - 1; iy += 1) {
+        const ky0 = -Math.PI + TAU * iy / (resolution - 1);
+        const ky1 = -Math.PI + TAU * (iy + 1) / (resolution - 1);
+        const modelPoints = [
+          energySurfacePoint(kx0, ky0, sign, energyScale),
+          energySurfacePoint(kx1, ky0, sign, energyScale),
+          energySurfacePoint(kx1, ky1, sign, energyScale),
+          energySurfacePoint(kx0, ky1, sign, energyScale),
+        ];
+        const vertices = modelPoints.map(point => project3D(point, energyCamera, geometry));
+        const averageEnergy = modelPoints.reduce((sum, point) => sum + Math.abs(point.z), 0)
+          / modelPoints.length;
+        const lightness = 42 + 12 * averageEnergy / 1.18;
+        faces.push({
+          vertices,
+          depth: vertices.reduce((sum, point) => sum + point.depth, 0) / vertices.length,
+          fill: sign > 0
+            ? "hsla(184, 72%, " + lightness + "%, .78)"
+            : "hsla(16, 74%, " + (lightness + 3) + "%, .78)",
+          stroke: sign > 0 ? "rgba(121,225,226,.2)" : "rgba(255,174,133,.2)",
+        });
+      }
+    }
+  }
+
+  faces.sort((left, right) => left.depth - right.depth);
+  for (const face of faces) {
     context.beginPath();
-    context.moveTo(xCanvas(x), area.top);
-    context.lineTo(xCanvas(x), area.bottom);
+    face.vertices.forEach((point, index) => {
+      if (index === 0) context.moveTo(point.x, point.y);
+      else context.lineTo(point.x, point.y);
+    });
+    context.closePath();
+    context.fillStyle = face.fill;
+    context.fill();
+    context.strokeStyle = face.stroke;
+    context.lineWidth = 0.55;
     context.stroke();
   }
-  context.restore();
-  line(context, [{x: area.left, y: yCanvas(0)}, {x: area.right, y: yCanvas(0)}], {
-    stroke: palette.muted,
-    width: 1,
-  });
-  line(context, path.samples.map(sample => ({x: xCanvas(sample.x), y: yCanvas(sample.energy)})), {
-    stroke: palette.negative,
-    width: 3,
-  });
-  line(context, path.samples.map(sample => ({x: xCanvas(sample.x), y: yCanvas(-sample.energy)})), {
-    stroke: palette.positive,
-    width: 3,
-  });
 
-  context.fillStyle = palette.muted;
-  context.font = "700 13px monospace";
-  context.textAlign = "center";
-  for (const tick of path.ticks) context.fillText(tick.label, xCanvas(tick.x), area.bottom + 28);
-  context.textAlign = "right";
-  context.textBaseline = "middle";
-  for (const energy of [-4, -2, 0, 2, 4]) {
-    context.fillText(String(energy).replace("-", "−"), area.left - 13, yCanvas(energy));
-  }
-  context.save();
-  context.translate(18, area.top);
-  context.rotate(-Math.PI / 2);
-  context.textAlign = "right";
-  context.fillText("ENERGY E", 0, 0);
-  context.restore();
-
-  const closingXs = Math.abs(qwzState.mass + 2) < 1e-9
-    ? [0, 4]
+  const criticalPoints = Math.abs(qwzState.mass + 2) < 1e-9
+    ? [{label: "Γ", kx: 0, ky: 0}]
     : Math.abs(qwzState.mass) < 1e-9
-      ? [1, 3]
-      : Math.abs(qwzState.mass - 2) < 1e-9 ? [2] : [];
-  for (const x of closingXs) {
-    circle(context, xCanvas(x), yCanvas(0), 14, "rgba(237,107,58,.13)", palette.highlight, 2);
-    circle(context, xCanvas(x), yCanvas(0), 4, palette.highlight);
+      ? [{label: "X", kx: Math.PI, ky: 0}, {label: "Y", kx: 0, ky: Math.PI}]
+      : Math.abs(qwzState.mass - 2) < 1e-9
+        ? [{label: "M", kx: Math.PI, ky: Math.PI}]
+        : [];
+  for (const critical of criticalPoints) {
+    const point = project3D(
+      {x: 1.28 * critical.kx / Math.PI, y: 1.28 * critical.ky / Math.PI, z: 0},
+      energyCamera,
+      geometry,
+    );
+    circle(context, point.x, point.y, 15, "rgba(237,107,58,.2)", "white", 2);
+    circle(context, point.x, point.y, 5, palette.highlight);
+    context.fillStyle = "white";
+    context.font = "800 13px monospace";
+    context.textAlign = "left";
+    context.fillText(critical.label, point.x + 13, point.y - 12);
   }
+
+  const legend = [
+    {label: "UPPER BAND  E₊", color: palette.positive},
+    {label: "LOWER BAND  E₋", color: palette.negative},
+  ];
+  context.font = "800 12px monospace";
+  context.textAlign = "left";
+  legend.forEach((entry, index) => {
+    const y = 28 + 23 * index;
+    context.fillStyle = entry.color;
+    context.fillRect(24, y - 9, 19, 5);
+    context.fillStyle = "#d8e1e4";
+    context.fillText(entry.label, 51, y);
+  });
+  context.fillStyle = "#9babb2";
+  context.textAlign = "right";
+  context.fillText("kx, ky ∈ [−π, +π]", canvas.width - 22, canvas.height - 21);
 }
 
 function renderQwz() {
   updateQwzReadout();
   if (PANEL === "map") {
     drawBZ();
+    drawTorus();
     drawSphere();
   } else {
-    drawQwzBands();
+    drawEnergySurfaces();
   }
   window.dispatchEvent(new Event("physics-atlas:visualization-rendered"));
 }
@@ -633,6 +849,10 @@ function installQwzControls() {
       scheduleQwzRender();
     });
   });
+  if (PANEL === "transition") {
+    installOrbitControls(byId("qwz-energy-canvas"), energyCamera, drawEnergySurfaces);
+    return;
+  }
   if (PANEL !== "map") return;
 
   const bzCanvas = byId("bz-canvas");
@@ -670,41 +890,8 @@ function installQwzControls() {
     scheduleQwzRender();
   });
 
-  const sphereCanvas = byId("sphere-canvas");
-  let drag = null;
-  sphereCanvas.addEventListener("pointerdown", event => {
-    sphereCanvas.setPointerCapture(event.pointerId);
-    drag = {id: event.pointerId, x: event.clientX, y: event.clientY};
-  });
-  sphereCanvas.addEventListener("pointermove", event => {
-    if (!drag || drag.id !== event.pointerId) return;
-    sphereCamera.azimuth += (event.clientX - drag.x) * 0.008;
-    sphereCamera.elevation = clamp(
-      sphereCamera.elevation - (event.clientY - drag.y) * 0.008,
-      -1.25,
-      1.25,
-    );
-    drag.x = event.clientX;
-    drag.y = event.clientY;
-    drawSphere();
-  });
-  const stopDrag = event => {
-    if (drag?.id === event.pointerId) drag = null;
-  };
-  sphereCanvas.addEventListener("pointerup", stopDrag);
-  sphereCanvas.addEventListener("pointercancel", stopDrag);
-  sphereCanvas.addEventListener("keydown", event => {
-    const step = event.shiftKey ? 0.2 : 0.08;
-    if (event.key === "ArrowLeft") sphereCamera.azimuth -= step;
-    else if (event.key === "ArrowRight") sphereCamera.azimuth += step;
-    else if (event.key === "ArrowUp") {
-      sphereCamera.elevation = clamp(sphereCamera.elevation + step, -1.25, 1.25);
-    } else if (event.key === "ArrowDown") {
-      sphereCamera.elevation = clamp(sphereCamera.elevation - step, -1.25, 1.25);
-    } else return;
-    event.preventDefault();
-    drawSphere();
-  });
+  installOrbitControls(byId("torus-canvas"), torusCamera, drawTorus);
+  installOrbitControls(byId("sphere-canvas"), sphereCamera, drawSphere);
 }
 
 function drawSshBands(path) {

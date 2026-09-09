@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chern Bands and Bulk–Edge Topology</title>
+  <title>Chern Insulators and Bulk–Edge Correspondence</title>
   <link rel="stylesheet" href="visualization-theme.css">
   <link rel="stylesheet" href="style.css">
   <script src="visualization-theme.js"></script>
@@ -67,13 +67,19 @@
       <p class="equation-line">\(\hat{\mathbf d}:T^2\longrightarrow S^2,\qquad P_-(\mathbf k)=\frac{1-\sum_a\hat d_a(\mathbf k)\sigma_a}{2}\)</p>
 
       <div class="map-grid">
-        <figure class="canvas-card dark-card">
+        <figure class="canvas-card dark-card flat-bz-card">
           <figcaption><span>BRILLOUIN ZONE · \(T^2\)</span><small data-i18n="movePointer">MOVE POINTER</small></figcaption>
-          <canvas id="bz-canvas" width="620" height="500" tabindex="0" role="img" data-i18n-aria="bzAria"></canvas>
+          <canvas id="bz-canvas" width="500" height="430" tabindex="0" role="img" data-i18n-aria="bzAria"></canvas>
           <p class="canvas-note" data-i18n="bzNote">Opposite edges are identified.</p>
         </figure>
-        <div class="map-arrow" aria-hidden="true">\(\hat{\mathbf d}\)<b>→</b></div>
-        <figure class="canvas-card dark-card">
+        <div class="map-arrow equivalence-arrow" aria-hidden="true"><span data-i18n="identifyEdges">IDENTIFY EDGES</span><b>→</b></div>
+        <figure class="canvas-card dark-card torus-card">
+          <figcaption><span>BRILLOUIN TORUS · \(T^2\)</span><small data-i18n="dragOrbit">DRAG TO ORBIT</small></figcaption>
+          <canvas id="torus-canvas" width="620" height="500" tabindex="0" role="img" data-i18n-aria="torusAria"></canvas>
+          <p class="canvas-note" data-i18n="torusNote">The marker is the same momentum as in the square.</p>
+        </figure>
+        <div class="map-arrow mapping-arrow" aria-hidden="true">\(\hat{\mathbf d}\)<b>→</b></div>
+        <figure class="canvas-card dark-card sphere-card">
           <figcaption><span>BLOCH SPHERE · \(S^2\)</span><small data-i18n="dragOrbit">DRAG TO ORBIT</small></figcaption>
           <canvas id="sphere-canvas" width="620" height="500" tabindex="0" role="img" data-i18n-aria="sphereAria"></canvas>
           <p class="canvas-note" data-i18n="sphereNote">Each dot is the image of a momentum-grid point.</p>
@@ -106,9 +112,10 @@
               <strong>\(\Delta=\)<b data-qwz-gap>2.000</b></strong>
             </div>
           </div>
-          <figure class="canvas-card plot-card">
-            <figcaption><span>QWZ BANDS · Γ—X—M—Y—Γ</span><small>ENERGY</small></figcaption>
-            <canvas id="qwz-band-canvas" width="1080" height="520" role="img" data-i18n-aria="bandAria"></canvas>
+          <figure class="canvas-card dark-card energy-surface-card">
+            <figcaption><span>QWZ ENERGY SURFACES · \(E_\pm(k_x,k_y)\)</span><small data-i18n="dragOrbit">DRAG TO ORBIT</small></figcaption>
+            <canvas id="qwz-energy-canvas" width="1080" height="650" tabindex="0" role="img" data-i18n-aria="energySurfaceAria"></canvas>
+            <p class="canvas-note" data-i18n="energySurfaceNote">Both bands are shown over the full Brillouin zone.</p>
           </figure>
         </div>
         <aside class="phase-panel">

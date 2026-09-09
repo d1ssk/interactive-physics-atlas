@@ -221,9 +221,30 @@ input[type="range"] {
 
 .map-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 42px minmax(0, 1fr);
+  grid-template-areas: "flat equivalence torus mapping sphere";
+  grid-template-columns: minmax(190px, 0.72fr) 34px minmax(260px, 1fr) 42px minmax(260px, 1fr);
   gap: 10px;
   align-items: center;
+}
+
+.flat-bz-card {
+  grid-area: flat;
+}
+
+.torus-card {
+  grid-area: torus;
+}
+
+.sphere-card {
+  grid-area: sphere;
+}
+
+.equivalence-arrow {
+  grid-area: equivalence;
+}
+
+.mapping-arrow {
+  grid-area: mapping;
 }
 
 .map-arrow {
@@ -232,6 +253,12 @@ input[type="range"] {
   justify-items: center;
   color: var(--muted);
   font-size: 0.72rem;
+  text-align: center;
+}
+
+.map-arrow span {
+  font: 700 0.48rem/1.25 monospace;
+  letter-spacing: 0.04em;
 }
 
 .map-arrow b {
@@ -322,6 +349,10 @@ input[type="range"] {
   grid-template-columns: minmax(0, 1fr) 275px;
   gap: 13px;
   align-items: stretch;
+}
+
+.energy-surface-card canvas {
+  background: var(--plot-dark);
 }
 
 .phase-panel {
@@ -436,6 +467,22 @@ input[type="range"] {
     grid-template-columns: minmax(280px, 1fr) minmax(250px, 1fr);
   }
 
+  .map-grid {
+    grid-template-areas:
+      "flat equivalence torus"
+      "mapping mapping mapping"
+      "sphere sphere sphere";
+    grid-template-columns: minmax(210px, 0.72fr) 38px minmax(300px, 1fr);
+  }
+
+  .mapping-arrow {
+    margin-block: -2px;
+  }
+
+  .mapping-arrow b {
+    transform: rotate(90deg);
+  }
+
   .ssh-controls .primary-metric,
   .edge-controls .primary-metric {
     padding: 10px 0 0;
@@ -475,7 +522,6 @@ input[type="range"] {
     border-left: 0;
   }
 
-  .map-grid,
   .two-plot-grid,
   .edge-grid {
     grid-template-columns: 1fr;
@@ -511,6 +557,22 @@ input[type="range"] {
 
   .critical-buttons {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 650px) {
+  .map-grid {
+    grid-template-areas:
+      "flat"
+      "equivalence"
+      "torus"
+      "mapping"
+      "sphere";
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .equivalence-arrow b {
+    transform: rotate(90deg);
   }
 }
 

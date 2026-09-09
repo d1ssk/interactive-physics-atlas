@@ -130,6 +130,12 @@ def test_static_build_and_four_panel_contract(tmp_path, visualization) -> None:
     assert "Brillouin torus と Bloch 球" in app
     assert "X and Y" in app
     assert "X と Y" in app
+    assert 'id="torus-canvas"' in html
+    assert 'id="qwz-energy-canvas"' in html
+    assert 'id="qwz-band-canvas"' not in html
+    assert "function drawTorus()" in app
+    assert "function drawEnergySurfaces()" in app
+    assert "installOrbitControls" in app
     assert (
         "JavaScript is required for this visualization. / この可視化にはJavaScriptが必要です。"
         in html
@@ -168,7 +174,12 @@ def test_bilingual_articles_are_aligned_and_distribute_the_panels() -> None:
     def display_math(source: str) -> list[str]:
         return re.findall(r"\$\$\s*(.*?)\s*\$\$", source, re.DOTALL)
 
-    assert display_math(english) == display_math(japanese)
+    def math_structure(expression: str) -> str:
+        return re.sub(r"\\text\{[^{}]*\}", r"\\text{localized}", expression)
+
+    assert [math_structure(expression) for expression in display_math(english)] == [
+        math_structure(expression) for expression in display_math(japanese)
+    ]
     assert len(display_math(english)) >= 14
     for panel in ("map", "transition", "winding", "edge"):
         assert f"panel={panel}&amp;lang=en" in english
@@ -182,7 +193,8 @@ def test_bilingual_articles_are_aligned_and_distribute_the_panels() -> None:
     japanese_index = (root / "docs_ja/condensed-matter-physics/index.md").read_text(
         encoding="utf-8"
     )
-    assert "[Chern Bands and Bulk–Edge Topology](quantum-hall-band-topology/)" in english_index
     assert (
-        "[Chern バンドとバルク・エッジのトポロジー](quantum-hall-band-topology/)" in japanese_index
+        "[Chern Insulators and Bulk–Edge Correspondence](quantum-hall-band-topology/)"
+        in english_index
     )
+    assert "[Chern 絶縁体とバルク・エッジ対応](quantum-hall-band-topology/)" in japanese_index

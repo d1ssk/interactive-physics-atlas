@@ -1,11 +1,12 @@
-# Chern bands and bulk–edge topology
+# Chern insulators and bulk–edge correspondence
 
 This publication visualization promotes the four linked views from
 `workbench/quantum-hall-band-topology` into one bilingual static application.
 The article embeds that application four times using the `panel` query parameter:
 
-- `map`: the Brillouin torus and its image on the Bloch sphere;
-- `transition`: QWZ band closings and occupied-band Chern phases;
+- `map`: the square Brillouin zone, its colored three-dimensional torus, and its
+  image on the Bloch sphere;
+- `transition`: rotatable upper and lower QWZ energy surfaces over the full Brillouin zone;
 - `winding`: SSH bands and the winding of the off-diagonal Bloch Hamiltonian;
 - `edge`: finite-chain spectral flow and the two central-state densities.
 
