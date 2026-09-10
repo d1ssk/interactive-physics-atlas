@@ -280,6 +280,44 @@ $$
 \mathbf Ω_-(\mathbf k)\times\mathbf E
 $$
 
+This is the semiclassical wave-packet velocity.[^berry-curvature-real-space]
+
+[^berry-curvature-real-space]:
+    ### Why does Berry curvature appear in real-space velocity?
+
+    Berry curvature is a momentum-space quantity, but its effect appears in the real-space motion
+    of a wave packet.
+
+    Consider a Bloch electron not as a single $\mathbf k$ state, but as a wave packet formed by
+    superposing nearby states. The position of the wave-packet center depends not only on the phase
+    of the superposition coefficients, but also on how the Bloch eigenstate
+    $|u_-(\mathbf k)\rangle$ varies with $\mathbf k$. The Berry connection describes this latter
+    dependence.
+
+    Therefore, when an electric field moves $\mathbf k$ according to
+
+    $$
+    \hbar\dot{\mathbf k}=-e\mathbf E
+    $$
+
+    the internal structure of the Bloch states forming the wave packet also changes continuously.
+    As it changes, the center of the wave packet shifts slightly in real space.
+
+    Taking the time derivative of this position shift brings in the Berry curvature through the
+    $\mathbf k$ dependence of the Berry connection, producing the transverse velocity
+
+    $$
+    \dot{\mathbf r}_{\mathrm{anom}}
+    =
+    \frac{e}{\hbar}
+    \boldsymbol{\Omega}_-(\mathbf k)\times\mathbf E
+    $$
+
+    This is why Berry curvature is often compared to a "magnetic field in momentum space." It is
+    not a real-space Lorentz force, but rather **a geometric effect in which the wave-packet center
+    shifts transversely because the internal structure of the Bloch states changes across momentum
+    space**.
+
 In two dimensions the curvature has only a component normal to the plane,
 
 $$

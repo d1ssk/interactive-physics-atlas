@@ -293,7 +293,35 @@ $$
 \mathbf Ω_-(\mathbf k)\times\mathbf E
 $$
 
-となります。
+となります。[^berry-curvature-real-space]
+
+[^berry-curvature-real-space]:
+    ### Berry 曲率はなぜ実空間の速度に現れるのか
+
+    Berry 曲率は運動量空間の量ですが、その効果は実空間の波束運動に現れます。
+
+    Bloch 電子を一つの $\mathbf k$ だけでなく、その近くの状態を重ね合わせた波束として考えると、波束中心の位置は重ね合わせ係数の位相だけでなく、Bloch 固有状態 $|u_-(\mathbf k)\rangle$ が $\mathbf k$ とともにどう変化するかにも依存します。この後者を表すのが Berry 接続です。
+
+    したがって電場によって
+
+    $$
+    \hbar\dot{\mathbf k}=-e\mathbf E
+    $$
+
+    と $\mathbf k$ が動くと、波束を構成する Bloch 状態の内部構造も連続的に変化します。その変化に伴って波束中心も実空間でわずかに移動します。
+
+    この位置変化を時間微分すると、Berry 接続の $\mathbf k$ による変化から Berry 曲率が現れ、
+
+    $$
+    \dot{\mathbf r}_{\mathrm{anom}}
+    =
+    \frac{e}{\hbar}
+    \boldsymbol{\Omega}_-(\mathbf k)\times\mathbf E
+    $$
+
+    という横方向の速度になります。
+
+    このため Berry 曲率はしばしば「運動量空間の磁場」にたとえられます。実空間の Lorentz 力そのものではなく、**Bloch 状態の内部構造が運動量空間で変化することによって、波束中心が横方向へずれる幾何学的な効果**です。
 
 2 次元では Berry 曲率は面に垂直な成分だけを持つので、
 
