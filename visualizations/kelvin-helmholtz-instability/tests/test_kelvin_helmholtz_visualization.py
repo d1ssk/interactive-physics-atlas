@@ -35,6 +35,19 @@ def test_static_build_stages_bilingual_browser_application(tmp_path, visualizati
     assert 'get("lang") === "ja"' in application
     assert 'title: "Kelvin–Helmholtz instability"' in application
     assert 'title: "Kelvin–Helmholtz 不安定性"' in application
+    assert 'growthChartHeading: "成長率"' in application
+    assert 'growthChartTitle: "波数に対する Kelvin–Helmholtz 不安定性の線形成長率"' in application
+    assert 'data-role="play-label" data-i18n="pause"' in html
+    assert 'data-i18n="timeLabel"' in html
+    assert 'data-i18n-aria-label="plotLegendLabel"' in html
+    assert 'data-i18n="growthChartHeading"' in html
+    assert 'data-i18n="growthChartTitle"' in html
+    assert 'data-i18n="growthChartDescription"' in html
+    assert 't("growthChartTitle")' in application
+    assert 't("growthChartDescription")' in application
+    # Plot-internal annotations and legend entries stay English in both locales.
+    assert "TOP FLUID →" in html
+    assert "optional tracer" in html
     assert "DIMENSIONLESS INTERFACE MODEL" not in application
     assert "無次元界面モデル" not in application
     assert 'modeSummary(state.parameters).status !== "unstable"' in application

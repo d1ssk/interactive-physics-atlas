@@ -96,13 +96,13 @@
           </div>
         </div>
         <div class="transport">
-          <button type="button" id="play-pause" class="primary"><span aria-hidden="true">Ⅱ</span> <span data-role="play-label">Pause</span></button>
+          <button type="button" id="play-pause" class="primary"><span aria-hidden="true">Ⅱ</span> <span data-role="play-label" data-i18n="pause">Pause</span></button>
           <button type="button" id="reset" data-i18n="reset">Reset</button>
           <label class="particle-toggle" for="show-particles"><input id="show-particles" type="checkbox"><span data-i18n="showParticles">Show tracers</span></label>
-          <label class="time-scrubber" for="time-control"><span>time</span><input id="time-control" type="range" min="0" max="6" step="0.02" value="0"></label>
+          <label class="time-scrubber" for="time-control"><span data-i18n="timeLabel">time</span><input id="time-control" type="range" min="0" max="6" step="0.02" value="0"></label>
           <output id="time-output">t = 0.00</output>
         </div>
-        <div class="flow-legend" aria-label="Plot legend">
+        <div class="flow-legend" data-i18n-aria-label="plotLegendLabel" aria-label="Plot legend">
           <span><i class="top-swatch"></i>top fluid</span>
           <span><i class="bottom-swatch"></i>bottom fluid</span>
           <span><i class="particle-key"></i>optional tracer</span>
@@ -112,12 +112,12 @@
 
       <figure class="growth-card">
         <figcaption>
-          <h2>growth rate \(\gamma(k)\)</h2>
+          <h2><span data-i18n="growthChartHeading">growth rate</span> \(\gamma(k)\)</h2>
           <p data-i18n="chartCaption">The black point marks the selected wavelength.</p>
         </figcaption>
         <svg id="growth-chart" viewBox="0 0 560 390" role="img" aria-labelledby="growth-title growth-description">
-          <title id="growth-title">Kelvin–Helmholtz linear growth rate as a function of wavenumber</title>
-          <desc id="growth-description">The selected wavelength is marked on the growth-rate curve. Interfacial tension suppresses sufficiently short wavelengths.</desc>
+          <title id="growth-title" data-i18n="growthChartTitle">Kelvin–Helmholtz linear growth rate as a function of wavenumber</title>
+          <desc id="growth-description" data-i18n="growthChartDescription">The selected wavelength is marked on the growth-rate curve. Interfacial tension suppresses sufficiently short wavelengths.</desc>
         </svg>
         <dl class="spectrum-readout">
           <div><dt data-i18n="cutoff">Interfacial-tension cutoff</dt><dd>\(k_c\) = <output id="cutoff-output">—</output></dd></div>

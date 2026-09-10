@@ -36,6 +36,11 @@ const TRANSLATIONS = {
     canvasLabel: "The boundary between blue and orange material regions rolls up under Kelvin–Helmholtz instability",
     reset: "Reset",
     showParticles: "Show tracers",
+    timeLabel: "time",
+    plotLegendLabel: "Plot legend",
+    growthChartHeading: "growth rate",
+    growthChartTitle: "Kelvin–Helmholtz linear growth rate as a function of wavenumber",
+    growthChartDescription: "The selected wavelength is marked on the growth-rate curve. Interfacial tension suppresses sufficiently short wavelengths.",
     chartCaption: "The black point marks the selected wavelength.",
     cutoff: "Interfacial-tension cutoff",
     fastestMode: "Fastest-growing mode",
@@ -72,6 +77,11 @@ const TRANSLATIONS = {
     canvasLabel: "青と橙の物質領域の界面が Kelvin–Helmholtz 不安定性で巻き上がる様子",
     reset: "リセット",
     showParticles: "トレーサーを表示",
+    timeLabel: "時間",
+    plotLegendLabel: "グラフの凡例",
+    growthChartHeading: "成長率",
+    growthChartTitle: "波数に対する Kelvin–Helmholtz 不安定性の線形成長率",
+    growthChartDescription: "選択中の波長を成長率曲線上に示しています。界面張力は十分に短い波長を抑えます。",
     chartCaption: "黒点が選択中の波長です。",
     cutoff: "界面張力によるカットオフ",
     fastestMode: "最も速く成長するモード",
@@ -339,11 +349,11 @@ function formatTick(value) {
 
 function drawGrowthChart() {
   growthChart.replaceChildren(
-    svgElement("title", { id: "growth-title" }, "Kelvin–Helmholtz linear growth rate"),
+    svgElement("title", { id: "growth-title" }, t("growthChartTitle")),
     svgElement(
       "desc",
       { id: "growth-description" },
-      "The selected wavelength is marked on the growth-rate curve. Interfacial tension suppresses sufficiently short wavelengths.",
+      t("growthChartDescription"),
     ),
   );
   const frame = { left: 66, right: 24, top: 29, bottom: 60 };
