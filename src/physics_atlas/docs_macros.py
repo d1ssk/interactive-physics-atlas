@@ -2,20 +2,29 @@
 
 from __future__ import annotations
 
+import re
 from collections import Counter
 from html import escape
 from pathlib import Path
 from typing import Any
 
 from .fields import FIELDS
-from .metadata import discover_visualizations, load_metadata
 
 
 def visualization_counts(project_root: Path) -> Counter[str]:
-    """Count published visualizations by canonical field."""
+    """Count listings in each field index, including cross-field and external links."""
 
-    directories = discover_visualizations(project_root / "visualizations")
-    return Counter(load_metadata(directory).field for directory in directories)
+    counts: Counter[str] = Counter()
+    for field in FIELDS:
+        index = project_root / "docs" / field.slug / "index.md"
+        if index.is_file():
+            # Field listings use a bold Markdown title link at the start of a list item.
+            counts[field.slug] = len(
+                re.findall(
+                    r"^[-*] \*\*\[[^\n]+?\]\([^)\n]+\)\*\*", index.read_text(encoding="utf-8"), re.M
+                )
+            )
+    return counts
 
 
 def render_topic_cards(project_root: Path, locale: str = "en") -> str:

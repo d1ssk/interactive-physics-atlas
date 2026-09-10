@@ -10,7 +10,7 @@ Thermal history, structure formation, and the early universe.
 ## Length scales
 
 - **[Cosmic Scale Explorer](https://d1ssk.github.io/olio-cosmic-scale/?scene=human&lang=en)**<br>
-  Explore physical and astronomical length scales through discrete interactive scenes.
+  Build intuition for cosmic length scales through step-by-step interactive scenes.
 
 ## Energy scales in cosmic history
 
