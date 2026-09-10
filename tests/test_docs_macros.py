@@ -1,27 +1,14 @@
 from pathlib import Path
 
-import yaml
-
 from physics_atlas.docs_macros import render_topic_cards, visualization_counts
 
 
-def test_topic_cards_count_visualizations_from_metadata(tmp_path: Path) -> None:
-    directory = tmp_path / "visualizations" / "example"
+def test_topic_cards_count_field_listings(tmp_path: Path) -> None:
+    directory = tmp_path / "docs" / "mathematics-for-physics"
     directory.mkdir(parents=True)
-    metadata = {
-        "id": "example",
-        "title": "Example",
-        "title_ja": "例",
-        "field": "mathematics-for-physics",
-        "topics": ["examples"],
-        "level": ["undergraduate"],
-        "runtime": "plotly-static",
-        "page": "mathematics-for-physics/example",
-        "summary": "An example visualization.",
-        "summary_ja": "可視化の例です。",
-    }
-    (directory / "metadata.yml").write_text(
-        yaml.safe_dump(metadata, sort_keys=False), encoding="utf-8"
+    (directory / "index.md").write_text(
+        "# Mathematics for Physics\n\n- **[Example](example/)**<br>\n  Summary.\n",
+        encoding="utf-8",
     )
 
     counts = visualization_counts(tmp_path)
@@ -52,3 +39,28 @@ def test_topic_cards_count_visualizations_from_metadata(tmp_path: Path) -> None:
     assert "An example visualization." not in cards
     assert "物理数学" in japanese_cards
     assert "1 visualization" in japanese_cards
+
+
+def test_counts_include_cross_field_and_external_listings(tmp_path: Path) -> None:
+    directory = tmp_path / "docs" / "cosmology"
+    directory.mkdir(parents=True)
+    (directory / "index.md").write_text(
+        "# Cosmology\n\n"
+        "- **[Local](local/)**<br>\n  A local application.\n"
+        "- **[External](https://example.com/app/?lang=en)**<br>\n  An external app.\n"
+        "- **[Cross-field](../particle-physics/example/?lang=en)**<br>\n"
+        "  Related reading [source](https://example.com/source).\n",
+        encoding="utf-8",
+    )
+
+    assert visualization_counts(tmp_path)["cosmology"] == 3
+    for locale in ("en", "ja"):
+        assert "3 visualizations" in render_topic_cards(tmp_path, locale)
+
+
+def test_published_field_counts_include_all_listings() -> None:
+    root = Path(__file__).resolve().parents[1]
+    counts = visualization_counts(root)
+    assert counts["cosmology"] == 3
+    assert counts["thermodynamics"] == 2
+    assert counts["string-theory"] == 2

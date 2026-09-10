@@ -66,6 +66,16 @@ def test_header_uses_linked_brand_without_default_logo() -> None:
     assert 'include "partials/logo.html"' not in header
 
 
+def test_header_title_link_is_vertically_centered() -> None:
+    stylesheet = (ROOT / "docs" / "stylesheets" / "extra.css").read_text(encoding="utf-8")
+    title_link = stylesheet.split(".atlas-header-title-link {", maxsplit=1)[1].split(
+        "}", maxsplit=1
+    )[0]
+
+    assert "align-self: stretch;" in title_link
+    assert "align-items: center;" in title_link
+
+
 def test_japanese_public_copy_keeps_person_names_in_latin_script() -> None:
     sources = list((ROOT / "docs_ja").rglob("*.md"))
     sources.extend(
