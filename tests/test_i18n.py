@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import re
 import tomllib
 from pathlib import Path
 
 from build_site import stage_english_docs, stage_japanese_docs
+
+from physics_atlas.fields import FIELDS
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -54,6 +57,31 @@ def test_homepages_use_the_shared_brand_without_a_tagline() -> None:
     assert japanese.startswith("# Interactive Physics Olio\n")
     assert "home-tagline" not in english
     assert "home-tagline" not in japanese
+
+
+def test_homepages_link_to_bilingual_update_history() -> None:
+    english = (ROOT / "docs" / "index.md").read_text(encoding="utf-8")
+    japanese = (ROOT / "docs_ja" / "index.md").read_text(encoding="utf-8")
+
+    assert "[update history](updates/)" in english
+    assert "[更新履歴](updates/)" in japanese
+
+    english_history = (ROOT / "docs" / "updates" / "index.md").read_text(encoding="utf-8")
+    japanese_history = (ROOT / "docs_ja" / "updates" / "index.md").read_text(encoding="utf-8")
+    assert "## September 11, 2026" in english_history
+    assert "## 2026年9月11日" in japanese_history
+
+    for docs_dir, history in (
+        (ROOT / "docs", english_history),
+        (ROOT / "docs_ja", japanese_history),
+    ):
+        expected_titles = []
+        for field in FIELDS:
+            field_index = (docs_dir / field.slug / "index.md").read_text(encoding="utf-8")
+            expected_titles.extend(re.findall(r"^[-*] \*\*\[([^]]+)]", field_index, re.M))
+
+        history_titles = re.findall(r"^[-*] \[([^]]+)]", history, re.M)
+        assert history_titles == expected_titles
 
 
 def test_header_uses_linked_brand_without_default_logo() -> None:

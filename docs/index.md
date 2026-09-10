@@ -1,9 +1,12 @@
 # Interactive Physics Olio
 
-Visualizations for exploring physical concepts interactively.
+We bring together visualizations on a variety of topics for exploring physical concepts
+interactively.
 
-The atlas pairs concise explanations with visualizations to support an intuitive understanding of
-physical ideas and mathematical structures. Its collection will continue to grow across the fields
-below.
+By pairing concise explanations with visualizations, we aim to help readers develop an intuitive
+understanding of physical ideas and the mathematical structures behind them. We plan to continue
+expanding the collection, focusing on the fields below.
+
+See the [update history](updates/) for newly published and revised articles.
 
 {{ topic_cards() }}
