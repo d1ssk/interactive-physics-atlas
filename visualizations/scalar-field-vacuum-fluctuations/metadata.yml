@@ -1,0 +1,16 @@
+id: scalar-field-vacuum-fluctuations
+title: Scalar-Field Vacuum Fluctuations
+title_ja: スカラー場の真空揺らぎ
+field: quantum-field-theory
+topics:
+  - free scalar field
+  - vacuum wavefunctional
+  - zero-point fluctuations
+  - correlation functions
+level:
+  - advanced undergraduate
+  - graduate
+runtime: plotly-static
+page: quantum-field-theory/scalar-field-vacuum-fluctuations
+summary: Sample a regulated free-field vacuum and compare point-cloud and excursion-surface views in 2+1-dimensional spacetime and three-dimensional space.
+summary_ja: 正則化した自由場の真空をサンプルし、2+1次元時空と3次元空間で点群表示と等値面表示を比較。

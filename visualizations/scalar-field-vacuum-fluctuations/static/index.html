@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Scalar-Field Vacuum Fluctuations — Interactive Physics Olio</title>
+  <link rel="stylesheet" href="visualization-theme.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="visualization-theme.js"></script>
+  <script>
+    window.MathJax = {
+      tex: {inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]]},
+      svg: {fontCache: "global"},
+      startup: {
+        ready() {
+          MathJax.startup.defaultReady();
+          MathJax.startup.promise.then(() => {
+            window.dispatchEvent(new Event("physics-atlas:mathjax-ready"));
+          });
+        },
+      },
+    };
+  </script>
+  <script defer src="mathjax-tex-svg.js"></script>
+  <script>
+    window.physicsAtlasPlotlyReady = new Promise((resolve, reject) => {
+      const locale = new URLSearchParams(location.search).get("lang") === "ja" ? "ja" : "en";
+      const root = locale === "ja" ? "../../../../" : "../../../";
+      const script = document.createElement("script");
+      script.src = new URL(`${root}javascripts/__PLOTLY_ASSET__`, location.href);
+      script.addEventListener("load", resolve, {once:true});
+      script.addEventListener("error", reject, {once:true});
+      document.head.append(script);
+    });
+  </script>
+</head>
+<body>
+  <main>
+    <p id="runtime-status" class="runtime-status" role="status" aria-live="polite" data-i18n="loading">Preparing the visualization…</p>
+
+    <section class="control-panel" aria-labelledby="controls-heading">
+      <div class="panel-heading">
+        <div>
+          <span class="panel-number">01</span>
+          <h2 id="controls-heading" data-i18n="controlsTitle">Choose the Gaussian measure</h2>
+        </div>
+        <p data-i18n="controlsText">Changing the mass, cutoff, or seed asks the in-browser Python kernel for a new pair of realizations.</p>
+      </div>
+      <div class="parameter-grid">
+        <label>
+          <span><span data-i18n="massLabel">Mass \(m\) [\(L^{-1}\)]</span><output id="mass-output">0.45</output></span>
+          <input id="mass" type="range" min="0.15" max="1.60" step="0.05" value="0.45">
+        </label>
+        <label>
+          <span><span data-i18n="cutoffLabel">UV window \(\Lambda/\Lambda_{\rm Ny}\)</span><output id="cutoff-output">0.49</output></span>
+          <input id="cutoff" type="range" min="0.25" max="0.85" step="0.02" value="0.49">
+        </label>
+        <label>
+          <span><span data-i18n="thresholdLabel">Boundary \(u\) in \(|\phi|=u\sigma\)</span><output id="threshold-output">0.60</output></span>
+          <input id="threshold" type="range" min="0.35" max="1.20" step="0.05" value="0.60">
+        </label>
+        <label class="seed-control">
+          <span data-i18n="seedLabel">Reproducible seed</span>
+          <span class="seed-row"><input id="seed" type="number" min="0" max="2147483647" step="1" value="240513"><button id="resample" class="primary" type="button" data-i18n="resample">New draw</button></span>
+        </label>
+      </div>
+      <div class="control-footer">
+        <label class="checkbox-control"><input id="link-cameras" type="checkbox" checked><span data-i18n="linkCameras">Link point/surface cameras within each row</span></label>
+        <p id="parameter-summary" class="parameter-summary">—</p>
+      </div>
+    </section>
+
+    <section class="visualization-panel" aria-labelledby="spacetime-heading">
+      <div class="panel-heading">
+        <div>
+          <span class="panel-number">02</span>
+          <h2 id="spacetime-heading" data-i18n="spacetimeTitle">One 2+1-dimensional spacetime realization</h2>
+        </div>
+        <p data-i18n="spacetimeText">A single canonical vacuum draw is evolved exactly with the free equations. Time runs vertically; slices are correlated, not sampled independently.</p>
+      </div>
+      <div class="plot-pair">
+        <figure>
+          <figcaption><span data-i18n="pointsTitle">Lattice-point view</span><small data-i18n="pointsHint">color = sign · size = magnitude</small></figcaption>
+          <div id="spacetime-points" class="plot plot-3d" aria-label="Point-cloud view of a scalar-field realization in two plus one dimensional spacetime" data-i18n-aria="spacetimePointsAria"></div>
+        </figure>
+        <figure>
+          <figcaption><span data-i18n="surfacesTitle">Signed excursion regions</span><small data-i18n="surfacesHint">boundaries at \(\phi=\pm u\sigma\)</small></figcaption>
+          <div id="spacetime-surfaces" class="plot plot-3d" aria-label="Signed excursion surfaces of a scalar-field realization in two plus one dimensional spacetime" data-i18n-aria="spacetimeSurfacesAria"></div>
+        </figure>
+      </div>
+    </section>
+
+    <section class="visualization-panel" aria-labelledby="space-heading">
+      <div class="panel-heading">
+        <div>
+          <span class="panel-number">03</span>
+          <h2 id="space-heading" data-i18n="spaceTitle">One three-dimensional equal-time realization</h2>
+        </div>
+        <p data-i18n="spaceText">This is an independent draw from the three-spatial-dimensional vacuum measure. It is not a spatial slice of the 2+1-dimensional realization above.</p>
+      </div>
+      <div class="plot-pair">
+        <figure>
+          <figcaption><span data-i18n="pointsTitle">Lattice-point view</span><small data-i18n="pointsHint">color = sign · size = magnitude</small></figcaption>
+          <div id="space-points" class="plot plot-3d" aria-label="Point-cloud view of an equal-time scalar-field realization in three-dimensional space" data-i18n-aria="spacePointsAria"></div>
+        </figure>
+        <figure>
+          <figcaption><span data-i18n="surfacesTitle">Signed excursion regions</span><small data-i18n="surfacesHint">boundaries at \(\phi=\pm u\sigma\)</small></figcaption>
+          <div id="space-surfaces" class="plot plot-3d" aria-label="Signed excursion surfaces of an equal-time scalar-field realization in three-dimensional space" data-i18n-aria="spaceSurfacesAria"></div>
+        </figure>
+      </div>
+    </section>
+
+    <section class="diagnostic-panel" aria-labelledby="correlation-heading">
+      <div class="panel-heading">
+        <div>
+          <span class="panel-number">04</span>
+          <h2 id="correlation-heading" data-i18n="correlationTitle">The ensembles are dimension-dependent</h2>
+        </div>
+        <p data-i18n="correlationText">The curves are the regulated equal-time ensemble correlations, not estimates from the single realizations above.</p>
+      </div>
+      <div id="correlation" class="plot plot-correlation" aria-label="Comparison of normalized equal-time correlations in two and three spatial dimensions" data-i18n-aria="correlationAria"></div>
+    </section>
+
+    <aside class="reading-key" aria-labelledby="reading-heading">
+      <h2 id="reading-heading" data-i18n="readingTitle">What this display is—and is not</h2>
+      <div class="reading-grid">
+        <section><h3 data-i18n="sampleHeading">A measurement distribution</h3><p data-i18n="sampleText">Each picture is one field configuration drawn from the vacuum wavefunctional (equivalently, the free-vacuum Wigner distribution for canonical data). It is not a claim that particles fill the dots or that a classical random field literally exists between measurements.</p></section>
+        <section><h3 data-i18n="timeHeading">Free-field spacetime history</h3><p data-i18n="timeText">Only for the free Gaussian theory can the positive Wigner draw be evolved this way to reproduce symmetrized correlations. It is not a positive-probability sample of the Feynman or Wightman function.</p></section>
+        <section><h3 data-i18n="uvHeading">Explicit, frame-dependent UV smoothing</h3><p data-i18n="uvText">The periodic spatial lattice and smooth spatial-momentum window make the variance finite. This regulator selects the displayed time slicing and is not Lorentz invariant.</p></section>
+        <section><h3 data-i18n="geometryHeading">Two encodings, one realization</h3><p data-i18n="geometryText">Dots are retained lattice samples—not particles—and their size represents field magnitude. The surfaces enclose thresholded positive and negative field regions from exactly the same numerical array.</p></section>
+      </div>
+    </aside>
+  </main>
+  <script>
+    (() => {
+      const main = document.querySelector("main");
+      const expectedParent = window.parent !== window ? window.parent : null;
+      const expectedOrigin = location.protocol === "http:" || location.protocol === "https:" ? location.origin : null;
+      const report = () => {
+        if (!expectedParent || !expectedOrigin) return;
+        const height = Math.ceil(Math.max(main.getBoundingClientRect().bottom, document.body.getBoundingClientRect().height));
+        expectedParent.postMessage({type:"physics-atlas:frame-height", height}, expectedOrigin);
+      };
+      addEventListener("message", event => {
+        if (event.source === expectedParent && event.origin === expectedOrigin && event.data?.type === "physics-atlas:request-frame-height") report();
+      });
+      addEventListener("load", report);
+      addEventListener("resize", report);
+      addEventListener("physics-atlas:mathjax-ready", report);
+      const observer = new ResizeObserver(report);
+      observer.observe(document.body);
+      observer.observe(main);
+      addEventListener("pagehide", () => observer.disconnect(), {once:true});
+      document.fonts?.ready.then(report);
+      report();
+    })();
+  </script>
+  <script id="runtime-manifest" type="application/json">__RUNTIME_MANIFEST__</script>
+  <script type="module" src="app.mjs"></script>
+</body>
+</html>
