@@ -288,37 +288,48 @@ This is the semiclassical wave-packet velocity.[^berry-curvature-real-space]
     Berry curvature is a momentum-space quantity, but its effect appears in the real-space motion
     of a wave packet.
 
-    Consider a Bloch electron not as a single $\mathbf k$ state, but as a wave packet formed by
-    superposing nearby states. The position of the wave-packet center depends not only on the phase
-    of the superposition coefficients, but also on how the Bloch eigenstate
-    $|u_-(\mathbf k)\rangle$ varies with $\mathbf k$. The Berry connection describes this latter
-    dependence.
+    Consider a Bloch electron not as an eigenstate at a single $\mathbf k$, but as a wave packet
+    formed by superposing nearby states. Where the wave packet is concentrated in real space is
+    determined by the relative phases between its different $\mathbf k$ components.
 
-    Therefore, when an electric field moves $\mathbf k$ according to
+    A Bloch state can be written as
+
+    $$
+    |\psi_{\mathbf k}\rangle
+    =
+    e^{i\mathbf k\cdot\mathbf r}
+    |u_{\mathbf k}\rangle
+    $$
+
+    so the relative phase receives a contribution not only from the plane-wave part, but also from
+    how the internal state $|u_{\mathbf k}\rangle$ varies with $\mathbf k$. The Berry connection
+    describes this geometric contribution.
+
+    Under an electric field,
 
     $$
     \hbar\dot{\mathbf k}=-e\mathbf E
     $$
 
-    the internal structure of the Bloch states forming the wave packet also changes continuously.
-    As it changes, the center of the wave packet shifts slightly in real space.
+    the center of the wave packet moves through momentum space. As $|u_{\mathbf k}\rangle$ changes,
+    the relative phases between the $\mathbf k$ components forming the wave packet change as well.
 
-    Taking the time derivative of this position shift brings in the Berry curvature through the
-    $\mathbf k$ dependence of the Berry connection, producing the transverse velocity
+    When this effect is incorporated into the equation of motion for the wave-packet center, the
+    term arising from the Berry connection appears through its curl—that is, through the Berry
+    curvature—and produces the transverse velocity
 
     $$
     \dot{\mathbf r}_{\mathrm{anom}}
     =
     \frac{e}{\hbar}
-    \boldsymbol{\Omega}_-(\mathbf k)\times\mathbf E
+    \mathbf Ω_-(\mathbf k)\times\mathbf E
     $$
 
     This is why Berry curvature is often compared to a "magnetic field in momentum space." It is
-    not a real-space Lorentz force, but rather **a geometric effect in which the wave-packet center
-    shifts transversely because the internal structure of the Bloch states changes across momentum
+    not a real-space Lorentz force, but rather **a geometric transverse shift of the wave-packet
+    center arising from changes in the internal structure of the Bloch states across momentum
     space**.
 
-In two dimensions the curvature has only a component normal to the plane,
 
 $$
 \mathbf Ω_-
