@@ -98,6 +98,7 @@ FIELDS = (
         "Symmetries, fields, particles, interactions, and renormalization.",
         "場の量子論",
         "対称性、場、粒子、相互作用、繰り込み",
+        "assets/images/quantum-field-theory.png",
     ),
     FieldDefinition(
         "particle-physics",
