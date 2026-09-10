@@ -82,12 +82,19 @@ def test_articles_put_observation_before_visualization_and_theory() -> None:
 
     english_math = re.findall(r"\$\$\s*(.*?)\s*\$\$", english, flags=re.DOTALL)
     japanese_math = re.findall(r"\$\$\s*(.*?)\s*\$\$", japanese, flags=re.DOTALL)
-    assert english_math == japanese_math
-    assert len(english_math) == 12
+    localized_text = re.compile(r"\\text\{[^{}]*\}")
+    english_math_structure = [
+        localized_text.sub(r"\\text{localized}", block) for block in english_math
+    ]
+    japanese_math_structure = [
+        localized_text.sub(r"\\text{localized}", block) for block in japanese_math
+    ]
+    assert english_math_structure == japanese_math_structure
+    assert len(english_math) == 29
 
     for source, locale, theory_heading in (
-        (english, "en", "## Linear feedback"),
-        (japanese, "ja", "## 摂動された界面"),
+        (english, "en", "## Why does a small wave grow?"),
+        (japanese, "ja", "## なぜ小さな波が成長するのか"),
     ):
         image_position = source.index("kelvin-helmholtz-hartford-clouds.jpg")
         saturn_position = source.index("kelvin-helmholtz-saturn.jpg")
