@@ -4,11 +4,11 @@ When adjacent streams move at different velocities, a small corrugation of their
 
 <div class="phenomenon-photo-grid">
   <figure class="phenomenon-photo">
-    <img src="../../assets/images/kelvin-helmholtz-hartford-clouds.jpg" alt="A row of breaking-wave-shaped clouds above Hartford at sunset" width="960" height="840" loading="eager">
+    <div class="phenomenon-photo-media"><img src="../../assets/images/kelvin-helmholtz-hartford-clouds.jpg" alt="A row of breaking-wave-shaped clouds above Hartford at sunset" width="960" height="840" loading="eager"></div>
     <figcaption>Kelvin–Helmholtz clouds above Hartford at sunset, 27 June 2022. Photograph: Paul Danese. <a href="https://commons.wikimedia.org/wiki/File:Kelvin_Helmholtz_cloud_formation_during_Hartford_sunset.jpg">Wikimedia Commons</a>, <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0</a>.</figcaption>
   </figure>
   <figure class="phenomenon-photo">
-    <img src="../../assets/images/kelvin-helmholtz-saturn.jpg" alt="A repeating row of curled waves along a boundary between light and dark cloud bands on Saturn" width="961" height="551" loading="eager">
+    <div class="phenomenon-photo-media"><img src="../../assets/images/kelvin-helmholtz-saturn.jpg" alt="A repeating row of curled waves along a boundary between light and dark cloud bands on Saturn" width="961" height="551" loading="eager"></div>
     <figcaption>Curling along a boundary between two of Saturn's atmospheric bands, recorded by Cassini's narrow-angle camera on 9 October 2004. Credit: NASA/JPL/Space Science Institute. <a href="https://science.nasa.gov/photojournal/rough-around-the-edges/">Source: NASA Photojournal PIA06502</a>.</figcaption>
   </figure>
 </div>

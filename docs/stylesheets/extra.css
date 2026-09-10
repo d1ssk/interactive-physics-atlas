@@ -139,7 +139,7 @@ body,
   min-width: 0;
   flex: 1;
   align-self: stretch;
-  align-items: center;
+  align-items: start;
   color: inherit;
 }
 
@@ -288,11 +288,17 @@ html[lang="ja"] .md-typeset h1 {
   gap: 1rem;
   width: min(100%, 46rem);
   margin: 1.5rem auto;
-  align-items: start;
+  align-items: center;
 }
 
 .md-typeset .phenomenon-photo {
   margin: 0;
+}
+
+.md-typeset .phenomenon-photo-media {
+  display: flex;
+  align-items: center;
+  aspect-ratio: 8 / 7;
 }
 
 .md-typeset .phenomenon-photo img {
@@ -314,6 +320,11 @@ html[lang="ja"] .md-typeset h1 {
   .md-typeset .phenomenon-photo-grid {
     grid-template-columns: 1fr;
     width: 100%;
+  }
+
+  .md-typeset .phenomenon-photo-media {
+    display: block;
+    aspect-ratio: auto;
   }
 }
 

@@ -4,11 +4,11 @@
 
 <div class="phenomenon-photo-grid">
   <figure class="phenomenon-photo">
-    <img src="../../assets/images/kelvin-helmholtz-hartford-clouds.jpg" alt="夕暮れの Hartford 上空に、砕ける波のような形の雲が連なる様子" width="960" height="840" loading="eager">
+    <div class="phenomenon-photo-media"><img src="../../assets/images/kelvin-helmholtz-hartford-clouds.jpg" alt="夕暮れの Hartford 上空に、砕ける波のような形の雲が連なる様子" width="960" height="840" loading="eager"></div>
     <figcaption>2022 年 6 月 27 日、夕暮れの Hartford 上空に現れた Kelvin–Helmholtz 雲。撮影: Paul Danese. <a href="https://commons.wikimedia.org/wiki/File:Kelvin_Helmholtz_cloud_formation_during_Hartford_sunset.jpg">Wikimedia Commons</a>, <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0</a>.</figcaption>
   </figure>
   <figure class="phenomenon-photo">
-    <img src="../../assets/images/kelvin-helmholtz-saturn.jpg" alt="土星の明暗の雲帯の境界に、巻いた波が連なる様子" width="961" height="551" loading="eager">
+    <div class="phenomenon-photo-media"><img src="../../assets/images/kelvin-helmholtz-saturn.jpg" alt="土星の明暗の雲帯の境界に、巻いた波が連なる様子" width="961" height="551" loading="eager"></div>
     <figcaption>2004 年 10 月 9 日、Cassini 探査機の狭角カメラが捉えた土星大気の緯度帯境界の巻き上がり。Credit: NASA/JPL/Space Science Institute. <a href="https://science.nasa.gov/photojournal/rough-around-the-edges/">Source: NASA Photojournal PIA06502</a>.</figcaption>
   </figure>
 </div>
