@@ -41,13 +41,21 @@ def test_domain_contains_two_encodings_of_each_bounded_realization(
     assert "data" not in result and "layout" not in result and "frames" not in result
 
 
-def test_two_and_three_dimensional_vacuum_correlations_are_distinct(kernel, protocol) -> None:
+def test_two_and_three_dimensional_vacuum_correlations_are_sampled_with_errors(
+    kernel,
+    protocol,
+) -> None:
     result = kernel.handle_request(
         _request(protocol, {"mass": 0.55, "cutoffFraction": 0.51, "seed": 4})
     )["result"]
     correlation = result["correlation"]
-    assert correlation["dimension2"][0] == 1.0
-    assert correlation["dimension3"][0] == 1.0
+    assert correlation["sampleCount"] == protocol.CORRELATION_SAMPLE_COUNT
+    assert min(correlation["dimension2Error"]) >= 0.0
+    assert min(correlation["dimension3Error"]) >= 0.0
+    assert max(correlation["dimension2Error"]) > 0.0
+    assert max(correlation["dimension3Error"]) > 0.0
+    assert abs(correlation["dimension2"][0] - 1.0) < 4 * correlation["dimension2Error"][0]
+    assert abs(correlation["dimension3"][0] - 1.0) < 4 * correlation["dimension3Error"][0]
     assert not np.allclose(correlation["dimension2"][1:], correlation["dimension3"][1:])
 
 

@@ -199,6 +199,59 @@ def theoretical_axis_correlation(
     return correlations / correlations[0]
 
 
+def axis_correlation_estimate(
+    field: FloatArray,
+    state: VacuumState,
+    maximum_lag: int | None = None,
+) -> FloatArray:
+    """Estimate ``C(r) / C(0)`` from one equal-time configuration.
+
+    Translations and all spatial axes are averaged at each lattice lag.  The
+    denominator is the known regulated ensemble variance rather than the
+    fluctuating sample variance, so the estimator is unbiased at every lag.
+    """
+
+    if field.shape != state.shape:
+        raise ValueError("field must match the state lattice")
+    maximum_lag = state.n // 2 if maximum_lag is None else maximum_lag
+    if not 0 <= maximum_lag <= state.n // 2:
+        raise ValueError("maximum_lag must lie inside the periodic half-box")
+    correlations = np.array(
+        [
+            np.mean(
+                [
+                    np.mean(field * np.roll(field, -lag, axis=axis))
+                    for axis in range(state.dimension)
+                ]
+            )
+            for lag in range(maximum_lag + 1)
+        ]
+    )
+    return correlations / expected_field_variance(state)
+
+
+def estimate_vacuum_axis_correlation(
+    state: VacuumState,
+    *,
+    sample_count: int,
+    seed: int,
+) -> tuple[FloatArray, FloatArray]:
+    """Return a Monte Carlo mean and standard error for ``C(r) / C(0)``."""
+
+    if sample_count < 2:
+        raise ValueError("sample_count must be at least two")
+    generator = np.random.default_rng(seed)
+    estimates = np.empty((sample_count, state.n // 2 + 1), dtype=float)
+    amplitude = state.window / np.sqrt(2.0 * state.omega)
+    for index in range(sample_count):
+        noise = generator.standard_normal(state.shape)
+        field = np.fft.ifftn(np.fft.fftn(noise) * amplitude).real
+        estimates[index] = axis_correlation_estimate(field, state)
+    mean = np.mean(estimates, axis=0)
+    standard_error = np.std(estimates, axis=0, ddof=1) / np.sqrt(sample_count)
+    return mean, standard_error
+
+
 def coordinate_axis(state: VacuumState) -> FloatArray:
     """Return centered periodic lattice coordinates."""
 

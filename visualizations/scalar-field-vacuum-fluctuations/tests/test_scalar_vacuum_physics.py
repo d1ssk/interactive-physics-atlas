@@ -63,3 +63,22 @@ def test_cutoff_is_declared_relative_to_the_nyquist_wave_number(physics) -> None
     state = physics.sample_vacuum(n=12, dimension=2, length=9.0, cutoff_fraction=0.42)
     assert np.isclose(state.cutoff, 0.42 * np.pi / state.spacing)
     assert np.isclose(physics.theoretical_axis_correlation(state)[0], 1.0)
+
+
+def test_monte_carlo_correlation_reports_a_standard_error(physics) -> None:
+    state = physics.sample_vacuum(
+        n=8,
+        dimension=3,
+        length=8.0,
+        mass=0.55,
+        cutoff_fraction=0.48,
+        seed=4,
+    )
+    mean, standard_error = physics.estimate_vacuum_axis_correlation(
+        state,
+        sample_count=160,
+        seed=9182,
+    )
+    expected = physics.theoretical_axis_correlation(state)
+    assert np.all(standard_error > 0.0)
+    assert np.all(np.abs(mean - expected) < 4.0 * standard_error)

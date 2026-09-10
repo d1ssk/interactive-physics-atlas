@@ -7,8 +7,9 @@ shared Plotly `gl3d` bundle.
 
 `physics.py` defines the regulated free-vacuum Wigner sample and exact lattice
 evolution. `domain.py` returns one 2+1-dimensional spacetime history, one
-independent three-spatial-dimensional equal-time draw, and their ensemble
-equal-time correlations. `protocol.py`, `kernel.py`, and the runtime provider
+independent three-spatial-dimensional equal-time draw, and Monte Carlo
+equal-time correlation estimates from 48 additional draws per dimension.
+`protocol.py`, `kernel.py`, and the runtime provider
 form the bounded browser-compute boundary described in
 `visualizations/BROWSER_COMPUTE.md`.
 

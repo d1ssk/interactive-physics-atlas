@@ -25,7 +25,7 @@ def test_static_build_stages_lazy_python_runtime_and_plotly_views(
 
     assert PLOTLY_GL3D_ASSET_NAME in html
     assert manifest["operation"] == "scalar-vacuum.sample.v1"
-    assert manifest["resultSchema"] == "physics-atlas.scalar-vacuum.sample.v1"
+    assert manifest["resultSchema"] == "physics-atlas.scalar-vacuum.sample.v2"
     assert len(manifest_text) < 2_000
     assert "PYTHON_PLOT_DATA" not in html
     assert "PlotlyJSONEncoder" not in html
@@ -43,11 +43,18 @@ def test_static_build_stages_lazy_python_runtime_and_plotly_views(
     assert 'type:"scatter3d"' in app
     assert 'type:"isosurface"' in app
     assert 'type:"scatter"' in app
+    assert app.count('mode:"markers"') >= 3
+    assert "dimension2Error" in app
+    assert "dimension3Error" in app
+    assert 'mode:"lines+markers"' not in app
     assert 'dragmode:"turntable"' in app
     assert 'dragmode:"pan"' in app
     assert 'event["scene.camera"]' in app
     assert "JavaScript" not in app
     assert "ブラウザ内の Python" in app
+    assert "質量、カットオフ、seed を変えると、二つの配位を新たに生成します。" in app
+    assert "上の2+1次元配位の空間断面ではありません" not in app
+    assert "点が粒子で満たされる" not in app
     assert "grid-template-columns: repeat(2, minmax(0, 1fr))" in style
     assert "@media (max-width: 760px)" in style
 

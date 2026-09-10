@@ -29,7 +29,7 @@ from .protocol import (
 
 RUNTIME_DIRECTORY_NAME = "runtime"
 PROVIDER_ASSET_NAME = "pyodide-compute-provider-v1.mjs"
-WORKER_ASSET_NAME = "scalar-vacuum-compute-worker-v1.mjs"
+WORKER_ASSET_NAME = "scalar-vacuum-compute-worker-v2.mjs"
 KERNEL_DISTRIBUTION = "physics_atlas_scalar_vacuum_kernel"
 KERNEL_WHEEL_NAME = f"{KERNEL_DISTRIBUTION}-{KERNEL_VERSION}-py3-none-any.whl"
 KERNEL_SOURCE_NAMES = ("physics.py", "domain.py", "protocol.py", "kernel.py")

@@ -55,7 +55,7 @@ function request(requestId, seed = 7, timeout = 45000) {
   return {
     protocol:"physics-atlas.compute.v1",
     requestId,
-    kernelVersion:"1.0.0",
+    kernelVersion:"1.1.0",
     operation:"scalar-vacuum.sample.v1",
     input:{mass:.45, cutoffFraction:.49, seed},
     limits:{maxElapsedMs:timeout},
@@ -69,7 +69,7 @@ function success(value) {
     kernelVersion:value.kernelVersion,
     operation:value.operation,
     ok:true,
-    result:{schema:"physics-atlas.scalar-vacuum.sample.v1", seed:value.input.seed},
+    result:{schema:"physics-atlas.scalar-vacuum.sample.v2", seed:value.input.seed},
   };
 }
 
@@ -78,7 +78,7 @@ function harness(options = {}) {
   const clock = fakeClock();
   const provider = new PyodideComputeProvider({
     workerUrl:new URL("https://example.test/worker.mjs"),
-    resultSchemas:{"scalar-vacuum.sample.v1":"physics-atlas.scalar-vacuum.sample.v1"},
+    resultSchemas:{"scalar-vacuum.sample.v1":"physics-atlas.scalar-vacuum.sample.v2"},
     runtime:{name:"pyodide", version:"test"},
     workerFactory:() => {
       const worker = new FakeWorker();

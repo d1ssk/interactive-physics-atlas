@@ -4,5 +4,5 @@
 
 ## 場と真空
 
-- **[スカラー場の真空揺らぎ](scalar-field-vacuum-fluctuations/)**<br>
+- **[スカラー場真空の量子揺らぎ](scalar-field-vacuum-fluctuations/)**<br>
   正則化した自由場の真空をサンプルし、2+1次元時空と3次元空間で点群表示と等値面表示を比較

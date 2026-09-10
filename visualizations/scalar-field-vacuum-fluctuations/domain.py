@@ -7,12 +7,13 @@ import numpy as np
 from .physics import (
     configuration_at,
     coordinate_axis,
+    estimate_vacuum_axis_correlation,
     expected_field_variance,
     sample_vacuum,
-    theoretical_axis_correlation,
 )
 from .protocol import (
     BOX_LENGTH,
+    CORRELATION_SAMPLE_COUNT,
     GRID_SIZE,
     KERNEL_VERSION,
     SAMPLE_RESULT_SCHEMA,
@@ -22,6 +23,8 @@ from .protocol import (
 
 DISPLAY_DECIMALS = 6
 SPATIAL_SEED_OFFSET = 1_000_003
+CORRELATION_2D_SEED_OFFSET = 2_000_033
+CORRELATION_3D_SEED_OFFSET = 3_000_091
 
 
 def _values(array: np.ndarray) -> list[float]:
@@ -73,6 +76,16 @@ def vacuum_sample_domain(mass: float, cutoff_fraction: float, seed: int) -> dict
     spatial_field = configuration_at(spatial_state)[0]
     spacetime_center = spacetime_field[TIME_SLICES // 2]
     correlation_lags = np.arange(GRID_SIZE // 2 + 1) * spacetime_state.spacing
+    correlation_2d, correlation_2d_error = estimate_vacuum_axis_correlation(
+        spacetime_state,
+        sample_count=CORRELATION_SAMPLE_COUNT,
+        seed=(seed + CORRELATION_2D_SEED_OFFSET) % (2**32),
+    )
+    correlation_3d, correlation_3d_error = estimate_vacuum_axis_correlation(
+        spatial_state,
+        sample_count=CORRELATION_SAMPLE_COUNT,
+        seed=(seed + CORRELATION_3D_SEED_OFFSET) % (2**32),
+    )
 
     result: dict[str, object] = {
         "schema": SAMPLE_RESULT_SCHEMA,
@@ -99,8 +112,11 @@ def vacuum_sample_domain(mass: float, cutoff_fraction: float, seed: int) -> dict
         },
         "correlation": {
             "distance": _values(correlation_lags),
-            "dimension2": _values(theoretical_axis_correlation(spacetime_state)),
-            "dimension3": _values(theoretical_axis_correlation(spatial_state)),
+            "sampleCount": CORRELATION_SAMPLE_COUNT,
+            "dimension2": _values(correlation_2d),
+            "dimension2Error": _values(correlation_2d_error),
+            "dimension3": _values(correlation_3d),
+            "dimension3Error": _values(correlation_3d_error),
         },
     }
     validate_vacuum_domain(result)
@@ -142,12 +158,20 @@ def validate_vacuum_domain(result: object) -> None:
     if not isinstance(correlation, dict):
         raise ArithmeticError("invalid correlation data")
     expected_length = GRID_SIZE // 2 + 1
-    for key in ("distance", "dimension2", "dimension3"):
+    if correlation.get("sampleCount") != CORRELATION_SAMPLE_COUNT:
+        raise ArithmeticError("invalid correlation sample count")
+    for key in (
+        "distance",
+        "dimension2",
+        "dimension2Error",
+        "dimension3",
+        "dimension3Error",
+    ):
         values = correlation.get(key)
         if not isinstance(values, list) or len(values) != expected_length:
             raise ArithmeticError("invalid correlation curve")
-    if correlation["dimension2"][0] != 1.0 or correlation["dimension3"][0] != 1.0:
-        raise ArithmeticError("correlations must be normalized at zero separation")
+    if min(correlation["dimension2Error"]) < 0.0 or min(correlation["dimension3Error"]) < 0.0:
+        raise ArithmeticError("correlation errors must be non-negative")
     for summary in (spacetime, spatial):
         if summary.get("sigma", 0.0) <= 0.0 or summary.get("sampleRms", 0.0) <= 0.0:
             raise ArithmeticError("field scales must be positive")

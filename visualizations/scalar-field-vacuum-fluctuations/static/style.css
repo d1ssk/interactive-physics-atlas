@@ -17,7 +17,7 @@
 * { box-sizing: border-box; }
 body { margin: 0; min-width: 320px; background: var(--paper); color: var(--ink); }
 button, input { font: inherit; }
-button { min-height: 36px; border: 1px solid var(--border); border-radius: 3px; background: var(--panel); color: var(--ink); padding: 6px 12px; cursor: pointer; }
+button { min-height: 36px; border: 1px solid var(--border); border-radius: 3px; background: var(--panel); color: var(--ink); padding: 6px 12px; cursor: pointer; font-family: inherit; font-weight: 400; letter-spacing: normal; }
 button:hover { border-color: var(--accent); }
 button:focus-visible, input:focus-visible { outline: 3px solid var(--atlas-viz-focus); outline-offset: 2px; }
 button.primary { border-color: var(--accent); background: var(--accent); color: white; }
@@ -26,10 +26,10 @@ main { width: min(1420px, calc(100% - 24px)); margin: 0 auto; padding: 12px 0 30
 .runtime-status { min-height: 22px; margin: 0 0 8px; color: var(--muted); font-size: .72rem; }
 .runtime-status.error { color: var(--error); }
 .control-panel, .visualization-panel, .diagnostic-panel, .reading-key { margin-bottom: 26px; border: 1px solid var(--border); background: var(--panel); }
-.panel-heading { display: grid; grid-template-columns: minmax(330px, .85fr) minmax(300px, 1.15fr); gap: 28px; align-items: end; padding: 20px 22px; border-bottom: 1px solid var(--border); }
+.panel-heading { display: grid; grid-template-columns: max-content minmax(260px, 1fr); gap: 28px; align-items: end; padding: 20px 22px; border-bottom: 1px solid var(--border); }
 .panel-heading > div { display: flex; align-items: baseline; gap: 12px; }
 .panel-number { color: var(--accent); font-size: .67rem; font-weight: 800; letter-spacing: .08em; }
-.panel-heading h2 { margin: 0; font-size: clamp(1rem, 2.3vw, 1.72rem); letter-spacing: -.025em; }
+.panel-heading h2 { margin: 0; font-size: clamp(.94rem, 1.75vw, 1.55rem); letter-spacing: -.025em; white-space: nowrap; }
 .panel-heading p { margin: 0; color: var(--muted); font-size: .78rem; line-height: 1.65; }
 .parameter-grid { display: grid; grid-template-columns: repeat(4, minmax(190px, 1fr)); gap: 1px; background: var(--border); border-bottom: 1px solid var(--border); }
 .parameter-grid > label { display: block; min-width: 0; padding: 13px 14px; background: var(--panel); }
@@ -68,6 +68,7 @@ figcaption small { color: var(--muted); font-size: .65rem; font-weight: 500; }
 @media (max-width: 760px) {
   main { width: min(100% - 18px, 1420px); }
   .panel-heading { grid-template-columns: 1fr; gap: 9px; padding: 17px 14px; }
+  .panel-heading h2 { white-space: normal; }
   .plot-pair { grid-template-columns: 1fr; }
   .plot-pair figure + figure { border-left: 0; border-top: 1px solid var(--border); }
   .plot-3d { height: 500px; }

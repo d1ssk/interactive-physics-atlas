@@ -1,4 +1,4 @@
-# Scalar-Field Vacuum Fluctuations
+# Quantum Fluctuations of the Scalar-Field Vacuum
 
 ## From zero-point motion to a field configuration
 
@@ -22,9 +22,8 @@ $$
 \frac{\omega_{\mathbf k}}{2}
 $$
 
-Sampling all modes and Fourier transforming produces one field configuration $\phi(\mathbf x)$.
-The correct interpretation is a draw from the probability distribution obtained by measuring the
-field in the vacuum—not a movie of a literal classical random field filling empty space.
+Sampling all modes and Fourier transforming produces one field configuration $\phi(\mathbf x)$:
+a draw from the probability distribution obtained by measuring the field in the vacuum.
 
 ## The two samples in the visualization
 
@@ -43,8 +42,11 @@ $$
 
 The complete 2+1-dimensional bulk is therefore one correlated history; its time slices are not
 independent samples. For a free Gaussian theory, this construction is statistically equivalent to
-drawing the complete real history from its symmetrized, or Hadamard, two-point function. It does
-not turn the complex Feynman or Wightman function into an ordinary positive probability measure.
+drawing the complete real history from its symmetrized, or Hadamard, two-point function. A real
+probability distribution requires a real symmetric covariance, and the Hadamard function has
+those properties. The Feynman function retains time ordering and the Wightman function retains
+operator ordering; they are generally complex-valued or nonsymmetric. They therefore cannot be
+used directly as covariance matrices of real random variables.
 
 The lower row is an independent equal-time draw with three spatial dimensions. These two Gaussian
 measures are genuinely different. In $d$ spatial dimensions their unregulated equal-time
@@ -66,14 +68,17 @@ C_3(r)=\frac{mK_1(mr)}{4\pi^2r}
 $$
 
 Thus a planar slice through a three-dimensional field is not distributed like the vacuum of a
-genuinely two-dimensional field. The correlation plot shows the normalized, regulated ensemble
-curves for the two measures used here, rather than noisy estimates from the displayed single
-realizations.
+genuinely two-dimensional field. The correlation plot estimates the normalized, regulated
+correlations by generating 48 additional independent configurations in each dimension. At each
+lattice separation, a point is the sample mean after averaging over translations and spatial
+directions; its error bar is one standard error of that mean. These are Monte Carlo estimates of
+the vacuum ensemble, not detector data and not correlations inferred from either single
+configuration displayed above.
 
 ## Visualization
 
 Both rows show the same realization in two encodings. In the point view, every dot is a lattice
-sample, not a particle; color gives the sign of $\phi$ and size gives $|\phi|$. In the surface view,
+sample; color gives the sign of $\phi$ and size gives $|\phi|$. In the surface view,
 the orange and cyan boundaries enclose the excursion regions
 $\phi>u\sigma$ and $\phi<-u\sigma$, where $\sigma^2=\langle\phi^2\rangle$ for the regulated
 ensemble. Changing $u$ changes only this representation and does not resample the field. Rotating
@@ -81,7 +86,7 @@ either view in a row rotates its partner to the same camera.
 
 <iframe
   src="app/index.html?lang=en"
-  title="Interactive scalar-field vacuum fluctuation visualization"
+  title="Interactive visualization of quantum fluctuations of the scalar-field vacuum"
   data-auto-height
   scrolling="no"
   style="display: block; width: 100%; height: 2450px; min-height: 1300px; border: 0; overflow: hidden;"
@@ -91,13 +96,13 @@ either view in a row rotates its partner to the same camera.
 ## Suggested things to try
 
 1. Keep the seed fixed and increase $m$. Compare the change in spatial smoothness with the scale
-   $\xi\sim m^{-1}$ and with both correlation curves.
+   $\xi\sim m^{-1}$ and with both sets of correlation estimates.
 2. Keep $m$ fixed and move the UV window toward the Nyquist scale. Fine structure appears because
    more short-wavelength modes contribute.
 3. Move the boundary $u$ without changing the seed. The point values remain fixed while the
    connected components of the positive and negative excursion regions merge or disappear.
-4. Generate several realizations with the same parameters. Individual shapes change while the
-   ensemble correlation curve remains fixed.
+4. Generate several realizations with the same parameters. Individual shapes and Monte Carlo
+   estimates fluctuate around the same ensemble expectations.
 
 ## Regulator and conventions
 

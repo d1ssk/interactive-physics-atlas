@@ -59,7 +59,11 @@ function validateResponse(request, response) {
   if (!Number.isInteger(n) || !Number.isInteger(nt)
       || result.axis?.length !== n || result.times?.length !== nt
       || result.spacetime?.field?.length !== nt * n * n
-      || result.space3d?.field?.length !== n * n * n) {
+      || result.space3d?.field?.length !== n * n * n
+      || result.correlation?.dimension2?.length !== Math.floor(n / 2) + 1
+      || result.correlation?.dimension2Error?.length !== Math.floor(n / 2) + 1
+      || result.correlation?.dimension3?.length !== Math.floor(n / 2) + 1
+      || result.correlation?.dimension3Error?.length !== Math.floor(n / 2) + 1) {
     throw new Error("invalid result dimensions");
   }
 }
