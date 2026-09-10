@@ -588,7 +588,7 @@ function animate(timestamp) {
     if (state.lastTimestamp !== null) {
       const wallSeconds = Math.min((timestamp - state.lastTimestamp) / 1000, 0.08);
       const remaining = Number(controls.time.max) - state.time;
-      advanceDye(Math.min(remaining, 0.48 * wallSeconds));
+      advanceDye(Math.min(remaining, 1.0 * wallSeconds));
       updateDynamicReadouts();
       drawFlow();
       if (state.time >= Number(controls.time.max) - 1e-9) {
