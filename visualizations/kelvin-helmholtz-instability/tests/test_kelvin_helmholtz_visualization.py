@@ -33,8 +33,10 @@ def test_static_build_stages_bilingual_browser_application(tmp_path, visualizati
     assert 'from "./physics.mjs"' in application
     assert "const TRANSLATIONS" in application
     assert 'get("lang") === "ja"' in application
-    assert 'titleLead: "When shear rolls"' in application
-    assert 'titleTail: "渦へ巻き上がる"' in application
+    assert 'title: "Kelvin–Helmholtz instability"' in application
+    assert 'title: "Kelvin–Helmholtz 不安定性"' in application
+    assert "DIMENSIONLESS INTERFACE MODEL" not in application
+    assert "無次元界面モデル" not in application
     assert 'modeSummary(state.parameters).status !== "unstable"' in application
     assert "isUnstable ? null : 0" in application
     assert "--paper: var(--atlas-viz-background)" in style
@@ -84,21 +86,29 @@ def test_articles_put_observation_before_visualization_and_theory() -> None:
         (english, "en", "## Linear feedback"),
         (japanese, "ja", "## 摂動された界面"),
     ):
-        image_position = source.index("kelvin-helmholtz-saturn.jpg")
+        image_position = source.index("kelvin-helmholtz-hartford-clouds.jpg")
+        saturn_position = source.index("kelvin-helmholtz-saturn.jpg")
         iframe_position = source.index("<iframe")
         theory_position = source.index(theory_heading)
-        assert image_position < iframe_position < theory_position
+        assert image_position < saturn_position < iframe_position < theory_position
         assert f"app/index.html?lang={locale}" in source
         assert "data-auto-height" in source
         assert 'scrolling="no"' in source
         assert 'loading="eager"' in source
         assert "NASA/JPL/Space Science Institute" in source
         assert "https://science.nasa.gov/photojournal/rough-around-the-edges/" in source
+        assert "Paul Danese" in source
+        assert "https://creativecommons.org/publicdomain/zero/1.0/" in source
+        assert "phenomenon-photo-grid" in source
 
 
-def test_photo_asset_and_fluid_mechanics_indexes() -> None:
-    photo = ROOT / "docs/assets/images/kelvin-helmholtz-saturn.jpg"
-    assert photo.read_bytes().startswith(b"\xff\xd8\xff")
+def test_photo_assets_and_fluid_mechanics_indexes() -> None:
+    for filename in (
+        "kelvin-helmholtz-hartford-clouds.jpg",
+        "kelvin-helmholtz-saturn.jpg",
+    ):
+        photo = ROOT / "docs/assets/images" / filename
+        assert photo.read_bytes().startswith(b"\xff\xd8\xff")
 
     english_index = (ROOT / "docs/fluid-mechanics/index.md").read_text(encoding="utf-8")
     japanese_index = (ROOT / "docs_ja/fluid-mechanics/index.md").read_text(encoding="utf-8")

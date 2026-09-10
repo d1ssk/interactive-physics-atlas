@@ -26,17 +26,14 @@
 </head>
 <body>
   <main>
-    <header class="hero">
-      <div class="hero-title">
-        <p class="eyebrow" data-i18n="eyebrow">FLUID MECHANICS · DIMENSIONLESS INTERFACE MODEL</p>
-        <h1><span data-i18n="titleLead">When shear rolls</span><br> <span data-i18n="titleTail">into vortices</span></h1>
+    <header class="app-header">
+      <div>
+        <h1 data-i18n="title">Kelvin–Helmholtz instability</h1>
+        <p data-i18n="intro">Adjust the shear-layer parameters, then compare interface roll-up with the linear growth spectrum.</p>
       </div>
-      <div class="hero-copy">
-        <p data-i18n="intro">Give a small ripple to two streams sliding past one another. Track how shear amplifies the interface and rolls a material boundary into vortices.</p>
-        <div class="velocity-key" data-i18n-aria-label="velocityKeyLabel" aria-label="Far-field velocities of the two fluids">
-          <span><i class="top-key"></i>\(U_1=+\Delta U/2\)</span>
-          <span><i class="bottom-key"></i>\(U_2=-\Delta U/2\)</span>
-        </div>
+      <div class="velocity-key" data-i18n-aria-label="velocityKeyLabel" aria-label="Far-field velocities of the two fluids">
+        <span><i class="top-key"></i>\(U_1=+\Delta U/2\)</span>
+        <span><i class="bottom-key"></i>\(U_2=-\Delta U/2\)</span>
       </div>
     </header>
 
@@ -83,19 +80,12 @@
         <span data-i18n="wavenumber">WAVENUMBER</span>
         <strong>\(k\) = <output id="wavenumber-output">—</output></strong>
       </div>
-      <div>
-        <span data-i18n="rollupParameter">ROLL-UP PARAMETER</span>
-        <strong>\(\epsilon\) = <output id="epsilon-output">—</output></strong>
-      </div>
     </section>
 
     <section class="visual-grid">
       <figure class="flow-card">
         <figcaption>
-          <div>
-            <p class="panel-number">01 / ADVECTED DYE FIELD</p>
-            <h2 data-i18n="flowTitle">The material boundary rolls up</h2>
-          </div>
+          <h2 data-i18n="flowTitle">Interface roll-up</h2>
           <p data-i18n="flowCaption">Color records the side on which each parcel began.</p>
         </figcaption>
         <div class="canvas-stage">
@@ -122,10 +112,7 @@
 
       <figure class="growth-card">
         <figcaption>
-          <div>
-            <p class="panel-number">02 / LINEAR THEORY</p>
-            <h2>growth rate \(\gamma(k)\)</h2>
-          </div>
+          <h2>growth rate \(\gamma(k)\)</h2>
           <p data-i18n="chartCaption">The black point marks the selected wavelength.</p>
         </figcaption>
         <svg id="growth-chart" viewBox="0 0 560 390" role="img" aria-labelledby="growth-title growth-description">

@@ -8,7 +8,6 @@ import {
   curveExtent,
   growthRate,
   modeSummary,
-  rollupParameter,
   stuartVelocity,
 } from "./physics.mjs";
 
@@ -16,10 +15,8 @@ const LOCALE = new URLSearchParams(window.location.search).get("lang") === "ja" 
 const TRANSLATIONS = {
   en: {
     pageTitle: "Kelvin–Helmholtz Instability",
-    eyebrow: "FLUID MECHANICS · DIMENSIONLESS INTERFACE MODEL",
-    titleLead: "When shear rolls",
-    titleTail: "into vortices",
-    intro: "Give a small ripple to two streams sliding past one another. Track how shear amplifies the interface and rolls a material boundary into vortices.",
+    title: "Kelvin–Helmholtz instability",
+    intro: "Adjust the shear-layer parameters, then compare interface roll-up with the linear growth spectrum.",
     velocityKeyLabel: "Far-field velocities of the two fluids",
     parametersLabel: "Kelvin–Helmholtz model parameters",
     velocityDifference: "Velocity difference",
@@ -34,8 +31,7 @@ const TRANSLATIONS = {
     growthRate: "GROWTH RATE",
     efoldingTime: "E-FOLDING TIME",
     wavenumber: "WAVENUMBER",
-    rollupParameter: "ROLL-UP PARAMETER",
-    flowTitle: "The material boundary rolls up",
+    flowTitle: "Interface roll-up",
     flowCaption: "Color records the side on which each parcel began.",
     canvasLabel: "The boundary between blue and orange material regions rolls up under Kelvin–Helmholtz instability",
     reset: "Reset",
@@ -55,10 +51,8 @@ const TRANSLATIONS = {
   },
   ja: {
     pageTitle: "Kelvin–Helmholtz 不安定性",
-    eyebrow: "流体力学 · 無次元界面モデル",
-    titleLead: "せん断流が",
-    titleTail: "渦へ巻き上がる",
-    intro: "速度の異なる二つの流れの界面に小さな波を与え、せん断による増幅と物質界面の巻き上がりを追います。",
+    title: "Kelvin–Helmholtz 不安定性",
+    intro: "せん断層のパラメーターを変え、界面の巻き上がりと線形成長率を比較します。",
     velocityKeyLabel: "二流体の遠方速度",
     parametersLabel: "Kelvin–Helmholtz モデルのパラメーター",
     velocityDifference: "速度差",
@@ -73,7 +67,6 @@ const TRANSLATIONS = {
     growthRate: "成長率",
     efoldingTime: "e-folding 時間",
     wavenumber: "波数",
-    rollupParameter: "巻き上がりパラメーター",
     flowTitle: "物質界面の巻き上がり",
     flowCaption: "色は各流体粒子が出発した側を表します。",
     canvasLabel: "青と橙の物質領域の界面が Kelvin–Helmholtz 不安定性で巻き上がる様子",
@@ -143,7 +136,6 @@ const outputs = {
   gamma: document.querySelector("#gamma-output"),
   efold: document.querySelector("#efold-output"),
   wavenumber: document.querySelector("#wavenumber-output"),
-  epsilon: document.querySelector("#epsilon-output"),
   cutoff: document.querySelector("#cutoff-output"),
   peak: document.querySelector("#peak-output"),
   phase: document.querySelector("#phase-output"),
@@ -515,10 +507,6 @@ function updateParameterReadouts() {
 }
 
 function updateDynamicReadouts() {
-  const isUnstable = modeSummary(state.parameters).status === "unstable";
-  outputs.epsilon.value = isUnstable
-    ? rollupParameter(state.time, state.parameters).toFixed(3)
-    : "—";
   outputs.time.value = `t = ${state.time.toFixed(2)}`;
   controls.time.value = String(Math.min(Number(controls.time.max), state.time));
 }

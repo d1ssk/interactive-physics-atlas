@@ -2,16 +2,22 @@
 
 When adjacent streams move at different velocities, a small corrugation of their boundary can draw energy from the shear and grow. The initially gentle wave then rolls into a row of billows and vortices—the characteristic signature of the Kelvin–Helmholtz instability.
 
-<figure class="phenomenon-photo">
-  <img src="../../assets/images/kelvin-helmholtz-saturn.jpg" alt="A repeating row of curled waves along a boundary between light and dark cloud bands on Saturn" width="961" height="551" loading="eager">
-  <figcaption>Curling along a boundary between two of Saturn's atmospheric bands, recorded by Cassini's narrow-angle camera on 9 October 2004. Credit: NASA/JPL/Space Science Institute. <a href="https://science.nasa.gov/photojournal/rough-around-the-edges/">Source: NASA Photojournal PIA06502</a>.</figcaption>
-</figure>
+<div class="phenomenon-photo-grid">
+  <figure class="phenomenon-photo">
+    <img src="../../assets/images/kelvin-helmholtz-hartford-clouds.jpg" alt="A row of breaking-wave-shaped clouds above Hartford at sunset" width="960" height="840" loading="eager">
+    <figcaption>Kelvin–Helmholtz clouds above Hartford at sunset, 27 June 2022. Photograph: Paul Danese. <a href="https://commons.wikimedia.org/wiki/File:Kelvin_Helmholtz_cloud_formation_during_Hartford_sunset.jpg">Wikimedia Commons</a>, <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0</a>.</figcaption>
+  </figure>
+  <figure class="phenomenon-photo">
+    <img src="../../assets/images/kelvin-helmholtz-saturn.jpg" alt="A repeating row of curled waves along a boundary between light and dark cloud bands on Saturn" width="961" height="551" loading="eager">
+    <figcaption>Curling along a boundary between two of Saturn's atmospheric bands, recorded by Cassini's narrow-angle camera on 9 October 2004. Credit: NASA/JPL/Space Science Institute. <a href="https://science.nasa.gov/photojournal/rough-around-the-edges/">Source: NASA Photojournal PIA06502</a>.</figcaption>
+  </figure>
+</div>
 
 NASA identifies the repeating curls along this cloud-band boundary as a Kelvin–Helmholtz pattern. The same mechanism appears across very different scales: in atmospheric cloud layers, oceanic and laboratory shear layers, and the banded atmospheres of giant planets. What matters is not the material itself but the velocity contrast and the dynamical response of a perturbed boundary.
 
 ## Visualization
 
-<iframe src="app/index.html?lang=en" title="Kelvin–Helmholtz interface roll-up and linear growth-rate spectrum" data-auto-height scrolling="no" style="display: block; width: 100%; height: 1900px; min-height: 1180px; border: 0; overflow: hidden;" loading="eager"></iframe>
+<iframe src="app/index.html?lang=en" title="Kelvin–Helmholtz interface roll-up and linear growth-rate spectrum" data-auto-height scrolling="no" style="display: block; width: 100%; height: 1000px; min-height: 700px; border: 0; overflow: hidden;" loading="eager"></iframe>
 
 ### Suggested explorations
 
@@ -136,6 +142,7 @@ The linear growth rate and cutoff are exact for the stated sharp-interface model
 ## References
 
 - NASA Photojournal, [*Rough Around the Edges* (PIA06502)](https://science.nasa.gov/photojournal/rough-around-the-edges/), including the observation details and image credit. See also NASA's [Images and Media Usage Guidelines](https://www.nasa.gov/nasa-brand-center/images-and-media/).
+- Paul Danese, [*Kelvin Helmholtz cloud formation during Hartford sunset*](https://commons.wikimedia.org/wiki/File:Kelvin_Helmholtz_cloud_formation_during_Hartford_sunset.jpg), Wikimedia Commons, 27 June 2022, [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/).
 - Lord Rayleigh, [*On the Stability, or Instability, of Certain Fluid Motions*](https://doi.org/10.1112/plms/s1-11.1.57), *Proceedings of the London Mathematical Society* **s1-11** (1879), 57–72.
 - J. T. Stuart, [*On Finite Amplitude Oscillations in Laminar Mixing Layers*](https://doi.org/10.1017/S0022112067000941), *Journal of Fluid Mechanics* **29** (1967), 417–440.
 - S. Chandrasekhar, *Hydrodynamic and Hydromagnetic Stability*, Dover (1981), Chapter XI.

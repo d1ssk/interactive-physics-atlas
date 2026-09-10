@@ -2,16 +2,22 @@
 
 隣り合う流れの速度が異なると、その界面の小さな波打ちは、せん断流からエネルギーを受け取って成長することがあります。やがて緩やかな波は billow と渦の列へ巻き上がります。これが Kelvin–Helmholtz 不安定性の典型的な形です。
 
-<figure class="phenomenon-photo">
-  <img src="../../assets/images/kelvin-helmholtz-saturn.jpg" alt="土星の明暗の雲帯の境界に、巻いた波が連なる様子" width="961" height="551" loading="eager">
-  <figcaption>2004 年 10 月 9 日、Cassini 探査機の狭角カメラが捉えた土星大気の緯度帯境界の巻き上がり。Credit: NASA/JPL/Space Science Institute. <a href="https://science.nasa.gov/photojournal/rough-around-the-edges/">Source: NASA Photojournal PIA06502</a>.</figcaption>
-</figure>
+<div class="phenomenon-photo-grid">
+  <figure class="phenomenon-photo">
+    <img src="../../assets/images/kelvin-helmholtz-hartford-clouds.jpg" alt="夕暮れの Hartford 上空に、砕ける波のような形の雲が連なる様子" width="960" height="840" loading="eager">
+    <figcaption>2022 年 6 月 27 日、夕暮れの Hartford 上空に現れた Kelvin–Helmholtz 雲。撮影: Paul Danese. <a href="https://commons.wikimedia.org/wiki/File:Kelvin_Helmholtz_cloud_formation_during_Hartford_sunset.jpg">Wikimedia Commons</a>, <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0</a>.</figcaption>
+  </figure>
+  <figure class="phenomenon-photo">
+    <img src="../../assets/images/kelvin-helmholtz-saturn.jpg" alt="土星の明暗の雲帯の境界に、巻いた波が連なる様子" width="961" height="551" loading="eager">
+    <figcaption>2004 年 10 月 9 日、Cassini 探査機の狭角カメラが捉えた土星大気の緯度帯境界の巻き上がり。Credit: NASA/JPL/Space Science Institute. <a href="https://science.nasa.gov/photojournal/rough-around-the-edges/">Source: NASA Photojournal PIA06502</a>.</figcaption>
+  </figure>
+</div>
 
 NASA はこの雲帯境界に連なる巻きを Kelvin–Helmholtz 不安定性のパターンと同定しています。同じ機構は、地球大気の雲層、海洋や実験室のせん断層、巨大ガス惑星の帯状大気など、大きく異なるスケールに現れます。物質の種類よりも、速度差と、摂動された界面の力学的応答が本質です。
 
 ## 可視化
 
-<iframe src="app/index.html?lang=ja" title="Kelvin–Helmholtz 界面の巻き上がりと線形成長率スペクトル" data-auto-height scrolling="no" style="display: block; width: 100%; height: 1900px; min-height: 1180px; border: 0; overflow: hidden;" loading="eager"></iframe>
+<iframe src="app/index.html?lang=ja" title="Kelvin–Helmholtz 界面の巻き上がりと線形成長率スペクトル" data-auto-height scrolling="no" style="display: block; width: 100%; height: 1000px; min-height: 700px; border: 0; overflow: hidden;" loading="eager"></iframe>
 
 ### 試してみること
 
@@ -136,6 +142,7 @@ $$
 ## 参考文献
 
 - NASA Photojournal, [*Rough Around the Edges* (PIA06502)](https://science.nasa.gov/photojournal/rough-around-the-edges/)。観測条件と画像クレジットは原文を参照。NASA の [Images and Media Usage Guidelines](https://www.nasa.gov/nasa-brand-center/images-and-media/) も参照。
+- Paul Danese, [*Kelvin Helmholtz cloud formation during Hartford sunset*](https://commons.wikimedia.org/wiki/File:Kelvin_Helmholtz_cloud_formation_during_Hartford_sunset.jpg), Wikimedia Commons, 2022 年 6 月 27 日, [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/).
 - Lord Rayleigh, [*On the Stability, or Instability, of Certain Fluid Motions*](https://doi.org/10.1112/plms/s1-11.1.57), *Proceedings of the London Mathematical Society* **s1-11** (1879), 57–72.
 - J. T. Stuart, [*On Finite Amplitude Oscillations in Laminar Mixing Layers*](https://doi.org/10.1017/S0022112067000941), *Journal of Fluid Mechanics* **29** (1967), 417–440.
 - S. Chandrasekhar, *Hydrodynamic and Hydromagnetic Stability*, Dover (1981), Chapter XI.
