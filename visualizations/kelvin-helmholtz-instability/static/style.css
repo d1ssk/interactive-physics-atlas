@@ -1,3 +1,19 @@
+@font-face {
+  font-family: "Atlas Source Serif 4";
+  font-style: normal;
+  font-weight: 200 900;
+  font-display: swap;
+  src: url("../../../assets/fonts/source-serif-4/source-serif-4-roman.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Atlas Japanese System";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: local("Hiragino Kaku Gothic ProN"), local("Yu Gothic"), local("YuGothic");
+}
+
 :root {
   --paper: var(--atlas-viz-background);
   --card: var(--atlas-viz-panel);
@@ -345,6 +361,16 @@ figcaption > p {
   background: transparent;
   color: var(--ink);
   cursor: pointer;
+}
+
+.transport button,
+.particle-toggle {
+  font-family: "Atlas Source Serif 4", Georgia, serif;
+}
+
+html[lang="ja"] .transport button,
+html[lang="ja"] .particle-toggle {
+  font-family: "Atlas Japanese System", sans-serif;
 }
 
 .transport button:hover {

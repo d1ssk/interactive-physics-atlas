@@ -42,6 +42,9 @@ def test_static_build_stages_bilingual_browser_application(tmp_path, visualizati
     assert "--paper: var(--atlas-viz-background)" in style
     assert "--card: var(--atlas-viz-panel)" in style
     assert "--line: var(--atlas-viz-border)" in style
+    assert '.transport button,\n.particle-toggle {\n  font-family: "Atlas Source Serif 4"' in style
+    assert 'html[lang="ja"] .transport button' in style
+    assert 'font-family: "Atlas Japanese System", sans-serif' in style
     assert "http://" not in html
     assert "https://" not in html
 
