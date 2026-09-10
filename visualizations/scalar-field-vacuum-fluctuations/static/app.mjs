@@ -45,7 +45,7 @@ const TEXT = {
     uvText:"The periodic spatial lattice and smooth spatial-momentum window make the variance finite. This regulator selects the displayed time slicing and is not Lorentz invariant.",
     geometryHeading:"Two encodings, one realization",
     geometryText:"Dots show lattice samples, with size representing field magnitude. The surfaces enclose thresholded positive and negative field regions from exactly the same numerical array.",
-    summary:values => `18-point axes · a=${values.spacing} L · Λ=${values.cutoff} L⁻¹ · ξ≈${values.correlationLength} L · seed ${values.seed}`,
+    summary:values => `18-point axes · \\(a=${values.spacing}\\,L\\) · \\(\\Lambda=${values.cutoff}\\,L^{-1}\\) · \\(\\xi\\approx${values.correlationLength}\\,L\\) · seed ${values.seed}`,
   },
   ja: {
     title:"スカラー場真空の量子揺らぎ",
@@ -87,7 +87,7 @@ const TEXT = {
     uvText:"周期的空間格子と空間運動量の滑らかな window によって分散を有限にしています。この正則化は表示した時間切片を選び、Lorentz 不変ではありません。",
     geometryHeading:"同じ配位の二つの符号化",
     geometryText:"点は格子上のサンプルで、大きさが場の振幅を表します。等値面はまったく同じ数値配列から、しきい値を超えた正負の領域を囲みます。",
-    summary:values => `各軸18点 · a=${values.spacing} L · Λ=${values.cutoff} L⁻¹ · ξ≈${values.correlationLength} L · seed ${values.seed}`,
+    summary:values => `各軸18点 · \\(a=${values.spacing}\\,L\\) · \\(\\Lambda=${values.cutoff}\\,L^{-1}\\) · \\(\\xi\\approx${values.correlationLength}\\,L\\) · seed ${values.seed}`,
   },
 };
 
@@ -179,6 +179,17 @@ let cameraSyncInProgress = false;
 function setStatus(key, error = false) {
   status.textContent = key ? t(key) : "";
   status.classList.toggle("error", error);
+}
+
+async function replaceMathText(element, content) {
+  if (!window.MathJax?.startup?.promise) {
+    element.textContent = content;
+    return;
+  }
+  await window.MathJax.startup.promise;
+  window.MathJax.typesetClear?.([element]);
+  element.textContent = content;
+  await window.MathJax.typesetPromise?.([element]);
 }
 
 function axis(title) {
@@ -467,12 +478,15 @@ async function render(result) {
   ]);
   linkCameras();
   const parameters = result.parameters;
-  byId("parameter-summary").textContent = TEXT[LOCALE].summary({
-    spacing:result.spacetime.spacing.toFixed(3),
-    cutoff:result.spacetime.cutoff.toFixed(3),
-    correlationLength:(1 / parameters.mass).toFixed(2),
-    seed:parameters.seed,
-  });
+  await replaceMathText(
+    byId("parameter-summary"),
+    TEXT[LOCALE].summary({
+      spacing:result.spacetime.spacing.toFixed(3),
+      cutoff:result.spacetime.cutoff.toFixed(3),
+      correlationLength:(1 / parameters.mass).toFixed(2),
+      seed:parameters.seed,
+    }),
+  );
   window.dispatchEvent(new Event("resize"));
 }
 

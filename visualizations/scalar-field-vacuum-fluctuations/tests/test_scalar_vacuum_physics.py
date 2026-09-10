@@ -65,6 +65,11 @@ def test_cutoff_is_declared_relative_to_the_nyquist_wave_number(physics) -> None
     assert np.isclose(physics.theoretical_axis_correlation(state)[0], 1.0)
 
 
+def test_odd_lattice_coordinate_axis_is_symmetric_about_zero(physics) -> None:
+    state = physics.sample_vacuum(n=5, dimension=1, length=10.0)
+    assert np.array_equal(physics.coordinate_axis(state), [-4.0, -2.0, 0.0, 2.0, 4.0])
+
+
 def test_monte_carlo_correlation_reports_a_standard_error(physics) -> None:
     state = physics.sample_vacuum(
         n=8,

@@ -47,6 +47,8 @@ def test_static_build_stages_lazy_python_runtime_and_plotly_views(
     assert "dimension2Error" in app
     assert "dimension3Error" in app
     assert 'mode:"lines+markers"' not in app
+    assert "\\\\(a=${values.spacing}\\\\,L\\\\)" in app
+    assert "await window.MathJax.typesetPromise?.([element])" in app
     assert 'dragmode:"turntable"' in app
     assert 'dragmode:"pan"' in app
     assert 'event["scene.camera"]' in app

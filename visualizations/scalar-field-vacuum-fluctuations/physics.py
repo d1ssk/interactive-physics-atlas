@@ -255,4 +255,4 @@ def estimate_vacuum_axis_correlation(
 def coordinate_axis(state: VacuumState) -> FloatArray:
     """Return centered periodic lattice coordinates."""
 
-    return (np.arange(state.n) - state.n / 2.0) * state.spacing
+    return (np.arange(state.n) - state.n // 2) * state.spacing
