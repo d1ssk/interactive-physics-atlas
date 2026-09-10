@@ -19,7 +19,7 @@
       readingGuideLabel: "この図の読み方", atlasLabel: "物理世界の質量・エネルギースケール",
       cosmologyLabel: "宇宙熱史のベンチマーク", filter: "表示項目", filterKicker: "LAYERS", filterTitle: "表示するレイヤー",
       filterNote: "各線は軸上の正確な値から、対応するカード1枚だけへつながります。",
-      eyebrow: "THE ENERGY SCALE OF THE PHYSICAL WORLD", title: '<span class="title-line">エネルギーの階層を、辿る。</span>',
+      eyebrow: "THE ENERGY SCALE OF THE PHYSICAL WORLD", title: '<span class="title-line">エネルギーの階層を辿る。</span>',
       lede: "現在の宇宙膨張から Planck スケールまで",
       factDecades: "倍を越える隔たり", factUnit: "全区間で共通の単位", factDirection: "下ほど高エネルギー",
       start: "スクロールを始める", offAxis: "OFF THE LOG AXIS", masslessTitle: "質量ゼロ",

@@ -82,6 +82,7 @@ FIELDS = (
         "Continuum flows, waves, instabilities, and turbulence.",
         "流体力学",
         "連続体の流れ、波、不安定性、乱流",
+        "assets/images/fluid-mechanics.png",
     ),
     FieldDefinition(
         "relativity",

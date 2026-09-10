@@ -139,7 +139,7 @@ body,
   min-width: 0;
   flex: 1;
   align-self: stretch;
-  align-items: center;
+  align-items: start;
   color: inherit;
 }
 
@@ -280,6 +280,52 @@ html[lang="ja"] .md-typeset h1 {
   border: 1px solid var(--atlas-line) !important;
   border-radius: 0.55rem;
   background: color-mix(in srgb, var(--atlas-paper) 72%, white);
+}
+
+.md-typeset .phenomenon-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  width: min(100%, 46rem);
+  margin: 1.5rem auto;
+  align-items: center;
+}
+
+.md-typeset .phenomenon-photo {
+  margin: 0;
+}
+
+.md-typeset .phenomenon-photo-media {
+  display: flex;
+  align-items: center;
+  aspect-ratio: 8 / 7;
+}
+
+.md-typeset .phenomenon-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--atlas-line);
+  border-radius: 0.4rem;
+}
+
+.md-typeset .phenomenon-photo figcaption {
+  margin-top: 0.45rem;
+  color: var(--atlas-muted);
+  font-size: 0.68rem;
+  line-height: 1.55;
+}
+
+@media (max-width: 44.984375em) {
+  .md-typeset .phenomenon-photo-grid {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .md-typeset .phenomenon-photo-media {
+    display: block;
+    aspect-ratio: auto;
+  }
 }
 
 .md-typeset:has(.center-material-tables) .md-typeset__table {
