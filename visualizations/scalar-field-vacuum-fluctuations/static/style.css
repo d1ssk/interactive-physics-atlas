@@ -10,14 +10,15 @@
   --negative: #268e9b;
   --dimension-three: #69558f;
   --error: #a33b32;
+  --body-font: Inter, "Noto Sans JP", ui-sans-serif, system-ui, sans-serif;
   color-scheme: light;
-  font-family: Inter, "Noto Sans JP", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--body-font);
 }
 
 * { box-sizing: border-box; }
-body { margin: 0; min-width: 320px; background: var(--paper); color: var(--ink); }
-button, input { font: inherit; }
-button { min-height: 36px; border: 1px solid var(--border); border-radius: 3px; background: var(--panel); color: var(--ink); padding: 6px 12px; cursor: pointer; font-family: inherit; font-weight: 400; letter-spacing: normal; }
+body { margin: 0; min-width: 320px; background: var(--paper); color: var(--ink); font-family: var(--body-font); }
+button, input { font: inherit; font-family: var(--body-font); }
+button { appearance: none; min-height: 36px; border: 1px solid var(--border); border-radius: 3px; background: var(--panel); color: var(--ink); padding: 6px 12px; cursor: pointer; font-weight: 400; letter-spacing: normal; }
 button:hover { border-color: var(--accent); }
 button:focus-visible, input:focus-visible { outline: 3px solid var(--atlas-viz-focus); outline-offset: 2px; }
 button.primary { border-color: var(--accent); background: var(--accent); color: white; }

@@ -1,16 +1,16 @@
-# Quantum Fluctuations of the Scalar-Field Vacuum
+# Quantum Fluctuations of the Free Scalar-Field Vacuum
 
-## From zero-point motion to a field configuration
+## From zero-point motion to field configurations
 
-For a free real scalar field, every spatial Fourier mode is a harmonic oscillator. In units
-$\hbar=c=1$, its frequency is
+A free real scalar field can be decomposed into spatial Fourier modes, each of which behaves as an independent harmonic oscillator. In units where $\hbar=c=1$, the frequency of the mode with wavevector $\mathbf k$ is
 
 $$
-\omega_{\mathbf k}=\sqrt{\mathbf k^2+m^2}
+\omega_{\mathbf k}
+=
+\sqrt{\mathbf k^2+m^2}
 $$
 
-The vacuum has no oscillator quanta, but its mode wavefunctions do not collapse to points. With a
-standard canonical normalization,
+The vacuum contains no particle excitations. Nevertheless, the ground state of each harmonic oscillator has zero-point fluctuations. With the standard canonical normalization,
 
 $$
 \left\langle |q_{\mathbf k}|^2\right\rangle
@@ -22,67 +22,45 @@ $$
 \frac{\omega_{\mathbf k}}{2}
 $$
 
-Sampling all modes and Fourier transforming produces one field configuration $\phi(\mathbf x)$:
-a draw from the probability distribution obtained by measuring the field in the vacuum.
-
-## The two samples in the visualization
-
-The upper row uses a field with two spatial dimensions. The calculation samples the positive
-vacuum Wigner distribution for the canonical pair $(\phi,\pi)$ once at $t=0$, then evolves each
-free mode as
+When the vacuum state is expressed in the field-configuration basis $\phi(\mathbf x)$, these zero-point fluctuations appear as a wavefunctional spread over many different field configurations. The vacuum is not concentrated on the single configuration $\phi(\mathbf x)=0$; instead, it is characterized by a quantum amplitude
 
 $$
-q_{\mathbf k}(t)
-=
-q_{\mathbf k}(0)\cos(\omega_{\mathbf k}t)
-+
-\frac{p_{\mathbf k}(0)}{\omega_{\mathbf k}}
-\sin(\omega_{\mathbf k}t)
+\Psi_0[\phi]
 $$
 
-The complete 2+1-dimensional bulk is therefore one correlated history; its time slices are not
-independent samples. For a free Gaussian theory, this construction is statistically equivalent to
-drawing the complete real history from its symmetrized, or Hadamard, two-point function. A real
-probability distribution requires a real symmetric covariance, and the Hadamard function has
-those properties. The Feynman function retains time ordering and the Wightman function retains
-operator ordering; they are generally complex-valued or nonsymmetric. They therefore cannot be
-used directly as covariance matrices of real random variables.
+for every configuration. For a free field, this vacuum wavefunctional is Gaussian, and its width determines the fluctuations of every Fourier mode.
 
-The lower row is an independent equal-time draw with three spatial dimensions. These two Gaussian
-measures are genuinely different. In $d$ spatial dimensions their unregulated equal-time
-correlation is
+Sampling the amplitude of each Fourier mode from this distribution and applying a Fourier transform gives one spatially correlated field
 
 $$
-C_d(r)
-=
-\int\frac{d^d k}{(2\pi)^d}
-\frac{e^{i\mathbf k\cdot\mathbf r}}{2\sqrt{\mathbf k^2+m^2}}
+\phi(\mathbf x)
 $$
 
-and, away from $r=0$,
-
-$$
-C_2(r)=\frac{e^{-mr}}{4\pi r},
-\qquad
-C_3(r)=\frac{mK_1(mr)}{4\pi^2r}
-$$
-
-Thus a planar slice through a three-dimensional field is not distributed like the vacuum of a
-genuinely two-dimensional field. The correlation plot estimates the normalized, regulated
-correlations by generating 48 additional independent configurations in each dimension. At each
-lattice separation, a point is the sample mean after averaging over translations and spatial
-directions; its error bar is one standard error of that mean. These are Monte Carlo estimates of
-the vacuum ensemble, not detector data and not correlations inferred from either single
-configuration displayed above.
+The visualization displays one realization drawn from this vacuum probability distribution. The field pattern changes from one realization to another, while the statistics of its amplitudes and spatial correlations are characterized by the vacuum two-point function.
 
 ## Visualization
 
-Both rows show the same realization in two encodings. In the point view, every dot is a lattice
-sample; color gives the sign of $\phi$ and size gives $|\phi|$. In the surface view,
-the orange and cyan boundaries enclose the excursion regions
-$\phi>u\sigma$ and $\phi<-u\sigma$, where $\sigma^2=\langle\phi^2\rangle$ for the regulated
-ensemble. Changing $u$ changes only this representation and does not resample the field. Rotating
-either view in a row rotates its partner to the same camera.
+The left and right views in each row show the same realization in two different ways.
+
+In the point-cloud view, every point represents the field value at one lattice site. Color indicates the sign of $\phi$, and size represents $|\phi|$.
+
+In the isosurface view, the orange and cyan surfaces bound the regions satisfying
+
+$$
+\phi>u\sigma,
+\qquad
+\phi<-u\sigma
+$$
+
+Here,
+
+$$
+\sigma^2=\langle\phi^2\rangle
+$$
+
+is the variance of the vacuum ensemble defined with the same regulator.
+
+Changing the threshold $u$ does not resample the field itself. Because both views show the same realization, rotating either one rotates the other to the same viewpoint.
 
 <iframe
   src="app/index.html?lang=en"
@@ -93,22 +71,113 @@ either view in a row rotates its partner to the same camera.
   loading="eager"
 ></iframe>
 
-## Suggested things to try
+## Vacuum fluctuations extended in time
 
-1. Keep the seed fixed and increase $m$. Compare the change in spatial smoothness with the scale
-   $\xi\sim m^{-1}$ and with both sets of correlation estimates.
-2. Keep $m$ fixed and move the UV window toward the Nyquist scale. Fine structure appears because
-   more short-wavelength modes contribute.
-3. Move the boundary $u$ without changing the seed. The point values remain fixed while the
-   connected components of the positive and negative excursion regions merge or disappear.
-4. Generate several realizations with the same parameters. Individual shapes and Monte Carlo
-   estimates fluctuate around the same ensemble expectations.
+The upper row evolves a free field with two spatial dimensions through time.
 
-## Regulator and conventions
+At $t=0$, the canonical variables $(\phi,\pi)$ are sampled once from the vacuum Wigner distribution. Each Fourier mode is then evolved freely according to
 
-The numerical model uses a periodic spatial box of side $L_{\rm box}=12L$ with $18^d$ sites and
-lattice spacing $a=L_{\rm box}/18$. To keep the discretized free evolution consistent with the
-spatial finite difference, it uses the lattice dispersion
+$$
+q_{\mathbf k}(t)
+=
+q_{\mathbf k}(0)\cos(\omega_{\mathbf k}t)
++
+\frac{p_{\mathbf k}(0)}{\omega_{\mathbf k}}
+\sin(\omega_{\mathbf k}t)
+$$
+
+The field at each time is not generated independently. The initially selected $(\phi,\pi)$ determines the entire subsequent spacetime history. The displayed $2+1$-dimensional field is therefore one temporally correlated realization.
+
+For a free Gaussian theory, the vacuum Wigner distribution is a positive Gaussian distribution, and the time evolution is linear. The two-point covariance of the resulting stochastic process is therefore the symmetrized two-point function
+
+$$
+C(x,x')
+=
+\frac{1}{2}
+\left\langle
+\left\{
+\hat\phi(x),\hat\phi(x')
+\right\}
+\right\rangle
+$$
+
+This is often called the Hadamard function, or the symmetrized two-point function, depending on the convention concerning the factor of $1/2$.
+
+This differs from the Feynman propagator and the Wightman function. The covariance of real random variables must be real and symmetric, whereas the Feynman propagator preserves time ordering and the Wightman function
+
+$$
+\langle\hat\phi(x)\hat\phi(x')\rangle
+$$
+
+preserves operator ordering; in general, they do not meet those requirements. The classical stochastic field generated here does not reproduce every operator correlation of the quantum vacuum. It represents the symmetrized correlations of the free field as a real stochastic process.
+
+## The vacuum in two and three spatial dimensions
+
+The lower row is an independent equal-time configuration drawn from the vacuum Gaussian measure in three spatial dimensions.
+
+It may look as though one spatial direction has simply been added to the two-dimensional field in the upper row, but their probability distributions are not the same. Before regularization, the equal-time two-point function of a free field in $d$ spatial dimensions is
+
+$$
+C_d(r)
+=
+\int\frac{d^d k}{(2\pi)^d}
+\frac{e^{i\mathbf k\cdot\mathbf r}}
+{2\sqrt{\mathbf k^2+m^2}}
+$$
+
+For $r>0$,
+
+$$
+C_2(r)
+=
+\frac{e^{-mr}}{4\pi r},
+$$
+
+$$
+C_3(r)
+=
+\frac{mK_1(mr)}{4\pi^2r}
+$$
+
+Here, $K_1$ is the modified Bessel function of the second kind.
+
+Consequently, taking a planar slice through a vacuum configuration in three spatial dimensions does not produce the same statistics as the vacuum of a genuinely two-dimensional scalar field. Even when only points on the plane are examined, their correlations retain the mode structure of the original three-dimensional field.
+
+The correlation plot in the visualization generates 48 independent realizations in each of two and three dimensions and estimates the regulated, normalized correlation by Monte Carlo sampling. At each lattice separation, the values are first averaged over lattice translations and spatial directions and then averaged across realizations. The error bar is the standard error of this ensemble mean.
+
+Thus, the graph is not calculated from the single field displayed above. It is an ensemble average obtained from many independent samples drawn from the same vacuum measure.
+
+## Things to explore
+
+1. Keep the seed fixed and increase $m$. Observe how the long-distance correlation decays more rapidly, and compare the change in the correlation graph with the characteristic correlation length $\xi\sim m^{-1}$.
+
+2. Keep $m$ fixed and move the UV window toward the Nyquist scale. As higher-wavevector modes are included, finer spatial structure appears in the field.
+
+3. Move the threshold $u$ without changing the seed. The field values themselves remain unchanged, while the positive and negative excursion regions connect, split, or disappear.
+
+4. Generate several realizations using the same parameters. Individual patterns change substantially, but all of them are samples from the same Gaussian ensemble. The Monte Carlo correlation estimates also fluctuate statistically around the same expectation value.
+
+## The lattice and UV regularization
+
+The numerical calculation uses a periodic spatial box with side length
+
+$$
+L_{\rm box}=12L
+$$
+
+discretized into 18 sites along each direction, giving the lattice spacing
+
+$$
+a=\frac{L_{\rm box}}{18}
+$$
+
+To make the spatial finite difference consistent with the free time evolution, the calculation uses the dispersion relation of the lattice Laplacian rather than the continuum relation
+
+$$
+\omega^2=\mathbf k^2+m^2
+$$
+
+Specifically, it uses
 
 $$
 \omega_{\rm lat}^2(\mathbf k)
@@ -117,41 +186,54 @@ m^2
 +
 \sum_i
 \left[
-\frac{2}{a}\sin\left(\frac{k_i a}{2}\right)
+\frac{2}{a}
+\sin\left(\frac{k_i a}{2}\right)
 \right]^2
 $$
 
-The sampled amplitudes are additionally multiplied by
+In addition, every sampled Fourier mode is multiplied by the smooth UV window
 
 $$
 W(\mathbf k)
 =
 \exp\left[
 -\frac{1}{2}
-\left(\frac{|\mathbf k|}{\Lambda}\right)^8
-\right],
-\qquad
+\left(
+\frac{|\mathbf k|}{\Lambda}
+\right)^8
+\right]
+$$
+
+The cutoff scale is
+
+$$
 \Lambda
 =
 f_{\rm UV}\frac{\pi}{a}
 $$
 
-This smooth display window suppresses lattice-scale structure rather than hiding an implicit
-cutoff. The slider changes $f_{\rm UV}=\Lambda/\Lambda_{\rm Ny}$.
+and the slider changes
 
-This regulator is not Lorentz invariant: a spatial lattice, a cutoff on $|\mathbf k|$, and the
-chosen equal-time Wigner distribution all select a time slicing. A hard cutoff that is both a
-finite mode count and invariant under Lorentz boosts is unavailable on the real mass shell,
-because fixed $k^2=m^2$ still permits arbitrarily large boosted energy and momentum. Covariant
-schemes such as Pauli–Villars, proper-time, or Euclidean regulators are useful for correlation
-functions, but they do not supply a positive probability distribution over real Lorentzian field
-histories for this display.
+$$
+f_{\rm UV}
+=
+\frac{\Lambda}{\Lambda_{\rm Ny}}
+$$
 
-Finite volume, finite lattice spacing, the extra window, and Plotly's interpolation of isosurfaces
-all affect the appearance. The surfaces are descriptive level sets of one coarse-grained sample,
-not physical membranes. No interacting vacuum, renormalized local energy density, particle
-detection probability, or measurement dynamics is calculated here.
+The lattice itself already has a UV cutoff at the Nyquist scale, but this window begins to suppress high-wavevector modes before that scale is reached. This makes it possible to observe the spatial structure of the vacuum fluctuations without overemphasizing structures near the lattice scale or discretization artifacts.
 
-The browser runs the authoritative Python/NumPy sampling kernel in a Pyodide Worker. JavaScript
-constructs Plotly traces from the returned versioned numerical arrays but contains no duplicate
-field-theory calculation.
+## Regularization and Lorentz symmetry
+
+The regulator used in this visualization is not Lorentz invariant. The spatial lattice, the UV window based on $|\mathbf k|$, and the Wigner distribution defined on one time slice all select a preferred time slicing.
+
+This is not merely an implementation convenience. On the mass shell
+
+$$
+E^2-\mathbf k^2=m^2
+$$
+
+a Lorentz boost can make $E$ and $|\mathbf k|$ arbitrarily large while preserving the mass-shell condition. A cutoff that discards three-momenta above a fixed scale is therefore not invariant under Lorentz boosts.
+
+Regularization schemes that more readily preserve Lorentz covariance, such as Pauli–Villars regularization, the proper-time method, or regularization in Euclidean space, are well suited to calculations of correlation functions and loop integrals. This visualization instead prioritizes generating realizations of a field from finitely many real degrees of freedom, and therefore introduces an explicit cutoff on a spatial lattice.
+
+Finite volume, finite lattice spacing, the UV window, and interpolation of the isosurfaces all affect the displayed geometry. In particular, an isosurface is a geometric representation of a level set of the coarse-grained field; it does not describe a physical membrane.

@@ -57,6 +57,8 @@ def test_static_build_stages_lazy_python_runtime_and_plotly_views(
     assert "点が粒子で満たされる" not in app
     assert "grid-template-columns: repeat(2, minmax(0, 1fr))" in style
     assert "@media (max-width: 760px)" in style
+    assert "font-family: var(--body-font)" in style
+    assert "button { appearance: none;" in style
 
     for name in (
         "visualization-theme.css",
@@ -87,7 +89,7 @@ def test_bilingual_articles_share_equations_and_visualization_structure() -> Non
     assert re.findall(r"\$\$\s*(.*?)\s*\$\$", english, re.DOTALL) == re.findall(
         r"\$\$\s*(.*?)\s*\$\$", japanese, re.DOTALL
     )
-    assert "## Suggested things to try" in english
-    assert "## 試してみること" in japanese
+    assert "## Things to explore" in english
+    assert "## 探索例" in japanese
     assert "not Lorentz invariant" in english
     assert "Lorentz 不変ではありません" in japanese
