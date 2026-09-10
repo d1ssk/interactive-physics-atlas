@@ -1,0 +1,16 @@
+id: brillouin-zones
+title: Crystal Lattices and First Brillouin Zones
+title_ja: 結晶格子と第一 Brillouin zone
+field: condensed-matter-physics
+topics:
+  - crystal lattices
+  - reciprocal lattices
+  - Brillouin zones
+  - Wigner-Seitz cells
+level:
+  - undergraduate
+  - advanced undergraduate
+runtime: plotly-static
+page: condensed-matter-physics/brillouin-zones
+summary: Compare real and reciprocal lattices and inspect the first Brillouin zones of four three-dimensional Bravais lattices.
+summary_ja: 4 種の 3 次元 Bravais 格子について、実格子と逆格子を比較し、第一 Brillouin zone の形を観察。

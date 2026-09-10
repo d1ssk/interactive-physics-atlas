@@ -1,0 +1,75 @@
+:root {
+  --basis-a1: #cf4d3f;
+  --basis-a2: #27865f;
+  --basis-a3: #386dcc;
+  --primitive-cell: #cf8b27;
+  --lattice-point: #344052;
+  --reciprocal-point: #963d65;
+  --zone-face: #3989cc;
+  --zone-edge: #174f83;
+
+  font-family: Inter, "Noto Sans JP", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { color: #202938; background: var(--atlas-viz-background); }
+main { width: min(1500px, 100%); margin: 0 auto; padding: 18px; }
+h1, p, figure { margin: 0; }
+.app-header { display: flex; justify-content: space-between; gap: 30px; align-items: end; margin-bottom: 14px; }
+.app-header h1 { font-size: clamp(1.25rem, 2.6vw, 1.85rem); line-height: 1.2; }
+.app-header p { max-width: 720px; color: #596477; font-size: .85rem; line-height: 1.65; text-align: right; }
+.panel { border: 1px solid var(--atlas-viz-border); border-radius: 8px; background: var(--atlas-viz-panel); }
+.controls { display: grid; grid-template-columns: minmax(190px, 250px) 1fr minmax(180px, 240px); gap: 18px; align-items: end; padding: 13px 16px; }
+.select-control, .opacity-control { display: grid; gap: 6px; color: #4a5668; font-size: .76rem; font-weight: 700; }
+select { min-height: 38px; padding: 0 10px; color: inherit; border: 1px solid var(--atlas-viz-border); border-radius: 5px; background: var(--atlas-viz-panel); font: inherit; }
+.toggle-grid { display: flex; flex-wrap: wrap; gap: 10px 18px; padding-bottom: 8px; }
+.toggle-grid label { display: flex; gap: 6px; align-items: center; white-space: nowrap; color: #394557; font-size: .72rem; }
+input[type="checkbox"] { width: 17px; height: 17px; accent-color: var(--atlas-viz-accent); }
+input[type="range"] { width: 100%; accent-color: var(--atlas-viz-accent); }
+.summary { display: grid; grid-template-columns: 1.15fr 1fr 1fr 1.8fr; gap: 16px; align-items: center; margin-top: 10px; padding: 11px 16px; }
+.summary div { min-width: 0; }
+.summary small { display: block; margin-bottom: 3px; color: #697486; font-size: .64rem; }
+.summary strong { font-size: .83rem; font-variant-numeric: tabular-nums; }
+#note { color: #465266; font-size: .76rem; line-height: 1.55; }
+.runtime-status { margin: 10px 0 0; padding: 9px 12px; color: #596477; border: 1px solid var(--atlas-viz-border); border-radius: 5px; background: var(--atlas-viz-panel-subtle); font-size: .75rem; }
+.runtime-status[hidden] { display: none; }
+.runtime-status.error { color: #9e342e; border-color: #bd625c; }
+.plots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
+.plot-card { min-width: 0; overflow: hidden; }
+.plot-card figcaption { padding: 10px 14px 0; color: #354154; font-size: .76rem; font-weight: 750; }
+.plot { width: 100%; height: 560px; }
+.reading-note { margin-top: 10px; padding: 12px 16px; color: #4d596c; font-size: .78rem; line-height: 1.65; }
+.reading-note strong { color: #273245; }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid var(--atlas-viz-focus); outline-offset: 2px; }
+
+@media (max-width: 980px) {
+  .app-header { display: block; }
+  .app-header p { margin-top: 7px; text-align: left; }
+  .controls { grid-template-columns: minmax(180px, 230px) 1fr; }
+  .opacity-control { grid-column: 1 / -1; }
+  .summary { grid-template-columns: 1fr 1fr 1fr; }
+  #note { grid-column: 1 / -1; }
+  .plot { height: 500px; }
+}
+
+@media (max-width: 700px) {
+  main { padding: 10px; }
+  .controls { grid-template-columns: 1fr; align-items: stretch; }
+  .opacity-control { grid-column: auto; }
+  .toggle-grid { display: grid; grid-template-columns: 1fr 1fr; padding-bottom: 0; }
+  .summary { grid-template-columns: 1fr 1fr; }
+  #note { grid-column: 1 / -1; }
+  .plots { grid-template-columns: 1fr; }
+  .plot { height: 430px; }
+}
+
+@media (max-width: 440px) {
+  .toggle-grid, .summary { grid-template-columns: 1fr; }
+  #note { grid-column: auto; }
+  .plot { height: 390px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
+}
