@@ -482,7 +482,7 @@
     {energy: 1e2, title: {ja: "原子と分子", en: "Atoms and molecules"}, text: {ja: "電子状態から化学結合へ。日常世界の多様さが、ここから立ち上がる。", en: "From electronic states to chemical bonds: the diversity of the everyday world emerges from here."}},
     {energy: 3e7, title: {ja: "核から素粒子へ", en: "From nuclei to elementary particles"}, text: {ja: "原子核は陽子と中性子へ、さらにクォークとグルーオンへとほどかれる。", en: "Atomic nuclei resolve into protons and neutrons, and further into quarks and gluons."}},
     {energy: 2e13, title: {ja: "加速器の地平線を越えて", en: "Beyond the accelerator horizon"}, text: {ja: "人類の加速器が届く領域を越えても、宇宙はさらに高いエネルギーの粒子を生み出している。", en: "Beyond the reach of human accelerators, the cosmos still produces particles at even higher energies."}},
-    {energy: 1e23, title: {ja: "実験の彼方へ", en: "Beyond experiment"}, text: {ja: "直接たどり着けるエネルギーは、はるか下に置き去りになる。その先を導くのは、低エネルギーの痕跡、宇宙の観測、そして理論の外挿である。", en: "Directly accessible energies are left far behind. Beyond them, we are guided by low-energy traces, observations of the cosmos, and theoretical extrapolation."}},
+    {energy: 1e23, nowrapJa: true, title: {ja: "実験の彼方へ", en: "Beyond experiment"}, text: {ja: "直接たどり着けるエネルギーは、はるか下に置き去りになる。その先を導くのは、低エネルギーの痕跡、宇宙の観測、そして理論の外挿である。", en: "Directly accessible energies are left far behind. Beyond them, we are guided by low-energy traces, observations of the cosmos, and theoretical extrapolation."}},
   ];
 
   root.MassScaleData = Object.freeze({sources, markers, cosmology, chapters});

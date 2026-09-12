@@ -58,6 +58,11 @@ def test_build_stages_standalone_application_and_shared_theme(tmp_path: Path) ->
     assert "場の量子論と一般相対論のパッチワークが" in html
     assert "出典と規約" in html
     assert "日常世界の多様さが、ここから立ち上がる。" in data
+    assert 'nowrapJa: true, title: {ja: "実験の彼方へ"' in data
+    assert "chapter-no-wrap-ja" in app
+
+    css = (tmp_path / "style.css").read_text(encoding="utf-8")
+    assert ":lang(ja) .chapter-no-wrap-ja h3" in css
 
 
 @pytest.mark.skipif(shutil.which("node") is None, reason="Node.js is not installed")

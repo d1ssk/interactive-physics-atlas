@@ -95,7 +95,7 @@ def test_build_stages_bilingual_math_and_shared_assets(tmp_path, monkeypatch, vi
     assert 'src="https://' not in html
     assert "const LOCALE = new URLSearchParams(window.location.search)" in html
     assert 'title: "Two-Dimensional Conformal Transformations"' in html
-    assert 'title: "2 次元共形変換"' in html
+    assert 'title: "2次元共形変換"' in html
     assert 'data-i18n="mixingLabel"' in html
     assert 'translation: "Translation parameter \\\\(s\\\\)"' in html
     assert 'translation: "平行移動パラメータ \\\\(s\\\\)"' in html
@@ -154,4 +154,4 @@ def test_bilingual_articles_and_string_theory_listing_are_aligned():
         "[Two-Dimensional Conformal Transformations](conformal-transformations-2d/)"
         in english_index
     )
-    assert "[2 次元共形変換](conformal-transformations-2d/)" in japanese_index
+    assert "[2次元共形変換](conformal-transformations-2d/)" in japanese_index

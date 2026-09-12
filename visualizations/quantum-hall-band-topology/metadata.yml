@@ -14,4 +14,4 @@ level:
 runtime: browser-static
 page: condensed-matter-physics/quantum-hall-band-topology
 summary: Follow a two-band Chern insulator from its Brillouin-zone map through gap closings, then compare one-dimensional winding with SSH edge modes.
-summary_ja: 2 バンド Chern 絶縁体の Brillouin zone 写像とギャップ閉鎖を追い、1 次元 winding と SSH 端状態の対応を比較。
+summary_ja: 2 バンド Chern 絶縁体の Brillouin zone 写像とギャップ閉鎖を追い、1次元 winding と SSH 端状態の対応を比較。

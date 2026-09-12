@@ -13,4 +13,4 @@ level:
 runtime: plotly-static
 page: condensed-matter-physics/brillouin-zones
 summary: Compare real and reciprocal lattices and inspect the first Brillouin zones of four three-dimensional Bravais lattices.
-summary_ja: 4 種の 3 次元 Bravais 格子について、実格子と逆格子を比較し、第一 Brillouin zone の形を観察。
+summary_ja: 4 種の 3次元 Bravais 格子について、実格子と逆格子を比較し、第一 Brillouin zone の形を観察。

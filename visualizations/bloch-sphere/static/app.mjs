@@ -36,7 +36,7 @@ const TRANSLATIONS = {
     gateDynamicLabel: "gate in progress; current Bloch vector",
   },
   ja: {
-    title: "Bloch球",
+    title: "Bloch 球",
     intro: "量子ビットの複素振幅と単位球面上の方向との対応を観察します。",
     panel1Title: "状態とBloch vectorの関係", panel1Copy: "基底と振幅を選ぶと、対応する状態が球面上の1点として現れます。",
     panel2Title: "状態の重ね合わせ", panel2Copy: "2つのketを複素ベクトルとして足して正規化します。相対位相によって結果が変わります。",
@@ -48,7 +48,7 @@ const TRANSLATIONS = {
     halfTurnY: "y軸まわりに180°", halfTurnZ: "z軸まわりに180°", quarterTurnZ: "z軸まわりに90°",
     eighthTurnZ: "z軸まわりに45°",
     presetLabel: "代表的な状態", computationalState: "計算基底での状態", dragHint: "ドラッグで視点を回転",
-    sphere1Label: "状態AのBloch球", basis: "基底", amplitude: "振幅", phase: "位相",
+    sphere1Label: "状態AのBloch 球", basis: "基底", amplitude: "振幅", phase: "位相",
     sphere2aLabel: "重ね合わせ前の状態A", sphere2bLabel: "重ね合わせ前の状態B",
     sphereResultLabel: "重ね合わせ後の状態", phaseOfB: "Aに対するBの位相", afterNormalization: "正規化後",
     cancellationWarning: "完全な打ち消し合いです。零ベクトルは量子状態として正規化できません。",

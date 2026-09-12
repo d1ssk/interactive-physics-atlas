@@ -147,4 +147,4 @@ def test_bilingual_articles_are_aligned_and_embedded() -> None:
     english_index = (root / "docs/quantum-mechanics/index.md").read_text(encoding="utf-8")
     japanese_index = (root / "docs_ja/quantum-mechanics/index.md").read_text(encoding="utf-8")
     assert "[Bloch Sphere](bloch-sphere/)" in english_index
-    assert "[Bloch球](bloch-sphere/)" in japanese_index
+    assert "[Bloch 球](bloch-sphere/)" in japanese_index
