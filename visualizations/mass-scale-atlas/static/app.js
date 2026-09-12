@@ -177,6 +177,7 @@
     const layer = byId("chapter-layer");
     Data.chapters.forEach(chapter => {
       const element = makeElement("section", "chapter");
+      if (chapter.nowrapJa) element.classList.add("chapter-no-wrap-ja");
       element.dataset.actualY = String(yForEnergy(chapter.energy));
       element.style.top = `${element.dataset.actualY}px`;
       element.append(makeElement("h3", "", localized(chapter.title)), makeElement("p", "", localized(chapter.text)));

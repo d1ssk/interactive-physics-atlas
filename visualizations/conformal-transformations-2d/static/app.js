@@ -71,7 +71,7 @@ const MESSAGES = {
   },
 
   ja: {
-    title: "2 次元共形変換",
+    title: "2次元共形変換",
     lede: "局所微分から大域的な Möbius 変換、無限小変換の Witt 代数まで、共形対称性のつながりを調べます。",
     localTitle: "局所共形性",
     mapLabel: "写像",

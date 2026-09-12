@@ -1,4 +1,4 @@
-# Bloch球
+# Bloch 球
 
 ## 1量子ビット状態を球面上の点として表す
 
@@ -26,7 +26,7 @@ $$
 
 ## Visualization
 
-<iframe src="app/index.html?lang=ja" title="Bloch球による状態・重ね合わせ・量子ゲートの可視化" data-auto-height scrolling="no" style="display: block; width: 100%; height: 2550px; min-height: 1000px; border: 0; overflow: hidden;" loading="eager"></iframe>
+<iframe src="app/index.html?lang=ja" title="Bloch 球による状態・重ね合わせ・量子ゲートの可視化" data-auto-height scrolling="no" style="display: block; width: 100%; height: 2550px; min-height: 1000px; border: 0; overflow: hidden;" loading="eager"></iframe>
 
 ## 試してみること
 

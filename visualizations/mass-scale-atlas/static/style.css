@@ -640,6 +640,10 @@ main {
   line-height: .96;
 }
 
+:lang(ja) .chapter-no-wrap-ja h3 {
+  white-space: nowrap;
+}
+
 .chapter p {
   max-width: 45ch;
   margin: 12px 0 0;
